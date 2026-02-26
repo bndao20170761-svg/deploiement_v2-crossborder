@@ -202,3 +202,5 @@ jobs:
         run: |
           echo "✅ Deployment completed successfully!"
           echo "Images are available on Docker Hub"
+          echo "Images are available on Docker Hub"
+
