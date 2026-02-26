@@ -1,0 +1,1357 @@
+ default:
+        return (
+          <div className="max-w-4xl mx-auto text-center py-16">
+            <div className="bg-white rounded-lg shadow-lg p-12">
+              <h1 className="text-3xl font-bold text-gray-900 mb-4 break-words">
+                {getTranslation("medicalReferenceSystem", language) ||
+                  "Medical Reference System"}
+              </h1>
+              <p className="text-lg text-gray-600 mb-8 break-words">
+                {getTranslation("systemDescription", language) ||
+                  "Welcome to the HIV referral system"}
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+                <div className="p-6 border rounded-lg hover:shadow-md">
+                  <div className="text-green-600 text-3xl font-bold mb-2">
+                    {sentCount}
+                  </div>
+                  <div className="text-gray-600 break-words">
+                    {getTranslation("sentReferences", language) || "Sent References"}
+                  </div>
+                </div>
+                <div className="p-6 border rounded-lg hover:shadow-md">
+                  <div className="text-blue-600 text-3xl font-bold mb-2">
+                    {receivedCount}
+                  </div>
+                  <div className="text-gray-600 break-words">
+                    {getTranslation("receivedReferences", language) ||
+                      "Received References"}
+                  </div>
+                </div>
+                <div className="p-6 border rounded-lg hover:shadow-md">
+                  <div className="text-purple-600 text-3xl font-bold mb-2">
+                    {references.length}
+                  </div>
+                  <div className="text-gray-600 break-words">
+                    {getTranslation("totalReferences", language) || "Total References"}
+                  </div>
+                </div>
+                <div className="p-6 border rounded-lg hover:shadow-md">
+                  <div className="text-orange-600 text-3xl font-bold mb-2">
+                    {patients.length}
+                  </div>
+                  <div className="text-gray-600 break-words">
+                    {getTranslation("totalPatients", language) || "Total Patients"}
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setCurrentView("add")}
+                className="mt-8 bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium"
+              >
+                {getTranslation("createNewReference", language) || "Create New Reference"}
+              </button>
+            </div>
+          </div>
+        );
+    }
+  };
+
+
+docker tag user_front babacar1011/user_front:latest
+docker push babacar1011/user_front:latest
+docker push babacar1011/user_front:latest
+docker tag mysql:8.0 babacar1011/mysql:8.0
+docker push babacar1011/mysql:8.0
+
+  docker pull babacar1011/user_front:latest
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // src/components/CartographyMap.jsx
+  import React, { useState, useCallback, useEffect } from 'react';
+  import { GoogleMap, LoadScript, Marker, Autocomplete , InfoWindow,useJsApiLoader  } from '@react-google-maps/api';
+  import { createHopital ,getHopitauxActifs} from '../services/hopitalService';
+
+
+  import {
+    Box,
+    Card,
+    CardContent,
+    Typography,
+    IconButton,
+    Button,
+    Chip,
+    TextField,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    FormControl,
+
+   // ... autres imports
+
+    InputLabel,
+
+
+    FormHelperText,
+
+    Select,
+    MenuItem,
+    Alert,
+    CircularProgress,
+    Snackbar
+  } from '@mui/material';
+  import {
+    AddLocation,
+    MyLocation,
+    ZoomIn,
+    ZoomOut,
+    Save,
+    Cancel,
+    LocalHospital,
+    Satellite,
+    Terrain,
+    Map as MapIcon,
+    GpsFixed
+  } from '@mui/icons-material';
+
+  // Configuration de la carte
+  const mapContainerStyle = {
+    width: '100%',
+    height: '120%'
+  };
+
+  const defaultCenter = {
+    lat: 12.5833,  // Ziguinchor
+    lng: -16.2719  // Ziguinchor
+  };
+
+  const ICONS = {
+    confirmed: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
+    pending: 'http://maps.google.com/mapfiles/ms/icons/purple-dot.png',
+    inactive: 'http://maps.google.com/mapfiles/ms/icons/purple-dot.png',
+    user: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
+    current: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png'
+  };
+
+
+
+  //const GOOGLE_MAPS_API_KEY = 'AIzaSyDOez4XWbw6IyAAngBCsKDJ-MlriBhH2IU';
+  const GOOGLE_MAPS_API_KEY = 'AIzaSyAF89Nvk0ymdkSjMWv_2t-TYrfx43mF_YQ';
+
+
+
+  const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language = 'fr' ,mapState, setMapState }) => {
+    const [map, setMap] = useState(null);
+     const [selectedHospital, setSelectedHospital] = useState(null);
+     const [clickedPosition, setClickedPosition] = useState(null);
+     const [userLocation, setUserLocation] = useState(null);
+     const [mapType, setMapType] = useState('roadmap');
+     const [zoomLevel, setZoomLevel] = useState(12);
+     const [geocoding, setGeocoding] = useState(null);
+     const [showAddDialog, setShowAddDialog] = useState(false);
+     const [locationInfo, setLocationInfo] = useState(null);
+     const [loadingLocation, setLoadingLocation] = useState(false);
+     const [mapLoaded, setMapLoaded] = useState(false);
+     const [loadingAction, setLoadingAction] = useState(false);
+     const [showUserInfo, setShowUserInfo] = useState(false);
+     const [autocomplete, setAutocomplete] = useState(null);
+     const [searchInput, setSearchInput] = useState('');
+
+  const [userMarkerColor, setUserMarkerColor] = useState("red");
+    const [hospitalForm, setHospitalForm] = useState({
+      nom: '',
+      description: '',
+      ville: '',
+      pays: '',
+      telephoneFixe: '',
+      type: 'hopital',
+      latitude: 0,
+      longitude: 0
+    });
+
+
+     useEffect(() => {
+        // Si la carte est déjà prête, localiser immédiatement
+        if (map) {
+          locateUser();
+        }
+      }, [map]);
+
+      useEffect(() => {
+        if (!userLocation) return;
+
+        // Vérifie si un hôpital à la position user est actif
+        const userHospital = hospitals.find(
+          h => h.active &&
+            h.latitude.toFixed(6) === userLocation.lat.toFixed(6) &&
+            h.longitude.toFixed(6) === userLocation.lng.toFixed(6)
+        );
+
+        if (userHospital) {
+          setUserMarkerColor("red"); // l’hôpital a été validé par l’admin
+        }
+      }, [hospitals, userLocation]);
+
+
+
+
+
+
+     // <-- dépend de map pour s'assurer que la carte est chargée
+
+  const onLoadAutocomplete = (autoC) => {
+    setAutocomplete(autoC);
+  };
+
+
+  const onPlaceChanged = () => {
+    if (autocomplete !== null) {
+      const place = autocomplete.getPlace();
+      if (!place.geometry) {
+        alert('Aucune géolocalisation trouvée pour cette entrée');
+        return;
+      }
+      const location = {
+        lat: place.geometry.location.lat(),
+        lng: place.geometry.location.lng()
+      };
+      // Recentre la carte sur la position sélectionnée
+      map.panTo(location);
+      map.setZoom(12);
+
+      // Optionnel: mettre à jour l'emplacement utilisateur
+      setUserLocation(location);
+    } else {
+      console.log('Autocomplete non chargé');
+    }
+  };
+
+      const locateUser = useCallback(() => {
+        if (!map || !navigator.geolocation) return;
+
+        setLoadingLocation(true);
+
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            const userLoc = { lat: latitude, lng: longitude };
+
+            console.log('📍 Position détectée:', latitude, longitude); // Debug
+
+            setUserLocation(userLoc);
+            setShowUserInfo(false);
+
+            // Recentre et zoom sur la position avec un délai pour la carte
+            setTimeout(() => {
+              if (map) {
+                map.panTo(userLoc);
+                map.setZoom(15);
+              }
+            }, 500);
+
+            setLoadingLocation(false);
+          },
+          (error) => {
+            console.error('Erreur géolocalisation:', error);
+            setLoadingLocation(false);
+
+            // Fallback vers Ziguinchor si la géolocalisation échoue
+            const ziguinchorLocation = { lat: 12.5833, lng: -16.2719 };
+            setUserLocation(ziguinchorLocation);
+            setShowUserInfo(true);
+
+            if (map) {
+              map.panTo(ziguinchorLocation);
+              map.setZoom(15);
+            }
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
+          }
+        );
+      }, [map]);
+
+      useEffect(() => {
+        if (map) locateUser();
+      }, [map, locateUser]);
+
+
+
+
+  const onMapLoad = useCallback((mapInstance) => {
+      setMap(mapInstance);
+      setMapLoaded(true);
+
+      // Initialiser le géocodage
+      if (window.google) {
+        setGeocoding(new window.google.maps.Geocoder());
+      }
+    }, []);
+
+     const onLoadError = useCallback((error) => {
+       console.error('🚨 Erreur Google Maps:', error);
+       console.error('🚨 Détails erreur:', error.message);
+       console.error('🚨 Clé API utilisée:', GOOGLE_MAPS_API_KEY);
+       setMapLoaded(false);
+     }, []);
+
+    // Géocodage inverse pour obtenir l'adresse depuis les coordonnées
+    const getAddressFromCoords = async (lat, lng) => {
+      if (!geocoding) return null;
+
+      try {
+        const response = await geocoding.geocode({ location: { lat, lng } });
+        if (response.results[0]) {
+          return response.results[0];
+        }
+      } catch (error) {
+        console.error('Erreur géocodage:', error);
+      }
+      return null;
+    };
+
+  // Configuration des pays avec indicatifs téléphoniques
+  // Configuration des pays avec indicatifs téléphoniques
+  const countries = [
+    {
+      code: 'Sénégal',
+      prefix: '+221',
+      // Regex corrigée pour accepter les formats avec espaces
+      pattern: /^\+221\s?(33|70|71|75|76|77|78)[0-9\s]{7,9}$/,
+      // Test plus flexible qui enlève les espaces pour la validation
+      validate: (phone) => {
+        const cleanPhone = phone.replace(/\s/g, '');
+        return /^\+221(33|70|71|75|76|77|78)[0-9]{7}$/.test(cleanPhone);
+      },
+      example: '+221 77 123 45 67'
+    },
+    {
+      code: 'Gambie',
+      prefix: '+220',
+      pattern: /^\+220\s?[0-9\s]{6,8}$/,
+      validate: (phone) => {
+        const cleanPhone = phone.replace(/\s/g, '');
+        return /^\+220[0-9]{7}$/.test(cleanPhone);
+      },
+      example: '+220 123 4567'
+    },
+    {
+      code: 'Guinée-Bissau',
+      prefix: '+245',
+      pattern: /^\+245\s?[0-9\s]{6,9}$/,
+      validate: (phone) => {
+        const cleanPhone = phone.replace(/\s/g, '');
+        return /^\+245[0-9]{7,8}$/.test(cleanPhone);
+      },
+      example: '+245 123 4567'
+    },
+    {
+      code: 'Autre',
+      prefix: '',
+      pattern: /^\+?[0-9\s\-\(\)]{8,}$/,
+      validate: (phone) => phone.replace(/\s/g, '').length >= 8,
+      example: '+XXX XXX XXX'
+    }
+  ];
+
+  const formatPhoneNumber = (prefix, numberWithoutPrefix) => {
+    switch (prefix) {
+      case '+221':
+        if (numberWithoutPrefix.startsWith("33")) {
+          return `+221 ${numberWithoutPrefix.slice(0, 2)} ${numberWithoutPrefix.slice(2, 5)} ${numberWithoutPrefix.slice(5, 7)} ${numberWithoutPrefix.slice(7, 9)}`;
+        } else {
+          return `+221 ${numberWithoutPrefix.slice(0, 2)} ${numberWithoutPrefix.slice(2, 5)} ${numberWithoutPrefix.slice(5, 7)} ${numberWithoutPrefix.slice(7, 9)}`;
+        }
+      // ajoute d’autres cas si besoin
+      default:
+        return prefix + numberWithoutPrefix;
+    }
+  };
+
+
+    // Extraire ville et pays de l'adresse
+    const extractLocationInfo = (addressComponents) => {
+      let ville = '';
+      let pays = '';
+
+      addressComponents.forEach(component => {
+        if (component.types.includes('locality')) {
+          ville = component.long_name;
+        }
+        if (component.types.includes('country')) {
+          pays = component.long_name;
+        }
+      });
+
+      return { ville, pays };
+    };
+
+
+     // Gestion du clic sur la carte
+     // Gestion du clic sur la carte
+     const onMapClick = useCallback(async (event) => {
+       const lat = event.latLng.lat();
+       const lng = event.latLng.lng();
+
+       // Demander confirmation avant d'ajouter
+       const confirmAdd = window.confirm("Voulez-vous ajouter un établissement à cet emplacement ?\n\nCliquez sur OK pour ajouter, ou Annuler pour sortir.");
+
+       if (!confirmAdd) {
+         console.log("Ajout annulé par l'utilisateur");
+         return; // Sortir si l'utilisateur clique sur Annuler
+       }
+
+       // Si l'utilisateur clique sur OK, continuer avec l'ajout
+       setClickedPosition({ lat, lng });
+       setLoadingLocation(true);
+
+       // Géocodage automatique
+       const addressResult = await getAddressFromCoords(lat, lng);
+
+       if (addressResult) {
+         const locationInfo = extractLocationInfo(addressResult.address_components);
+
+         setLocationInfo({
+           ...locationInfo,
+           adresseComplete: addressResult.formatted_address,
+           latitude: lat,
+           longitude: lng
+         });
+
+         setHospitalForm(prev => ({
+           ...prev,
+           ville: locationInfo.ville || '',
+           pays: locationInfo.pays || 'Sénégal',
+           latitude: lat,
+           longitude: lng,
+           nom: locationInfo.ville ? `Nouvelle Structure - ${locationInfo.ville}` : 'Nouvelle Structure'
+         }));
+
+         setShowAddDialog(true);
+       } else {
+         setLocationInfo({
+           ville: 'Ville inconnue',
+           pays: 'Sénégal',
+           adresseComplete: `Position: ${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+           latitude: lat,
+           longitude: lng
+         });
+
+         setHospitalForm(prev => ({
+           ...prev,
+           latitude: lat,
+           longitude: lng,
+           nom: 'Nouvelle Structure'
+         }));
+
+         setShowAddDialog(true);
+       }
+
+       setLoadingLocation(false);
+     }, [geocoding]);
+
+
+
+     //les services
+  const [services, setServices] = useState([
+    {
+      type: "Consultation VIH",
+      prestataire: "",
+      contact: ""
+    }
+  ]);
+
+  const ajouterService = () => {
+    setServices([
+      ...services,
+      {
+        type: "",
+        prestataire: "",
+        contact: ""
+      }
+    ]);
+  };
+
+  const supprimerService = (index) => {
+    const newServices = services.filter((_, i) => i !== index);
+    setServices(newServices);
+  };
+
+  const mettreAJourService = (index, champ, valeur) => {
+    const newServices = [...services];
+    newServices[index][champ] = valeur;
+    setServices(newServices);
+  };
+
+  // Validation pour éviter les doublons de service
+  const serviceExisteDeja = (typeService, indexActuel) => {
+    return services.some((service, index) =>
+      index !== indexActuel &&
+      service.type.toLowerCase() === typeService.toLowerCase()
+    );
+  };
+
+  const servicesPredefinis = [
+    "PEC médicale (ARV, IO, OEV)",
+    "PEC psychosociale",
+    "PTME",
+    "CDV",
+    "PEC nutritionnelle",
+    "PEC IST",
+    "Charge virale",
+    "Dépistage VIH",
+    "Consultation VIH",
+    "Suivi biologique",
+    "Prévention",
+    "Soins palliatifs",
+    "Autre service"
+  ];
+
+
+   const onMarkerClick = useCallback((hospital) => {
+     console.log('🏥 Hôpital cliqué:', hospital);
+     setSelectedHospital(hospital);
+   }, []);
+
+    // Fonction pour ajouter un établissement à la position utilisateur
+    // Fonction pour ajouter un établissement à la position utilisateur
+    const handleAddAtUserLocation = useCallback(async () => {
+      if (!userLocation) return;
+
+      // Demander confirmation
+      const confirmAdd = window.confirm("Voulez-vous ajouter un établissement à votre position actuelle ?\n\nCliquez sur OK pour ajouter, ou Annuler pour sortir.");
+
+      if (!confirmAdd) {
+        console.log("Ajout annulé par l'utilisateur");
+        return;
+      }
+
+      setLoadingLocation(true);
+
+      try {
+        const addressResult = await getAddressFromCoords(userLocation.lat, userLocation.lng);
+
+        if (addressResult) {
+          const locationInfo = extractLocationInfo(addressResult.address_components);
+
+          setLocationInfo({
+            ...locationInfo,
+            adresseComplete: addressResult.formatted_address,
+            latitude: userLocation.lat,
+            longitude: userLocation.lng
+          });
+
+          setHospitalForm(prev => ({
+            ...prev,
+            ville: locationInfo.ville || 'Ziguinchor',
+            pays: locationInfo.pays || 'Sénégal',
+            latitude: userLocation.lat,
+            longitude: userLocation.lng,
+            nom: locationInfo.ville ? `Nouvelle Structure - ${locationInfo.ville}` : 'Nouvelle Structure - Ziguinchor'
+          }));
+        } else {
+          setLocationInfo({
+            ville: 'Ziguinchor',
+            pays: 'Sénégal',
+            adresseComplete: `Position actuelle: ${userLocation.lat.toFixed(6)}, ${userLocation.lng.toFixed(6)}`,
+            latitude: userLocation.lat,
+            longitude: userLocation.lng
+          });
+
+          setHospitalForm(prev => ({
+            ...prev,
+            ville: 'Ziguinchor',
+            pays: 'Sénégal',
+            latitude: userLocation.lat,
+            longitude: userLocation.lng,
+            nom: 'Nouvelle Structure - Ziguinchor'
+          }));
+        }
+
+        setShowAddDialog(true);
+        setShowUserInfo(false);
+      } catch (error) {
+        console.error('Erreur lors du géocodage:', error);
+      } finally {
+        setLoadingLocation(false);
+      }
+    }, [userLocation, geocoding]);
+
+
+    const cancelAdding = () => {
+      setClickedPosition(null);
+      setShowAddDialog(false);
+      setLocationInfo(null);
+      setSelectedHospital(null);
+    };
+
+  const saveNewHospital = async () => {
+    if (!locationInfo) return;
+
+    // Validation des services
+    const servicesValides = services.filter(service =>
+      service.type.trim() !== '' &&
+      !serviceExisteDeja(service.type, services.indexOf(service))
+    );
+
+    if (servicesValides.length === 0) {
+      alert("Veuillez ajouter au moins un service valide");
+      return;
+    }
+
+    // Vérifier les doublons de services
+    const typesServices = services.map(s => s.type.toLowerCase()).filter(type => type !== '');
+    const hasDuplicates = new Set(typesServices).size !== typesServices.length;
+
+    if (hasDuplicates) {
+      alert("❌ Certains services sont en double. Veuillez corriger avant de continuer.");
+      return;
+    }
+
+    // Validation du numéro de téléphone
+    if (hospitalForm.telephoneFixe) {
+      const country = countries.find(c => hospitalForm.telephoneFixe.startsWith(c.prefix));
+
+      if (!country) {
+        alert("Indicatif pays non reconnu. Formats acceptés: Sénégal (+221), Gambie (+220), Guinée-Bissau (+245)");
+        return;
+      }
+
+      const isValid = country.validate
+        ? country.validate(hospitalForm.telephoneFixe)
+        : country.pattern.test(hospitalForm.telephoneFixe);
+
+      if (!isValid) {
+        alert(`Numéro de téléphone invalide pour ${country.code}. Format attendu: ${country.example}`);
+        return;
+      }
+    }
+
+    // Validation du nom
+    if (!hospitalForm.nom.trim()) {
+      alert("Veuillez saisir le nom de l'établissement");
+      return;
+    }
+
+     const newHospital = {
+        nom: hospitalForm.nom,
+        description: hospitalForm.description,
+        ville: hospitalForm.ville,
+        pays: hospitalForm.pays,
+        telephoneFixe: hospitalForm.telephoneFixe,
+        type: hospitalForm.type,
+        latitude: locationInfo.latitude,
+        longitude: locationInfo.longitude,
+        adresseComplete: locationInfo.adresseComplete,
+        services: servicesValides.map(service => ({
+          id: null, // ← Ajouter id null
+          type: service.type,
+          prestataire: service.prestataire || "",
+          contact: service.contact || "",
+          hopitalId: null // ← Ajouter hopitalId null
+        })), // ← Format complet avec tous les champs
+        status: 'pending',
+        active: false,
+        dateCreation: new Date().toISOString().split('T')[0]
+      };
+
+
+    try {
+      setLoadingAction(true);
+      const savedHospital = await createHopital(newHospital);
+
+      if (onHospitalAdd) {
+        onHospitalAdd(savedHospital);
+      }
+
+      setUserMarkerColor("purple");
+      cancelAdding();
+      console.log("✅ Hôpital enregistré (en attente):", savedHospital);
+
+      alert("Établissement ajouté avec succès! En attente de validation par l'administrateur.");
+
+    } catch (error) {
+      console.error("❌ Erreur lors de l'enregistrement:", error);
+      alert("Erreur lors de l'enregistrement de l'établissement");
+    } finally {
+      setLoadingAction(false);
+    }
+  };
+
+
+    const handleFormChange = (field, value) => {
+      setHospitalForm(prev => ({ ...prev, [field]: value }));
+    };
+
+    // Contrôles de la carte
+    const zoomIn = () => map && map.setZoom(map.getZoom() + 1);
+    const zoomOut = () => map && map.setZoom(map.getZoom() - 1);
+
+    const changeMapType = (type) => {
+      setMapType(type);
+    };
+
+
+
+
+    const confirmedHospitals = hospitals.filter(h => h.status === 'confirmed');
+    const pendingHospitals = hospitals.filter(h => h.status === 'pending');
+
+    const { isLoaded, loadError } = useJsApiLoader({
+      googleMapsApiKey: GOOGLE_MAPS_API_KEY,
+      libraries: ['places']
+    });
+
+    if (loadError) {
+      return <div>Erreur de chargement Google Maps</div>;
+    }
+
+
+
+
+  // Dans CartographyMap.jsx, avant le return
+  console.log('🏥 Hôpitaux reçus dans la carte:', {
+    total: hospitals.length,
+    avecCoords: hospitals.filter(h => h.latitude && h.longitude).length,
+    actifs: hospitals.filter(h => h.active).length,
+    inactifs: hospitals.filter(h => !h.active).length,
+    premierHôpital: hospitals[0]
+  });
+
+    return (
+      <Box sx={{ height: '80vh', width: '100%', position: 'relative' }}>
+            {/* En-tête avec statistiques */}
+
+
+
+
+
+
+        {/* Contrôles de carte */}
+         <Box
+                sx={{
+                  position: 'absolute',
+                  top: 120,
+                  right: 10,
+                  zIndex: 1000,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 1,
+                  backgroundColor: 'white',
+                  padding: 2,
+                  borderRadius: 2,
+                  boxShadow: 3
+                }}
+              >
+                <Typography variant="body2" fontWeight="bold">Navigation</Typography>
+                <Box display="flex" flexDirection="column" gap={1}>
+                  <IconButton onClick={zoomIn} size="small" color="primary" title="Zoomer">
+                    <ZoomIn />
+                  </IconButton>
+                  <IconButton onClick={zoomOut} size="small" color="primary" title="Dézoomer">
+                    <ZoomOut />
+                  </IconButton>
+
+                   <IconButton
+                        onClick={() => {
+                          // Forcer la position à Ziguinchor pour test
+                          const ziguinchor = { lat: 12.5833, lng: -16.2719 };
+                          setUserLocation(ziguinchor);
+                          setShowUserInfo(true);
+                          if (map) {
+                            map.panTo(ziguinchor);
+                            map.setZoom(15);
+                          }
+                        }}
+                        size="small"
+                        color="secondary"
+                        title="Test Ziguinchor"
+                      >
+                        <GpsFixed />
+                      </IconButton>
+                </Box>
+
+
+
+                <Typography variant="body2" fontWeight="bold" sx={{ mt: 1 }}>Vue</Typography>
+                <Box display="flex" flexDirection="column" gap={0.5}>
+                  <IconButton
+                    size="small"
+                    onClick={() => changeMapType('roadmap')}
+                    color={mapType === 'roadmap' ? 'primary' : 'default'}
+                  >
+                    <MapIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    onClick={() => changeMapType('satellite')}
+                    color={mapType === 'satellite' ? 'primary' : 'default'}
+                  >
+                    <Satellite fontSize="small" />
+                  </IconButton>
+                </Box>
+              </Box>
+
+
+  {/* Carte Google Maps */}
+  <LoadScript
+    googleMapsApiKey={GOOGLE_MAPS_API_KEY}
+    libraries={['places', 'geometry']}
+    onError={onLoadError}
+  >
+    <GoogleMap
+      mapContainerStyle={mapContainerStyle}
+      center={{ lat: mapState.center[0], lng: mapState.center[1] }}
+      zoom={mapState.zoom}
+      onLoad={onMapLoad}
+      onClick={onMapClick}
+      onZoomChanged={() => {
+        if (map) setMapState({
+          ...mapState,
+          zoom: map.getZoom(),
+          center: [map.getCenter().lat(), map.getCenter().lng()]
+        });
+      }}
+      onDragEnd={() => {
+        if (map) setMapState({
+          ...mapState,
+          zoom: map.getZoom(),
+          center: [map.getCenter().lat(), map.getCenter().lng()]
+        });
+      }}
+      options={{
+        mapTypeId: mapType,
+        streetViewControl: true,
+        mapTypeControl: false,
+        fullscreenControl: true
+      }}
+    >
+
+      {/* Hôpitaux actifs (rouge) - EXCLUT la position utilisateur */}
+      {hospitals
+        .filter(hospital => hospital.active)
+        .filter(hospital =>
+          !userLocation || (
+            hospital.latitude.toFixed(6) !== userLocation.lat.toFixed(6) ||
+            hospital.longitude.toFixed(6) !== userLocation.lng.toFixed(6)
+          )
+        )
+        .map((hospital) => (
+          <Marker
+            key={hospital.id}
+            position={{
+              lat: hospital.latitude || hospital.lat || defaultCenter.lat,
+              lng: hospital.longitude || hospital.lng || defaultCenter.lng
+            }}
+            icon={ICONS.confirmed}
+            onClick={() => {
+              setSelectedHospital(hospital);
+              setShowUserInfo(false);
+            }}
+          />
+        ))
+      }
+
+      {/* Hôpitaux en attente (violet) - EXCLUT la position utilisateur */}
+      {hospitals
+        .filter(hospital => !hospital.active)
+        .filter(hospital =>
+          !userLocation || (
+            hospital.latitude.toFixed(6) !== userLocation.lat.toFixed(6) ||
+            hospital.longitude.toFixed(6) !== userLocation.lng.toFixed(6)
+          )
+        )
+        .map((hospital) => (
+          <Marker
+            key={hospital.id}
+            position={{
+              lat: hospital.latitude || hospital.lat || defaultCenter.lat,
+              lng: hospital.longitude || hospital.lng || defaultCenter.lng
+            }}
+            icon={ICONS.pending}
+            onClick={() => {
+              setSelectedHospital(hospital);
+              setShowUserInfo(false);
+            }}
+          />
+        ))
+      }
+
+      {/* Position utilisateur - AFFICHE les hôpitaux à cette position */}
+      {userLocation && (
+        <>
+          <Marker
+            position={userLocation}
+            icon={{
+              url: `http://maps.google.com/mapfiles/ms/icons/${userMarkerColor}-dot.png`,
+              scaledSize: { width: 40, height: 40 }
+            }}
+            title={userMarkerColor === "red" ? "Hôpital existant" : "Votre position"}
+            onClick={() => {
+              // Vérifie s'il existe un hôpital (actif OU inactif) à cette position
+              const hospitalHere = hospitals.find(
+                h =>
+                  h.latitude.toFixed(6) === userLocation.lat.toFixed(6) &&
+                  h.longitude.toFixed(6) === userLocation.lng.toFixed(6)
+              );
+
+              if (hospitalHere) {
+                // S'il y a un hôpital, afficher ses détails
+                setSelectedHospital(hospitalHere);
+                setShowUserInfo(false);
+              } else {
+                // Sinon, proposer d'ajouter un établissement
+                setShowUserInfo(true);
+                setSelectedHospital(null);
+              }
+            }}
+          />
+
+          {/* InfoWindow pour ajout */}
+          {showUserInfo && (
+            <InfoWindow
+              position={userLocation}
+              onCloseClick={() => setShowUserInfo(false)}
+            >
+              <Box sx={{ p: 1, minWidth: 200 }}>
+                <Typography variant="body2" fontWeight="bold">📍 Votre position</Typography>
+                <Button
+                  variant="contained"
+                  size="small"
+                  fullWidth
+                  sx={{ mt: 1 }}
+                  startIcon={<AddLocation />}
+                  onClick={handleAddAtUserLocation}
+                >
+                  Ajouter un établissement ici
+                </Button>
+              </Box>
+            </InfoWindow>
+          )}
+        </>
+      )}
+
+      {/* Position cliquée */}
+      {clickedPosition && (
+        <Marker
+          position={clickedPosition}
+          icon={ICONS.current}
+          title="Emplacement sélectionné pour ajout"
+        />
+      )}
+
+      {/* InfoWindow pour hôpital sélectionné */}
+      {selectedHospital && (
+        <InfoWindow
+          position={{
+            lat: selectedHospital.latitude || selectedHospital.lat || defaultCenter.lat,
+            lng: selectedHospital.longitude || selectedHospital.lng || defaultCenter.lng
+          }}
+          onCloseClick={() => setSelectedHospital(null)}
+        >
+          <Box sx={{ minWidth: 300, p: 1 }}>
+            <Typography variant="h6" gutterBottom>
+              <LocalHospital sx={{ mr: 1 }} />
+              {selectedHospital.nom}
+            </Typography>
+
+            <Typography variant="body2" color="text.secondary" gutterBottom>
+              {selectedHospital.description || 'Aucune description'}
+            </Typography>
+
+            <Box sx={{ mt: 1 }}>
+              <Chip
+                label={selectedHospital.active ? 'Actif' : 'En attente'}
+                size="small"
+                color={selectedHospital.active ? 'success' : 'warning'}
+              />
+              <Typography variant="body2" sx={{ mt: 1 }}>
+                📍 {selectedHospital.ville}, {selectedHospital.pays}
+              </Typography>
+              {selectedHospital.telephoneFixe && (
+                <Typography variant="body2">
+                  📞 {selectedHospital.telephoneFixe}
+                </Typography>
+              )}
+              <Typography variant="caption" display="block" sx={{ mt: 1, color: 'text.secondary' }}>
+                Coordonnées: {selectedHospital.latitude?.toFixed(6)}, {selectedHospital.longitude?.toFixed(6)}
+              </Typography>
+            </Box>
+          </Box>
+        </InfoWindow>
+      )}
+
+    </GoogleMap>
+  </LoadScript>
+
+
+              {/* Dialog d'ajout d'établissement */}
+              <Dialog
+                open={showAddDialog}
+                onClose={cancelAdding}
+                maxWidth="md"
+                fullWidth
+              >
+                <DialogTitle>
+                               <Box display="flex" alignItems="center" gap={1}>
+                                 <AddLocation color="primary" />
+                                 Ajouter un établissement de santé
+                               </Box>
+                             </DialogTitle>
+
+                <DialogContent>
+                  {locationInfo && (
+                    <Box sx={{ pt: 1 }}>
+                      <Alert severity="info" sx={{ mb: 2 }}>
+                        <Typography variant="body2">
+                          📍 <strong>Emplacement détecté:</strong> {locationInfo.adresseComplete}
+                        </Typography>
+                        <Typography variant="body2">
+                          🏙️ <strong>Ville:</strong> {locationInfo.ville} | 🌍 <strong>Pays:</strong> {locationInfo.pays}
+                        </Typography>
+                        <Typography variant="body2">
+                          📌 <strong>Coordonnées:</strong> {locationInfo.latitude.toFixed(6)}, {locationInfo.longitude.toFixed(6)}
+                        </Typography>
+                      </Alert>
+
+                      <TextField
+                        fullWidth
+                        label="Nom de l'établissement *"
+                        value={hospitalForm.nom}
+                        onChange={(e) => handleFormChange('nom', e.target.value)}
+                        sx={{ mb: 2 }}
+                        placeholder="Ex: Centre de Santé de..."
+                      />
+
+                      <TextField
+                        fullWidth
+                        multiline
+                        rows={3}
+                        label="Description des services"
+                        value={hospitalForm.description}
+                        onChange={(e) => handleFormChange('description', e.target.value)}
+                        sx={{ mb: 2 }}
+                        placeholder="Décrivez les services VIH disponibles..."
+                      />
+
+                      <Box display="flex" gap={2} sx={{ mb: 2 }}>
+                        <TextField
+                          label="Ville"
+                          value={hospitalForm.ville}
+                          onChange={(e) => handleFormChange('ville', e.target.value)}
+                          fullWidth
+                        />
+                        <TextField
+                          label="Pays"
+                          value={hospitalForm.pays}
+                          onChange={(e) => handleFormChange('pays', e.target.value)}
+                          fullWidth
+                        />
+                      </Box>
+
+
+                      <FormControl fullWidth sx={{ mb: 2 }}>
+                        <InputLabel>Type d'établissement</InputLabel>
+                        <Select
+                          value={hospitalForm.type}
+                          label="Type d'établissement"
+                          onChange={(e) => handleFormChange('type', e.target.value)}
+                        >
+                          {/* Premier niveau */}
+                          <MenuItem value="case-sante">Case de Santé</MenuItem>
+                          <MenuItem value="poste-sante">Poste de Santé</MenuItem>
+                          <MenuItem value="centre-sante">Centre de Santé</MenuItem>
+                          <MenuItem value="dispensaire">Dispensaire</MenuItem>
+
+                          {/* Deuxième niveau */}
+                          <MenuItem value="hopital-district">Hôpital de District</MenuItem>
+                          <MenuItem value="hopital-regional">Hôpital Régional</MenuItem>
+                          <MenuItem value="clinique">Clinique</MenuItem>
+
+                          {/* Troisième niveau */}
+                          <MenuItem value="hopital-national">Hôpital National</MenuItem>
+                          <MenuItem value="chu">Centre Hospitalier Universitaire (CHU)</MenuItem>
+                          <MenuItem value="institut-specialise">Institut spécialisé</MenuItem>
+
+                          <MenuItem value="mutuelle-sante">Mutuelle de Santé</MenuItem>
+                          <MenuItem value="ong-association">ONG / Association</MenuItem>
+                        </Select>
+                      </FormControl>
+
+
+  <DialogContent>
+    {locationInfo && (
+      <Box sx={{ pt: 1 }}>
+        {/* ... autres champs existants ... */}
+
+        {/* Section Services */}
+        <Box sx={{ mt: 3, mb: 2 }}>
+          <Typography variant="h6" gutterBottom>
+            Services proposés *
+          </Typography>
+
+          <Alert severity="info" sx={{ mb: 2 }}>
+            <Typography variant="body2">
+              📋 Ajoutez les services disponibles dans cet établissement. Chaque service doit être unique.
+            </Typography>
+          </Alert>
+
+          <Box sx={{ border: 1, borderColor: 'divider', borderRadius: 1, overflow: 'hidden' }}>
+            <Box sx={{
+              display: 'grid',
+              gridTemplateColumns: '50px 1fr 1fr 1fr 80px',
+              backgroundColor: '#f5f5f5',
+              borderBottom: 1,
+              borderColor: 'divider'
+            }}>
+              <Box sx={{ p: 1, fontWeight: 'bold', borderRight: 1, borderColor: 'divider' }}>#</Box>
+              <Box sx={{ p: 1, fontWeight: 'bold', borderRight: 1, borderColor: 'divider' }}>Type de service *</Box>
+              <Box sx={{ p: 1, fontWeight: 'bold', borderRight: 1, borderColor: 'divider' }}>Prestataire</Box>
+              <Box sx={{ p: 1, fontWeight: 'bold', borderRight: 1, borderColor: 'divider' }}>Contact</Box>
+              <Box sx={{ p: 1, fontWeight: 'bold', textAlign: 'center' }}>Actions</Box>
+            </Box>
+
+            {services.map((service, index) => (
+              <Box
+                key={index}
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: '50px 1fr 1fr 1fr 80px',
+                  borderBottom: index < services.length - 1 ? 1 : 0,
+                  borderColor: 'divider'
+                }}
+              >
+                {/* Numéro */}
+                <Box sx={{
+                  p: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRight: 1,
+                  borderColor: 'divider'
+                }}>
+                  <Typography variant="body2">{index + 1}</Typography>
+                </Box>
+
+                {/* Type de service */}
+                <Box sx={{ p: 1, borderRight: 1, borderColor: 'divider' }}>
+                  <FormControl fullWidth size="small">
+                    <Select
+                      value={service.type}
+                      onChange={(e) => mettreAJourService(index, 'type', e.target.value)}
+                      displayEmpty
+                      error={serviceExisteDeja(service.type, index) && service.type !== ""}
+                    >
+                      <MenuItem value="">
+                        <em>Sélectionner un service</em>
+                      </MenuItem>
+                      {servicesPredefinis.map((serviceOption) => (
+                        <MenuItem
+                          key={serviceOption}
+                          value={serviceOption}
+                          disabled={serviceExisteDeja(serviceOption, index)}
+                        >
+                          {serviceOption}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {serviceExisteDeja(service.type, index) && service.type !== "" && (
+                      <FormHelperText error>
+                        ❌ Ce service est déjà ajouté
+                      </FormHelperText>
+                    )}
+                  </FormControl>
+                </Box>
+
+                {/* Prestataire */}
+                <Box sx={{ p: 1, borderRight: 1, borderColor: 'divider' }}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    value={service.prestataire}
+                    onChange={(e) => mettreAJourService(index, 'prestataire', e.target.value)}
+                    placeholder="Ex: Dr Waly KA"
+                  />
+                </Box>
+
+                {/* Contact */}
+                <Box sx={{ p: 1, borderRight: 1, borderColor: 'divider' }}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    value={service.contact}
+                    onChange={(e) => mettreAJourService(index, 'contact', e.target.value)}
+                    placeholder="Ex: +221777949962"
+                  />
+                </Box>
+
+                {/* Actions */}
+                <Box sx={{
+                  p: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <IconButton
+                    size="small"
+                    color="error"
+                    onClick={() => supprimerService(index)}
+                    disabled={services.length === 1}
+                  >
+                    <Cancel fontSize="small" />
+                  </IconButton>
+                </Box>
+              </Box>
+            ))}
+          </Box>
+
+          <Button
+            startIcon={<AddLocation />}
+            onClick={ajouterService}
+            variant="outlined"
+            size="small"
+            sx={{ mt: 1 }}
+            disabled={services.length >= servicesPredefinis.length}
+          >
+            Ajouter un service
+          </Button>
+
+          {services.length >= servicesPredefinis.length && (
+            <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+              Tous les services disponibles ont été ajoutés
+            </Typography>
+          )}
+        </Box>
+      </Box>
+    )}
+  </DialogContent>
+                     <TextField
+                       label="Téléphone"
+                       value={hospitalForm.telephoneFixe}
+                       onChange={(e) => {
+                         let value = e.target.value.replace(/[^\d+]/g, '');
+
+                         // Formatage automatique pour le Sénégal
+                         if (value.startsWith('+221')) {
+                           value = value.replace(/^(\+221)(\d{2})(\d{3})(\d{2})(\d{2})$/, '$1 $2 $3 $4 $5');
+                         }
+                         // Formatage pour la Gambie
+                         else if (value.startsWith('+220')) {
+                           value = value.replace(/^(\+220)(\d{3})(\d{4})$/, '$1 $2 $3');
+                         }
+                         // Formatage pour la Guinée-Bissau
+                         else if (value.startsWith('+245')) {
+                           value = value.replace(/^(\+245)(\d{3})(\d{4})$/, '$1 $2 $3');
+                         }
+
+                         handleFormChange('telephoneFixe', value);
+                       }}
+                       fullWidth
+                       margin="dense"
+                       required
+                       error={
+                         hospitalForm.telephoneFixe &&
+                         !countries.find(c => hospitalForm.telephoneFixe.startsWith(c.prefix))?.validate?.(hospitalForm.telephoneFixe)
+                       }
+                       helperText={
+                         hospitalForm.telephoneFixe ?
+                           (countries.find(c => hospitalForm.telephoneFixe.startsWith(c.prefix))?.validate?.(hospitalForm.telephoneFixe)
+                             ? "Format valide"
+                             : `Format invalide. Exemple: ${countries.find(c => hospitalForm.telephoneFixe.startsWith(c.prefix))?.example || '+221 77 123 45 67'}`
+                           )
+                           : "Formats: Sénégal +221 77 123 45 67, Gambie +220 123 4567"
+                       }
+                       placeholder="+221 77 123 45 67"
+                     />
+
+                    </Box>
+                  )}
+                </DialogContent>
+
+                <DialogActions>
+                  <Button onClick={cancelAdding} startIcon={<Cancel />}>
+                    Annuler
+                  </Button>
+                  <Button
+                    onClick={saveNewHospital}
+                    variant="contained"
+                    startIcon={<Save />}
+                    disabled={!hospitalForm.nom.trim()}
+                  >
+                    Enregistrer l'établissement
+                  </Button>
+                </DialogActions>
+              </Dialog>
+
+              {/* Indicateurs */}
+              {loadingLocation && (
+                <Snackbar
+                  open={loadingLocation}
+                  message="📡 Détection de votre position..."
+                />
+              )}
+
+              <Box
+                sx={{
+                  position: 'absolute',
+                  bottom: 10,
+                  left: 10,
+                  backgroundColor: 'info.main',
+                  color: 'white',
+                  padding: 1,
+                  borderRadius: 1,
+                  zIndex: 1000
+                }}
+              >
+                <Typography variant="body2">
+                  🎯 Cliquez sur la carte pour ajouter un établissement
+                </Typography>
+              </Box>
+
+              {!mapLoaded && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    zIndex: 1000,
+                    textAlign: 'center'
+                  }}
+                >
+                  <CircularProgress />
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    Chargement de la carte...
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+          );
+        };
+
+        export default CartographyMap;

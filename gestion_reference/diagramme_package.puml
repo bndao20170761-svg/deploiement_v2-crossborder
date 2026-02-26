@@ -1,0 +1,589 @@
+@startuml
+class sn.uasz.referencement_PVVIH.entities.Reference {
+- Long id
+- Boolean active
+- LocalDateTime date
+- String site
+- String statut
+- String type
+- Boolean etat
+- Boolean validation
+- AssistantSocial assistantSocial
+- Doctor medecinAuteur
+- Doctor medecin
+- Patient patient
+- List<RenseignementClinique> renseignementsCliniques
+- List<Motif> motifs
+}
+
+interface sn.uasz.referencement_PVVIH.mappers.CentralMapperConfig {
+}
+class sn.uasz.referencement_PVVIH.entities.RenseignementStade {
+- Long id
+- Boolean stade1
+- Boolean stade2
+- Boolean stade3
+- Boolean stade4
+- RenseignementClinique renseignementClinique
+}
+
+class sn.uasz.referencement_PVVIH.controllers.ContreReferenceController {
+- ContreReferenceService service
++ ResponseEntity<ContreReferenceDto> create(ContreReferenceDto)
++ ResponseEntity<List<ContreReferenceDto>> getAll()
++ ResponseEntity<ContreReferenceDto> getById(Long)
++ ResponseEntity<Void> delete(Long)
+}
+
+
+class sn.uasz.referencement_PVVIH.services.HopitalServiceProxy {
+- HopitalClient hopitalClient
++ List<HopitalDto> getHospitauxActifs()
++ List<HopitalDto> getAllHospitals()
++ List<HopitalDto> getHospitauxPourCarte()
++ HopitalDto getHopitalById(Long)
++ HopitalDto createHopital(HopitalDto)
++ HopitalDto updateHopital(Long,HopitalDto)
++ void deleteHopital(Long)
++ List<HopitalDto> rechercherHospitaux(String,String)
++ HopitalDto getHopitalAvecDetails(Long)
++ List<HopitalDto> getMyHospitals()
+}
+
+
+class sn.uasz.referencement_PVVIH.services.PatientMappingService {
++ PatientFeignDto mapToPatientFeignDto(Map<String,Object>)
++ List<PatientFeignDto> mapToPatientFeignDtoList(List<Map<String,Object>>)
++ Map<String,Object> mapFromPatientFeignDto(PatientFeignDto)
+}
+
+class sn.uasz.referencement_PVVIH.config.FeignErrorDecoder {
+- ErrorDecoder defaultErrorDecoder
++ Exception decode(String,Response)
+}
+
+
+interface sn.uasz.referencement_PVVIH.mappers.PatientMapper {
+~ PatientDto toPatientDto(PatientFeignDto)
+~ PatientFeignDto toPatientFeignDto(PatientDto)
+~ Long calculateAge(LocalDate)
+}
+
+class sn.uasz.referencement_PVVIH.config.CustomUserDetails {
+- User user
++ String getPrenom()
++ String getNom()
++ String getUsername()
++ Collection<? extends GrantedAuthority> getAuthorities()
++ String getPassword()
++ boolean isAccountNonExpired()
++ boolean isAccountNonLocked()
++ boolean isCredentialsNonExpired()
++ boolean isEnabled()
+}
+
+
+class sn.uasz.referencement_PVVIH.entities.Hopital {
+- Long id
+- Boolean active
+- String nom
+- String pays
+- String ville
+- Double latitude
+- Double longitude
+- String adresseComplete
+- String telephoneFixe
+- List<Doctor> doctors
+- List<Service> services
+}
+
+class sn.uasz.referencement_PVVIH.controllers.HopitalProxyController {
+- HopitalServiceProxy hopitalProxy
++ List<HopitalDto> getHospitauxActifs()
++ List<HopitalDto> getHospitauxPourCarte()
++ HopitalDto getHopitalById(Long)
++ HopitalDto createHopital(HopitalDto)
++ HopitalDto updateHopital(Long,HopitalDto)
++ void deleteHopital(Long)
++ List<HopitalDto> rechercherHospitaux(String,String)
++ List<HopitalDto> getAllHospitals()
++ HopitalDto getHopitalAvecDetails(Long)
++ List<HopitalDto> getMyHospitals()
+}
+
+
+class sn.uasz.referencement_PVVIH.entities.MotifAutres {
+- Long id
+- String autresMotif
+- List<Motif> motifs
+}
+
+class sn.uasz.referencement_PVVIH.services.UserDetailsServiceImpl {
+- UserRepository userRepository
++ UserDetails loadUserByUsername(String)
+}
+
+
+class sn.uasz.referencement_PVVIH.config.JwtAuthTokenFilter {
++ {static} ThreadLocal<String> CURRENT_TOKEN
+- JwtUtils jwtUtils
+# void doFilterInternal(HttpServletRequest,HttpServletResponse,FilterChain)
+- String parseJwt(HttpServletRequest)
+}
+
+
+class sn.uasz.referencement_PVVIH.entities.ContreReference {
+- Long id
+- Date date
+- Boolean etat
+- Reference reference
+}
+
+class sn.uasz.referencement_PVVIH.entities.User {
+- Long id
+- String username
+- Boolean active
+- LocalDateTime dateCreation
+- LocalDateTime dateDernierAcces
+- String nationalite
+- String nom
+- String password
+- String prenom
+- String profil
+}
+
+enum sn.uasz.referencement_PVVIH.entities.SuiviType {
++  REGULIER
++  IRREGULIER
++  PERDU_DE_VUE
++  TRANSFERE
+}
+
+class sn.uasz.referencement_PVVIH.controllers.ReferencementController {
+- ReferenceService service
+- ReferenceMapper mapper
++ ResponseEntity<Reference> createReference(ReferenceDto)
++ ResponseEntity<Reference> creerReference(ReferenceDto)
++ ResponseEntity<ReferenceDto> contreReference(Long)
++ ResponseEntity<ReferenceValidationDto> validationReference(Long)
++ ResponseEntity<Long> getCountReferencesEnvoyeesParAssistant()
++ ResponseEntity<List<ReferenceDto>> getAll()
++ ResponseEntity<ReferenceDto> getById(Long)
++ ResponseEntity<Void> delete(Long)
++ ResponseEntity<List<ReferenceDto>> getReferencesEnvoyees()
++ ResponseEntity<List<ReferenceDto>> getReferencesRecues()
++ ResponseEntity<Long> countRecuesNonLues()
++ ResponseEntity<Long> countEnvoyees()
++ ResponseEntity<ReferenceDto> updateReference(Long,ReferenceDto)
+}
+
+
+enum sn.uasz.referencement_PVVIH.entities.ServiceType {
++  ARV
++  BILAN
+}
+
+class sn.uasz.referencement_PVVIH.entities.RenseignementClinique {
+- Long id
+- String aghbs
+- String allergie
+- Boolean autreAnalyse
+- Boolean autreTraitement
+- String cd4DebutTraitement
+- String cd4Dernier
+- String cd4Inclusion
+- String chargeViraleNiveau
+- String cracheBaar
+- String creatinemie
+- Date date
+- Date dateAutreAnalyse
+- Date dateCd4DebutTraitement
+- Date dateCd4Dernier
+- Date dateCd4Inclusion
+- Date dateDebutChargeVirale
+- Date dateCracheBaar
+- Date dateCreatinemie
+- Date dateHb
+- Date dateDebutARV
+- String hbNiveau
+- String poidsKg
+- String resultatTrans
+- Boolean traitementARV
+- Boolean traitementtb
+- String transaminase
+- LocalDateTime dateTransaminase
+- String transaminaseAlat
+- String transaminaseAsat
+- LocalDateTime dateAghbs
+- Reference reference
+- List<Protocole1> protocoles1s
+- List<Protocole2> protocoles2s
+- List<ProtocoleTherap> protocolesTheraps
+- List<RenseignementProfil> profils
+- List<RenseignementStade> stades
+}
+
+class sn.uasz.referencement_PVVIH.services.JwtOnlyUserDetailsService {
+- JwtUtils jwtUtils
++ UserDetails loadUserByUsername(String)
+}
+
+
+enum sn.uasz.referencement_PVVIH.entities.ReferenceStatus {
++  RECEIVED
++  SENT
+}
+
+class sn.uasz.referencement_PVVIH.entities.MotifChangement {
+- Long id
+- Boolean permanent
+- Boolean temporaire
+- List<Motif> motifs
+}
+
+class sn.uasz.referencement_PVVIH.services.ReferenceService {
+- ReferenceRepository repository
+- ReferenceMapper mapper
+- DataSyncService dataSyncService
+- ReferenceServiceHelper helper
+- MotifRepository motifRepository
+- EntityManager entityManager
++ Reference createReference(ReferenceDto)
++ Reference createReferenceByAssistant(ReferenceDto)
++ List<ReferenceDto> getReferencesEnvoyees()
++ List<ReferenceDto> getReferencesRecues()
++ Reference contreReference(Long)
++ ReferenceValidationDto validationReference(Long)
++ List<ReferenceDto> findAll()
++ ReferenceDto findById(Long)
++ void deleteReference(Long)
++ long countReferencesRecuesNonLues()
++ long countReferencesEnvoyees()
++ long countReferencesEnvoyeesParAssistant()
++ Reference updateReference(Long,ReferenceDto)
+}
+
+
+class sn.uasz.referencement_PVVIH.entities.Doctor {
+- String codeDoctor
+- String email
+- String fonction
+- String lieuExercice
+- String pseudo
+- String telephone
+- Hopital hopital
+- User utilisateur
+}
+
+enum sn.uasz.referencement_PVVIH.entities.ReferenceType {
++  ENVOYEE
++  RECUE
+}
+
+class sn.uasz.referencement_PVVIH.controllers.UserController {
+- UserRepository userRepository
++ CurrentUserResponse getCurrentUser()
+}
+
+
+class sn.uasz.referencement_PVVIH.services.ContreReferenceService {
+- ContreReferenceRepository repository
+- ReferenceMapper mapper
++ ContreReferenceDto save(ContreReferenceDto)
++ List<ContreReferenceDto> findAll()
++ ContreReferenceDto findById(Long)
++ void deleteById(Long)
+}
+
+
+class sn.uasz.referencement_PVVIH.entities.ProtocoleTherap {
+- Long id
+- String therapie
+- Date dateTherapie
+- RenseignementClinique renseignementClinique
+}
+
+class sn.uasz.referencement_PVVIH.entities.Patient {
+- String codePatient
+- String adressePermanent
+- String adresseTemporaire
+- Long age
+- Date dateNaissance
+- String profession
+- String pseudo
+- String sexe
+- String statutMatrimoniale
+- String telephone
+- Doctor doctorCreate
+- User utilisateur
+}
+
+class sn.uasz.referencement_PVVIH.services.DataSyncService {
+- UserIntegrationService userIntegrationService
+- DoctorRepository doctorRepository
+- PatientRepository patientRepository
+- UserRepository userRepository
+- AssistantSocialRepository assistantSocialRepository
+- HopitalRepository hopitalRepository
+- EntityManager entityManager
++ Doctor getDoctorByCode(String)
++ Patient getPatientByCode(String)
++ User getUserByUsername(String)
++ Doctor syncDoctor(String)
++ Doctor getDoctorByUsername(String)
++ sn.uasz.referencement_PVVIH.entities.AssistantSocial getAssistantByUsername(String)
+}
+
+
+class sn.uasz.referencement_PVVIH.controllers.UserIntegrationController {
+- UserIntegrationService userIntegrationService
++ ResponseEntity<List<DoctorFeignDto>> getAllDoctors()
++ ResponseEntity<DoctorFeignDto> getDoctorByCode(String)
++ ResponseEntity<DoctorFeignDto> createDoctor(DoctorFeignDto)
++ ResponseEntity<DoctorFeignDto> updateDoctor(String,DoctorFeignDto)
++ ResponseEntity<Void> deleteDoctor(String)
++ ResponseEntity<List<PatientFeignDto>> getAllPatients()
++ ResponseEntity<PatientFeignDto> getPatientByCode(String)
++ ResponseEntity<PatientFeignDto> createPatient(PatientFeignDto)
++ ResponseEntity<PatientFeignDto> updatePatient(String,PatientFeignDto)
++ ResponseEntity<Void> deletePatient(String)
++ ResponseEntity<List<sn.uasz.referencement_PVVIH.dtos.HopitalDto>> getAllHospitals()
++ ResponseEntity<sn.uasz.referencement_PVVIH.dtos.HopitalDto> getHospitalById(Long)
+}
+
+
+class sn.uasz.referencement_PVVIH.config.FeignClientConfig {
++ Logger.Level feignLoggerLevel()
++ Request.Options requestOptions()
++ ErrorDecoder errorDecoder()
++ RequestInterceptor requestInterceptor()
+}
+
+class sn.uasz.referencement_PVVIH.entities.Protocole2 {
+- Long id
+- String protocole2emeLigne
+- Date dateProtocole2
+- RenseignementClinique renseignementClinique
+}
+
+class sn.uasz.referencement_PVVIH.config.SecurityConfig {
+- UserDetailsServiceImpl userDetailsService
++ AuthenticationManager authenticationManager(AuthenticationConfiguration)
++ PasswordEncoder passwordEncoder()
++ sn.uasz.referencement_PVVIH.services.JwtOnlyUserDetailsService jwtOnlyUserDetailsService(sn.uasz.referencement_PVVIH.security.JwtUtils)
++ JwtAuthTokenFilter jwtAuthTokenFilter(sn.uasz.referencement_PVVIH.security.JwtUtils,UserDetailsServiceImpl,UserDetailsService)
++ SecurityFilterChain filterChain(HttpSecurity,JwtAuthTokenFilter)
++ CorsConfigurationSource corsConfigurationSource()
+}
+
+
+class sn.uasz.referencement_PVVIH.entities.Protocole1 {
+- Long id
+- String protocole1ereLigne
+- Date dateProtocole1
+- RenseignementClinique renseignementClinique
+}
+
+class sn.uasz.referencement_PVVIH.controllers.AuthController {
+- AuthenticationManager authenticationManager
+- JwtUtils jwtUtils
+- UserRepository userRepository
+- PasswordEncoder passwordEncoder
+- Map<String,String> resetTokens
++ ResponseEntity<?> authenticateUser(LoginRequest)
++ ResponseEntity<?> registerUsers(Object)
++ ResponseEntity<?> resetPasswordRequest(String)
++ ResponseEntity<?> resetPassword(ResetPasswordRequest)
+}
+
+
+class sn.uasz.referencement_PVVIH.entities.RenseignementProfil {
+- Long id
+- Date dateConfirmation
+- Boolean indetermine
+- Boolean profil1
+- Boolean profil12
+- Boolean profil2
+- RenseignementClinique renseignementClinique
+}
+
+class sn.uasz.referencement_PVVIH.config.FeignClientInterceptor {
++ void apply(RequestTemplate)
+}
+
+class sn.uasz.referencement_PVVIH.services.UserIntegrationService {
+- UserServiceClient userServiceClient
+- DoctorMapper doctorMapper
+- PatientMapper patientMapper
+- PatientMappingService patientMappingService
++ List<DoctorFeignDto> getAllDoctors()
++ DoctorFeignDto getDoctorByCode(String)
++ DoctorFeignDto createDoctor(DoctorFeignDto)
++ DoctorFeignDto updateDoctor(String,DoctorFeignDto)
++ void deleteDoctor(String)
++ List<PatientFeignDto> getAllPatients()
++ PatientFeignDto getPatientByCode(String)
++ PatientFeignDto createPatient(PatientFeignDto)
++ PatientFeignDto updatePatient(String,PatientFeignDto)
++ void deletePatient(String)
++ List<sn.uasz.referencement_PVVIH.dtos.HopitalDto> getAllHospitals()
++ sn.uasz.referencement_PVVIH.dtos.HopitalDto getHospitalById(Long)
++ sn.uasz.referencement_PVVIH.dtos.HopitalDto createHospital(sn.uasz.referencement_PVVIH.dtos.HopitalDto)
++ sn.uasz.referencement_PVVIH.dtos.HopitalDto updateHospital(Long,sn.uasz.referencement_PVVIH.dtos.HopitalDto)
++ void deleteHospital(Long)
++ List<sn.uasz.referencement_PVVIH.dtos.HopitalDto> getHospitauxActifs()
++ List<sn.uasz.referencement_PVVIH.dtos.HopitalDto> getHospitauxPourCarte()
++ List<sn.uasz.referencement_PVVIH.dtos.HopitalDto> getInactiveHospitals()
++ List<sn.uasz.referencement_PVVIH.dtos.HopitalDto> getMyHospitals()
++ sn.uasz.referencement_PVVIH.dtos.HopitalDto getHopitalAvecDetails(Long)
++ sn.uasz.referencement_PVVIH.dtos.HopitalDto getHopitalAvecPrestataires(Long)
++ List<sn.uasz.referencement_PVVIH.dtos.HopitalDto> rechercherHospitaux(String,String)
++ Long countHospitals()
++ List<sn.uasz.referencement_PVVIH.dtos.HopitalDto> getHospitalsByCountry(String)
++ List<sn.uasz.referencement_PVVIH.dtos.HopitalDto> getHospitalsByCity(String)
++ sn.uasz.referencement_PVVIH.dtos.HopitalDto toggleHospitalStatus(Long,boolean)
++ List<DoctorDto> getAllDoctorsInternal()
++ DoctorDto getDoctorByCodeInternal(String)
++ List<PatientDto> getAllPatientsInternal()
++ PatientDto getPatientByCodeInternal(String)
++ DoctorFeignDto getDoctorByUsername(String)
++ List<sn.uasz.referencement_PVVIH.dtos.AssistantSocialDto> getAllAssistants()
++ sn.uasz.referencement_PVVIH.dtos.AssistantSocialDto getAssistantByUsername(String)
+}
+
+
+enum sn.uasz.referencement_PVVIH.entities.Protocole {
++  ARV1
++  ARV2
++  ARV3
+}
+
+class sn.uasz.referencement_PVVIH.entities.AssistantSocial {
+- String codeAssistant
+- String email
+- String lieuExercice
+- String pseudo
+- String telephone
+- Hopital hopital
+- User utilisateur
+}
+
+class sn.uasz.referencement_PVVIH.entities.Motif {
+- Long id
+- Boolean changementAdresse
+- Boolean services
+- MotifAutres motifAutre
+- MotifChangement motifChangement
+- MotifServ motifServ
+- Reference reference
+}
+
+class sn.uasz.referencement_PVVIH.entities.MotifServ {
+- Long id
+- Boolean arv
+- Boolean bilan
+- Boolean io
+- Boolean ptme
+- Boolean suivi
+- List<Motif> motifs
+}
+
+class sn.uasz.referencement_PVVIH.controllers.CurrentUserResponse {
+- String prenom
+- String nom
+- String username
++ String getPrenom()
++ void setPrenom(String)
++ String getNom()
++ void setNom(String)
++ String getUsername()
++ void setUsername(String)
+}
+
+
+class sn.uasz.referencement_PVVIH.services.ReferenceServiceHelper {
+- DoctorRepository doctorRepository
+- PatientRepository patientRepository
+- UserRepository userRepository
+- AssistantSocialRepository assistantSocialRepository
+- DataSyncService dataSyncService
++ Optional<Doctor> findDoctorByCode(String)
++ Optional<Patient> findPatientByCode(String)
++ Optional<User> findUserByUsername(String)
++ Optional<Doctor> findDoctorByUser(User)
++ Optional<Doctor> findDoctorByUsername(String)
++ Optional<sn.uasz.referencement_PVVIH.entities.AssistantSocial> findAssistantByUser(User)
++ Optional<sn.uasz.referencement_PVVIH.entities.AssistantSocial> findAssistantByCode(String)
+}
+
+
+interface sn.uasz.referencement_PVVIH.mappers.DoctorMapper {
+~ DoctorDto toDoctorDto(DoctorFeignDto)
+~ DoctorFeignDto toDoctorFeignDto(DoctorDto)
+}
+
+class sn.uasz.referencement_PVVIH.entities.Service {
+- Long id
+- String type
+- Hopital hopital
+- String prestataire
+- String contact
+}
+
+interface sn.uasz.referencement_PVVIH.mappers.ReferenceMapper {
+~ RenseignementCliniqueDto toRenseignementCliniqueDtoFromList(List<RenseignementClinique>)
+~ List<RenseignementClinique> toRenseignementCliniqueListFromDto(RenseignementCliniqueDto)
+~ MotifDto toMotifDtoFromList(List<Motif>)
+~ List<Motif> toMotifListFromDto(MotifDto)
+~ ReferenceValidationDto toReferenceValidationDto(Reference)
+~ ReferenceDto toReferenceDto(Reference)
+~ Reference toReference(ReferenceDto)
+~ ContreReferenceDto toContreReferenceDto(ContreReference)
+~ ContreReference toContreReference(ContreReferenceDto)
+~ DoctorDto toDoctorDto(Doctor)
+~ Doctor toDoctor(DoctorDto)
+~ List<DoctorDto> toDoctorDtoList(List<Doctor>)
+~ List<Doctor> toDoctorList(List<DoctorDto>)
+~ PatientDto toPatientDto(Patient)
+~ Patient toPatient(PatientDto)
+~ List<PatientDto> toPatientDtoList(List<Patient>)
+~ List<Patient> toPatientList(List<PatientDto>)
+~ RenseignementCliniqueDto toRenseignementCliniqueDto(RenseignementClinique)
+~ RenseignementClinique toRenseignementClinique(RenseignementCliniqueDto)
+~ Protocole1Dto toProtocole1Dto(Protocole1)
+~ Protocole1 toProtocole1(Protocole1Dto)
+~ Protocole2Dto toProtocole2Dto(Protocole2)
+~ Protocole2 toProtocole2(Protocole2Dto)
+~ ProtocoleTherapDto toProtocoleTherapDto(ProtocoleTherap)
+~ ProtocoleTherap toProtocoleTherap(ProtocoleTherapDto)
+~ RenseignementProfilDto toRenseignementProfilDto(RenseignementProfil)
+~ RenseignementProfil toRenseignementProfil(RenseignementProfilDto)
+~ RenseignementStadeDto toRenseignementStadeDto(RenseignementStade)
+~ RenseignementStade toRenseignementStade(RenseignementStadeDto)
+~ MotifDto toMotifDto(Motif)
+~ Motif toMotif(MotifDto)
+~ MotifAutres toMotifAutres(MotifAutresDto)
+~ MotifAutresDto toMotifAutresDto(MotifAutres)
+~ MotifChangementDto toMotifChangementDto(MotifChangement)
+~ MotifChangement toMotifChangement(MotifChangementDto)
+~ MotifServDto toMotifServDto(MotifServ)
+~ MotifServ toMotifServ(MotifServDto)
+~ HopitalDto toHopitalDto(Hopital)
+~ Hopital toHopital(HopitalDto)
+~ List<HopitalDto> toHopitalDtoList(List<Hopital>)
+~ List<Hopital> toHopitalList(List<HopitalDto>)
+~ ServiceDto toServiceDto(Service)
+~ Service toService(ServiceDto)
+~ List<ServiceDto> toServiceDtoList(List<Service>)
+~ List<Service> toServiceList(List<ServiceDto>)
+}
+
+
+
+feign.codec.ErrorDecoder <|.. sn.uasz.referencement_PVVIH.config.FeignErrorDecoder
+org.springframework.security.core.userdetails.UserDetails <|.. sn.uasz.referencement_PVVIH.config.CustomUserDetails
+sn.uasz.referencement_PVVIH.services.UserDetailsService <|.. sn.uasz.referencement_PVVIH.services.UserDetailsServiceImpl
+org.springframework.web.filter.OncePerRequestFilter <|-- sn.uasz.referencement_PVVIH.config.JwtAuthTokenFilter
+sn.uasz.referencement_PVVIH.services.UserDetailsService <|.. sn.uasz.referencement_PVVIH.services.JwtOnlyUserDetailsService
+feign.RequestInterceptor <|.. sn.uasz.referencement_PVVIH.config.FeignClientInterceptor
+@enduml

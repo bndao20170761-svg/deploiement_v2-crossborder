@@ -1,0 +1,143 @@
+version: '3.8'
+
+# Production override configuration
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+services:
+  # ==================== Edge Services - Production Mode ====================
+  
+  api-register:
+    environment:
+      - JAVA_OPTS=-Xms256m -Xmx512m -XX:+UseG1GC
+      - LOGGING_LEVEL_ROOT=WARN
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 768M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    restart: always
+
+  api-configuration:
+    environment:
+      - JAVA_OPTS=-Xms256m -Xmx512m -XX:+UseG1GC
+      - LOGGING_LEVEL_ROOT=WARN
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 768M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    restart: always
+
+  gateway-pvvih:
+    environment:
+      - JAVA_OPTS=-Xms512m -Xmx1024m -XX:+UseG1GC
+      - LOGGING_LEVEL_ROOT=WARN
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1536M
+        reservations:
+          cpus: '1.0'
+          memory: 1024M
+      replicas: 2
+    restart: always
+
+  # ==================== Backend Services - Production Mode ====================
+  
+  forum-pvvih:
+    environment:
+      - JAVA_OPTS=-Xms256m -Xmx512m -XX:+UseG1GC
+      - LOGGING_LEVEL_ROOT=WARN
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 768M
+        reservations:
+          cpus: '0.75'
+          memory: 512M
+    restart: always
+
+  gestion-user:
+    environment:
+      - JAVA_OPTS=-Xms256m -Xmx512m -XX:+UseG1GC
+      - LOGGING_LEVEL_ROOT=WARN
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 768M
+        reservations:
+          cpus: '0.75'
+          memory: 512M
+    restart: always
+
+  gestion-reference:
+    environment:
+      - JAVA_OPTS=-Xms256m -Xmx512m -XX:+UseG1GC
+      - LOGGING_LEVEL_ROOT=WARN
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 768M
+        reservations:
+          cpus: '0.75'
+          memory: 512M
+    restart: always
+
+  gestion-patient:
+    environment:
+      - JAVA_OPTS=-Xms256m -Xmx512m -XX:+UseG1GC
+      - LOGGING_LEVEL_ROOT=WARN
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 768M
+        reservations:
+          cpus: '0.75'
+          memory: 512M
+    restart: always
+
+  # ==================== Frontend Services - Production Mode ====================
+  
+  gestion-forum-front:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    restart: always
+
+  a-reference-front:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    restart: always
+
+  a-user-front:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    restart: always

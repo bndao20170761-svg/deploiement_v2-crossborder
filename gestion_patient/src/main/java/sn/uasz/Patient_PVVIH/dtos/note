@@ -1,0 +1,433 @@
+package sn.uasz.Patient_PVVIH.entities;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@Table(name = "dossier")
+public class Dossier {
+
+    @Id
+    @Column(name = "code_dossier", nullable = false, updatable = false)
+    private String codeDossier;
+
+    @Column(name = "codification", nullable = true, updatable = false)
+    private String codificationNationale;
+
+    @Column(name = "notification", nullable = true, updatable = false)
+    private String numeroNotification;
+
+    // ✅ CHANGEMENT: identificationBiom devient le template d'iris (encodé en Base64)
+    @Lob
+    @Column(name = "identification_biom", columnDefinition = "LONGTEXT", unique = true, nullable = false)
+    private String identificationBiom;
+
+
+    // ✅ Statut de l'enregistrement biométrique
+    @Column(name = "biometric_status")
+    private String biometricStatus = "PENDING"; // PENDING, CAPTURED, VERIFIED, FAILED
+
+    @OneToMany(mappedBy = "dossier", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Page> pages = new ArrayList<>();
+
+    @OneToOne(mappedBy = "dossier")
+    private Patient patient;
+
+    @ManyToOne
+    @JoinColumn(name = "doctor_id")
+    private Doctor doctorCreate;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.codeDossier == null) {
+            this.codeDossier = "DOSS-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        }
+        // ✅ SUPPRIMER la génération automatique de code-barres
+        // Le champ identificationBiom sera rempli avec le template d'iris
+    }
+}
+
+//package sn.uasz.Patient_PVVIH.dtos;
+
+  import lombok.*;
+  import java.util.List;
+
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @Builder
+  public class DossierDTO {
+      private String codeDossier;
+      private String codePatient;
+      private String doctorCode;
+      private String codificationNationale;
+      private String numeroNotification;
+
+      // ✅ CHANGEMENT: identificationBiom devient le template d'iris
+      private String identificationBiom; // Template iris encodé
+
+      // ✅ Image brute de l'iris pour l'extraction (non stockée en base)
+      private String irisImageBase64;
+      private String biometricStatus;
+
+      private List<PageDTO> pages;
+  }
+  //package sn.uasz.Patient_PVVIH.mappers;
+
+    import org.mapstruct.Mapper;
+    import org.mapstruct.Mapping;
+    import sn.uasz.Patient_PVVIH.entities.*;
+    import sn.uasz.Patient_PVVIH.dtos.*;
+    @Mapper(componentModel = "spring")
+    public interface PatientPvvihMapper {
+
+        // Bilan
+        BilanDTO toBilanDTO(Bilan bilan);
+        Bilan toBilan(BilanDTO dto);
+
+        // Dépistage familiale
+        DepistageFamilialeDTO toDepistageFamilialeDTO(DepistageFamiliale depistage);
+        DepistageFamiliale toDepistageFamiliale(DepistageFamilialeDTO dto);
+
+        // Index Test
+        IndexTestDTO toIndexTestDTO(IndexTest indexTest);
+        IndexTest toIndexTest(IndexTestDTO dto);
+
+        // Page
+        @Mapping(source = "dossier.codeDossier", target = "dossierCode")
+        PageDTO toPageDTO(Page page);
+        @Mapping(source = "dossierCode", target = "dossier.codeDossier")
+        Page toPage(PageDTO dto);
+
+        // Prise en charge TB
+        PriseEnChargeTbDTO toPriseEnChargeTbDTO(PriseEnChargeTb tb);
+        PriseEnChargeTb toPriseEnChargeTb(PriseEnChargeTbDTO dto);
+
+        // Suivi immunovirologique
+        SuiviImmunovirologiqueDTO toSuiviImmunovirologiqueDTO(Suivi_Immunovirologique suivi);
+        Suivi_Immunovirologique toSuiviImmunovirologique(SuiviImmunovirologiqueDTO dto);
+
+        // Suivi ARV
+        SuiviARVDTO toSuiviARVDTO(SuiviARV suiviArv);
+        SuiviARV toSuiviARV(SuiviARVDTO dto);
+
+        // Suivi pathologique
+        SuiviPathologiqueDTO toSuiviPathologiqueDTO(SuiviPathologique suivi);
+        SuiviPathologique toSuiviPathologique(SuiviPathologiqueDTO dto);
+
+        // PTME
+        PTMEDTO toPtmeDTO(PTME ptme);
+        PTME toPtme(PTMEDTO dto);
+
+        // Dossier
+        DossierDTO toDossierDTO(Dossier dossier);
+        Dossier toDossier(DossierDTO dto);
+        // --- À AJOUTER ---
+
+        // DossierView (pour la réponse frontend)
+        @Mapping(source = "patient.codePatient", target = "codePatient")
+        @Mapping(target = "nomComplet",
+                expression = "java(dossier.getPatient().getPseudo() != null ? " +
+                        "dossier.getPatient().getPseudo() : " +
+                        "dossier.getPatient().getUtilisateur().getNom() + \" \" + dossier.getPatient().getUtilisateur().getPrenom())")
+        @Mapping(target = "doctorCreateNom",
+                expression = "java(dossier.getDoctorCreate() != null && dossier.getDoctorCreate().getUtilisateur() != null ? " +
+                        "dossier.getDoctorCreate().getUtilisateur().getNom() + \" \" + dossier.getDoctorCreate().getUtilisateur().getPrenom() : null)")
+        DossierViewDto toDossierViewDto(Dossier dossier);
+
+
+
+    }
+//package sn.uasz.Patient_PVVIH.services;
+
+  import jakarta.transaction.Transactional;
+  import org.springframework.security.core.Authentication;
+  import org.springframework.security.core.context.SecurityContextHolder;
+  import org.springframework.stereotype.Service;
+  import sn.uasz.Patient_PVVIH.dtos.DossierDTO;
+  import sn.uasz.Patient_PVVIH.dtos.DossierViewDto;
+  import sn.uasz.Patient_PVVIH.dtos.PageDTO;
+  import sn.uasz.Patient_PVVIH.entities.*;
+  import sn.uasz.Patient_PVVIH.mappers.PatientPvvihMapper;
+  import sn.uasz.Patient_PVVIH.repositories.DoctorRepository;
+  import sn.uasz.Patient_PVVIH.repositories.DossierRepository;
+  import sn.uasz.Patient_PVVIH.repositories.PatientRepository;
+  import sn.uasz.Patient_PVVIH.repositories.UserRepository;
+
+  import java.util.ArrayList;
+  import java.util.UUID;
+
+  @Service
+  public class DossierService {
+
+      private final PatientPvvihMapper mapper;
+      private final PatientRepository patientRepo;
+      private final UserRepository userRepository;
+      private final DoctorRepository doctorRepo;
+      private final DossierRepository dossierRepository;
+
+      // ✅ Injection par constructeur
+      public DossierService(PatientPvvihMapper mapper,
+                            PatientRepository patientRepo,
+                            UserRepository userRepository,
+                            DoctorRepository doctorRepo,
+                            DossierRepository dossierRepository) {
+          this.mapper = mapper;
+          this.patientRepo = patientRepo;
+          this.userRepository = userRepository;
+          this.doctorRepo = doctorRepo;
+          this.dossierRepository = dossierRepository;
+      }
+      @Transactional
+      public Dossier createDossierPatient(DossierDTO dto) {
+          // 🔹 Mapper le DTO vers l’entité Dossier
+          Dossier dossier = mapper.toDossier(dto);
+
+          // --- Initialiser la collection des pages ---
+          if (dossier.getPages() == null) {
+              dossier.setPages(new ArrayList<>());
+          } else {
+              dossier.getPages().clear(); // ⚠️ éviter de mélanger les anciennes pages du mapper
+          }
+
+          // --- Utilisateur connecté ---
+          Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+          String role = auth.getAuthorities().toString();
+          String username = auth.getName();
+
+          User user = userRepository.findByUsername(username)
+                  .orElseThrow(() -> new RuntimeException("Utilisateur connecté introuvable"));
+
+          // --- Patient ---
+          Patient patient = patientRepo.findByCodePatient(dto.getCodePatient())
+                  .orElseThrow(() -> new RuntimeException("Patient introuvable avec ce code"));
+          dossier.setPatient(patient);
+          patient.setDossier(dossier);
+
+          // --- Vérification du rôle : seul un DOCTOR peut créer un dossier ---
+          if (!role.contains("DOCTOR")) {
+              throw new RuntimeException("Seul un médecin peut créer un dossier patient");
+          }
+
+          Doctor medecinAuteur = doctorRepo.findByUtilisateur(user)
+                  .orElseThrow(() -> new RuntimeException("Médecin connecté introuvable"));
+
+          dossier.setDoctorCreate(medecinAuteur);
+
+          // --- Génération code dossier ---
+          if (dossier.getCodeDossier() == null || dossier.getCodeDossier().isBlank()) {
+              String code = "DOSS-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+              dossier.setCodeDossier(code);
+          }
+
+          if (dto.getIdentificationBiom() != null && !dto.getIdentificationBiom().isBlank()) {
+              dossier.setIdentificationBiom(dto.getIdentificationBiom());
+              dossier.setBiometricStatus("CAPTURED");
+          } else {
+              dossier.setBiometricStatus("PENDING");
+          }
+          // --- Gestion des pages et sous-entités ---
+          if (dto.getPages() != null) {
+              dto.getPages().forEach(pageDto -> {
+                  Page page = mapper.toPage(pageDto);
+                  page.setDossier(dossier); // 🔑 relier la page au dossier
+
+                  // 🔹 Bilans
+                  if (pageDto.getBilans() != null) {
+                      page.setBilans(pageDto.getBilans().stream()
+                              .map(bDto -> {
+                                  Bilan bilan = mapper.toBilan(bDto);
+                                  bilan.setPage(page);
+                                  return bilan;
+                              }).toList());
+                  }
+
+                  // 🔹 Dépistage familiale
+                  if (pageDto.getDepistageFamiliales() != null) {
+                      page.setDepistageFamiliales(pageDto.getDepistageFamiliales().stream()
+                              .map(dfDto -> {
+                                  DepistageFamiliale df = mapper.toDepistageFamiliale(dfDto);
+                                  df.setPage(page);
+                                  return df;
+                              }).toList());
+                  }
+
+                  // 🔹 Index tests
+                  if (pageDto.getIndexTests() != null) {
+                      page.setIndexTests(pageDto.getIndexTests().stream()
+                              .map(itDto -> {
+                                  IndexTest it = mapper.toIndexTest(itDto);
+                                  it.setPage(page);
+                                  return it;
+                              }).toList());
+                  }
+
+                  // 🔹 PTME
+                  if (pageDto.getPtmes() != null) {
+                      page.setPtmes(pageDto.getPtmes().stream()
+                              .map(ptmeDto -> {
+                                  PTME ptme = mapper.toPtme(ptmeDto);
+                                  ptme.setPage(page);
+                                  return ptme;
+                              }).toList());
+                  }
+
+                  // 🔹 Suivis immunovirologiques
+                  if (pageDto.getSuiviImmunovirologiques() != null) {
+                      page.setSuiviImmunovirologiques(pageDto.getSuiviImmunovirologiques().stream()
+                              .map(siDto -> {
+                                  Suivi_Immunovirologique si = mapper.toSuiviImmunovirologique(siDto);
+                                  si.setPage(page);
+                                  return si;
+                              }).toList());
+                  }
+
+                  // 🔹 Suivis pathologiques
+                  if (pageDto.getSuiviPathologiques() != null) {
+                      page.setSuiviPathologiques(pageDto.getSuiviPathologiques().stream()
+                              .map(spDto -> {
+                                  SuiviPathologique sp = mapper.toSuiviPathologique(spDto);
+                                  sp.setPage(page);
+                                  return sp;
+                              }).toList());
+                  }
+
+                  // 🔹 Suivis ARV
+                  if (pageDto.getSuiviARVs() != null) {
+                      page.setSuiviARVs(pageDto.getSuiviARVs().stream()
+                              .map(saDto -> {
+                                  SuiviARV sa = mapper.toSuiviARV(saDto);
+                                  sa.setPage(page);
+                                  return sa;
+                              }).toList());
+                  }
+
+                  // 🔹 PEC TB
+                  if (pageDto.getPriseEnChargeTbs() != null) {
+                      page.setPriseEnChargeTbs(pageDto.getPriseEnChargeTbs().stream()
+                              .map(tbDto -> {
+                                  PriseEnChargeTb tb = mapper.toPriseEnChargeTb(tbDto);
+                                  tb.setPage(page);
+                                  return tb;
+                              }).toList());
+                  }
+
+                  // 🔑 Ajouter la page au dossier
+                  dossier.getPages().add(page);
+              });
+          }
+
+          // --- Sauvegarde ---
+          return dossierRepository.save(dossier);
+      }
+
+
+      @Transactional()
+      public DossierViewDto dossierView(String codePatient) {
+          Dossier dossier = dossierRepository.findByPatient_CodePatient(codePatient)
+                  .orElseThrow(() -> new RuntimeException(
+                          "Aucun dossier trouvé pour le patient : " + codePatient));
+
+          Patient patient = dossier.getPatient();
+
+          // --- Construction du DTO dossier ---
+          DossierViewDto dto = new DossierViewDto();
+          dto.setCodeDossier(dossier.getCodeDossier());
+          dto.setCodePatient(patient.getCodePatient());
+
+          // ⚡️ Exposer des infos lisibles
+          dto.setNomComplet(patient.getPseudo() != null
+                  ? patient.getPseudo()
+                  : patient.getUtilisateur().getNom() + " " + patient.getUtilisateur().getPrenom());
+
+          dto.setDoctorCreateNom(
+                  dossier.getDoctorCreate() != null && dossier.getDoctorCreate().getUtilisateur() != null
+                          ? dossier.getDoctorCreate().getUtilisateur().getNom() + " " +
+                          dossier.getDoctorCreate().getUtilisateur().getPrenom()
+                          : null
+          );
+
+
+          // --- Mapper les pages ---
+          dto.setPages(
+                  dossier.getPages().stream()
+                          .map(page -> {
+                              PageDTO pageDto = new PageDTO();
+                              pageDto.setId(page.getId());
+
+                              // ⚡️ Mapper les champs simples
+                              pageDto.setPereNomPrenoms(page.getPereNomPrenoms());
+                              pageDto.setMereNomPrenoms(page.getMereNomPrenoms());
+                              pageDto.setNaissanceStructure(page.getNaissanceStructure());
+                              pageDto.setPoidsNaissance(page.getPoidsNaissance());
+                              // 👉 ajoute d’autres setters selon ton besoin
+
+                              // ⚡️ Mapper les sous-entités
+                              page.getBilans().stream()
+                                      .map(mapper::toBilanDTO)   // ✅ correspond à l’interface
+                                      .toList();
+
+
+                              pageDto.setIndexTests(
+                                      page.getIndexTests().stream()
+                                              .map(mapper::toIndexTestDTO)
+                                              .toList()
+                              );
+
+                              pageDto.setPtmes(
+                                      page.getPtmes().stream()
+                                              .map(mapper::toPtmeDTO)
+                                              .toList()
+                              );
+
+                              pageDto.setSuiviARVs(
+                                      page.getSuiviARVs().stream()
+                                              .map(mapper::toSuiviARVDTO)
+                                              .toList()
+                              );
+
+                              pageDto.setSuiviPathologiques(
+                                      page.getSuiviPathologiques().stream()
+                                              .map(mapper::toSuiviPathologiqueDTO)
+                                              .toList()
+                              );
+
+                              pageDto.setSuiviImmunovirologiques(
+                                      page.getSuiviImmunovirologiques().stream()
+                                              .map(mapper::toSuiviImmunovirologiqueDTO)
+                                              .toList()
+                              );
+
+                              pageDto.setPriseEnChargeTbs(
+                                      page.getPriseEnChargeTbs().stream()
+                                              .map(mapper::toPriseEnChargeTbDTO)
+                                              .toList()
+                              );
+
+                              pageDto.setDepistageFamiliales(
+                                      page.getDepistageFamiliales().stream()
+                                              .map(mapper::toDepistageFamilialeDTO)
+                                              .toList()
+                              );
+
+                              return pageDto;
+                          })
+                          .toList()
+          );
+
+          return dto;
+      }
+
+
+  }

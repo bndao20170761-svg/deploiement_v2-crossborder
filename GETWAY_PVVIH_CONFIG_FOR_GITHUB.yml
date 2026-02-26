@@ -1,0 +1,54 @@
+# Fichier à créer dans votre dépôt GitHub
+# Nom du fichier: GETWAY_PVVIH-dev.yml
+# Emplacement: https://github.com/BabacarNdaoKgl/cloud-config-repo-enda.git
+
+# Configuration Eureka pour le Gateway
+eureka:
+  client:
+    enabled: true
+    service-url:
+      defaultZone: http://api-register:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${server.port}}
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    gateway:
+      enabled: true
+    health:
+      show-details: always
+
+# Logging
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.web.cors: DEBUG
+    reactor.netty: DEBUG
+    org.springframework.cloud.gateway.route: DEBUG
+    org.springframework.cloud.gateway.filter: DEBUG
+
+# Configuration CORS (si nécessaire)
+spring:
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true

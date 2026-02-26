@@ -1,0 +1,416 @@
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import { getTranslation } from '../utils/translations';
+export default function FormulaireMultiEtapes(language) {
+ const [contacts, setContacts] = useState([
+    { nom: "", type: "", age: "", sexe: "", statut: "", resultat: "", soins: "", id: "" }
+  ]);
+
+
+  const [etape, setEtape] = useState(0);
+  const [donneesFormulaire, setDonneesFormulaire] = useState({
+    // Section I
+    profession: "",
+    statutFamilial: "",
+    personneContact: "",
+    telephoneContact: "",
+    // Section II
+    dateTest: "",
+    dateConfirmation: "",
+    lieuTest: "",
+    resultat: "",
+    // Section III
+    soutienNom: "",
+    soutienPrenoms: "",
+    soutienLien: "",
+    soutienTelephone: "",
+    soutienAdresse: "",
+    // Section IV
+    portesEntree: [],
+    reference: "Non",
+    dateReference: "",
+    siteOrigine: "",
+    // Section V
+    arv: "",
+    dateDebutArv: "",
+    protocoleInitialArv: "",
+    protocoleActuelArv: "",
+    // Section VI
+    nbGrossessesPtme: "",
+    // Section VII
+    contraception: "",
+    prep: "",
+    tuberculose: "",
+    maladiesChroniques: [],
+    autresMaladiesChroniques: "",
+    // Section VIII
+    stadeOms: "",
+    dateDebutTar: "",
+    protocoleInitialTar: "",
+  });
+
+  const gererCheckbox = (champ, valeur) => {
+    setDonneesFormulaire((prev) => {
+      if (prev[champ].includes(valeur)) {
+        return { ...prev, [champ]: prev[champ].filter((v) => v !== valeur) };
+      } else {
+        return { ...prev, [champ]: [...prev[champ], valeur] };
+      }
+    });
+  };
+
+   const ajouterContact = () => {IndexTestDTO
+      setContacts([
+        ...contacts,
+        { nom: "", type: "", age: "", sexe: "", statut: "", resultat: "", soins: "", id: "" }
+      ]);
+    };
+
+    const supprimerContact = (index) => {
+      const newContacts = contacts.filter((_, i) => i !== index);
+      setContacts(newContacts);
+    };
+
+    const mettreAJourContact = (index, champ, valeur) => {
+      const newContacts = [...contacts];
+      newContacts[index][champ] = valeur;
+      setContacts(newContacts);
+    };
+
+    const [grossesses, setGrossesses] = useState([//PTMEDTO
+      {
+        dateDiagnostic: "",
+        rangCpn: "",
+        dateProbableAcc: "",
+        issue: "",
+        dateReelle: "",
+        modeAcc: "",
+        allaitement: "",
+        prophylaxie: "",
+        protocole: "",
+        dateDebutProtocole: "",
+        pcr1: "",
+        datePrelPcr: "",
+        resultatPcr: "",
+        serologie: "",
+        datePrelSero: "",
+        resultatSero: "",
+      },
+    ]);
+
+    const ajouterGrossesse = () => {
+      setGrossesses([
+        ...grossesses,
+        {
+          dateDiagnostic: "",
+          rangCpn: "",
+          dateProbableAcc: "",
+          issue: "",
+          dateReelle: "",
+          modeAcc: "",
+          allaitement: "",
+          prophylaxie: "",
+          protocole: "",
+          dateDebutProtocole: "",
+          pcr1: "",
+          datePrelPcr: "",
+          resultatPcr: "",
+          serologie: "",
+          datePrelSero: "",
+          resultatSero: "",
+        },
+      ]);
+    };
+
+    const supprimerGrossesse = (index) => {
+      setGrossesses(grossesses.filter((_, i) => i !== index));
+    };
+
+    const majGrossesse = (index, champ, valeur) => {
+      const newGrossesses = [...grossesses];
+      newGrossesses[index][champ] = valeur;
+      setGrossesses(newGrossesses);
+    };
+
+     const [bilans, setBilans] = useState([]);
+
+      // ➕ Ajouter un nouveau bilan
+      const ajouterBilan = () => {//BilanDTO
+        setBilans([
+          ...bilans,
+          {
+            date: "",
+            hb: "",
+            vgm: "",
+            ccmh: "",
+            gb: "",
+            neutrophiles: "",
+            lymphocytes: "",
+            plaquettes: "",
+            alat: "",
+            asat: "",
+            glycemie: "",
+            creat: "",
+            aghbs: "",
+            tb_lam: "",
+            ag_crypto: "",
+            genexpert: "",
+            proteinurie: "",
+            chol_total: "",
+            hdl: "",
+            ldl: "",
+            triglycerides: "",
+            depistage_col: "",
+            syphilis: "",
+          },
+        ]);
+      };
+
+      // ✏️ Modifier un champ dans un bilan existant
+      const modifierBilan = (index, champ, valeur) => {
+        const newBilans = [...bilans];
+        newBilans[index][champ] = valeur;
+        setBilans(newBilans);
+      };
+
+      // ❌ Supprimer un bilan
+      const supprimerBilan = (index) => {
+        setBilans(bilans.filter((_, i) => i !== index));
+      };
+
+const [suivis, setSuivis] = useState([]);
+
+  // ➕ Ajouter un suivi
+  const ajouterSuivi = () => {//SuiviImmunovirologiqueDTO
+    setSuivis([
+      ...suivis,
+      {
+        datePrelevement: "",
+        dateResultat: "",
+        resultatCV: "",
+        dateCD4: "",
+        resultatCD4: "",
+        cd4Categorie: "", // >=200 ou <200
+      },
+    ]);
+  };
+
+  // ✏️ Modifier un champ
+  const modifierSuivi = (index, champ, valeur) => {
+    const newSuivis = [...suivis];
+    newSuivis[index][champ] = valeur;
+    setSuivis(newSuivis);
+  };
+
+  // ❌ Supprimer un suivi
+  const supprimerSuivi = (index) => {
+    setSuivis(suivis.filter((_, i) => i !== index));
+  };
+
+const [suiviss, setSuiviss] = useState([]);
+
+// ➕ Ajouter un suivi
+const ajouterSuiviImmino = () => {
+  setSuiviss([
+    ...suiviss,
+    {
+      datePrelevement: "",
+      dateResultat: "",
+      resultatCV: "",
+      dateCD4: "",
+      resultatCD4: "",
+      cd4Categorie: "", // >=200 ou <200
+    },
+  ]);
+};
+
+// ✏️ Modifier un champ
+const modifierSuiviImmino = (index, champ, valeur) => {
+  const newSuiviss = [...suiviss];
+  newSuiviss[index][champ] = valeur;
+  setSuiviss(newSuiviss);
+};
+
+// ❌ Supprimer un suivi
+const supprimerSuiviImmino = (index) => {
+  setSuiviss(suiviss.filter((_, i) => i !== index));
+};
+
+const [fiches, setFiches] = useState([]);
+
+const ajouterFiche = () => {//SuiviPathologiqueDTO
+  setFiches([
+    ...fiches,
+    {
+      date: "",
+      taille: "",
+      poids: "",
+      imc: "",
+      ta: "",
+      temperature: "",
+      pouls: "",
+      rechercheTB: "",
+      resultatTB: "",
+      tpt: "",
+      autresPathologies: "",
+      cotrimoxazole: "",
+    },
+  ]);
+};
+
+const modifierFiche = (index, champ, valeur) => {
+  const newFiches = [...fiches];
+  newFiches[index][champ] = valeur;
+  setFiches(newFiches);
+};
+
+const supprimerFiche = (index) => {
+  setFiches(fiches.filter((_, i) => i !== index));
+};
+
+// State
+const [tbFiches, setTbFiches] = useState([]);
+
+// Ajouter une ligne
+const ajouterTbFiche = () => {//PriseEnChargeTbDTO
+  setTbFiches([
+    ...tbFiches,
+    { date: "", debut: "", fin: "", issu: "" },
+  ]);
+};
+
+// Modifier une cellule
+const modifierTbFiche = (index, champ, valeur) => {
+  const newFiches = [...tbFiches];
+  newFiches[index][champ] = valeur;
+  setTbFiches(newFiches);
+};
+
+// Supprimer une ligne
+const supprimerTbFiche = (index) => {
+  setTbFiches(tbFiches.filter((_, i) => i !== index));
+};
+
+// --- état + helpers ---
+const [suiviArvs, setSuiviArvs] = useState([//SuiviARVDTO
+  {
+    // facultatif si tu veux dater chaque ligne
+    dateVisite: "",
+
+    // ARV
+    situationArv: "",            // 0=Pas sous ARV, 1=Sous ARV, 2=Changement de ligne, 3=Substitution
+    changementLignePreciser: "", // (si 2) 1=Ligne2, 2=Ligne3
+    protocole: "",
+
+    // Substitution
+    substitutionMotif: "",       // (si 3) 1=Toxicité/effets secondaires, 2=Rupture de stock, 3=Autres
+    substitutionPrecision: "",   // (si motif=3) préciser
+
+    // OMS / Observance / Nutrition
+    stadeCliniqueOms: "",        // 1,2,3,4
+    observanceCorrecte: "",      // 0=Oui, 1=Non
+    evaluationNutritionnelle: "",// 1=Maigreur, 2=Bon état, 3=Surpoids, 4=Obésité
+
+    // Classification
+    classification: "",          // 1=Bien portant, 2=MVA, 3=Stable, 4=Non stable
+
+    // Modèle de soins + RDV
+    modeleSoinsNumero: "",
+    prochainRdv: "",
+  },
+]);
+
+const ajouterSuiviArv = () => {
+  setSuiviArvs([
+    ...suiviArvs,
+    {
+      dateVisite: "",
+      situationArv: "",
+      changementLignePreciser: "",
+      protocole: "",
+      substitutionMotif: "",
+      substitutionPrecision: "",
+      stadeCliniqueOms: "",
+      observanceCorrecte: "",
+      evaluationNutritionnelle: "",
+      classification: "",
+      modeleSoinsNumero: "",
+      prochainRdv: "",
+    },
+  ]);
+};
+
+const modifierSuiviArv = (index, champ, valeur) => {
+  const copie = [...suiviArvs];
+  copie[index][champ] = valeur;
+  setSuiviArvs(copie);
+};
+
+const supprimerSuiviArv = (index) => {
+  setSuiviArvs(suiviArvs.filter((_, i) => i !== index));
+};//tout en haut est au niveau de mon formulaire react et j'ai mis en commentaire les dtos correspond chaque partie de mon
+formulaire .Comment je pourrais procéder pour le correspondre aux dtos de mon backend
+je vous passe un test qui a été effectuer avec succes avec postman:{
+                                                                     "codeDossier": "DOSS09A90SZ",
+                                                                     "codePatient": "X3Z14GRL",
+                                                                     "doctorCode": "DOC123",
+                                                                     "pages": [
+                                                                       {
+                                                                         "pereNomPrenoms": "Papa Diop",
+                                                                         "pereStatut": "Vivant",
+                                                                         "pereProfession": "Cultivateur",
+                                                                         "mereNomPrenoms": "Mariama Sow",
+                                                                         "mereStatut": "Décédée",
+                                                                         "dateTest": "2025-09-02",
+                                                                         "bilans": [
+                                                                           {
+                                                                             "hb": "12",
+                                                                             "vgm": "80",
+                                                                             "ccmh": "33"
+                                                                           }
+                                                                         ],
+                                                                         "depistageFamiliales": [
+                                                                           {
+                                                                             "nom": "Famille Ndao",
+                                                                             "type": "Frère",
+                                                                             "age": 25,
+                                                                             "sexe": "M",
+                                                                             "statut": "VIH+",
+                                                                             "resultat": "Positif"
+                                                                           }
+                                                                         ],
+                                                                         "indexTests": [
+                                                                           {
+                                                                             "nom": "Test VIH",
+                                                                             "type": "Sanguin",
+                                                                             "statut": "Positif"
+                                                                           }
+                                                                         ],
+                                                                         "suiviImmunovirologiques": [
+                                                                           {
+                                                                             "datePrelevement": "2025-09-01",
+                                                                             "resultatCV": "Indétectable"
+                                                                           }
+                                                                         ],
+                                                                         "suiviPathologiques": [
+                                                                           {
+                                                                             "date": "2025-09-01",
+                                                                             "autresPathologies": "Tuberculose"
+                                                                           }
+                                                                         ],
+                                                                         "suiviARVs": [
+                                                                           {
+                                                                             "pageId": 1
+                                                                           }
+                                                                         ],
+                                                                         "priseEnChargeTbs": [
+                                                                           {
+                                                                             "date": "2025-09-01",
+                                                                             "debut": "2025-09-01",
+                                                                             "traitement": "Rifampicine"
+                                                                           }
+                                                                         ]
+                                                                       }
+                                                                     ]
+                                                                   }

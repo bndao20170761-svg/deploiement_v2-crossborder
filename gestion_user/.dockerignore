@@ -1,0 +1,23 @@
+# Java/Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+
+# Logs
+*.log
+
+# Temporary
+tmp/
+*.tmp
+

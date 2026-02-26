@@ -1,0 +1,95 @@
+version: '3.8'
+
+# Development override configuration
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+services:
+  # ==================== Frontend Services - Development Mode ====================
+  
+  gestion-forum-front:
+    volumes:
+      - ./gestion_forum_front/src:/app/src:ro
+      - ./gestion_forum_front/public:/app/public:ro
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+    command: npm start
+
+  a-reference-front:
+    volumes:
+      - ./a_reference_front/src:/app/src:ro
+      - ./a_reference_front/public:/app/public:ro
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+    command: npm start
+
+  a-user-front:
+    volumes:
+      - ./a_user_front/src:/app/src:ro
+      - ./a_user_front/public:/app/public:ro
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+    command: npm start
+
+  # ==================== Backend Services - Development Mode ====================
+  
+  forum-pvvih:
+    environment:
+      - SPRING_DEVTOOLS_RESTART_ENABLED=true
+      - LOGGING_LEVEL_ROOT=DEBUG
+    ports:
+      - "8081:8080"
+      - "5005:5005"
+    command: java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -jar app.jar
+
+  gestion-user:
+    environment:
+      - SPRING_DEVTOOLS_RESTART_ENABLED=true
+      - LOGGING_LEVEL_ROOT=DEBUG
+    ports:
+      - "8082:8080"
+      - "5006:5005"
+    command: java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -jar app.jar
+
+  gestion-reference:
+    environment:
+      - SPRING_DEVTOOLS_RESTART_ENABLED=true
+      - LOGGING_LEVEL_ROOT=DEBUG
+    ports:
+      - "8083:8080"
+      - "5007:5005"
+    command: java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -jar app.jar
+
+  gestion-patient:
+    environment:
+      - SPRING_DEVTOOLS_RESTART_ENABLED=true
+      - LOGGING_LEVEL_ROOT=DEBUG
+    ports:
+      - "8084:8080"
+      - "5008:5005"
+    command: java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -jar app.jar
+
+  # ==================== Edge Services - Development Mode ====================
+  
+  gateway-pvvih:
+    environment:
+      - LOGGING_LEVEL_ROOT=DEBUG
+    ports:
+      - "5009:5005"
+    command: java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -jar app.jar
+
+  api-configuration:
+    environment:
+      - LOGGING_LEVEL_ROOT=DEBUG
+    ports:
+      - "5010:5005"
+    command: java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -jar app.jar
+
+  api-register:
+    environment:
+      - LOGGING_LEVEL_ROOT=DEBUG
+    ports:
+      - "5011:5005"
+    command: java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -jar app.jar

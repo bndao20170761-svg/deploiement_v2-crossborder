@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  user_front:
+    build: .
+    ports:
+      - "3001:81"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    volumes:
+      - ./user_front:/app
+    networks:
+      - microservices_net
+
+networks:
+  microservices_net:
+    driver: bridge
+
+
+version: '3.8'
+
+services:
+  referencement_front:
+    build: .
+    ports:
+      - "3000:81"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    volumes:
+      - ./referencement_front:/app
+    networks:
+      - microservices_net
+
+networks:
+  microservices_net:
+    driver: bridge
+
+

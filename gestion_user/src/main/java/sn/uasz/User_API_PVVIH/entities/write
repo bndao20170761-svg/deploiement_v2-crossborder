@@ -1,0 +1,1050 @@
+package sn.uasz.User_API_PVVIH.entities;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Table(name = "hopital")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Hopital {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private Boolean active;
+
+    @Column(nullable = false)
+    private String nom;
+
+    @Column(nullable = false)
+    private String pays;
+
+    @Column(nullable = false)
+    private String ville;
+
+    // NOUVEAUX CHAMPS POUR LA CARTOGRAPHIE
+    private Double latitude;
+    private Double longitude;
+    private String adresseComplete;
+    private String telephoneFixe;
+    private String type;
+
+    // Relation avec les médecins
+    @OneToMany(mappedBy = "hopital", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Doctor> doctors = new ArrayList<>();
+
+    // NOUVEAU : Docteur qui a créé l'hôpital
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by_doctor_id")
+    private Doctor createdByDoctor;
+
+    // NOUVEAU : Date de création
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    // 🔹 SUPPRIMEZ le champ prestatairesJson
+    // @Column(columnDefinition = "TEXT")
+    // private String prestatairesJson; // ← SUPPRIMEZ cette ligne
+
+    // Relation avec les services
+    @OneToMany(mappedBy = "hopital", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Service> services = new ArrayList<>();
+
+    // 🔹 AJOUTEZ la relation avec les prestataires
+    @ManyToMany
+    @JoinTable(
+            name = "hopital_prestataire",
+            joinColumns = @JoinColumn(name = "hopital_id"),
+            inverseJoinColumns = @JoinColumn(name = "prestataire_id")
+    )
+    @JsonManagedReference
+    private List<Prestataire> prestataires = new ArrayList<>();
+
+    // Méthode utilitaire pour ajouter un service
+    public void addService(Service service) {
+        if (this.services == null) {
+            this.services = new ArrayList<>();
+        }
+        service.setHopital(this);
+        this.services.add(service);
+    }
+
+    // 🔹 Méthode utilitaire pour ajouter un prestataire
+    public void addPrestataire(Prestataire prestataire) {
+        if (this.prestataires == null) {
+            this.prestataires = new ArrayList<>();
+        }
+        this.prestataires.add(prestataire);
+    }
+}
+package sn.uasz.User_API_PVVIH.entities;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Table(name = "prestataire")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Prestataire {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String nom;
+
+    @Enumerated(EnumType.STRING)
+    private TypePrestataire type; // MEDECIN_PEC, ASSISTANT_SOCIAL, PEDIATRE
+
+    private String specialite;
+    private String telephone;
+    private String email;
+
+    @ManyToMany(mappedBy = "prestataires")
+    @JsonBackReference
+    private List<Hopital> hopitaux = new ArrayList<>();
+
+    public enum TypePrestataire {
+        MEDECIN_PEC,
+        ASSISTANT_SOCIAL,
+        PEDIATRE
+    }
+}
+
+package sn.uasz.User_API_PVVIH.entities;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.*;
+import lombok.*;
+@Entity
+@Table(name = "service_hopital")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Service {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String type;
+
+    @ManyToOne
+    @JoinColumn(name = "hopital_id", referencedColumnName = "id")
+    @JsonBackReference
+    private Hopital hopital;
+
+    // 🔹 AJOUTEZ CES CHAMPS POUR LES PRESTATAIRES
+    private String nomPrestataire;
+    private String typePrestataire; // 'medecin-pec', 'assistant-social', 'pediatre'
+    private String specialitePrestataire;
+    private String contactPrestataire;
+}
+
+package sn.uasz.User_API_PVVIH.mappers;
+
+import org.mapstruct.*;
+import org.mapstruct.factory.Mappers;
+import sn.uasz.User_API_PVVIH.dtos.*;
+import sn.uasz.User_API_PVVIH.entities.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Mapper(componentModel = "spring")
+public interface AdminMapper {
+
+    AdminMapper INSTANCE = Mappers.getMapper(AdminMapper.class);
+
+    // ========== ASSISTANT SOCIAL ==========
+    @Mapping(target = "hopitalId", source = "hopital.id")
+    @Mapping(target = "utilisateurId", source = "utilisateur.id")
+    @Mapping(target = "nomUtilisateur", source = "utilisateur.nom")
+    @Mapping(target = "prenomUtilisateur", source = "utilisateur.prenom")
+    @Mapping(target = "nationaliteUtilisateur", source = "utilisateur.nationalite")
+    AssistantSocialDto assistantSocialToDto(AssistantSocial assistantSocial);
+
+    @Mapping(target = "hopital", ignore = true)
+    @Mapping(target = "utilisateur", ignore = true)
+    AssistantSocial dtoToAssistantSocial(AssistantSocialDto assistantSocialDto);
+
+    // ========== ASSOCIATION ==========
+    @Mapping(target = "utilisateurId", source = "utilisateur.id")
+    AssociationDto associationToDto(Association association);
+
+    @Mapping(target = "utilisateur", ignore = true)
+    Association dtoToAssociation(AssociationDto associationDto);
+
+    // ========== DOCTOR ==========
+    @Mapping(target = "hopitalId", source = "hopital.id")
+    @Mapping(target = "utilisateurId", source = "utilisateur.id")
+    @Mapping(target = "nomUtilisateur", source = "utilisateur.nom")
+    @Mapping(target = "prenomUtilisateur", source = "utilisateur.prenom")
+    @Mapping(target = "nationaliteUtilisateur", source = "utilisateur.nationalite")
+    @Mapping(target = "codeDoctor", source = "codeDoctor")
+    DoctorDto doctorToDto(Doctor doctor);
+
+    @Mapping(target = "hopital", ignore = true)
+    @Mapping(target = "utilisateur", ignore = true)
+    @Mapping(target = "codeDoctor", ignore = true)
+    Doctor dtoToDoctor(DoctorDto doctorDto);
+
+    // ========== HOPITAL ==========
+    @Mapping(target = "createdByDoctorId", expression = "java(getCreatedByDoctorId(hopital.getCreatedByDoctor()))")
+    @Mapping(target = "createdByDoctorName", expression = "java(getDoctorFullName(hopital.getCreatedByDoctor()))")
+    @Mapping(target = "services", source = "services", qualifiedByName = "servicesToDtos")
+    @Mapping(target = "doctors", source = "doctors", qualifiedByName = "doctorsToDtos")
+    @Mapping(target = "prestataires", source = "prestataires", qualifiedByName = "prestatairesToDtos")
+    HopitalDto hopitalToDto(Hopital hopital);
+
+    @Mapping(target = "createdByDoctor", ignore = true)
+    @Mapping(target = "services", ignore = true)
+    @Mapping(target = "doctors", ignore = true)
+    @Mapping(target = "prestataires", ignore = true)
+    Hopital dtoToHopital(HopitalDto hopitalDto);
+
+    // ========== MEMBRE ==========
+    @Mapping(target = "associationCode", source = "association.codeAssociation")
+    @Mapping(target = "associationPseudo", source = "association.pseudo")
+    @Mapping(target = "utilisateurId", source = "utilisateur.id")
+    @Mapping(target = "nomUtilisateur", source = "utilisateur.nom")
+    @Mapping(target = "prenomUtilisateur", source = "utilisateur.prenom")
+    @Mapping(target = "emailUser", source = "utilisateur.username")
+    @Mapping(target = "nomCompletUtilisateur",
+            expression = "java(membre.getUtilisateur().getPrenom() + \" \" + membre.getUtilisateur().getNom())")
+    MembreDto membreToDto(Membre membre);
+
+    @Mapping(target = "association", ignore = true)
+    @Mapping(target = "utilisateur", ignore = true)
+    Membre dtoToMembre(MembreDto membreDto);
+
+    // ========== PATIENT ==========
+    @Mapping(target = "nomUtilisateur", source = "utilisateur.nom")
+    @Mapping(target = "prenomUtilisateur", source = "utilisateur.prenom")
+    @Mapping(target = "nationaliteUtilisateur", source = "utilisateur.nationalite")
+    @Mapping(target = "doctorCreateCode", source = "doctorCreate.codeDoctor")
+    @Mapping(target = "utilisateurId", source = "utilisateur.id")
+    PatientDto patientToDto(Patient patient);
+
+    @Mapping(target = "doctorCreate", ignore = true)
+    @Mapping(target = "utilisateur", ignore = true)
+    Patient dtoToPatient(PatientDto patientDto);
+
+    // ========== SERVICE ==========
+    @Mapping(target = "hopitalId", source = "hopital.id")
+    @Mapping(target = "nomPrestataire", source = "nomPrestataire")
+    @Mapping(target = "typePrestataire", source = "typePrestataire")
+    @Mapping(target = "specialitePrestataire", source = "specialitePrestataire")
+    @Mapping(target = "contactPrestataire", source = "contactPrestataire")
+    ServiceDto serviceToDto(Service service);
+
+    @Mapping(target = "hopital", ignore = true)
+    @Mapping(target = "nomPrestataire", source = "nomPrestataire")
+    @Mapping(target = "typePrestataire", source = "typePrestataire")
+    @Mapping(target = "specialitePrestataire", source = "specialitePrestataire")
+    @Mapping(target = "contactPrestataire", source = "contactPrestataire")
+    Service dtoToService(ServiceDto serviceDto);
+
+    // ========== PRESTATAIRE ==========
+    PrestataireDto prestataireToDto(Prestataire prestataire);
+
+    Prestataire dtoToPrestataire(PrestataireDto prestataireDto);
+
+    // ========== MÉTHODES DE MAPPING PERSONNALISÉES ==========
+
+    @Named("servicesToDtos")
+    default List<ServiceDto> servicesToDtos(List<Service> services) {
+        if (services == null) {
+            return null;
+        }
+        return services.stream()
+                .map(this::serviceToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Named("doctorsToDtos")
+    default List<DoctorDto> doctorsToDtos(List<Doctor> doctors) {
+        if (doctors == null) {
+            return null;
+        }
+        return doctors.stream()
+                .map(this::doctorToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Named("prestatairesToDtos")
+    default List<PrestataireDto> prestatairesToDtos(List<Prestataire> prestataires) {
+        if (prestataires == null) {
+            return null;
+        }
+        return prestataires.stream()
+                .map(this::prestataireToDto)
+                .collect(Collectors.toList());
+    }
+
+    // ========== MÉTHODES UTILITAIRES POUR LES IDs ==========
+    default Hopital mapHopitalId(Long id) {
+        if (id == null) return null;
+        return Hopital.builder().id(id).build();
+    }
+
+    default Association mapAssociationCode(String code) {
+        if (code == null) return null;
+        return Association.builder().codeAssociation(code).build();
+    }
+
+    default User mapUtilisateurId(Long id) {
+        if (id == null) return null;
+        return User.builder().id(id).build();
+    }
+
+    default Doctor mapDoctorCreateCode(String code) {
+        if (code == null) return null;
+        return Doctor.builder().codeDoctor(code).build();
+    }
+
+    default Doctor mapCreatedByDoctorId(String codeDoctor) {
+        if (codeDoctor == null) return null;
+        return Doctor.builder().codeDoctor(codeDoctor).build();
+    }
+
+    // ========== MÉTHODES UTILITAIRES POUR LES NOMS ==========
+    default String getDoctorFullName(Doctor doctor) {
+        if (doctor == null || doctor.getUtilisateur() == null) {
+            return null;
+        }
+        return doctor.getUtilisateur().getPrenom() + " " + doctor.getUtilisateur().getNom();
+    }
+
+    // ========== MÉTHODE UTILITAIRE POUR L'ID DU DOCTEUR CREATEUR ==========
+    default String getCreatedByDoctorId(Doctor doctor) {
+        if (doctor == null) {
+            return null;
+        }
+        return doctor.getCodeDoctor();
+    }
+
+    // ========== MÉTHODES DE MISE À JOUR ==========
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateHopitalFromDto(HopitalDto hopitalDto, @MappingTarget Hopital hopital);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateServiceFromDto(ServiceDto serviceDto, @MappingTarget Service service);
+}
+
+package sn.uasz.User_API_PVVIH.dtos;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class HopitalDto {
+    private Long id;
+    private String nom;
+    private String pays;
+    private String ville;
+    private Boolean active;
+    private Double latitude;
+    private String type;
+    private Double longitude;
+    private String adresseComplete;
+    private String telephoneFixe;
+    private LocalDateTime createdAt;
+    private String createdByDoctorId;
+    private String createdByDoctorName;
+    private List<DoctorDto> doctors;
+    private List<ServiceDto> services;
+    private List<PrestataireDto> prestataires; // ← Changez de List<Object> à List<PrestataireDto>
+}
+
+package sn.uasz.User_API_PVVIH.dtos;
+
+import lombok.*;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class PrestataireDto {
+    private String type;
+    private String nom;
+    private String specialite;
+    private String telephone; // ← AJOUTEZ ce champ
+    private String email; // ← AJOUTEZ ce champ
+}
+
+package sn.uasz.User_API_PVVIH.dtos;
+
+import lombok.*;
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class ServiceDto {
+    private Long id;
+    private String type;
+    private String serviceId;
+
+    // 🔹 CHAMPS POUR LES PRESTATAIRES
+    private String nomPrestataire;
+    private String typePrestataire;
+    private String specialitePrestataire;
+    private String contactPrestataire;
+
+    private Long hopitalId;
+}
+
+package sn.uasz.User_API_PVVIH.repositories;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import sn.uasz.User_API_PVVIH.entities.Doctor;
+import sn.uasz.User_API_PVVIH.entities.Hopital;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface HopitalRepository extends JpaRepository<Hopital, Long> {
+
+    boolean existsByNomAndVille(String nom, String ville);
+
+    boolean existsByNomAndVilleAndIdNot(String nom, String ville, Long id);
+
+    List<Hopital> findByPays(String pays);
+
+    List<Hopital> findByVille(String ville);
+
+    @Query("SELECT COUNT(d) FROM Doctor d WHERE d.hopital.id = :hospitalId")
+    long countDoctorsByHospital(@Param("hospitalId") Long hospitalId);
+
+    @Query("SELECT COUNT(a) FROM AssistantSocial a WHERE a.hopital.id = :hospitalId")
+    long countAssistantsByHospital(@Param("hospitalId") Long hospitalId);
+    List<Hopital> findByActiveTrue();
+    Optional<Hopital> findByNom(String nom);
+
+
+
+    List<Hopital> findByVilleAndActiveTrue(String ville);
+    List<Hopital> findByPaysAndActiveTrue(String pays);
+    List<Hopital> findByVilleAndPaysAndActiveTrue(String ville, String pays);
+    // Hôpitaux inactifs (ajout manquant → corrige ton erreur)
+    List<Hopital> findByActiveFalse();
+    // Dans HopitalRepository.java
+    List<Hopital> findByCreatedByDoctor(Doctor doctor);
+    // Ajoutez cette méthode
+    @Query("SELECT h FROM Hopital h LEFT JOIN FETCH h.services WHERE h.id = :id")
+    Optional<Hopital> findByIdWithServices(@Param("id") Long id);
+
+    @Query("SELECT h FROM Hopital h " +
+            "LEFT JOIN FETCH h.services " +
+            "LEFT JOIN FETCH h.prestataires " +
+            "WHERE h.id = :id")
+    Optional<Hopital> findByIdWithServicesAndPrestataires(@Param("id") Long id);
+
+}
+
+package sn.uasz.User_API_PVVIH.repositories;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import sn.uasz.User_API_PVVIH.entities.Prestataire;
+
+import java.util.Optional;
+
+@Repository
+public interface PrestataireRepository extends JpaRepository<Prestataire, Long> {
+
+    // Méthode pour trouver un prestataire par nom et type
+    Optional<Prestataire> findByNomAndType(String nom, Prestataire.TypePrestataire type);
+}
+
+package sn.uasz.User_API_PVVIH.repositories;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import sn.uasz.User_API_PVVIH.entities.Service;
+
+public interface ServiceRepository extends JpaRepository<Service, Long> {
+}
+
+
+package sn.uasz.User_API_PVVIH.services;
+
+import jakarta.transaction.Transactional;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import sn.uasz.User_API_PVVIH.dtos.HopitalDto;
+import sn.uasz.User_API_PVVIH.dtos.PrestataireDto;
+import sn.uasz.User_API_PVVIH.dtos.ServiceDto;
+import sn.uasz.User_API_PVVIH.entities.Doctor;
+import sn.uasz.User_API_PVVIH.entities.Hopital;
+import sn.uasz.User_API_PVVIH.entities.Prestataire;
+import sn.uasz.User_API_PVVIH.entities.User;
+import sn.uasz.User_API_PVVIH.mappers.AdminMapper;
+import sn.uasz.User_API_PVVIH.repositories.DoctorRepository;
+import sn.uasz.User_API_PVVIH.repositories.HopitalRepository;
+import sn.uasz.User_API_PVVIH.repositories.PrestataireRepository;
+import sn.uasz.User_API_PVVIH.repositories.UserRepository;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+@Service
+public class HopitalService {
+
+    private final HopitalRepository hopitalRepository;
+    private final AdminMapper adminMapper;
+    private final UserRepository userRepository;
+    private  final DoctorRepository doctorRepository;
+    private  final PrestataireRepository prestataireRepository;
+
+    public HopitalService(HopitalRepository hopitalRepository, AdminMapper adminMapper,
+                          UserRepository userRepository, DoctorRepository doctorRepository, PrestataireRepository prestataireRepository) {
+        this.hopitalRepository = hopitalRepository;
+        this.adminMapper = adminMapper;
+        this.userRepository = userRepository;
+        this.doctorRepository = doctorRepository;
+        this.prestataireRepository = prestataireRepository;
+    }
+
+
+
+    /*public HopitalDto creerHopital(HopitalDto hopitalDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        // Récupérer l'utilisateur courant
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Utilisateur authentifié introuvable"));
+
+        // Initialiser le champ 'active' selon le rôle
+        if ("ADMIN".equalsIgnoreCase(currentUser.getProfil())) {
+            hopitalDto.setActive(true); // Admin : actif directement
+        } else if ("DOCTOR".equalsIgnoreCase(currentUser.getProfil())) {
+            hopitalDto.setActive(false); // Doctor : pas actif
+        } else {
+            // Optionnel : pour les autres profils
+            hopitalDto.setActive(false);
+        }
+
+        // Mapper le DTO en entité
+        Hopital hopital = adminMapper.dtoToHopital(hopitalDto);
+
+        // Sauvegarder dans la base
+        hopital = hopitalRepository.save(hopital);
+
+        // Retourner le DTO
+        return adminMapper.hopitalToDto(hopital);
+    }
+*/
+
+
+
+
+
+    public HopitalDto getHopitalById(Long id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Utilisateur authentifié introuvable"));
+
+        if (!"ADMIN".equalsIgnoreCase(currentUser.getProfil())) {
+            throw new RuntimeException("Seuls les administrateurs peuvent consulter les détails d'un hôpital");
+        }
+
+        Hopital hopital = hopitalRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Hôpital non trouvé avec ID: " + id));
+
+        return adminMapper.hopitalToDto(hopital);
+    }
+
+    public boolean existsById(Long id) {
+        return hopitalRepository.existsById(id);
+    }
+
+    public long countHospitals() {
+        return hopitalRepository.count();
+    }
+
+    // Méthode pour trouver les hôpitaux par pays
+    public List<HopitalDto> getHospitalsByCountry(String pays) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Utilisateur authentifié introuvable"));
+
+        if (!"ADMIN".equalsIgnoreCase(currentUser.getProfil())) {
+            throw new RuntimeException("Seuls les administrateurs peuvent consulter cette liste");
+        }
+
+        return hopitalRepository.findByPays(pays).stream()
+                .map(adminMapper::hopitalToDto)
+                .collect(Collectors.toList());
+    }
+
+    // Méthode pour trouver les hôpitaux par ville
+    public List<HopitalDto> getHospitalsByCity(String ville) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Utilisateur authentifié introuvable"));
+
+        if (!"ADMIN".equalsIgnoreCase(currentUser.getProfil())) {
+            throw new RuntimeException("Seuls les administrateurs peuvent consulter cette liste");
+        }
+
+        return hopitalRepository.findByVille(ville).stream()
+                .map(adminMapper::hopitalToDto)
+                .collect(Collectors.toList());
+    }
+
+    // Méthode pour activer/désactiver un hôpital
+    @Transactional
+    public HopitalDto toggleHospitalStatus(Long id, boolean active) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+
+        User currentUser = userRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new RuntimeException("Utilisateur authentifié introuvable"));
+
+        // Vérifier le privilège ADMIN
+        if (!"ADMIN".equalsIgnoreCase(currentUser.getProfil())) {
+            throw new RuntimeException("Seuls les administrateurs peuvent modifier le statut des hôpitaux");
+        }
+
+        Hopital hopital = hopitalRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Hôpital non trouvé avec ID: " + id));
+
+        hopital.setActive(active);
+        Hopital updatedHopital = hopitalRepository.save(hopital);
+
+        return adminMapper.hopitalToDto(updatedHopital);
+    }
+
+    public List<HopitalDto> getHospitauxActifs() {
+        // Pas besoin de vérifier le rôle ADMIN - accessible à tous les authentifiés
+        return hopitalRepository.findByActiveTrue().stream()
+                .map(adminMapper::hopitalToDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<HopitalDto> getHospitauxPourCarte() {
+        // Pas besoin de vérifier le rôle ADMIN - accessible à tous les authentifiés
+        return hopitalRepository.findByActiveTrue().stream()
+                .filter(hopital -> hopital.getLatitude() != null && hopital.getLongitude() != null)
+                .map(adminMapper::hopitalToDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<HopitalDto> rechercherHospitaux(String ville, String pays) {
+        List<Hopital> hopitaux;
+
+        if (ville != null && pays != null) {
+            hopitaux = hopitalRepository.findByVilleAndPaysAndActiveTrue(ville, pays);
+        } else if (ville != null) {
+            hopitaux = hopitalRepository.findByVilleAndActiveTrue(ville);
+        } else if (pays != null) {
+            hopitaux = hopitalRepository.findByPaysAndActiveTrue(pays);
+        } else {
+            hopitaux = hopitalRepository.findByActiveTrue();
+        }
+
+        return hopitaux.stream()
+                .map(adminMapper::hopitalToDto)
+                .collect(Collectors.toList());
+    }
+
+    public HopitalDto getHopitalAvecDetails(Long id) {
+        Hopital hopital = hopitalRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Hôpital non trouvé avec ID: " + id));
+
+        return adminMapper.hopitalToDto(hopital);
+    }
+
+    // Récupérer tous les hôpitaux désactivés (accessible uniquement par l'ADMIN)
+    public List<HopitalDto> getInactiveHospitals() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Utilisateur authentifié introuvable"));
+
+        if (!"ADMIN".equalsIgnoreCase(currentUser.getProfil())) {
+            throw new RuntimeException("Seuls les administrateurs peuvent consulter les hôpitaux désactivés");
+        }
+
+        return hopitalRepository.findByActiveFalse().stream()
+                .map(adminMapper::hopitalToDto)
+                .collect(Collectors.toList());
+    }
+
+
+
+
+
+
+    // NOUVELLE METHODE : Récupérer les hôpitaux créés par le docteur + tous les hôpitaux actifs
+    public List<HopitalDto> getHospitalsByCurrentDoctor() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Utilisateur authentifié introuvable"));
+
+        if (!"DOCTOR".equalsIgnoreCase(currentUser.getProfil())) {
+            throw new RuntimeException("Seuls les docteurs peuvent consulter les hôpitaux");
+        }
+
+        Doctor doctor = doctorRepository.findByUser(currentUser)
+                .orElseThrow(() -> new RuntimeException("Docteur non trouvé"));
+
+        // Récupérer les hôpitaux créés par ce docteur
+        List<Hopital> hopitauxCrees = hopitalRepository.findByCreatedByDoctor(doctor);
+
+        // Récupérer tous les hôpitaux actifs
+        List<Hopital> hopitauxActifs = hopitalRepository.findByActiveTrue();
+
+        // Combiner les deux listes et supprimer les doublons
+        Set<Hopital> hopitauxUniques = new HashSet<>();
+        hopitauxUniques.addAll(hopitauxCrees);
+        hopitauxUniques.addAll(hopitauxActifs);
+
+        return hopitauxUniques.stream()
+                .map(adminMapper::hopitalToDto)
+                .collect(Collectors.toList());
+    }
+
+    // NOUVELLE METHODE : Récupérer tous les hôpitaux pour la carte
+    public List<HopitalDto> getAllHospitalsForMap() {
+        // Accessible à tous les utilisateurs authentifiés
+        return hopitalRepository.findAll().stream()
+                .map(adminMapper::hopitalToDto)
+                .collect(Collectors.toList());
+    }
+
+
+
+
+
+    @Transactional
+    public HopitalDto creerHopital(HopitalDto hopitalDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        // Récupérer l'utilisateur courant
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Utilisateur authentifié introuvable"));
+
+        // Mapper le DTO en entité
+        Hopital hopital = adminMapper.dtoToHopital(hopitalDto);
+
+        // 🔹 Initialiser les collections
+        if (hopital.getServices() == null) {
+            hopital.setServices(new ArrayList<>());
+        }
+        if (hopital.getPrestataires() == null) {
+            hopital.setPrestataires(new ArrayList<>());
+        }
+
+        // Initialiser le champ 'active' selon le rôle
+        if ("ADMIN".equalsIgnoreCase(currentUser.getProfil())) {
+            hopital.setActive(true);
+        } else if ("DOCTOR".equalsIgnoreCase(currentUser.getProfil())) {
+            hopital.setActive(false);
+            Doctor doctor = doctorRepository.findByUser(currentUser)
+                    .orElseThrow(() -> new RuntimeException("Docteur non trouvé pour cet utilisateur"));
+            hopital.setCreatedByDoctor(doctor);
+        } else {
+            hopital.setActive(false);
+        }
+
+        // 🔹 GESTION DES SERVICES
+        // 🔹 GESTION DES SERVICES
+        final Hopital finalHopital = hopital;
+
+        if (hopitalDto.getServices() != null && !hopitalDto.getServices().isEmpty()) {
+            hopitalDto.getServices().forEach(service -> {
+                sn.uasz.User_API_PVVIH.entities.Service serviceEntity;
+
+                // SUPPRIMEZ la vérification instanceof String - les services sont maintenant des ServiceDto
+                if (service instanceof ServiceDto) {
+                    serviceEntity = adminMapper.dtoToService((ServiceDto) service);
+                    serviceEntity.setHopital(finalHopital);
+                } else {
+                    // Fallback si ce n'est pas un ServiceDto
+                    serviceEntity = sn.uasz.User_API_PVVIH.entities.Service.builder()
+                            .type("Service inconnu")
+                            .hopital(finalHopital)
+                            .build();
+                }
+                finalHopital.getServices().add(serviceEntity);
+            });
+        } else {
+            // Service par défaut
+            sn.uasz.User_API_PVVIH.entities.Service serviceConsultation = sn.uasz.User_API_PVVIH.entities.Service.builder()
+                    .type("Consultation VIH")
+                    .hopital(finalHopital)
+                    .build();
+            finalHopital.getServices().add(serviceConsultation);
+        }
+
+        // 🔹 GESTION DES PRESTATAIRES
+        if (hopitalDto.getPrestataires() != null && !hopitalDto.getPrestataires().isEmpty()) {
+            hopitalDto.getPrestataires().forEach(prestataireDto -> {
+                try {
+                    // Convertir PrestataireDto en entité Prestataire
+                    Prestataire prestataire = adminMapper.dtoToPrestataire((PrestataireDto) prestataireDto);
+
+                    // Sauvegarder le prestataire
+                    Prestataire savedPrestataire = prestataireRepository.save(prestataire);
+
+                    // Associer à l'hôpital
+                    finalHopital.addPrestataire(savedPrestataire);
+
+                    System.out.println("✅ Prestataire ajouté: " + savedPrestataire.getNom());
+
+                } catch (Exception e) {
+                    System.err.println("❌ Erreur création prestataire: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            });
+        }
+
+        // Sauvegarder l'hôpital avec ses relations
+        hopital = hopitalRepository.save(hopital);
+
+        // Retourner le DTO
+        return adminMapper.hopitalToDto(hopital);
+    }
+
+
+    @Transactional
+    public HopitalDto modifierHopital(Long id, HopitalDto dto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+
+        User currentUser = userRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new RuntimeException("Utilisateur authentifié introuvable"));
+
+        // ✅ CHANGEMENT: Utiliser findById au lieu de findByIdWithServicesAndPrestataires
+        Hopital existingHopital = hopitalRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Hôpital non trouvé avec ID: " + id));
+
+        // ... le reste du code de vérification des permissions ...
+
+        // Mettre à jour les champs de l'hôpital
+        existingHopital.setNom(dto.getNom());
+        existingHopital.setPays(dto.getPays());
+        existingHopital.setVille(dto.getVille());
+        existingHopital.setLatitude(dto.getLatitude());
+        existingHopital.setLongitude(dto.getLongitude());
+        existingHopital.setAdresseComplete(dto.getAdresseComplete());
+        existingHopital.setTelephoneFixe(dto.getTelephoneFixe());
+        existingHopital.setType(dto.getType());
+
+        // Seul l'admin peut modifier le statut actif
+        if ("ADMIN".equalsIgnoreCase(currentUser.getProfil()) && dto.getActive() != null) {
+            existingHopital.setActive(dto.getActive());
+        }
+
+        // 🔹 Mise à jour des services
+        if (dto.getServices() != null) {
+            // Supprimer les services existants
+            existingHopital.getServices().clear();
+
+            // Ajouter les nouveaux services
+            dto.getServices().forEach(service -> {
+                sn.uasz.User_API_PVVIH.entities.Service serviceEntity;
+
+                if (service instanceof ServiceDto) {
+                    serviceEntity = adminMapper.dtoToService((ServiceDto) service);
+                    serviceEntity.setHopital(existingHopital);
+                    existingHopital.getServices().add(serviceEntity);
+                } else {
+                    // Fallback pour les strings ou autres types
+                    serviceEntity = sn.uasz.User_API_PVVIH.entities.Service.builder()
+                            .type(service.toString())
+                            .hopital(existingHopital)
+                            .build();
+                    existingHopital.getServices().add(serviceEntity);
+                }
+            });
+        } else {
+            // Si aucun service n'est fourni, garder les services existants
+            // Ou ajouter un service par défaut si vide
+            if (existingHopital.getServices().isEmpty()) {
+                sn.uasz.User_API_PVVIH.entities.Service serviceConsultation = sn.uasz.User_API_PVVIH.entities.Service.builder()
+                        .type("Consultation VIH")
+                        .hopital(existingHopital)
+                        .build();
+                existingHopital.getServices().add(serviceConsultation);
+            }
+        }
+
+        // 🔹 Mise à jour des prestataires
+        if (dto.getPrestataires() != null) {
+            // Supprimer les associations existantes (mais pas les prestataires eux-mêmes)
+            existingHopital.getPrestataires().clear();
+
+            // Ajouter les nouveaux prestataires
+            dto.getPrestataires().forEach(prestataireDto -> {
+                try {
+                    if (prestataireDto instanceof PrestataireDto) {
+                        PrestataireDto prestataireDtoObj = (PrestataireDto) prestataireDto;
+
+                        // Vérifier si le prestataire existe déjà (par nom et type)
+                        Prestataire existingPrestataire = prestataireRepository
+                                .findByNomAndType(prestataireDtoObj.getNom(),
+                                        Prestataire.TypePrestataire.valueOf(prestataireDtoObj.getType()))
+                                .orElse(null);
+
+                        Prestataire prestataire;
+                        if (existingPrestataire != null) {
+                            // Mettre à jour le prestataire existant
+                            existingPrestataire.setSpecialite(prestataireDtoObj.getSpecialite());
+                            existingPrestataire.setTelephone(prestataireDtoObj.getTelephone());
+                            existingPrestataire.setEmail(prestataireDtoObj.getEmail());
+                            prestataire = prestataireRepository.save(existingPrestataire);
+                        } else {
+                            // Créer un nouveau prestataire
+                            prestataire = adminMapper.dtoToPrestataire(prestataireDtoObj);
+                            prestataire = prestataireRepository.save(prestataire);
+                        }
+
+                        // Associer à l'hôpital
+                        existingHopital.addPrestataire(prestataire);
+
+                        System.out.println("✅ Prestataire associé: " + prestataire.getNom());
+                    }
+                } catch (Exception e) {
+                    System.err.println("❌ Erreur association prestataire: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            });
+        } else {
+            // Si aucun prestataire n'est fourni, garder les prestataires existants
+            System.out.println("ℹ️ Aucun changement pour les prestataires");
+        }
+
+        // ✅ CHANGEMENT: Sauvegarder sans recharger avec les collections
+        Hopital updatedHopital = hopitalRepository.save(existingHopital);
+
+        return adminMapper.hopitalToDto(updatedHopital);
+    }
+
+    // 🔹 NOUVELLE MÉTHODE : Récupérer un hôpital avec ses services détaillés
+    public HopitalDto getHopitalAvecServices(Long id) {
+        Hopital hopital = hopitalRepository.findByIdWithServices(id)
+                .orElseThrow(() -> new RuntimeException("Hôpital non trouvé avec ID: " + id));
+
+        HopitalDto dto = adminMapper.hopitalToDto(hopital);
+
+        // 🔹 Mapper les services
+        if (hopital.getServices() != null) {
+            List<ServiceDto> serviceDtos = hopital.getServices().stream()
+                    .map(adminMapper::serviceToDto) // ✅ Correction : serviceToDto au lieu de toServiceDto
+                    .collect(Collectors.toList());
+            dto.setServices(serviceDtos);
+        }
+
+        return dto;
+    }
+
+    // 🔹 NOUVELLE MÉTHODE : Ajouter un service à un hôpital existant
+    // 🔹 NOUVELLE MÉTHODE : Ajouter un service à un hôpital existant
+    @Transactional
+    public HopitalDto ajouterService(Long hopitalId, ServiceDto serviceDto) {
+        Hopital hopital = hopitalRepository.findById(hopitalId)
+                .orElseThrow(() -> new RuntimeException("Hôpital non trouvé avec ID: " + hopitalId));
+
+        sn.uasz.User_API_PVVIH.entities.Service service = adminMapper.dtoToService(serviceDto); // ✅ Correction ici
+        service.setHopital(hopital);
+
+        if (hopital.getServices() == null) {
+            hopital.setServices(new ArrayList<>());
+        }
+
+        hopital.getServices().add(service);
+        hopital = hopitalRepository.save(hopital);
+
+        return adminMapper.hopitalToDto(hopital);
+    }
+    // Les autres méthodes restent inchangées...
+    public List<HopitalDto> getAllHospitals() {
+        // Vérifier que l'utilisateur est authentifié (optionnel selon votre configuration de sécurité)
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // Si vous voulez simplement vérifier l'authentification sans restriction de rôle
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("Accès non autorisé");
+        }
+
+        // Retourner tous les hôpitaux sans restriction de rôle
+        return hopitalRepository.findAll().stream()
+                .map(adminMapper::hopitalToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void supprimerHopital(Long id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+
+        User currentUser = userRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new RuntimeException("Utilisateur authentifié introuvable"));
+
+        if (!"ADMIN".equalsIgnoreCase(currentUser.getProfil())) {
+            throw new RuntimeException("Seuls les administrateurs peuvent supprimer des hôpitaux");
+        }
+
+        Hopital hopital = hopitalRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Hôpital non trouvé avec ID: " + id));
+
+        boolean hasDoctors = hopitalRepository.countDoctorsByHospital(id) > 0;
+        if (hasDoctors) {
+            throw new RuntimeException("Impossible de supprimer l'hôpital : des médecins y sont associés");
+        }
+
+        hopitalRepository.delete(hopital);
+    }
+
+}

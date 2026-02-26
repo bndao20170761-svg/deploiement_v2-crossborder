@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: forum_pvvih_mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: forum_pvvih_db
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - forum-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  forum-network:
+    driver: bridge

@@ -1,0 +1,120 @@
+package sn.uasz.Patient_PVVIH.entities;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Table(name = "doctor")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Doctor {
+
+    @Id
+    @Column(name = "code_doctor", nullable = false)
+    private String codeDoctor;
+
+    @Column(nullable = false)
+    private String email;
+
+    @Column(nullable = false)
+    private String fonction;
+
+    @Column(name = "lieu_exercice", nullable = false)
+    private String lieuExercice;
+
+    @Column(nullable = false)
+    private String pseudo;
+
+    @Column(nullable = false)
+    private String telephone;
+
+    @ManyToOne
+    @JoinColumn(name = "id_hopital")
+    private Hopital hopital;
+
+    @ManyToOne
+    @JoinColumn(name = "utilisateur")
+    private User utilisateur;
+}
+//package sn.uasz.Patient_PVVIH.entities;
+
+  import jakarta.persistence.*;
+  import lombok.*;
+
+  @Entity
+  @Table(name = "hopital")
+  @Getter
+  @Setter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @Builder
+  public class Hopital {
+
+      @Id
+      @GeneratedValue(strategy = GenerationType.IDENTITY)
+      private Long id;
+
+      private Boolean active;
+
+      @Column(nullable = false)
+      private String nom;
+
+      @Column(nullable = false)
+      private String pays;
+
+      @Column(nullable = false)
+      private String ville;
+  }
+//
+package sn.uasz.Patient_PVVIH.entities;
+
+import jakarta.persistence.*;
+import lombok.*;
+import sn.uasz.Patient_PVVIH.entities.Doctor;
+
+import java.util.Date;
+
+@Entity
+@Table(name = "patient")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Patient {
+
+    @Id
+    @Column(name = "code_patient", nullable = false)
+    private String codePatient;
+
+    private String adressePermanent;
+    private String adresseTemporaire;
+    private Long age;
+    private Date dateNaissance;
+    private String profession;
+    private String pseudo;
+    private String sexe;
+    private String statutMatrimoniale;
+    private String telephone;
+
+    @ManyToOne
+    @JoinColumn(name = "doctor_create", referencedColumnName = "code_doctor") // <-- spécifie bien referencedColumnName
+    private Doctor doctorCreate;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "dossier_code_dossier", referencedColumnName = "code_dossier")
+    private Dossier dossier;
+
+    @Transient // Ne pas persister en base
+    public String getCodeDossier() {
+        return dossier != null ? dossier.getCodeDossier() : null;
+    }
+
+
+
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "utilisateur")
+    private User utilisateur;
+}
