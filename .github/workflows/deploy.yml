@@ -1,15 +1,16 @@
 name: CI/CD Pipeline - Microservices PVVIH
 
 on:
-  push:
-    branches:
-      - main
-      - develop
-  pull_request:
-    branches:
-      - main
-      - develop
-  workflow_dispatch:
+  # Désactivé temporairement - Utilisez build-and-push-all.ps1 à la place
+  # push:
+  #   branches:
+  #     - main
+  #     - develop
+  # pull_request:
+  #   branches:
+  #     - main
+  #     - develop
+  workflow_dispatch:  # Permet le déclenchement manuel uniquement
 
 env:
   DOCKER_REGISTRY: docker.io
