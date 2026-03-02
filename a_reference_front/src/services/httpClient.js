@@ -23,6 +23,9 @@ httpClient.interceptors.request.use(
     const token = localStorage.getItem("token");
     if (token) {
       config.headers["Authorization"] = `Bearer ${token}`;
+      console.log(`🔐 Token ajouté à la requête ${config.method?.toUpperCase()} ${config.url}`);
+    } else {
+      console.warn(`⚠️ Aucun token trouvé pour ${config.method?.toUpperCase()} ${config.url}`);
     }
     return config;
   },
@@ -34,10 +37,14 @@ httpClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      console.error("Token invalide ou expiré, veuillez vous reconnecter.");
+      console.error("❌ 401 Unauthorized: Token invalide ou expiré");
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      window.location.href = "/login"; // redirection forcée uniquement sur 401
+      window.location.href = "/login";
+    } else if (error.response?.status === 403) {
+      console.error("❌ 403 Forbidden: Accès refusé - vérifiez vos permissions");
+      console.error("URL:", error.config?.url);
+      console.error("Méthode:", error.config?.method);
     }
     return Promise.reject(error);
   }

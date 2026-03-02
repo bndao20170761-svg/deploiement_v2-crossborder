@@ -26,16 +26,25 @@ import java.util.List;
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
+    /**
+     * ⚠️ NOTE IMPORTANTE : Ce service NE DOIT PAS être utilisé pour l'authentification
+     * Il est conservé uniquement pour la compatibilité, mais l'authentification
+     * doit être gérée par gestion_user
+     */
     private final UserDetailsServiceImpl userDetailsService;
 
     public SecurityConfig(UserDetailsServiceImpl userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
+    /**
+     * ⚠️ AuthenticationManager désactivé - l'authentification est gérée par gestion_user
+     * Ce bean est commenté pour éviter les tentatives d'authentification locale
+     */
+    // @Bean
+    // public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    //     return config.getAuthenticationManager();
+    // }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -87,23 +96,33 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Toutes les URLs autorisées
-        configuration.setAllowedOrigins(Arrays.asList(
-                // Accès depuis le navigateur (externe à Docker)
-                "http://localhost:3000",
-                "http://127.0.0.1:3000",
-                "http://localhost:3001",
-                "http://127.0.0.1:3001",
-                "http://localhost:3002",
-                "http://127.0.0.1:3002",
-                "http://localhost:3003",
-                // Communication interne Docker
-                "http://gateway-pvvih:8080",
-                "http://gestion-forum-front",
-                "http://a-reference-front",
-                "http://a-user-front"
-        ));
+        // Récupérer les origines autorisées depuis les variables d'environnement
+        String allowedOriginsEnv = System.getenv("CORS_ALLOWED_ORIGINS");
+        
+        List<String> allowedOrigins;
+        if (allowedOriginsEnv != null && !allowedOriginsEnv.isEmpty()) {
+            // Utiliser les origines depuis l'environnement (production)
+            allowedOrigins = Arrays.asList(allowedOriginsEnv.split(","));
+        } else {
+            // Origines par défaut pour le développement local
+            allowedOrigins = Arrays.asList(
+                    // Accès depuis le navigateur (externe à Docker)
+                    "http://localhost:3000",
+                    "http://127.0.0.1:3000",
+                    "http://localhost:3001",
+                    "http://127.0.0.1:3001",
+                    "http://localhost:3002",
+                    "http://127.0.0.1:3002",
+                    "http://localhost:3003",
+                    // Communication interne Docker
+                    "http://gateway-pvvih:8080",
+                    "http://gestion-forum-front",
+                    "http://a-reference-front",
+                    "http://a-user-front"
+            );
+        }
 
+        configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "Origin",
                 "X-Requested-With", "Access-Control-Request-Method",

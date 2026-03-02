@@ -838,7 +838,7 @@ const convertToEnumType = (type) => {
 
        // ✅ RÉCUPÉRER L'HÔPITAL COMPLET AVEC SES PRESTATAIRES
        try {
-         const response = await fetch(`${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8081'}/api/hospitaux/${hospital.id}/prestataires`, {
+         const response = await fetch(`${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8080'}/api/hospitaux/${hospital.id}/prestataires`, {
            method: 'GET',
            headers: {
              'Content-Type': 'application/json',
@@ -856,7 +856,7 @@ const convertToEnumType = (type) => {
            } else {
              // fallback: tenter l'endpoint qui retourne seulement les prestataires
              console.warn('⚠️ Aucun prestataire dans la réponse complète, tentative de fallback /prestataires-only');
-             const resp2 = await fetch(`${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8081'}/api/hospitaux/${hospital.id}/prestataires-only`, {
+             const resp2 = await fetch(`${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8080'}/api/hospitaux/${hospital.id}/prestataires-only`, {
                method: 'GET',
                headers: {
                  'Content-Type': 'application/json',
@@ -875,7 +875,7 @@ const convertToEnumType = (type) => {
            }
          } else {
            console.warn('⚠️ Impossible de récupérer l\'hôpital complet, tentative fallback /prestataires-only');
-           const resp2 = await fetch(`${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8081'}/api/hospitaux/${hospital.id}/prestataires-only`, {
+           const resp2 = await fetch(`${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8080'}/api/hospitaux/${hospital.id}/prestataires-only`, {
              method: 'GET',
              headers: {
                'Content-Type': 'application/json',
@@ -900,7 +900,7 @@ const convertToEnumType = (type) => {
       try {
         if ((!hospital.prestataires || hospital.prestataires.length === 0) && hospital.id) {
           console.log('🔁 Dernier essai: récupération forcée via /prestataires-only');
-          const resp3 = await fetch(`${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8081'}/api/hospitaux/${hospital.id}/prestataires-only`, {
+          const resp3 = await fetch(`${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8080'}/api/hospitaux/${hospital.id}/prestataires-only`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',

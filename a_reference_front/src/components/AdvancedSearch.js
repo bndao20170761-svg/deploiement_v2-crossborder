@@ -57,7 +57,7 @@ const AdvancedSearch = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8081'}/api/hopitaux-proxy/actifs`,
+        `${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8080'}/api/hopitaux-proxy/actifs`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -105,7 +105,7 @@ const AdvancedSearch = () => {
       });
 
       const response = await fetch(
-        `${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8081'}/api/hopitaux-proxy/recherche?${params}`,
+        `${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8080'}/api/hopitaux-proxy/recherche?${params}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

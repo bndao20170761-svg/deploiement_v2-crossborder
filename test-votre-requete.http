@@ -1,0 +1,41 @@
+### Test de votre requête exacte
+
+### 1. Créer l'utilisateur via Gateway
+POST http://localhost:8080/api/user-auth/register
+Content-Type: application/json
+
+{
+  "username": "babacarndao1011@gmail.com",
+  "password": "passe123",
+  "nom": "Ndao",
+  "prenom": "Babacar",
+  "profil": "ADMIN",
+  "nationalite": "Sénégalaise",
+  "actif": true
+}
+
+### 2. Se connecter
+POST http://localhost:8080/api/user-auth/login
+Content-Type: application/json
+
+{
+  "username": "babacarndao1011@gmail.com",
+  "password": "passe123"
+}
+
+### 3. Récupérer les références (remplacez YOUR_TOKEN par le token obtenu)
+GET http://localhost:8080/gestion-reference/api/references
+Authorization: Bearer YOUR_TOKEN
+
+### 4. Vérifier le profil utilisateur
+GET http://localhost:8080/api/user-auth/profile
+Authorization: Bearer YOUR_TOKEN
+
+### 5. Test direct sur gestion_reference (devrait retourner 501)
+POST http://localhost:9090/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "babacarndao1011@gmail.com",
+  "password": "passe123"
+}

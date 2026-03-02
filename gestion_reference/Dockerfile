@@ -5,7 +5,8 @@ WORKDIR /app
 
 # Copy pom.xml and download dependencies
 COPY pom.xml .
-RUN mvn dependency:go-offline -B
+# Use Maven Central directly with retry logic
+RUN mvn dependency:resolve -B -U || mvn dependency:resolve -B -U || mvn dependency:resolve -B -U
 
 # Copy source code and build
 COPY src ./src

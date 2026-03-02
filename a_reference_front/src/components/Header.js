@@ -84,9 +84,10 @@ const Header = ({
     const fetchDoctor = async () => {
       try {
         const response = await axios.get(
-          `${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8081'}/api/user-auth/me`,
+          `${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8080'}/api/user/me`,
           getAuthHeader()
         );
+        console.log("✅ Données utilisateur récupérées:", response.data);
         setDoctor(response.data);
       } catch (error) {
         console.error("❌ Erreur lors de la récupération du médecin :", error);

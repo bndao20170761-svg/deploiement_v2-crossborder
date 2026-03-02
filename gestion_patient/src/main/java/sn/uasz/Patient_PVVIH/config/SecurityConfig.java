@@ -17,6 +17,7 @@ import sn.uasz.Patient_PVVIH.config.JwtAuthTokenFilter;
 import sn.uasz.Patient_PVVIH.security.JwtUtils;
 import sn.uasz.Patient_PVVIH.services.JwtOnlyUserDetailsService;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -73,19 +74,32 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(
-                "http://localhost:3000", 
-                "http://localhost:3001", 
-                "http://localhost:3002",
-                "http://localhost:3003",
-                "http://127.0.0.1:3000", 
-                "http://127.0.0.1:3001",
-                "http://127.0.0.1:3002",
-                "http://gateway-pvvih:8080",
-                "http://gestion-forum-front",
-                "http://a-reference-front",
-                "http://a-user-front"
-        ));
+        
+        // Récupérer les origines autorisées depuis les variables d'environnement
+        String allowedOriginsEnv = System.getenv("CORS_ALLOWED_ORIGINS");
+        
+        List<String> allowedOrigins;
+        if (allowedOriginsEnv != null && !allowedOriginsEnv.isEmpty()) {
+            // Utiliser les origines depuis l'environnement (production)
+            allowedOrigins = Arrays.asList(allowedOriginsEnv.split(","));
+        } else {
+            // Origines par défaut pour le développement local
+            allowedOrigins = List.of(
+                    "http://localhost:3000", 
+                    "http://localhost:3001", 
+                    "http://localhost:3002",
+                    "http://localhost:3003",
+                    "http://127.0.0.1:3000", 
+                    "http://127.0.0.1:3001",
+                    "http://127.0.0.1:3002",
+                    "http://gateway-pvvih:8080",
+                    "http://gestion-forum-front",
+                    "http://a-reference-front",
+                    "http://a-user-front"
+            );
+        }
+        
+        configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true); // utile si tu gères les cookies ou headers d’authentification

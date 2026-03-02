@@ -23,7 +23,7 @@ export const useNotifications = () => {
         headers['Authorization'] = `Bearer ${token}`;
       }
       
-      const response = await fetch(`http://localhost:8080/api/commentaires/notifications/${user.id}/count`, {
+      const response = await fetch(`${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8080'}/api/commentaires/notifications/${user.id}/count`, {
         headers
       });
       

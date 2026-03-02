@@ -514,7 +514,7 @@ const isNonEmptyString = (value) => typeof value === 'string' && value.trim() !=
      if (wizardData.id) {
        // ✏️ Mode édition → PUT/PATCH
        response = await axios.put(
-         `${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8081'}/api/references/${wizardData.id}`,
+         `${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8080'}/api/references/${wizardData.id}`,
          dto,
          {
            headers: {
@@ -527,7 +527,7 @@ const isNonEmptyString = (value) => typeof value === 'string' && value.trim() !=
      } else {
        // 🆕 Mode création → POST
        response = await axios.post(
-         `${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8081'}/api/references/New_ref`,
+         `${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8080'}/api/references/New_ref`,
          dto,
          {
            headers: {

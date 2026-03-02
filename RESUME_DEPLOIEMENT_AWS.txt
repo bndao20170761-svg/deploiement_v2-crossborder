@@ -1,0 +1,165 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    🚀 DÉPLOIEMENT AWS EC2 - RÉSUMÉ                          ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+📍 INFORMATIONS INSTANCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Utilisateur:  ubuntu@ip-172-31-38-60
+  IP Publique:  16.171.1.67
+  Région:       eu-north-1 (Stockholm)
+  OS:           Ubuntu 24.04.3 LTS
+
+✅ PRÉREQUIS (Déjà installés)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ✓ Docker installé
+  ✓ Docker Compose installé
+  ✓ Git installé
+  ✓ Security Group configuré (ports 8080, 3001-3003, 8761)
+
+⚡ DÉPLOIEMENT EN 3 COMMANDES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1️⃣  Cloner le projet
+      ┌────────────────────────────────────────────────────────────────────┐
+      │ git clone https://github.com/VOTRE_USERNAME/VOTRE_REPO.git        │
+      │ cd VOTRE_REPO                                                      │
+      └────────────────────────────────────────────────────────────────────┘
+
+  2️⃣  Configurer l'environnement
+      ┌────────────────────────────────────────────────────────────────────┐
+      │ cp .env.aws.example .env                                           │
+      │ nano .env                                                          │
+      │                                                                    │
+      │ Modifiez:                                                          │
+      │   - MONGO_PASSWORD                                                 │
+      │   - MYSQL_ROOT_PASSWORD                                            │
+      │   - MYSQL_USER_PASSWORD                                            │
+      │   - MYSQL_REFERENCE_PASSWORD                                       │
+      │   - MYSQL_PATIENT_PASSWORD                                         │
+      │   - JWT_SECRET (TRÈS IMPORTANT!)                                   │
+      │                                                                    │
+      │ Sauvegardez: Ctrl+X → Y → Enter                                   │
+      └────────────────────────────────────────────────────────────────────┘
+
+  3️⃣  Déployer
+      ┌────────────────────────────────────────────────────────────────────┐
+      │ chmod +x deploy-aws-simple.sh                                      │
+      │ bash deploy-aws-simple.sh                                          │
+      │                                                                    │
+      │ ⏱️  Temps estimé: 10-20 minutes                                    │
+      └────────────────────────────────────────────────────────────────────┘
+
+🌐 URLS D'ACCÈS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Gateway API:        http://16.171.1.67:8080
+  Eureka Dashboard:   http://16.171.1.67:8761
+  Frontend Forum:     http://16.171.1.67:3001
+  Frontend Reference: http://16.171.1.67:3002
+  Frontend User:      http://16.171.1.67:3003
+
+🧪 TEST RAPIDE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Créer un utilisateur:
+  ┌────────────────────────────────────────────────────────────────────────┐
+  │ curl -X POST http://16.171.1.67:8080/api/user-auth/register \         │
+  │   -H "Content-Type: application/json" \                               │
+  │   -d '{"username":"admin@test.com","password":"admin123",             │
+  │        "nom":"Admin","prenom":"Test","profil":"ADMIN",                │
+  │        "nationalite":"Sénégalaise","actif":true}'                     │
+  └────────────────────────────────────────────────────────────────────────┘
+
+  Se connecter:
+  ┌────────────────────────────────────────────────────────────────────────┐
+  │ curl -X POST http://16.171.1.67:8080/api/user-auth/login \            │
+  │   -H "Content-Type: application/json" \                               │
+  │   -d '{"username":"admin@test.com","password":"admin123"}'            │
+  └────────────────────────────────────────────────────────────────────────┘
+
+📊 COMMANDES UTILES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Voir l'état:
+    docker-compose -f docker-compose.yml -f docker-compose.prod.yml ps
+
+  Voir les logs:
+    docker-compose -f docker-compose.yml -f docker-compose.prod.yml logs -f
+
+  Voir les ressources:
+    docker stats
+
+  Redémarrer un service:
+    docker-compose -f docker-compose.yml -f docker-compose.prod.yml restart SERVICE
+
+  Arrêter tous les services:
+    docker-compose -f docker-compose.yml -f docker-compose.prod.yml down
+
+📚 DOCUMENTATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  📄 README_AWS_DEPLOIEMENT.md           - Vue d'ensemble complète
+  📄 DEMARRAGE_RAPIDE_AWS.md             - Guide rapide (5 minutes)
+  📄 DEPLOIEMENT_AWS_ETAPE_PAR_ETAPE.md  - Guide détaillé
+  📄 COMMANDES_AWS_DEPLOIEMENT.sh        - Script interactif
+  📄 .env.aws.example                    - Template de configuration
+  📄 deploy-aws-simple.sh                - Script de déploiement
+
+🏗️ ARCHITECTURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Services Backend:
+    • api-register (Eureka)      - Service Discovery
+    • api-configuration          - Configuration centralisée
+    • gateway-pvvih              - API Gateway
+    • gestion-user               - Gestion utilisateurs (authentification)
+    • gestion-reference          - Gestion références
+    • gestion-patient            - Gestion patients
+    • forum-pvvih                - Forum
+
+  Services Frontend:
+    • gestion-forum-front        - Interface forum
+    • a-reference-front          - Interface référence
+    • a-user-front               - Interface utilisateur
+
+  Bases de Données:
+    • MySQL (3 instances)        - user_db, reference_db, patient_db
+    • MongoDB                    - forum_db
+
+🔐 SÉCURITÉ
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ⚠️  IMPORTANT:
+    • Changez TOUS les mots de passe dans .env
+    • Utilisez des mots de passe différents pour chaque service
+    • Minimum 12 caractères (majuscules, minuscules, chiffres, symboles)
+    • JWT_SECRET doit être identique sur tous les services
+    • Ne partagez JAMAIS ces informations
+
+  Générer un mot de passe sécurisé:
+    openssl rand -base64 32
+
+🐛 DÉPANNAGE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Service ne démarre pas:
+    docker-compose -f docker-compose.yml -f docker-compose.prod.yml logs SERVICE
+
+  Erreur de connexion:
+    • Vérifiez le Security Group AWS (ports ouverts)
+    • Vérifiez que les services sont "healthy"
+    • Vérifiez les logs
+
+  Manque de mémoire:
+    free -h
+    docker stats
+    → Augmentez la taille de l'instance EC2 si nécessaire
+
+✅ CHECKLIST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ☐ Repository cloné
+  ☐ Fichier .env créé et configuré
+  ☐ Mots de passe sécurisés définis
+  ☐ JWT_SECRET configuré (même clé partout)
+  ☐ Script de déploiement exécuté
+  ☐ Tous les services sont "healthy"
+  ☐ Test d'API réussi (register/login)
+  ☐ Frontends accessibles depuis le navigateur
+  ☐ Eureka Dashboard affiche tous les services
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         Bon déploiement! 🚀                                  ║
+╚══════════════════════════════════════════════════════════════════════════════╝

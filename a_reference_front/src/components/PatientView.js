@@ -16,7 +16,7 @@ const PatientView = ({ patient, onUpdate,language,onBack   }) => {
       try {
         if (!patient?.codePatient) return;
         const token = localStorage.getItem("token");
-        const url = `${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8081'}/api/dossiers/${patient.codePatient}/has-dossier`;
+        const url = `${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8080'}/api/dossiers/${patient.codePatient}/has-dossier`;
         const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
         if (!res.ok) throw new Error("has-dossier failed");
         const data = await res.json();

@@ -66,7 +66,7 @@ const TopicDetailPage = () => {
   const fetchSujet = async (sujetId) => {
     try {
       // Utiliser l'endpoint de lecture publique qui active automatiquement les commentaires
-      const response = await fetch(`http://localhost:8080/api/sujets/${sujetId}/lire`);
+      const response = await fetch(`${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8080'}/api/sujets/${sujetId}/lire`);
       
       if (!response.ok) {
         throw new Error(`Erreur ${response.status}: ${response.statusText}`);
@@ -93,7 +93,7 @@ const TopicDetailPage = () => {
   // Récupérer les commentaires du sujet
   const fetchCommentaires = async (sujetId) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/commentaires/sujet/${sujetId}/all`);
+      const response = await fetch(`${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8080'}/api/commentaires/sujet/${sujetId}/all`);
       
       if (!response.ok) {
         throw new Error(`Erreur ${response.status}: ${response.statusText}`);
@@ -156,7 +156,7 @@ const TopicDetailPage = () => {
   // Marquer un commentaire comme lu
   const marquerCommeLu = async (commentaireId) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/commentaires/${commentaireId}/activer`, {
+      const response = await fetch(`${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8080'}/api/commentaires/${commentaireId}/activer`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('auth-token')}`
@@ -184,7 +184,7 @@ const TopicDetailPage = () => {
     
     try {
       const promises = commentairesNonLus.map(commentaire => 
-        fetch(`http://localhost:8080/api/commentaires/${commentaire.id}/activer`, {
+        fetch(`${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8080'}/api/commentaires/${commentaire.id}/activer`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('auth-token')}`

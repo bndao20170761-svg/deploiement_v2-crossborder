@@ -1,0 +1,413 @@
+version: '3.8'
+
+networks:
+  pvvih-network:
+    driver: bridge
+
+volumes:
+  mongodb-data:
+  mysql-user-data:
+  mysql-reference-data:
+  mysql-patient-data:
+  maven-repo:
+
+services:
+  # ==================== Database Services ====================
+  
+  mongodb:
+    image: mongo:7.0
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-admin123}
+      - MONGO_INITDB_DATABASE=forum_db
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - pvvih-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  mysql-user:
+    image: mysql:8.0
+    container_name: mysql-user
+    ports:
+      - "3307:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root123}
+      - MYSQL_DATABASE=user_db
+      - MYSQL_USER=user_service
+      - MYSQL_PASSWORD=${MYSQL_USER_PASSWORD:-user123}
+    volumes:
+      - mysql-user-data:/var/lib/mysql
+    networks:
+      - pvvih-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  mysql-reference:
+    image: mysql:8.0
+    container_name: mysql-reference
+    ports:
+      - "3308:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root123}
+      - MYSQL_DATABASE=reference_db
+      - MYSQL_USER=reference_service
+      - MYSQL_PASSWORD=${MYSQL_REFERENCE_PASSWORD:-reference123}
+    volumes:
+      - mysql-reference-data:/var/lib/mysql
+    networks:
+      - pvvih-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  mysql-patient:
+    image: mysql:8.0
+    container_name: mysql-patient
+    ports:
+      - "3309:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root123}
+      - MYSQL_DATABASE=patient_db
+      - MYSQL_USER=patient_service
+      - MYSQL_PASSWORD=${MYSQL_PATIENT_PASSWORD:-patient123}
+    volumes:
+      - mysql-patient-data:/var/lib/mysql
+    networks:
+      - pvvih-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  # ==================== Edge Services ====================
+  
+  api-register:
+    build:
+      context: ./api_register
+      dockerfile: Dockerfile
+    container_name: api-register
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-dev}
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
+      - EUREKA_CLIENT_FETCH_REGISTRY=false
+    volumes:
+      - maven-repo:/root/.m2
+    networks:
+      - pvvih-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8761/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  api-configuration:
+    build:
+      context: ./api_configuration/demo
+      dockerfile: Dockerfile
+    container_name: api-configuration
+    ports:
+      - "8888:8888"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-dev}
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://api-register:8761/eureka/
+    volumes:
+      - maven-repo:/root/.m2
+    networks:
+      - pvvih-network
+    depends_on:
+      api-register:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8888/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  gateway-pvvih:
+    build:
+      context: ./Getway_PVVIH
+      dockerfile: Dockerfile
+    container_name: gateway-pvvih
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-dev}
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://api-register:8761/eureka/
+      - SPRING_CLOUD_CONFIG_URI=http://api-configuration:8888
+    volumes:
+      - maven-repo:/root/.m2
+    networks:
+      - pvvih-network
+    depends_on:
+      api-register:
+        condition: service_healthy
+      api-configuration:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  # ==================== Backend Services ====================
+  
+  forum-pvvih:
+    build:
+      context: ./Forum_PVVIH
+      dockerfile: Dockerfile
+    container_name: forum-pvvih
+    ports:
+      - "9092:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-dev}
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://api-register:8761/eureka/
+      - SPRING_CLOUD_CONFIG_URI=http://api-configuration:8888
+      - SPRING_DATA_MONGODB_URI=mongodb://admin:${MONGO_PASSWORD:-admin123}@mongodb:27017/forum_db?authSource=admin
+      - SPRING_DATA_MONGODB_DATABASE=forum_db
+      - SERVER_PORT=8080
+    volumes:
+      - maven-repo:/root/.m2
+    networks:
+      - pvvih-network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      api-register:
+        condition: service_healthy
+      api-configuration:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+
+  gestion-user:
+    build:
+      context: ./gestion_user
+      dockerfile: Dockerfile
+    container_name: gestion-user
+    ports:
+      - "9089:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-dev}
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://api-register:8761/eureka/
+      - SPRING_CLOUD_CONFIG_URI=http://api-configuration:8888
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-user:3306/user_db
+      - SPRING_DATASOURCE_USERNAME=user_service
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_USER_PASSWORD:-user123}
+      - SERVER_PORT=8080
+    volumes:
+      - maven-repo:/root/.m2
+    networks:
+      - pvvih-network
+    depends_on:
+      mysql-user:
+        condition: service_healthy
+      api-register:
+        condition: service_healthy
+      api-configuration:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+
+  gestion-reference:
+    build:
+      context: ./gestion_reference
+      dockerfile: Dockerfile
+    container_name: gestion-reference
+    ports:
+      - "9090:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-dev}
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://api-register:8761/eureka/
+      - SPRING_CLOUD_CONFIG_URI=http://api-configuration:8888
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-reference:3306/reference_db
+      - SPRING_DATASOURCE_USERNAME=reference_service
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_REFERENCE_PASSWORD:-reference123}
+      - SERVER_PORT=8080
+    volumes:
+      - maven-repo:/root/.m2
+    networks:
+      - pvvih-network
+    depends_on:
+      mysql-reference:
+        condition: service_healthy
+      api-register:
+        condition: service_healthy
+      api-configuration:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+
+  gestion-patient:
+    build:
+      context: ./gestion_patient
+      dockerfile: Dockerfile
+    container_name: gestion-patient
+    ports:
+      - "9091:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-dev}
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://api-register:8761/eureka/
+      - SPRING_CLOUD_CONFIG_URI=http://api-configuration:8888
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-patient:3306/patient_db
+      - SPRING_DATASOURCE_USERNAME=patient_service
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PATIENT_PASSWORD:-patient123}
+      - SERVER_PORT=8080
+    volumes:
+      - maven-repo:/root/.m2
+    networks:
+      - pvvih-network
+    depends_on:
+      mysql-patient:
+        condition: service_healthy
+      api-register:
+        condition: service_healthy
+      api-configuration:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+
+  # ==================== Frontend Services ====================
+  
+  gestion-forum-front:
+    build:
+      context: ./gestion_forum_front
+      dockerfile: Dockerfile
+    container_name: gestion-forum-front
+    ports:
+      - "3001:80"
+    environment:
+      - REACT_APP_FORUM_API_URL=http://localhost:8080/api
+      - REACT_APP_AUTH_API_URL=http://localhost:8080/api
+      - REACT_APP_GATEWAY_URL=http://localhost:8080
+      - REACT_APP_FRONTEND1_URL=http://localhost:3002
+      - REACT_APP_FRONTEND2_URL=http://localhost:3003
+    networks:
+      - pvvih-network
+    depends_on:
+      - gateway-pvvih
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  a-reference-front:
+    build:
+      context: ./a_reference_front
+      dockerfile: Dockerfile
+    container_name: a-reference-front
+    ports:
+      - "3002:80"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8080
+      - REACT_APP_GATEWAY_URL=http://localhost:8080
+      - REACT_APP_FORUM_URL=http://localhost:3001
+      - REACT_APP_FRONTEND2_URL=http://localhost:3003
+    networks:
+      - pvvih-network
+    depends_on:
+      - gateway-pvvih
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  a-user-front:
+    build:
+      context: ./a_user_front
+      dockerfile: Dockerfile
+    container_name: a-user-front
+    ports:
+      - "3003:80"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8080
+      - REACT_APP_GATEWAY_URL=http://localhost:8080
+      - REACT_APP_USER_API_URL=http://localhost:8080/api
+      - REACT_APP_FORUM_URL=http://localhost:3001
+      - REACT_APP_FRONTEND1_URL=http://localhost:3002
+    networks:
+      - pvvih-network
+    depends_on:
+      - gateway-pvvih
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped

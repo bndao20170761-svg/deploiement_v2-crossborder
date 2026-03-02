@@ -30,7 +30,7 @@ const HomePage = () => {
       }
       setError(null);
       
-      const response = await fetch(`http://localhost:8080/api/sujets?page=${page}&size=20`);
+      const response = await fetch(`${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8080'}/api/sujets?page=${page}&size=20`);
       
       if (!response.ok) {
         throw new Error(`Erreur ${response.status}: ${response.statusText}`);
@@ -106,7 +106,7 @@ const HomePage = () => {
     try {
       setLoadingDetails(true);
       
-      const response = await fetch(`http://localhost:8080/api/sujets/${sujetId}/lire`);
+      const response = await fetch(`${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8080'}/api/sujets/${sujetId}/lire`);
       
       if (!response.ok) {
         throw new Error(`Erreur ${response.status}: ${response.statusText}`);

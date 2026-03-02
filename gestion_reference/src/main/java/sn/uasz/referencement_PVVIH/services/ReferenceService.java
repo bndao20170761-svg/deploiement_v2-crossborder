@@ -399,32 +399,29 @@ public class ReferenceService {
 
     @Transactional
     public Reference contreReference(Long referenceId) {
-        // Ã°Å¸â€Â¹ RÃƒÂ©cupÃƒÂ©ration de la rÃƒÂ©fÃƒÂ©rence
+        // Récupération de la référence
         Reference ref = repository.findById(referenceId)
-                .orElseThrow(() -> new RuntimeException("RÃƒÂ©fÃƒÂ©rence introuvable"));
+                .orElseThrow(() -> new RuntimeException("Référence introuvable"));
 
-        // Ã°Å¸â€Â¹ RÃƒÂ©cupÃƒÂ©ration de l'utilisateur connectÃƒÂ©
+        // Récupération de l'utilisateur connecté
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String role = auth.getAuthorities().toString();
         String username = auth.getName();
 
-        User user = helper.findUserByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Utilisateur connectÃƒÂ© introuvable"));
-
         if (!role.contains("DOCTOR")) {
-            throw new RuntimeException("Seul un mÃƒÂ©decin peut effectuer une contre-rÃƒÂ©fÃƒÂ©rence");
+            throw new RuntimeException("Seul un médecin peut effectuer une contre-référence");
         }
 
-        // Ã°Å¸â€Â¹ RÃƒÂ©cupÃƒÂ©ration du mÃƒÂ©decin connectÃƒÂ©
-        Doctor medecinConnecte = helper.findDoctorByUser(user)
-                .orElseThrow(() -> new RuntimeException("MÃƒÂ©decin connectÃƒÂ© introuvable"));
+        // Récupération du médecin connecté directement par username (évite les doublons dans users)
+        Doctor medecinConnecte = helper.findDoctorByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Médecin connecté introuvable"));
 
-        // Ã°Å¸â€Â¹ VÃƒÂ©rifier si cÃ¢â‚¬â„¢est bien le mÃƒÂ©decin destinataire de la rÃƒÂ©fÃƒÂ©rence
+        // Vérifier si c'est bien le médecin destinataire de la référence
         if (!ref.getMedecin().getCodeDoctor().equals(medecinConnecte.getCodeDoctor())) {
-            throw new RuntimeException("Ce mÃƒÂ©decin nÃ¢â‚¬â„¢est pas autorisÃƒÂ© ÃƒÂ  contre-rÃƒÂ©fÃƒÂ©rencer cette rÃƒÂ©fÃƒÂ©rence");
+            throw new RuntimeException("Ce médecin n'est pas autorisé à contre-référencer cette référence");
         }
 
-        // Ã°Å¸â€Â¹ Mettre ÃƒÂ  jour l'ÃƒÂ©tat (contre-rÃƒÂ©fÃƒÂ©rence validÃƒÂ©e)
+        // Mettre à jour l'état (contre-référence validée)
         ref.setEtat(true);
 
         return repository.save(ref);

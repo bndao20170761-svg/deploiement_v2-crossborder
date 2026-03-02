@@ -1493,7 +1493,7 @@ const handleSubmit = async () => {
   try {
      const token = localStorage.getItem("token"); // là où tu stockes ton JWT après login
 
-     const response = await axios.post(`${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8081'}/api/dossiers`, payload, {
+     const response = await axios.post(`${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8080'}/api/dossiers`, payload, {
        headers: {
          Authorization: `Bearer ${token}`,   // ✅ indispensable
          "Content-Type": "application/json", // déjà par défaut mais c'est clair

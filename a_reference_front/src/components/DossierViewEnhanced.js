@@ -107,7 +107,7 @@ const DossierViewEnhanced = ({ patient, dossier: dossierProp, onBack, language }
         if (!patient || !patient.codePatient) return;
 
         const response = await axios.get(
-          `${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8081'}/api/dossiers/${patient.codePatient}`,
+          `${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8080'}/api/dossiers/${patient.codePatient}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

@@ -5,7 +5,9 @@ WORKDIR /app
 
 # Copy pom.xml and download dependencies
 COPY pom.xml .
-RUN mvn dependency:go-offline -B
+# Create .m2 directory and set settings
+RUN mkdir -p /root/.m2 && echo '<settings><mirrors><mirror><id>aliyun-central</id><url>https://maven.aliyun.com/repository/central</url><mirrorOf>central</mirrorOf></mirror></mirrors></settings>' > /root/.m2/settings.xml
+RUN mvn dependency:go-offline -B -Dmaven.repo.local=/root/.m2/repository
 
 # Copy source code and build
 COPY src ./src

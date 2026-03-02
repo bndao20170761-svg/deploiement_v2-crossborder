@@ -51,7 +51,7 @@ const HopitalList = ({ language = 'fr' }) => {
       setLoading(true);
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8081'}/api/hopitaux-proxy/actifs`, {
+      const response = await fetch(`${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8080'}/api/hopitaux-proxy/actifs`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
