@@ -8,9 +8,10 @@ const StatusToggle = ({ sujet, onStatusChange }) => {
     try {
       setIsLoading(true);
       
+      const gatewayUrl = process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8080';
       const endpoint = sujet.statut 
-        ? `http://localhost:8080/api/sujets/${sujet.id}/desactiver`
-        : `http://localhost:8080/api/sujets/${sujet.id}/activer`;
+        ? `${gatewayUrl}/api/sujets/${sujet.id}/desactiver`
+        : `${gatewayUrl}/api/sujets/${sujet.id}/activer`;
       
       const response = await fetch(endpoint, {
         method: 'PUT',

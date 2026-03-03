@@ -20,7 +20,7 @@ const CommentModal = ({ isOpen, onClose, sujetId, onCommentAdded }) => {
 
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:8080/api/commentaires/sujet/${sujetId}`, {
+      const response = await fetch(`${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8080'}/api/commentaires/sujet/${sujetId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

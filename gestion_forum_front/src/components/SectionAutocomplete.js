@@ -23,7 +23,7 @@ const SectionAutocomplete = ({
     const fetchSections = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:8080/api/sujets/sections');
+        const response = await fetch(`${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8080'}/api/sujets/sections`);
         
         if (!response.ok) {
           throw new Error(`Erreur ${response.status}: ${response.statusText}`);
