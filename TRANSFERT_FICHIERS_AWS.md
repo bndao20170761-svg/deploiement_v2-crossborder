@@ -36,26 +36,26 @@ Si vous avez les fichiers sur votre machine locale et voulez les transférer:
 
 ```powershell
 # Transférer un fichier
-scp -i "spring-key.pem" deploy-aws-simple.sh ubuntu@16.171.1.67:~/
+scp -i "spring-key.pem" deploy-aws-simple.sh ubuntu@56.228.35.80:~/
 
 # Transférer plusieurs fichiers
-scp -i "spring-key.pem" deploy-aws-simple.sh .env.aws.example *.md ubuntu@16.171.1.67:~/
+scp -i "spring-key.pem" deploy-aws-simple.sh .env.aws.example *.md ubuntu@56.228.35.80:~/
 
 # Transférer tout le dossier
-scp -i "spring-key.pem" -r . ubuntu@16.171.1.67:~/mon-projet/
+scp -i "spring-key.pem" -r . ubuntu@56.228.35.80:~/mon-projet/
 ```
 
 ### Depuis votre machine locale (Linux/Mac):
 
 ```bash
 # Transférer un fichier
-scp -i spring-key.pem deploy-aws-simple.sh ubuntu@16.171.1.67:~/
+scp -i spring-key.pem deploy-aws-simple.sh ubuntu@56.228.35.80:~/
 
 # Transférer plusieurs fichiers
-scp -i spring-key.pem deploy-aws-simple.sh .env.aws.example *.md ubuntu@16.171.1.67:~/
+scp -i spring-key.pem deploy-aws-simple.sh .env.aws.example *.md ubuntu@56.228.35.80:~/
 
 # Transférer tout le dossier
-scp -i spring-key.pem -r . ubuntu@16.171.1.67:~/mon-projet/
+scp -i spring-key.pem -r . ubuntu@56.228.35.80:~/mon-projet/
 ```
 
 ---

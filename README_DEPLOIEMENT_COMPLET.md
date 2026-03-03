@@ -55,14 +55,14 @@ bash deploy-aws-simple.sh
 
 ### 🌐 URLs d'Accès (AWS)
 
-Après déploiement sur AWS EC2 (IP: 16.171.1.67):
+Après déploiement sur AWS EC2 (IP: 56.228.35.80):
 
 ```
-Gateway API:        http://16.171.1.67:8080
-Eureka Dashboard:   http://16.171.1.67:8761
-Frontend Forum:     http://16.171.1.67:3001
-Frontend Reference: http://16.171.1.67:3002
-Frontend User:      http://16.171.1.67:3003
+Gateway API:        http://56.228.35.80:8080
+Eureka Dashboard:   http://56.228.35.80:8761
+Frontend Forum:     http://56.228.35.80:3001
+Frontend Reference: http://56.228.35.80:3002
+Frontend User:      http://56.228.35.80:3003
 ```
 
 ---

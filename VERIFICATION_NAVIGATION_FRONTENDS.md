@@ -179,17 +179,17 @@ a_user_front (3003)
 
 ### Production AWS
 ```
-gestion_forum_front (16.171.1.67:3001)
-  ├─→ F1 button → http://16.171.1.67:3002 (a_reference_front)
-  └─→ F2 button → http://16.171.1.67:3003 (a_user_front)
+gestion_forum_front (56.228.35.80:3001)
+  ├─→ F1 button → http://56.228.35.80:3002 (a_reference_front)
+  └─→ F2 button → http://56.228.35.80:3003 (a_user_front)
 
-a_reference_front (16.171.1.67:3002)
-  ├─→ Forum button → http://16.171.1.67:3001 (gestion_forum_front)
-  └─→ Frontend2 → http://16.171.1.67:3003 (a_user_front)
+a_reference_front (56.228.35.80:3002)
+  ├─→ Forum button → http://56.228.35.80:3001 (gestion_forum_front)
+  └─→ Frontend2 → http://56.228.35.80:3003 (a_user_front)
 
-a_user_front (16.171.1.67:3003)
-  ├─→ Forum → http://16.171.1.67:3001 (gestion_forum_front)
-  └─→ Frontend1 → http://16.171.1.67:3002 (a_reference_front)
+a_user_front (56.228.35.80:3003)
+  ├─→ Forum → http://56.228.35.80:3001 (gestion_forum_front)
+  └─→ Frontend1 → http://56.228.35.80:3002 (a_reference_front)
 ```
 
 ---
@@ -216,7 +216,7 @@ La navigation entre frontends est correctement configurée:
 - ✅ Utilise des variables d'environnement partout
 - ✅ Pas d'URLs hardcodées
 - ✅ Fonctionne en développement local (localhost)
-- ✅ Fonctionne en production AWS (16.171.1.67)
+- ✅ Fonctionne en production AWS (56.228.35.80)
 - ✅ Configuration flexible via .env
 
 **Tout est prêt pour GitHub et le déploiement AWS!** 🚀
@@ -258,15 +258,15 @@ docker-compose up gestion-forum-front a-reference-front a-user-front
 ### Test en production AWS:
 ```bash
 # Après déploiement sur AWS
-# Ouvrir http://16.171.1.67:3001 (Forum)
-# Cliquer sur "🚀 F1" → Devrait aller vers 16.171.1.67:3002
-# Cliquer sur "🚀 F2" → Devrait aller vers 16.171.1.67:3003
+# Ouvrir http://56.228.35.80:3001 (Forum)
+# Cliquer sur "🚀 F1" → Devrait aller vers 56.228.35.80:3002
+# Cliquer sur "🚀 F2" → Devrait aller vers 56.228.35.80:3003
 
-# Ouvrir http://16.171.1.67:3002 (Reference)
-# Cliquer sur "Forum" → Devrait aller vers 16.171.1.67:3001
+# Ouvrir http://56.228.35.80:3002 (Reference)
+# Cliquer sur "Forum" → Devrait aller vers 56.228.35.80:3001
 
-# Ouvrir http://16.171.1.67:3003 (User)
-# Cliquer sur "Forum" → Devrait aller vers 16.171.1.67:3001
+# Ouvrir http://56.228.35.80:3003 (User)
+# Cliquer sur "Forum" → Devrait aller vers 56.228.35.80:3001
 ```
 
 ---

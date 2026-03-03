@@ -3,7 +3,7 @@
 ## 📍 Où vous en êtes
 
 Vous êtes connecté à votre instance AWS EC2:
-- **IP Publique:** 16.171.1.67
+- **IP Publique:** 56.228.35.80
 - **Prérequis:** ✅ Installés (Docker, Docker Compose, Git)
 - **Security Group:** ✅ Configuré
 
@@ -110,11 +110,11 @@ curl http://localhost:8080/actuator/health
 Ouvrez ces URLs dans votre navigateur:
 
 ```
-http://16.171.1.67:8080  (Gateway API)
-http://16.171.1.67:8761  (Eureka Dashboard)
-http://16.171.1.67:3001  (Frontend Forum)
-http://16.171.1.67:3002  (Frontend Reference)
-http://16.171.1.67:3003  (Frontend User)
+http://56.228.35.80:8080  (Gateway API)
+http://56.228.35.80:8761  (Eureka Dashboard)
+http://56.228.35.80:3001  (Frontend Forum)
+http://56.228.35.80:3002  (Frontend Reference)
+http://56.228.35.80:3003  (Frontend User)
 ```
 
 **Si vous voyez les pages, c'est bon! ✅**
@@ -126,7 +126,7 @@ http://16.171.1.67:3003  (Frontend User)
 Créez un utilisateur pour tester:
 
 ```bash
-curl -X POST http://16.171.1.67:8080/api/user-auth/register \
+curl -X POST http://56.228.35.80:8080/api/user-auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "username": "admin@test.com",
