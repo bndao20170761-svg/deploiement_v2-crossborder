@@ -199,6 +199,8 @@ services:
       - SERVER_PORT=8080
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
       - JWT_SECRET=${JWT_SECRET}
+      - APP_JWT_SECRET=${JWT_SECRET}
+      - APP_JWT_EXPIRATION=3600000
     volumes:
       - maven-repo:/root/.m2
     networks:
@@ -240,6 +242,8 @@ services:
       - SERVER_PORT=8080
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
       - JWT_SECRET=${JWT_SECRET}
+      - APP_JWT_SECRET=${JWT_SECRET}
+      - APP_JWT_EXPIRATION=3600000
     volumes:
       - maven-repo:/root/.m2
     networks:
@@ -278,6 +282,8 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-reference:3306/reference_db
       - SPRING_DATASOURCE_USERNAME=reference_service
       - SPRING_DATASOURCE_PASSWORD=${MYSQL_REFERENCE_PASSWORD:-reference123}
+      - APP_JWT_SECRET=${JWT_SECRET}
+      - APP_JWT_EXPIRATION=3600000
       - SERVER_PORT=8080
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
       - JWT_SECRET=${JWT_SECRET}
@@ -322,6 +328,8 @@ services:
       - SERVER_PORT=8080
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
       - JWT_SECRET=${JWT_SECRET}
+      - APP_JWT_SECRET=${JWT_SECRET}
+      - APP_JWT_EXPIRATION=3600000
     volumes:
       - maven-repo:/root/.m2
     networks:
