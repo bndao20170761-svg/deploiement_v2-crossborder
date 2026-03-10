@@ -19,6 +19,7 @@ import sn.uasz.User_API_PVVIH.security.JwtAuthTokenFilter;
 import sn.uasz.User_API_PVVIH.services.UserDetailsServiceImpl;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true)

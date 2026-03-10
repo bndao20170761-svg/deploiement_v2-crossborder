@@ -1,154 +1,154 @@
-networks:
-  pvvih-network:
-    driver: bridge
+C:\Users\babac\Desktop\Babacar Ndao\Master2 GL\deploiement\vesion_2_enda_crossborder>docker info
+Client:
+ Version:    29.2.1
+ Context:    desktop-linux
+ Debug Mode: false
+ Plugins:
+  ai: Docker AI Agent - Ask Gordon (Docker Inc.)
+    Version:  v1.18.0
+    Path:     C:\Program Files\Docker\cli-plugins\docker-ai.exe
+  buildx: Docker Buildx (Docker Inc.)
+    Version:  v0.31.1-desktop.1
+    Path:     C:\Program Files\Docker\cli-plugins\docker-buildx.exe
+  compose: Docker Compose (Docker Inc.)
+    Version:  v5.0.2
+    Path:     C:\Program Files\Docker\cli-plugins\docker-compose.exe
+  debug: Get a shell into any image or container (Docker Inc.)
+    Version:  0.0.47
+    Path:     C:\Program Files\Docker\cli-plugins\docker-debug.exe
+  desktop: Docker Desktop commands (Docker Inc.)
+    Version:  v0.3.0
+    Path:     C:\Program Files\Docker\cli-plugins\docker-desktop.exe
+  extension: Manages Docker extensions (Docker Inc.)
+    Version:  v0.2.31
+    Path:     C:\Program Files\Docker\cli-plugins\docker-extension.exe
+  init: Creates Docker-related starter files for your project (Docker Inc.)
+    Version:  v1.4.0
+    Path:     C:\Program Files\Docker\cli-plugins\docker-init.exe
+  mcp: Docker MCP Plugin (Docker Inc.)
+    Version:  v0.39.1
+    Path:     C:\Program Files\Docker\cli-plugins\docker-mcp.exe
+  model: Docker Model Runner (Docker Inc.)
+    Version:  v1.0.8
+    Path:     C:\Program Files\Docker\cli-plugins\docker-model.exe
+  offload: Docker Offload (Docker Inc.)
+    Version:  v0.5.45
+    Path:     C:\Program Files\Docker\cli-plugins\docker-offload.exe
+  pass: Docker Pass Secrets Manager Plugin (beta) (Docker Inc.)
+    Version:  v0.0.24
+    Path:     C:\Program Files\Docker\cli-plugins\docker-pass.exe
+  sandbox: Docker Sandbox (Docker Inc.)
+    Version:  v0.12.0
+    Path:     C:\Program Files\Docker\cli-plugins\docker-sandbox.exe
+  sbom: View the packaged-based Software Bill Of Materials (SBOM) for an image (Anchore Inc.)
+    Version:  0.6.0
+    Path:     C:\Program Files\Docker\cli-plugins\docker-sbom.exe
+  scout: Docker Scout (Docker Inc.)
+    Version:  v1.19.0
+    Path:     C:\Program Files\Docker\cli-plugins\docker-scout.exe
 
-volumes:
-  mongodb-data:
-  mysql-user-data:
-  mysql-reference-data:
-  mysql-patient-data:
-
-services:
-  # ==================== Database Services ====================
-  
-  # MongoDB for Forum Service
-  mongodb:
-    image: mongo:7.0
-    container_name: mongodb
-    ports:
-      - "27017:27017"
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-admin123}
-      - MONGO_INITDB_DATABASE=forum_db
-    volumes:
-      - mongodb-data:/data/db
-    networks:
-      - pvvih-network
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-    restart: unless-stopped
-
-  # MySQL for User Service
-  mysql-user:
-    image: mysql:8.0
-    container_name: mysql-user
-    ports:
-      - "3307:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root123}
-      - MYSQL_DATABASE=user_db
-      - MYSQL_USER=user_service
-      - MYSQL_PASSWORD=${MYSQL_USER_PASSWORD:-user123}
-    volumes:
-      - mysql-user-data:/var/lib/mysql
-    networks:
-      - pvvih-network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-    restart: unless-stopped
-
-  # MySQL for Reference Service
-  mysql-reference:
-    image: mysql:8.0
-    container_name: mysql-reference
-    ports:
-      - "3308:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root123}
-      - MYSQL_DATABASE=reference_db
-      - MYSQL_USER=reference_service
-      - MYSQL_PASSWORD=${MYSQL_REFERENCE_PASSWORD:-reference123}
-    volumes:
-      - mysql-reference-data:/var/lib/mysql
-    networks:
-      - pvvih-network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-    restart: unless-stopped
-
-  # MySQL for Patient Service
-  mysql-patient:
-    image: mysql:8.0
-    container_name: mysql-patient
-    ports:
-      - "3309:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root123}
-      - MYSQL_DATABASE=patient_db
-      - MYSQL_USER=patient_service
-      - MYSQL_PASSWORD=${MYSQL_PATIENT_PASSWORD:-patient123}
-    volumes:
-      - mysql-patient-data:/var/lib/mysql
-    networks:
-      - pvvih-network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-    restart: unless-stopped
-  # ==================== Edge Services ====================
-  
-  # Service Registry (Eureka)
-  api-register:
+Server:
+ERROR: request returned 500 Internal Server Error for API route and version http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.53/info, check if the server supports the requested API version
+errors pretty printing info  # Forum Frontend
+  gestion-forum-front:
     build:
-      context: ./api_register
+      context: ./gestion_forum_front
       dockerfile: Dockerfile
-    container_name: api-register
+      args:
+        - REACT_APP_API_URL=${PUBLIC_URL:-http://localhost:8080}/api
+        - REACT_APP_FORUM_API_URL=${PUBLIC_URL:-http://localhost:8080}/api
+        - REACT_APP_AUTH_API_URL=${PUBLIC_URL:-http://localhost:8080}/api
+        - REACT_APP_GATEWAY_URL=${PUBLIC_URL:-http://localhost:8080}
+        - REACT_APP_FRONTEND1_URL=${FRONTEND1_URL:-http://localhost:3002}
+        - REACT_APP_FRONTEND2_URL=${FRONTEND2_URL:-http://localhost:3003}
+    container_name: gestion-forum-front
     ports:
-      - "8761:8761"
-    environment:
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-dev}
-      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
-      - EUREKA_CLIENT_FETCH_REGISTRY=false
-    networks:
-      - pvvih-network
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8761/actuator/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
-    restart: unless-stopped
-
-  # Configuration Server
-  api-configuration:
-    build:
-      context: ./api_configuration/demo
-      dockerfile: Dockerfile
-    container_name: api-configuration
-    ports:
-      - "8888:8888"
-    environment:
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-dev}
-      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://api-register:8761/eureka/
+      - "3001:80"
     networks:
       - pvvih-network
     depends_on:
-      api-register:
-        condition: service_healthy
+      - gateway-pvvih
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8888/actuator/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
       interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     restart: unless-stopped
-
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M  # Reference Frontend
+  a-reference-front:
+    build:
+      context: ./a_reference_front
+      dockerfile: Dockerfile
+      args:
+        - REACT_APP_GATEWAY_URL=${PUBLIC_URL:-http://localhost:8080}
+        - REACT_APP_USER_API_URL=${PUBLIC_URL:-http://localhost:8080}/api
+        - REACT_APP_REFERENCEMENT_API_URL=${PUBLIC_URL:-http://localhost:8080}/api
+        - REACT_APP_PATIENT_API_URL=${PUBLIC_URL:-http://localhost:8080}/api
+        - REACT_APP_FORUM_API_URL=${PUBLIC_URL:-http://localhost:8080}/api
+        - REACT_APP_FORUM_URL=${FORUM_URL:-http://localhost:3001}
+        - REACT_APP_FRONTEND2_URL=${FRONTEND2_URL:-http://localhost:3003}
+        - REACT_APP_GOOGLE_MAPS_API_KEY=AIzaSyDOez4XWbw6IyAAngBCsKDJ-MlriBhH2IU
+    container_name: a-reference-front
+    ports:
+      - "3002:80"
+    networks:
+      - pvvih-network
+    depends_on:
+      - gateway-pvvih
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M  # User Frontend
+  a-user-front:
+    build:
+      context: ./a_user_front
+      dockerfile: Dockerfile
+      args:
+        - REACT_APP_GATEWAY_URL=${PUBLIC_URL:-http://localhost:8080}
+        - REACT_APP_USER_API_URL=${PUBLIC_URL:-http://localhost:8080}/api
+        - REACT_APP_FORUM_URL=${FORUM_URL:-http://localhost:3001}
+        - REACT_APP_FRONTEND2_URL=${FRONTEND1_URL:-http://localhost:3002}
+    container_name: a-user-front
+    ports:
+      - "3003:80"
+    networks:
+      - pvvih-network
+    depends_on:
+      - gateway-pvvih
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M  # API Gateway
   # API Gateway
   gateway-pvvih:
     build:
@@ -161,6 +161,7 @@ services:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-dev}
       - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://api-register:8761/eureka/
       - SPRING_CLOUD_CONFIG_URI=http://api-configuration:8888
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3003}
     networks:
       - pvvih-network
     depends_on:
@@ -174,10 +175,9 @@ services:
       timeout: 10s
       retries: 5
       start_period: 60s
-    restart: unless-stopped
-
-  # ==================== Backend Services ====================
-  
+    restart: unless-stopped  # User Management Service
+  gestion-user:
+    build:
   # Forum Service
   forum-pvvih:
     build:
@@ -193,6 +193,8 @@ services:
       - SPRING_DATA_MONGODB_URI=mongodb://admin:${MONGO_PASSWORD:-admin123}@mongodb:27017/forum_db?authSource=admin
       - SPRING_DATA_MONGODB_DATABASE=forum_db
       - SERVER_PORT=8080
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3003}
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
     networks:
       - pvvih-network
     depends_on:
@@ -216,8 +218,6 @@ services:
           memory: 512M
         reservations:
           cpus: '0.5'
-          memory: 256M
-
   # User Management Service
   gestion-user:
     build:
@@ -234,6 +234,8 @@ services:
       - SPRING_DATASOURCE_USERNAME=user_service
       - SPRING_DATASOURCE_PASSWORD=${MYSQL_USER_PASSWORD:-user123}
       - SERVER_PORT=8080
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3003}
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
     networks:
       - pvvih-network
     depends_on:
@@ -257,8 +259,6 @@ services:
           memory: 512M
         reservations:
           cpus: '0.5'
-          memory: 256M
-
   # Reference Management Service
   gestion-reference:
     build:
@@ -275,6 +275,8 @@ services:
       - SPRING_DATASOURCE_USERNAME=reference_service
       - SPRING_DATASOURCE_PASSWORD=${MYSQL_REFERENCE_PASSWORD:-reference123}
       - SERVER_PORT=8080
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3003}
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
     networks:
       - pvvih-network
     depends_on:
@@ -298,8 +300,6 @@ services:
           memory: 512M
         reservations:
           cpus: '0.5'
-          memory: 256M
-
   # Patient Management Service
   gestion-patient:
     build:
@@ -316,6 +316,8 @@ services:
       - SPRING_DATASOURCE_USERNAME=patient_service
       - SPRING_DATASOURCE_PASSWORD=${MYSQL_PATIENT_PASSWORD:-patient123}
       - SERVER_PORT=8080
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3003}
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
     networks:
       - pvvih-network
     depends_on:
@@ -340,106 +342,3 @@ services:
         reservations:
           cpus: '0.5'
           memory: 256M
-
-  # ==================== Frontend Services ====================
-  
-  # Forum Frontend
-  gestion-forum-front:
-    build:
-      context: ./gestion_forum_front
-      dockerfile: Dockerfile
-    container_name: gestion-forum-front
-    ports:
-      - "3001:80"
-    environment:
-      - REACT_APP_FORUM_API_URL=http://localhost:8080/api
-      - REACT_APP_AUTH_API_URL=http://localhost:8080/api
-      - REACT_APP_GATEWAY_URL=http://localhost:8080
-      - REACT_APP_FRONTEND1_URL=http://localhost:3002
-      - REACT_APP_FRONTEND2_URL=http://localhost:3003
-    networks:
-      - pvvih-network
-    depends_on:
-      - gateway-pvvih
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 256M
-        reservations:
-          cpus: '0.25'
-          memory: 128M
-
-  # Reference Frontend
-  a-reference-front:
-    build:
-      context: ./a_reference_front
-      dockerfile: Dockerfile
-    container_name: a-reference-front
-    ports:
-      - "3002:80"
-    environment:
-      - REACT_APP_API_URL=http://localhost:8080
-      - REACT_APP_GATEWAY_URL=http://localhost:8080
-      - REACT_APP_FORUM_URL=http://localhost:3001
-      - REACT_APP_FRONTEND2_URL=http://localhost:3003
-    networks:
-      - pvvih-network
-    depends_on:
-      - gateway-pvvih
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 256M
-        reservations:
-          cpus: '0.25'
-          memory: 128M
-
-  # User Frontend
-  a-user-front:
-    build:
-      context: ./a_user_front
-      dockerfile: Dockerfile
-    container_name: a-user-front
-    ports:
-      - "3003:80"
-    environment:
-      - REACT_APP_API_URL=http://localhost:8080
-      - REACT_APP_GATEWAY_URL=http://localhost:8080
-      - REACT_APP_USER_API_URL=http://localhost:8080/api
-      - REACT_APP_FORUM_URL=http://localhost:3001
-      - REACT_APP_FRONTEND1_URL=http://localhost:3002
-    networks:
-      - pvvih-network
-    depends_on:
-      - gateway-pvvih
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 256M
-        reservations:
-          cpus: '0.25'
-          memory: 128M

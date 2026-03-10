@@ -17,6 +17,7 @@ import sn.uaz.Forum_PVVIH.services.UserDetailsServiceImpl;
 import sn.uaz.Forum_PVVIH.security.JwtAuthTokenFilter;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 public class SecurityConfig {
