@@ -1,0 +1,166 @@
+╔════════════════════════════════════════════════════════════════╗
+║   COMMANDES POUR BUILDER LES FRONTENDS PAS À PAS              ║
+║   Exécutez ces commandes dans votre VM GCP                    ║
+╚════════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════════
+  PRÉPARATION
+═══════════════════════════════════════════════════════════════════
+
+# Aller dans le répertoire du projet
+cd ~/deploiement_v2-crossborder
+
+# Vérifier que le fichier .env existe
+cat .env | grep PUBLIC_IP
+
+# Vérifier que Docker fonctionne
+docker ps
+
+═══════════════════════════════════════════════════════════════════
+  FRONTEND 1: gestion_forum_front (Port 3001)
+═══════════════════════════════════════════════════════════════════
+
+# 1. Vérifier le fichier .env du frontend
+cat gestion_forum_front/.env
+
+# 2. Builder l'image Docker
+docker-compose build gestion-forum-front
+
+# 3. Démarrer le conteneur
+docker-compose up -d gestion-forum-front
+
+# 4. Vérifier que ça tourne
+docker-compose ps gestion-forum-front
+
+# 5. Voir les logs
+docker-compose logs gestion-forum-front
+
+# 6. Tester l'accès
+curl -I http://localhost:3001
+
+═══════════════════════════════════════════════════════════════════
+  FRONTEND 2: a_reference_front (Port 3002)
+═══════════════════════════════════════════════════════════════════
+
+# 1. Vérifier le fichier .env du frontend
+cat a_reference_front/.env
+
+# 2. Builder l'image Docker
+docker-compose build a-reference-front
+
+# 3. Démarrer le conteneur
+docker-compose up -d a-reference-front
+
+# 4. Vérifier que ça tourne
+docker-compose ps a-reference-front
+
+# 5. Voir les logs
+docker-compose logs a-reference-front
+
+# 6. Tester l'accès
+curl -I http://localhost:3002
+
+═══════════════════════════════════════════════════════════════════
+  FRONTEND 3: a_user_front (Port 3003)
+═══════════════════════════════════════════════════════════════════
+
+# 1. Vérifier le fichier .env du frontend
+cat a_user_front/.env
+
+# 2. Builder l'image Docker
+docker-compose build a-user-front
+
+# 3. Démarrer le conteneur
+docker-compose up -d a-user-front
+
+# 4. Vérifier que ça tourne
+docker-compose ps a-user-front
+
+# 5. Voir les logs
+docker-compose logs a-user-front
+
+# 6. Tester l'accès
+curl -I http://localhost:3003
+
+═══════════════════════════════════════════════════════════════════
+  VÉRIFICATION GLOBALE
+═══════════════════════════════════════════════════════════════════
+
+# Voir l'état de tous les frontends
+docker-compose ps | grep front
+
+# Voir toutes les images créées
+docker images | grep front
+
+# Tester tous les frontends
+curl -I http://localhost:3001
+curl -I http://localhost:3002
+curl -I http://localhost:3003
+
+# Voir les logs de tous les frontends
+docker-compose logs gestion-forum-front a-reference-front a-user-front
+
+═══════════════════════════════════════════════════════════════════
+  TESTS DEPUIS VOTRE NAVIGATEUR
+═══════════════════════════════════════════════════════════════════
+
+Ouvrez ces URLs dans votre navigateur:
+
+http://34.32.116.206:3001  (Frontend Forum)
+http://34.32.116.206:3002  (Frontend Reference)
+http://34.32.116.206:3003  (Frontend User)
+
+═══════════════════════════════════════════════════════════════════
+  COMMANDES UTILES
+═══════════════════════════════════════════════════════════════════
+
+# Arrêter un frontend
+docker-compose stop gestion-forum-front
+
+# Redémarrer un frontend
+docker-compose restart gestion-forum-front
+
+# Reconstruire un frontend (si vous modifiez le code)
+docker-compose build --no-cache gestion-forum-front
+docker-compose up -d gestion-forum-front
+
+# Voir les logs en temps réel
+docker-compose logs -f gestion-forum-front
+
+# Supprimer un conteneur
+docker-compose rm -f gestion-forum-front
+
+# Voir l'utilisation des ressources
+docker stats
+
+═══════════════════════════════════════════════════════════════════
+  DÉPANNAGE
+═══════════════════════════════════════════════════════════════════
+
+# Si le build échoue:
+1. Vérifier les logs: docker-compose logs gestion-forum-front
+2. Vérifier l'espace disque: df -h
+3. Nettoyer Docker: docker system prune -f
+4. Rebuilder: docker-compose build --no-cache gestion-forum-front
+
+# Si le conteneur ne démarre pas:
+1. Voir les logs: docker-compose logs gestion-forum-front
+2. Vérifier le port: sudo netstat -tulpn | grep 3001
+3. Redémarrer: docker-compose restart gestion-forum-front
+
+# Si l'accès ne fonctionne pas:
+1. Vérifier le pare-feu GCP (ports 3001, 3002, 3003)
+2. Vérifier que le conteneur tourne: docker-compose ps
+3. Tester depuis la VM: curl http://localhost:3001
+
+═══════════════════════════════════════════════════════════════════
+  TEMPS ESTIMÉS
+═══════════════════════════════════════════════════════════════════
+
+Frontend Forum:     3-5 minutes (build) + 10 secondes (démarrage)
+Frontend Reference: 3-5 minutes (build) + 10 secondes (démarrage)
+Frontend User:      3-5 minutes (build) + 10 secondes (démarrage)
+
+TOTAL: 10-15 minutes pour les 3 frontends
+
+═══════════════════════════════════════════════════════════════════

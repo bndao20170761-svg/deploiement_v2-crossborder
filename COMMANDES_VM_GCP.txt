@@ -1,0 +1,155 @@
+╔════════════════════════════════════════════════════════════════╗
+║   COMMANDES À EXÉCUTER DANS VOTRE VM GCP                       ║
+║   Copiez-collez ces commandes une par une                     ║
+╚════════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════════
+  ÉTAPE 1: NETTOYAGE ET MISE À JOUR DU SYSTÈME
+═══════════════════════════════════════════════════════════════════
+
+# Arrêter les processus apt/dpkg en cours
+sudo killall -9 apt apt-get dpkg 2>/dev/null || true
+sleep 5
+
+# Nettoyer les fichiers de lock
+sudo rm -f /var/lib/apt/lists/lock
+sudo rm -f /var/lib/dpkg/lock*
+sudo rm -f /var/cache/apt/archives/lock
+
+# Reconfigurer dpkg
+sudo dpkg --configure -a
+
+# Mettre à jour la liste des paquets
+sudo apt update
+
+# Mettre à niveau le système
+sudo apt upgrade -y
+
+# Nettoyer les paquets inutiles
+sudo apt autoremove -y
+sudo apt autoclean
+
+═══════════════════════════════════════════════════════════════════
+  ÉTAPE 2: INSTALLATION DE GIT
+═══════════════════════════════════════════════════════════════════
+
+# Installer Git
+sudo apt install -y git
+
+# Vérifier l'installation
+git --version
+
+═══════════════════════════════════════════════════════════════════
+  ÉTAPE 3: INSTALLATION DE DOCKER
+═══════════════════════════════════════════════════════════════════
+
+# Installer les dépendances
+sudo apt install -y ca-certificates curl gnupg lsb-release
+
+# Créer le répertoire pour les clés
+sudo mkdir -p /etc/apt/keyrings
+
+# Ajouter la clé GPG Docker
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+# Ajouter le repository Docker
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# Mettre à jour et installer Docker
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# Vérifier l'installation
+docker --version
+
+═══════════════════════════════════════════════════════════════════
+  ÉTAPE 4: INSTALLATION DE DOCKER COMPOSE
+═══════════════════════════════════════════════════════════════════
+
+# Installer Docker Compose standalone
+sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+# Rendre exécutable
+sudo chmod +x /usr/local/bin/docker-compose
+
+# Vérifier l'installation
+docker-compose --version
+
+═══════════════════════════════════════════════════════════════════
+  ÉTAPE 5: CONFIGURATION DE DOCKER
+═══════════════════════════════════════════════════════════════════
+
+# Démarrer Docker
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Ajouter votre utilisateur au groupe docker
+sudo usermod -aG docker $USER
+
+# Vérifier l'état de Docker
+sudo systemctl status docker
+
+═══════════════════════════════════════════════════════════════════
+  ÉTAPE 6: DÉCONNEXION ET RECONNEXION
+═══════════════════════════════════════════════════════════════════
+
+# Se déconnecter pour activer les permissions Docker
+exit
+
+# Puis reconnectez-vous via SSH
+
+═══════════════════════════════════════════════════════════════════
+  ÉTAPE 7: TESTER DOCKER (APRÈS RECONNEXION)
+═══════════════════════════════════════════════════════════════════
+
+# Tester Docker sans sudo
+docker run hello-world
+
+# Si ça fonctionne, vous verrez un message de succès!
+
+═══════════════════════════════════════════════════════════════════
+  ÉTAPE 8: CLONER LE REPOSITORY
+═══════════════════════════════════════════════════════════════════
+
+# Cloner votre repository (remplacez VOTRE_USERNAME)
+git clone https://github.com/VOTRE_USERNAME/deploiement_v2-crossborder.git
+
+# Entrer dans le répertoire
+cd deploiement_v2-crossborder
+
+# Vérifier les fichiers
+ls -la
+
+═══════════════════════════════════════════════════════════════════
+  ÉTAPE 9: LANCER LE DÉPLOIEMENT
+═══════════════════════════════════════════════════════════════════
+
+# Lancer le script de déploiement complet
+bash deploy-gcp-complet.sh
+
+═══════════════════════════════════════════════════════════════════
+  COMMANDES UTILES
+═══════════════════════════════════════════════════════════════════
+
+# Voir l'état des conteneurs
+docker-compose ps
+
+# Voir les logs
+docker-compose logs -f
+
+# Arrêter tous les services
+docker-compose down
+
+# Redémarrer un service
+docker-compose restart SERVICE_NAME
+
+# Voir l'utilisation des ressources
+docker stats
+
+# Voir l'espace disque
+df -h
+
+# Voir la mémoire
+free -h
+
+═══════════════════════════════════════════════════════════════════
