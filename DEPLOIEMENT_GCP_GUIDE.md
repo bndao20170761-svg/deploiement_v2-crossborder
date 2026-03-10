@@ -2,7 +2,7 @@
 
 ## 📍 Votre Configuration GCP
 
-**IP Externe:** `34.133.155.230`  
+**IP Externe:** `34.32.116.206`  
 **Nom de la VM:** `springboot-server`  
 **Système:** Debian GNU/Linux
 
@@ -95,7 +95,7 @@ cp .env.gcp.example .env
 cat .env
 ```
 
-Le fichier `.env` contient déjà la bonne IP: `34.133.155.230`
+Le fichier `.env` contient déjà la bonne IP: `34.32.116.206`
 
 ### 3.2 (Optionnel) Modifier les mots de passe
 
@@ -214,11 +214,11 @@ Tous doivent retourner: `{"status":"UP"}`
 Ouvrez ces URLs dans votre navigateur:
 
 ```
-Gateway API:        http://34.133.155.230:8080
-Eureka Dashboard:   http://34.133.155.230:8761
-Frontend Forum:     http://34.133.155.230:3001
-Frontend Reference: http://34.133.155.230:3002
-Frontend User:      http://34.133.155.230:3003
+Gateway API:        http://34.32.116.206:8080
+Eureka Dashboard:   http://34.32.116.206:8761
+Frontend Forum:     http://34.32.116.206:3001
+Frontend Reference: http://34.32.116.206:3002
+Frontend User:      http://34.32.116.206:3003
 ```
 
 ### 5.3 Tester l'API d'authentification
@@ -227,13 +227,13 @@ Depuis votre machine locale (PowerShell):
 
 ```powershell
 # Créer un utilisateur
-Invoke-RestMethod -Uri "http://34.133.155.230:8080/api/user-auth/register" `
+Invoke-RestMethod -Uri "http://34.32.116.206:8080/api/user-auth/register" `
   -Method POST `
   -ContentType "application/json" `
   -Body '{"username":"admin@test.com","password":"admin123","nom":"Admin","prenom":"Test","profil":"ADMIN","nationalite":"Sénégalaise","actif":true}'
 
 # Se connecter
-Invoke-RestMethod -Uri "http://34.133.155.230:8080/api/user-auth/login" `
+Invoke-RestMethod -Uri "http://34.32.116.206:8080/api/user-auth/login" `
   -Method POST `
   -ContentType "application/json" `
   -Body '{"username":"admin@test.com","password":"admin123"}'
@@ -375,11 +375,11 @@ docker-compose stop SERVICE_NAME
 
 | Service | URL |
 |---------|-----|
-| Gateway API | http://34.133.155.230:8080 |
-| Eureka Dashboard | http://34.133.155.230:8761 |
-| Frontend Forum | http://34.133.155.230:3001 |
-| Frontend Reference | http://34.133.155.230:3002 |
-| Frontend User | http://34.133.155.230:3003 |
+| Gateway API | http://34.32.116.206:8080 |
+| Eureka Dashboard | http://34.32.116.206:8761 |
+| Frontend Forum | http://34.32.116.206:3001 |
+| Frontend Reference | http://34.32.116.206:3002 |
+| Frontend User | http://34.32.116.206:3003 |
 
 ---
 
