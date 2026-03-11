@@ -920,7 +920,7 @@ const handleSubmit = async () => {
     const token = localStorage.getItem("token");
 
     const response = await axios.post(
-      `${process.env.REACT_APP_GATEWAY_URL || 'http://localhost:8080'}/api/dossiers`,
+      `${process.env.REACT_APP_GATEWAY_URL || 'http://34.32.116.206:8080'}/api/dossiers`,
       payload,
       {
         headers: {

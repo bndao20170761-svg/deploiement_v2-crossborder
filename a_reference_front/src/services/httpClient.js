@@ -2,7 +2,7 @@
 import axios from "axios";
 
 // Nouveau port et nom
-let API_BASE_URL = process.env.REACT_APP_GATEWAY_URL || "http://localhost:8080";
+let API_BASE_URL = process.env.REACT_APP_GATEWAY_URL || "http://34.32.116.206:8080";
 // Normaliser: s'assurer que le préfixe /api est présent
 if (!API_BASE_URL.endsWith("/api")) {
   API_BASE_URL = API_BASE_URL.replace(/\/+$/, "");
