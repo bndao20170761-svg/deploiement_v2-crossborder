@@ -1,7 +1,7 @@
 // src/services/referenceService.js
 import axios from "axios";
 
-const API_URL = `${process.env.REACT_APP_GATEWAY_URL || 'http://34.32.116.206:8080'}/api/references`;
+const API_URL = `${process.env.REACT_APP_GATEWAY_URL || 'http://34.28.161.231:8080'}/api/references`;
 
 // Récupère le token depuis localStorage
 const getAuthHeader = () => {

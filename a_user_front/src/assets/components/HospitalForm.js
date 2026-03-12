@@ -197,7 +197,7 @@ const HospitalForm = ({ initialData, onSave, language, onCancel }) => {
       if ((!initialData.prestataires || initialData.prestataires.length === 0) && initialData.id) {
         (async () => {
           try {
-            const gateway = process.env.REACT_APP_GATEWAY_URL || 'http://34.32.116.206:8080';
+            const gateway = process.env.REACT_APP_GATEWAY_URL || 'http://34.28.161.231:8080';
             const resp = await fetch(`${gateway}/api/hospitaux/${initialData.id}/prestataires-only`, {
               method: 'GET',
               headers: {

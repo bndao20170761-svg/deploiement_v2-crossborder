@@ -1,7 +1,7 @@
 // src/services/api.js
 import axios from "axios";
 
-const API_BASE_URL = process.env.REACT_APP_GATEWAY_URL || "http://34.32.116.206:8080";
+const API_BASE_URL = process.env.REACT_APP_GATEWAY_URL || "http://34.28.161.231:8080";
 
 // Création d'une instance axios
 const api = axios.create({

@@ -26,11 +26,11 @@ const HopitalMap = () => {
   const chargerDonnees = async () => {
     try {
       // Récupérer les hôpitaux avec leurs services
-      const reponseHopitaux = await axios.get(`${process.env.REACT_APP_GATEWAY_URL || 'http://34.32.116.206:8080'}/api/hopitaux-proxy/tous?includeServices=true`);
+      const reponseHopitaux = await axios.get(`${process.env.REACT_APP_GATEWAY_URL || 'http://34.28.161.231:8080'}/api/hopitaux-proxy/tous?includeServices=true`);
       setHopitaux(reponseHopitaux.data);
 
       // Récupérer tous les services disponibles - utiliser endpoint integration
-      const reponseServices = await axios.get(`${process.env.REACT_APP_GATEWAY_URL || 'http://34.32.116.206:8080'}/api/integration/hospitals`);
+      const reponseServices = await axios.get(`${process.env.REACT_APP_GATEWAY_URL || 'http://34.28.161.231:8080'}/api/integration/hospitals`);
       setServices(reponseServices.data);
     } catch (erreur) {
       console.error('Erreur chargement données:', erreur);

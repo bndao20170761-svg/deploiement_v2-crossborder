@@ -1,9 +1,9 @@
 // Configuration centralisée des URLs API
 export const API_CONFIG = {
-  GATEWAY_URL: process.env.REACT_APP_GATEWAY_URL || 'http://34.32.116.206:8080',
-  API_URL: process.env.REACT_APP_API_URL || 'http://34.32.116.206:8080',
-  FORUM_URL: process.env.REACT_APP_FORUM_URL || 'http://34.32.116.206:3001',
-  FRONTEND2_URL: process.env.REACT_APP_FRONTEND2_URL || 'http://34.32.116.206:3003',
+  GATEWAY_URL: process.env.REACT_APP_GATEWAY_URL || 'http://34.28.161.231:8080',
+  API_URL: process.env.REACT_APP_API_URL || 'http://34.28.161.231:8080',
+  FORUM_URL: process.env.REACT_APP_FORUM_URL || 'http://34.28.161.231:3001',
+  FRONTEND2_URL: process.env.REACT_APP_FRONTEND2_URL || 'http://34.28.161.231:3003',
 };
 
 // Helper pour construire les URLs API
