@@ -103,10 +103,14 @@ public class DoctorService {
                     .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec ID: " + dto.getUtilisateurId()));
         } else {
             // Créer un nouvel utilisateur
-            String username;
-            do {
-                username = "DOCTOR_" + generateAlphaNumericCode(6);
-            } while (userRepository.existsByUsername(username));
+            String username = dto.getEmail();
+            if (username == null || username.trim().isEmpty()) {
+                throw new RuntimeException("L'email est obligatoire pour créer un compte doctor");
+            }
+            
+            if (userRepository.existsByUsername(username)) {
+                throw new RuntimeException("Un utilisateur avec cet email existe déjà: " + username);
+            }
 
             doctorUser = User.builder()
                     .username(username)

@@ -1,0 +1,170 @@
+# ============================================================================
+# COMMANDES POUR CORRIGER LE GATEWAY - COPIER/COLLER UNE PAR UNE
+# ============================================================================
+
+# ============================================================================
+# PARTIE 1: SUR GITHUB (À FAIRE EN PREMIER)
+# ============================================================================
+
+# 1. Aller sur: https://github.com/BabacarNdaoKgl/cloud-config-repo-enda.git
+
+# 2. Cliquer sur le fichier: GETWAY_PVVIH-prod.yml
+
+# 3. Cliquer sur l'icône "Edit" (crayon en haut à droite)
+
+# 4. SUPPRIMER TOUT LE CONTENU du fichier
+
+# 5. COPIER-COLLER le contenu complet du fichier: GETWAY_PVVIH-prod-CORRIGE.yml
+#    (Le fichier est dans votre projet local)
+
+# 6. Message de commit: "Fix: Correction noms services Eureka avec underscores"
+
+# 7. Cliquer sur "Commit changes"
+
+# ============================================================================
+# PARTIE 2: SUR LA VM GCP (APRÈS AVOIR MODIFIÉ GITHUB)
+# ============================================================================
+
+# Se connecter à la VM
+gcloud compute ssh babacarndao615@instance-20260310-134136
+
+# Aller dans le répertoire du projet
+cd ~/deploiement_v2-crossborder
+
+# ----------------------------------------------------------------------------
+# MÉTHODE 1: SCRIPT AUTOMATIQUE (RECOMMANDÉ)
+# ----------------------------------------------------------------------------
+
+# Télécharger le script depuis votre repo GitHub (après l'avoir poussé)
+# OU créer le fichier manuellement:
+
+nano reload-gateway-config.sh
+# Copier-coller le contenu du fichier reload-gateway-config.sh
+# Ctrl+O pour sauvegarder, Ctrl+X pour quitter
+
+# Rendre le script exécutable
+chmod +x reload-gateway-config.sh
+
+# Exécuter le script
+./reload-gateway-config.sh
+
+# ----------------------------------------------------------------------------
+# MÉTHODE 2: COMMANDES MANUELLES (SI VOUS PRÉFÉREZ)
+# ----------------------------------------------------------------------------
+
+# Étape 1: Arrêter les services
+docker-compose stop gateway-pvvih api-configuration
+
+# Étape 2: Supprimer les conteneurs (IMPORTANT pour forcer le rechargement)
+docker-compose rm -f gateway-pvvih api-configuration
+
+# Étape 3: Vérifier qu'ils sont bien supprimés
+docker ps -a | grep -E "gateway-pvvih|api-configuration"
+# Résultat attendu: aucune ligne (ou seulement des conteneurs "Exited")
+
+# Étape 4: Redémarrer Config Server
+docker-compose up -d api-configuration
+
+# Étape 5: Attendre 20 secondes
+echo "Attente 20 secondes..."
+sleep 20
+
+# Étape 6: Vérifier que Config Server a chargé la bonne config
+curl http://localhost:8888/GETWAY_PVVIH/prod | grep -i "USER_API_PVVIH"
+# Résultat attendu: vous devez voir "USER_API_PVVIH" (avec underscores)
+# Si vous voyez "USER-API-PVVIH" (avec hyphens), la config GitHub n'est pas à jour!
+
+# Étape 7: Redémarrer Gateway
+docker-compose up -d gateway-pvvih
+
+# Étape 8: Attendre 30 secondes
+echo "Attente 30 secondes..."
+sleep 30
+
+# Étape 9: Vérifier les logs du Gateway
+docker-compose logs --tail=50 gateway-pvvih
+
+# Étape 10: Vérifier que les routes sont chargées
+curl http://localhost:8080/actuator/gateway/routes | jq '.'
+
+# Étape 11: Chercher spécifiquement la route user-api-auth
+curl http://localhost:8080/actuator/gateway/routes | jq '.[] | select(.route_id=="user-api-auth")'
+
+# ============================================================================
+# PARTIE 3: TESTS
+# ============================================================================
+
+# Test 1: Vérifier que gestion-user est enregistré dans Eureka
+curl http://localhost:8761/eureka/apps/USER_API_PVVIH
+# Résultat attendu: XML avec les infos du service (pas de 404)
+
+# Test 2: Vérifier tous les services dans Eureka
+curl http://localhost:8761/eureka/apps | grep -i "application"
+
+# Test 3: Tester l'endpoint directement sur gestion-user (bypass Gateway)
+# D'abord, trouver l'IP du conteneur:
+docker inspect gestion-user | grep IPAddress
+# Exemple de résultat: "IPAddress": "172.18.0.10"
+
+# Puis tester (remplacez 172.18.0.10 par l'IP trouvée):
+curl -X POST http://172.18.0.10:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"test@test.com","password":"test123","nom":"Test","prenom":"User","nationalite":"Sénégal"}'
+# Résultat attendu: Code 200/201 avec un token JWT
+
+# Test 4: Tester via le Gateway (le vrai test)
+curl -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"test2@test.com","password":"test123","nom":"Test","prenom":"User","nationalite":"Sénégal"}'
+# Résultat attendu: Code 200/201 avec un token JWT
+
+# Test 5: Depuis l'extérieur (Postman ou navigateur)
+# POST http://34.32.116.206:8080/api/auth/register
+# Body: {"username":"test3@test.com","password":"test123","nom":"Test","prenom":"User","nationalite":"Sénégal"}
+
+# ============================================================================
+# DIAGNOSTIC SI ÇA NE MARCHE TOUJOURS PAS
+# ============================================================================
+
+# Voir les logs du Gateway avec recherche d'erreurs
+docker-compose logs gateway-pvvih | grep -i error
+
+# Voir les logs de gestion-user
+docker-compose logs --tail=50 gestion-user
+
+# Vérifier que gestion-user est bien démarré
+docker-compose ps gestion-user
+
+# Vérifier la configuration chargée par le Gateway
+docker-compose logs gateway-pvvih | grep -i "route\|config"
+
+# Vérifier les variables d'environnement du Gateway
+docker exec gateway-pvvih env | grep -E "SPRING|EUREKA|CONFIG"
+
+# Redémarrer tous les services backend (si vraiment nécessaire)
+docker-compose restart gestion-user gestion-patient gestion-reference forum-pvvih
+
+# Attendre 30 secondes
+sleep 30
+
+# Puis redémarrer le Gateway
+docker-compose restart gateway-pvvih
+
+# ============================================================================
+# NOTES IMPORTANTES
+# ============================================================================
+
+# 1. docker-compose restart NE RECHARGE PAS la config depuis GitHub
+#    Il faut OBLIGATOIREMENT faire: rm -f puis up -d
+
+# 2. L'ordre de démarrage est important:
+#    api-configuration → attendre 20s → gateway-pvvih → attendre 30s
+
+# 3. Les noms de services dans Eureka utilisent des UNDERSCORES:
+#    USER_API_PVVIH (pas USER-API-PVVIH)
+
+# 4. Le Gateway doit utiliser lb:// pour la découverte Eureka:
+#    uri: lb://USER_API_PVVIH
+
+# 5. Si vous modifiez la config sur GitHub, attendez toujours 20-30 secondes
+#    avant de tester (le Config Server met en cache)

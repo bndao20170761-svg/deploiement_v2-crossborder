@@ -1,0 +1,88 @@
+═══════════════════════════════════════════════════════════════
+  COMMANDES CORRECTES POUR LA VM GCP
+  COPIEZ-COLLEZ CES COMMANDES (ne les tapez pas manuellement)
+═══════════════════════════════════════════════════════════════
+
+ATTENTION : Le nom du service est "gateway-pvvih" (avec un A)
+            PAS "getway-pvvih" ❌
+
+═══════════════════════════════════════════════════════════════
+ÉTAPE 1 : Récupérer les changements depuis GitHub
+═══════════════════════════════════════════════════════════════
+
+cd ~/deploiement_v2-crossborder
+git pull origin main
+
+═══════════════════════════════════════════════════════════════
+ÉTAPE 2 : Arrêter les services backend
+═══════════════════════════════════════════════════════════════
+
+docker-compose stop gateway-pvvih gestion-user gestion-reference gestion-patient forum-pvvih
+
+═══════════════════════════════════════════════════════════════
+ÉTAPE 3 : Supprimer les conteneurs (pour recharger les variables)
+═══════════════════════════════════════════════════════════════
+
+docker-compose rm -f gateway-pvvih gestion-user gestion-reference gestion-patient forum-pvvih
+
+═══════════════════════════════════════════════════════════════
+ÉTAPE 4 : Reconstruire les images
+═══════════════════════════════════════════════════════════════
+
+docker-compose build gateway-pvvih gestion-user gestion-reference gestion-patient forum-pvvih
+
+═══════════════════════════════════════════════════════════════
+ÉTAPE 5 : Redémarrer les services
+═══════════════════════════════════════════════════════════════
+
+docker-compose up -d gateway-pvvih gestion-user gestion-reference gestion-patient forum-pvvih
+
+═══════════════════════════════════════════════════════════════
+ÉTAPE 6 : Voir les logs en temps réel
+═══════════════════════════════════════════════════════════════
+
+docker-compose logs -f gestion-user gestion-reference
+
+# Pour arrêter les logs : Ctrl+C
+
+═══════════════════════════════════════════════════════════════
+ÉTAPE 7 : Vérifier que les services ont démarré
+═══════════════════════════════════════════════════════════════
+
+docker-compose logs gestion-user | grep -i "started"
+docker-compose logs gestion-reference | grep -i "started"
+docker-compose logs gateway-pvvih | grep -i "started"
+
+═══════════════════════════════════════════════════════════════
+COMMANDES UTILES
+═══════════════════════════════════════════════════════════════
+
+# Voir tous les conteneurs en cours d'exécution
+docker ps
+
+# Voir les logs d'un service spécifique
+docker-compose logs gateway-pvvih
+docker-compose logs gestion-user
+docker-compose logs gestion-reference
+
+# Voir les dernières 50 lignes des logs
+docker-compose logs --tail=50 gestion-user
+
+# Redémarrer un seul service
+docker-compose restart gateway-pvvih
+
+═══════════════════════════════════════════════════════════════
+RAPPEL : NOMS DES SERVICES
+═══════════════════════════════════════════════════════════════
+
+✅ gateway-pvvih      (avec un A)
+✅ gestion-user
+✅ gestion-reference
+✅ gestion-patient
+✅ forum-pvvih
+✅ api-register
+✅ api-configuration
+
+❌ getway-pvvih       (INCORRECT - sans A)
+
+═══════════════════════════════════════════════════════════════
