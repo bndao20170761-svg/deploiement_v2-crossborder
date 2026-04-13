@@ -360,6 +360,14 @@ services:
     build:
       context: ./gestion_forum_front
       dockerfile: Dockerfile
+      args:
+        REACT_APP_GATEWAY_URL: ${REACT_APP_GATEWAY_URL}
+        REACT_APP_API_URL: ${REACT_APP_API_URL}
+        REACT_APP_AUTH_API_URL: ${REACT_APP_AUTH_API_URL}
+        REACT_APP_FORUM_API_URL: ${REACT_APP_FORUM_API_URL}
+        REACT_APP_FORUM_URL: ${REACT_APP_FORUM_URL}
+        REACT_APP_FRONTEND1_URL: ${REACT_APP_FRONTEND1_URL}
+        REACT_APP_FRONTEND2_URL: ${REACT_APP_FRONTEND2_URL}
     container_name: gestion-forum-front
     ports:
       - "3001:80"
@@ -385,6 +393,15 @@ services:
     build:
       context: ./a_reference_front
       dockerfile: Dockerfile
+      args:
+        REACT_APP_GATEWAY_URL: ${REACT_APP_GATEWAY_URL}
+        REACT_APP_API_URL: ${REACT_APP_API_URL}
+        REACT_APP_USER_API_URL: ${REACT_APP_USER_API_URL}
+        REACT_APP_REFERENCEMENT_API_URL: ${REACT_APP_API_URL}
+        REACT_APP_PATIENT_API_URL: ${REACT_APP_API_URL}
+        REACT_APP_FORUM_API_URL: ${REACT_APP_FORUM_API_URL}
+        REACT_APP_FORUM_URL: ${REACT_APP_FORUM_URL}
+        REACT_APP_FRONTEND2_URL: ${REACT_APP_FRONTEND2_URL}
     container_name: a-reference-front
     ports:
       - "3002:80"
@@ -409,6 +426,13 @@ services:
     build:
       context: ./a_user_front
       dockerfile: Dockerfile
+      args:
+        REACT_APP_GATEWAY_URL: ${REACT_APP_GATEWAY_URL}
+        REACT_APP_API_URL: ${REACT_APP_API_URL}
+        REACT_APP_USER_API_URL: ${REACT_APP_USER_API_URL}
+        REACT_APP_FORUM_URL: ${REACT_APP_FORUM_URL}
+        REACT_APP_FRONTEND1_URL: ${REACT_APP_FRONTEND1_URL}
+        REACT_APP_FRONTEND2_URL: ${REACT_APP_FRONTEND2_URL}
     container_name: a-user-front
     ports:
       - "3003:80"
