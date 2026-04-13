@@ -7,7 +7,7 @@
 # votre application sur AWS EC2
 # 
 # Vous êtes ici: ubuntu@ip-172-31-38-60:~$
-# IP Publique: 16.171.1.67
+# IP Publique: 16.171.10.0
 # ============================================================================
 
 echo "📋 Guide de Déploiement AWS EC2"
@@ -147,7 +147,7 @@ echo ""
 echo "Test 1: Créer un utilisateur"
 echo ""
 cat << 'EOF'
-curl -X POST http://16.171.1.67:8080/api/user-auth/register \
+curl -X POST http://16.171.10.0:8080/api/user-auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "username": "admin@test.com",
@@ -163,7 +163,7 @@ echo ""
 echo "Test 2: Se connecter"
 echo ""
 cat << 'EOF'
-curl -X POST http://16.171.1.67:8080/api/user-auth/login \
+curl -X POST http://16.171.10.0:8080/api/user-auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "username": "admin@test.com",
@@ -183,11 +183,11 @@ echo "==============="
 echo ""
 echo "Ouvrez ces URLs dans votre navigateur:"
 echo ""
-echo "  Gateway API:        http://16.171.1.67:8080"
-echo "  Eureka Dashboard:   http://16.171.1.67:8761"
-echo "  Frontend Forum:     http://16.171.1.67:3001"
-echo "  Frontend Reference: http://16.171.1.67:3002"
-echo "  Frontend User:      http://16.171.1.67:3003"
+echo "  Gateway API:        http://16.171.10.0:8080"
+echo "  Eureka Dashboard:   http://16.171.10.0:8761"
+echo "  Frontend Forum:     http://16.171.10.0:3001"
+echo "  Frontend Reference: http://16.171.10.0:3002"
+echo "  Frontend User:      http://16.171.10.0:3003"
 echo ""
 echo "Appuyez sur Entrée pour continuer..."
 read

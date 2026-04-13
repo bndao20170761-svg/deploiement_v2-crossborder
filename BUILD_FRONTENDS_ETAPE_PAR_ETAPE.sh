@@ -100,7 +100,7 @@ sleep 10
 # Vérifier que le conteneur tourne
 if docker-compose ps gestion-forum-front | grep -q "Up"; then
     print_success "✅ Frontend Forum démarré!"
-    echo "   URL: http://34.32.116.206:3001"
+    echo "   URL: http://16.171.10.0:3001"
 else
     print_error "❌ Le Frontend Forum n'a pas démarré correctement"
     echo "Logs:"
@@ -156,7 +156,7 @@ sleep 10
 # Vérifier que le conteneur tourne
 if docker-compose ps a-reference-front | grep -q "Up"; then
     print_success "✅ Frontend Reference démarré!"
-    echo "   URL: http://34.32.116.206:3002"
+    echo "   URL: http://16.171.10.0:3002"
 else
     print_error "❌ Le Frontend Reference n'a pas démarré correctement"
     echo "Logs:"
@@ -212,7 +212,7 @@ sleep 10
 # Vérifier que le conteneur tourne
 if docker-compose ps a-user-front | grep -q "Up"; then
     print_success "✅ Frontend User démarré!"
-    echo "   URL: http://34.32.116.206:3003"
+    echo "   URL: http://16.171.10.0:3003"
 else
     print_error "❌ Le Frontend User n'a pas démarré correctement"
     echo "Logs:"
@@ -235,9 +235,9 @@ docker images | grep -E "gestion-forum-front|a-reference-front|a-user-front"
 
 echo ""
 print_step "URLs d'accès:"
-echo "   • Frontend Forum:     http://34.32.116.206:3001"
-echo "   • Frontend Reference: http://34.32.116.206:3002"
-echo "   • Frontend User:      http://34.32.116.206:3003"
+echo "   • Frontend Forum:     http://16.171.10.0:3001"
+echo "   • Frontend Reference: http://16.171.10.0:3002"
+echo "   • Frontend User:      http://16.171.10.0:3003"
 
 echo ""
 print_step "Tests d'accès (depuis la VM):"
