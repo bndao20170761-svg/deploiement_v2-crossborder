@@ -1,0 +1,126 @@
+### Test de la correction des prestataires
+### Ce fichier teste les endpoints ajoutés pour la gestion des prestataires
+
+### Variables
+@baseUrl = http://localhost:8080
+@gatewayUrl = http://34.28.161.231:8080
+@token = Bearer votre_token_jwt
+
+### 1. Test de récupération d'un hôpital avec ses prestataires (via gestion-user)
+GET {{baseUrl}}/api/hospitaux/1/prestataires
+Authorization: {{token}}
+
+###
+
+### 2. Test de récupération des prestataires seulement (via gestion-user)
+GET {{baseUrl}}/api/hospitaux/1/prestataires-only
+Authorization: {{token}}
+
+###
+
+### 3. Test de récupération d'un hôpital avec ses prestataires (via gestion-reference)
+GET {{gatewayUrl}}/api/hopitaux-proxy/1/prestataires
+Authorization: {{token}}
+
+###
+
+### 4. Test de récupération des prestataires seulement (via gestion-reference)
+GET {{gatewayUrl}}/api/hopitaux-proxy/1/prestataires-only
+Authorization: {{token}}
+
+###
+
+### 5. Test de création d'un hôpital avec prestataires (via gestion-user)
+POST {{baseUrl}}/api/hospitaux
+Authorization: {{token}}
+Content-Type: application/json
+
+{
+  "nom": "Hôpital Test Prestataires",
+  "pays": "Sénégal",
+  "ville": "Dakar",
+  "latitude": 14.6928,
+  "longitude": -17.4467,
+  "telephoneFixe": "+221 33 123 45 67",
+  "type": "hopital",
+  "services": [
+    {
+      "type": "Consultation VIH"
+    }
+  ],
+  "prestataires": [
+    {
+      "type": "medecin-pec",
+      "nom": "Dr Mamadou Diallo",
+      "specialite": "Infectiologie",
+      "telephone": "+221 77 123 45 67",
+      "email": "mamadou.diallo@hopital.sn"
+    },
+    {
+      "type": "assistant-social",
+      "nom": "Mme Fatou Sarr",
+      "specialite": "Support psychosocial",
+      "telephone": "+221 76 987 65 43",
+      "email": "fatou.sarr@hopital.sn"
+    }
+  ]
+}
+
+###
+
+### 6. Test de modification d'un hôpital avec prestataires (via gestion-reference)
+PUT {{gatewayUrl}}/api/hopitaux-proxy/1
+Authorization: {{token}}
+Content-Type: application/json
+
+{
+  "nom": "Hôpital Modifié avec Prestataires",
+  "pays": "Sénégal",
+  "ville": "Dakar",
+  "latitude": 14.6928,
+  "longitude": -17.4467,
+  "telephoneFixe": "+221 33 123 45 67",
+  "type": "hopital",
+  "services": [
+    {
+      "type": "Consultation VIH"
+    },
+    {
+      "type": "Dépistage VIH"
+    }
+  ],
+  "prestataires": [
+    {
+      "type": "medecin-pec",
+      "nom": "Dr Modifié Diallo",
+      "specialite": "Infectiologie",
+      "telephone": "+221 77 123 45 67",
+      "email": "modifie.diallo@hopital.sn"
+    },
+    {
+      "type": "pediatre",
+      "nom": "Dr Aminata Ba",
+      "specialite": "Pédiatrie VIH",
+      "telephone": "+221 77 555 66 77",
+      "email": "aminata.ba@hopital.sn"
+    }
+  ]
+}
+
+###
+
+### 7. Test de récupération de tous les hôpitaux avec prestataires (via gestion-reference)
+GET {{gatewayUrl}}/api/hopitaux-proxy/tous
+Authorization: {{token}}
+
+###
+
+### 8. Test de récupération des hôpitaux actifs avec prestataires (via gestion-reference)
+GET {{gatewayUrl}}/api/hopitaux-proxy/actifs
+Authorization: {{token}}
+
+###
+
+### 9. Test de récupération des détails d'un hôpital (via gestion-reference)
+GET {{gatewayUrl}}/api/hopitaux-proxy/1/details
+Authorization: {{token}}

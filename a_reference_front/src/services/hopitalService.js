@@ -113,5 +113,27 @@ export const getAllHospitals = async () => {
   }
 };
 
+// Récupérer un hôpital avec ses prestataires
+export const getHopitalAvecPrestataires = async (id) => {
+  try {
+    const response = await api.get(`/hopitaux-proxy/${id}/prestataires`);
+    return response.data;
+  } catch (error) {
+    console.error(`Erreur lors de la récupération de l'hôpital avec prestataires ${id} :`, error);
+    throw error;
+  }
+};
+
+// Récupérer seulement les prestataires d'un hôpital
+export const getPrestatairesByHopitalId = async (hopitalId) => {
+  try {
+    const response = await api.get(`/hopitaux-proxy/${hopitalId}/prestataires-only`);
+    return response.data;
+  } catch (error) {
+    console.error(`Erreur lors de la récupération des prestataires de l'hôpital ${hopitalId} :`, error);
+    throw error;
+  }
+};
+
 // Alias pour compatibilité éventuelle
 export const deleteHopitalService = deleteHopital;

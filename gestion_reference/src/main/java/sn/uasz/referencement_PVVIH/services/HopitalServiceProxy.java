@@ -3,6 +3,7 @@ package sn.uasz.referencement_PVVIH.services;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import sn.uasz.referencement_PVVIH.dtos.HopitalDto;
+import sn.uasz.referencement_PVVIH.dtos.PrestataireDto;
 import sn.uasz.referencement_PVVIH.feign.HopitalClient;
 
 import java.util.List;
@@ -54,5 +55,14 @@ public class HopitalServiceProxy {
     // 🔹 Mes hôpitaux (pour l’utilisateur connecté)
     public List<HopitalDto> getMyHospitals() {
         return hopitalClient.getMyHospitals();
+    }
+
+    // Méthodes pour les prestataires
+    public HopitalDto getHopitalAvecPrestataires(Long id) {
+        return hopitalClient.getHopitalAvecPrestataires(id);
+    }
+
+    public List<PrestataireDto> getPrestatairesByHopitalId(Long hopitalId) {
+        return hopitalClient.getPrestatairesByHopitalId(hopitalId);
     }
 }

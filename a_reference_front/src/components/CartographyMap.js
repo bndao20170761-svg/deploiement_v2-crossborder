@@ -2,7 +2,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import { toggleHospitalStatus } from '../services/hospitalService';
-import { createHopital, updateHopital } from '../services/hopitalService';
+import { createHopital, updateHopital, getHopitalAvecPrestataires, getPrestatairesByHopitalId } from '../services/hopitalService';
 
 import {
   Box,
@@ -139,51 +139,29 @@ const CartographyMap = ({ hospitals, onHospitalUpdate,  onHospitalAdd, language 
   // Cache temporaire pour les prestataires par hôpital
   const [hospitalProvidersCache, setHospitalProvidersCache] = useState({});
 
-  // Fonctions pour gérer le localStorage des prestataires
-  const saveProvidersToLocalStorage = (hospitalId, providers) => {
+  // Fonction pour charger les prestataires depuis le backend
+  const loadProvidersFromBackend = async (hospitalId) => {
     try {
-      const key = `hospital_providers_${hospitalId}`;
-      localStorage.setItem(key, JSON.stringify(providers));
-      console.log(`💾 Prestataires sauvegardés en localStorage pour l'hôpital ${hospitalId}:`, providers);
+      console.log(`Chargement des prestataires depuis le backend pour l'hôpital ${hospitalId}`);
+      const prestataires = await getPrestatairesByHopitalId(hospitalId);
+      console.log(`Prestataires chargés depuis le backend:`, prestataires);
+      
+      // Mapper les prestataires pour le frontend
+      const prestatairesMappes = prestataires.map(p => ({
+        id: p.id,
+        nom: p.nom,
+        nom_prestataire: p.nom.split(' ')[0] || '',
+        prenom: p.nom.split(' ').slice(1).join(' ') || '',
+        type: p.type ? p.type.toLowerCase().replace('_', '-') : '',
+        specialite: p.specialite || '',
+        telephone: p.telephone || '',
+        email: p.email || ''
+      }));
+      
+      return prestatairesMappes;
     } catch (error) {
-      console.error('❌ Erreur sauvegarde localStorage:', error);
-    }
-  };
-
-  const loadProvidersFromLocalStorage = (hospitalId) => {
-    try {
-      const key = `hospital_providers_${hospitalId}`;
-      const saved = localStorage.getItem(key);
-      if (saved) {
-        const providers = JSON.parse(saved);
-        console.log(`📂 Prestataires chargés depuis localStorage pour l'hôpital ${hospitalId}:`, providers);
-        return providers;
-      }
-    } catch (error) {
-      console.error('❌ Erreur chargement localStorage:', error);
-    }
-    return null;
-  };
-
-  const clearProvidersFromLocalStorage = (hospitalId) => {
-    try {
-      const key = `hospital_providers_${hospitalId}`;
-      localStorage.removeItem(key);
-      console.log(`🗑️ Prestataires supprimés du localStorage pour l'hôpital ${hospitalId}`);
-    } catch (error) {
-      console.error('❌ Erreur suppression localStorage:', error);
-    }
-  };
-
-  // Fonction utilitaire pour nettoyer tout le localStorage des prestataires
-  const clearAllProvidersFromLocalStorage = () => {
-    try {
-      const keys = Object.keys(localStorage);
-      const providerKeys = keys.filter(key => key.startsWith('hospital_providers_'));
-      providerKeys.forEach(key => localStorage.removeItem(key));
-      console.log(`🗑️ Tous les prestataires supprimés du localStorage (${providerKeys.length} entrées)`);
-    } catch (error) {
-      console.error('❌ Erreur suppression complète localStorage:', error);
+      console.error('Erreur chargement prestataires depuis backend:', error);
+      return [];
     }
   };
 
@@ -490,12 +468,7 @@ const onMapLoad = useCallback((mapInstance) => {
       }
       
       setProviders(updatedProviders);
-      
-      // Sauvegarder automatiquement en localStorage si on est en mode édition
-      if (isEditMode && editingHospital) {
-        saveProvidersToLocalStorage(editingHospital.id, updatedProviders);
-        console.log('💾 Prestataires sauvegardés automatiquement lors de l\'ajout/modification');
-      }
+      console.log(' Prestataires mis à jour dans l\'état local');
       
       setCurrentProvider({ type: '', nom: '', nom_prestataire: '', prenom: '', specialite: '', telephone: '', email: '' });
     }
@@ -504,12 +477,7 @@ const onMapLoad = useCallback((mapInstance) => {
   const handleRemoveProvider = (providerId) => {
     const updatedProviders = providers.filter(p => p.id !== providerId);
     setProviders(updatedProviders);
-    
-    // Sauvegarder automatiquement en localStorage si on est en mode édition
-    if (isEditMode && editingHospital) {
-      saveProvidersToLocalStorage(editingHospital.id, updatedProviders);
-      console.log('💾 Prestataires sauvegardés automatiquement lors de la suppression');
-    }
+    console.log(' Prestataire supprimé de l\'état local');
   };
 
   // Fonction pour démarrer la modification d'un prestataire
@@ -796,99 +764,41 @@ const convertToEnumType = (type) => {
 
       // Charger les services existants
       if (hospital.services) {
-        console.log('📋 Services trouvés:', hospital.services);
+        console.log(' Services trouvés:', hospital.services);
         setSelectedServices(hospital.services.map(s => s.type || s));
       } else {
-        console.log('⚠️ Aucun service trouvé');
+        console.log(' Aucun service trouvé');
         setSelectedServices([]);
       }
 
-       // ✅ CORRECTION : Vérifier d'abord localStorage, puis le cache, puis hospital.prestataires
-       const localStorageProviders = loadProvidersFromLocalStorage(hospital.id);
-       const cachedProviders = hospitalProvidersCache[hospital.id];
-       
-       if (localStorageProviders && localStorageProviders.length > 0) {
-         console.log('📂 Prestataires trouvés dans localStorage:', localStorageProviders);
-         setProviders(localStorageProviders);
-         // Mettre à jour le cache avec les données du localStorage
-         setHospitalProvidersCache(prev => ({
-           ...prev,
-           [hospital.id]: localStorageProviders
-         }));
-       } else if (cachedProviders && cachedProviders.length > 0) {
-         console.log('🎯 Prestataires trouvés dans le cache:', cachedProviders);
-         setProviders(cachedProviders);
-       } else if (hospital.prestataires && hospital.prestataires.length > 0) {
-         console.log('👥 Prestataires trouvés dans hospital.prestataires:', hospital.prestataires);
-         
-         const prestatairesMappes = hospital.prestataires.map(p => {
-           // Extraire nom et prénom du nom complet
-           const nomComplet = p.nom || '';
-           const partiesNom = nomComplet.split(' ');
-           const nomPrestataire = p.nom_prestataire || partiesNom[0] || '';
-           const prenomPrestataire = p.prenom || partiesNom.slice(1).join(' ') || '';
-           
-           const prestataireMappe = {
-             id: p.id || Date.now() + Math.random(),
-             nom: nomComplet,
-             nom_prestataire: p.nom_prestataire || nomPrestataire,
-             prenom: p.prenom || prenomPrestataire,
-             type: p.type ? p.type.toLowerCase().replace('_', '-') : '',
-             specialite: p.specialite || '',
-             telephone: p.telephone || '',
-             email: p.email || ''
-           };
-           
-           console.log('👤 Prestataire mappé:', prestataireMappe);
-           return prestataireMappe;
-         });
-         
-         console.log('✅ Prestataires mappés:', prestatairesMappes);
-         setProviders(prestatairesMappes);
-       } else {
-         console.log('⚠️ Aucun prestataire trouvé dans hospital.prestataires');
-         
-         // Fallback : essayer d'extraire depuis les services si prestataires est vide
-         if (hospital.services) {
-           console.log('🔄 Fallback : extraction depuis les services');
-           console.log('🔍 Structure des services:', hospital.services);
-           
-           const prestatairesDesServices = hospital.services
-             .filter(service => {
-               // Vérifier tous les champs possibles de prestataires
-               const hasPrestataire = service.nomPrestataire || service.prestataire || 
-                                     service.typePrestataire || service.specialitePrestataire;
-               console.log(`🔍 Service "${service.type}" - Prestataire: "${service.prestataire || service.nomPrestataire}" - HasPrestataire: ${!!hasPrestataire}`);
-               return hasPrestataire;
-             })
-             .map((service, index) => {
-               // Utiliser les champs réels reçus du backend
-               const nomComplet = service.nomPrestataire || service.prestataire || '';
-               const partiesNom = nomComplet.split(' ');
-               const nomPrestataire = partiesNom[0] || '';
-               const prenomPrestataire = partiesNom.slice(1).join(' ') || '';
+      // Charger les prestataires depuis le backend
+      const loadPrestataires = async () => {
+        try {
+          const prestataires = await loadProvidersFromBackend(hospital.id);
+          setProviders(prestataires);
+        } catch (error) {
+          console.error('Erreur lors du chargement des prestataires:', error);
+          // Fallback : utiliser les prestataires dans l'objet hospital si disponibles
+          if (hospital.prestataires && hospital.prestataires.length > 0) {
+            console.log(' Fallback : utilisation des prestataires dans hospital.prestataires');
+            const prestatairesMappes = hospital.prestataires.map(p => ({
+              id: p.id,
+              nom: p.nom,
+              nom_prestataire: p.nom.split(' ')[0] || '',
+              prenom: p.nom.split(' ').slice(1).join(' ') || '',
+              type: p.type ? p.type.toLowerCase().replace('_', '-') : '',
+              specialite: p.specialite || '',
+              telephone: p.telephone || '',
+              email: p.email || ''
+            }));
+            setProviders(prestatairesMappes);
+          } else {
+            setProviders([]);
+          }
+        }
+      };
 
-               const prestataireMappe = {
-                 id: `service-${service.id || index}`,
-                 nom: nomComplet,
-                 nom_prestataire: nomPrestataire,
-                 prenom: prenomPrestataire,
-                 type: service.typePrestataire || '',
-                 specialite: service.specialitePrestataire || '',
-                 telephone: service.contactPrestataire || service.contact || '',
-                 email: ''
-               };
-               
-               console.log('👤 Prestataire mappé depuis service:', prestataireMappe);
-               return prestataireMappe;
-             });
-
-           console.log('👥 Prestataires extraits des services (fallback):', prestatairesDesServices);
-           setProviders(prestatairesDesServices);
-         } else {
-           setProviders([]);
-         }
-       }
+      loadPrestataires();
 
       // Afficher le dialog
       setShowAddDialog(true);
@@ -951,26 +861,15 @@ const saveNewHospital = async () => {
   try {
      const savedHospital = await createHopital(newHospital);
 
-    // Sauvegarder les prestataires en localStorage pour cet hôpital
-    if (savedHospital && savedHospital.id && providers.length > 0) {
-      saveProvidersToLocalStorage(savedHospital.id, providers);
-      
-      // Mettre à jour le cache également
-      setHospitalProvidersCache(prev => ({
-        ...prev,
-        [savedHospital.id]: providers
-      }));
-    }
-
     if (onHospitalAdd) {
       onHospitalAdd(savedHospital);
     }
 
     cancelAdding();
-     showNotification('🏥 Hôpital ajouté avec succès! En attente de validation.', 'success');
-     console.log("✅ Hôpital enregistré:", savedHospital);
+     showNotification(' Hôpital ajouté avec succès! En attente de validation.', 'success');
+     console.log(" Hôpital enregistré:", savedHospital);
    } catch (error) {
-     console.error("❌ Erreur lors de l'enregistrement:", error);
+     console.error(" Erreur lors de l'enregistrement:", error);
      showNotification("Erreur lors de l'enregistrement de l'établissement", 'error');
    }
 };
@@ -1015,20 +914,10 @@ const saveNewHospital = async () => {
         status: editingHospital.status
       };
 
-      console.log('🔄 Sauvegarde modifications pour:', editingHospital.id, updatedHospitalData);
+      console.log(' Sauvegarde modifications pour:', editingHospital.id, updatedHospitalData);
 
       const result = await updateHopital(editingHospital.id, updatedHospitalData);
-      console.log('✅ Hôpital modifié avec succès:', result);
-
-      // Sauvegarder les prestataires en localStorage ET dans le cache
-      if (providers.length > 0) {
-        saveProvidersToLocalStorage(editingHospital.id, providers);
-      }
-      
-      setHospitalProvidersCache(prev => ({
-        ...prev,
-        [editingHospital.id]: providers
-      }));
+      console.log(' Hôpital modifié avec succès:', result);
 
       // Mettre à jour l'état local
       if (onHospitalUpdate) {
@@ -1038,11 +927,11 @@ const saveNewHospital = async () => {
       // Réinitialiser et fermer
       cancelAdding();
       setSelectedHospital(null);
-      showNotification('✅ Hôpital modifié avec succès!', 'success');
+      showNotification(' Hôpital modifié avec succès!', 'success');
 
   } catch (error) {
-      console.error('❌ Erreur modification hôpital:', error);
-      showNotification('❌ Erreur lors de la modification de l\'hôpital', 'error');
+      console.error(' Erreur modification hôpital:', error);
+      showNotification(' Erreur lors de la modification de l\'hôpital', 'error');
     }
   };
 

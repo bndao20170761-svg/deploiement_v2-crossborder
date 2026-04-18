@@ -4,6 +4,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 import sn.uasz.referencement_PVVIH.config.FeignClientConfig;
 import sn.uasz.referencement_PVVIH.dtos.HopitalDto;
+import sn.uasz.referencement_PVVIH.dtos.PrestataireDto;
 
 import java.util.List;
 
@@ -46,4 +47,10 @@ public interface HopitalClient {
 
     @GetMapping("/api/hospitaux/mes-hopitaux")
     List<HopitalDto> getMyHospitals();
+
+    @GetMapping("/api/hospitaux/{id}/prestataires")
+    HopitalDto getHopitalAvecPrestataires(@PathVariable("id") Long id);
+
+    @GetMapping("/api/hospitaux/{id}/prestataires-only")
+    List<PrestataireDto> getPrestatairesByHopitalId(@PathVariable("id") Long id);
 }
