@@ -173,9 +173,11 @@ public class HopitalService {
     }
 
     public List<HopitalDto> getHospitauxActifs() {
-        // Pas besoin de vérifier le rôle ADMIN - accessible à tous les authentifiés
         return hopitalRepository.findByActiveTrue().stream()
-                .map(adminMapper::hopitalToDto)
+                .map(hopital -> {
+                    ensurePrestatairesLoaded(hopital);
+                    return adminMapper.hopitalToDto(hopital);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -613,17 +615,18 @@ public class HopitalService {
     }
     // Les autres méthodes restent inchangées...
     public List<HopitalDto> getAllHospitals() {
-        // Vérifier que l'utilisateur est authentifié (optionnel selon votre configuration de sécurité)
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        // Si vous voulez simplement vérifier l'authentification sans restriction de rôle
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new RuntimeException("Accès non autorisé");
         }
 
-        // Retourner tous les hôpitaux sans restriction de rôle
+        // Charger chaque hôpital avec ses services ET prestataires
         return hopitalRepository.findAll().stream()
-                .map(adminMapper::hopitalToDto)
+                .map(hopital -> {
+                    ensurePrestatairesLoaded(hopital);
+                    return adminMapper.hopitalToDto(hopital);
+                })
                 .collect(Collectors.toList());
     }
 
