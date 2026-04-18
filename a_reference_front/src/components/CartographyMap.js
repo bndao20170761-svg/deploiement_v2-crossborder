@@ -98,7 +98,7 @@ const PROVIDER_TYPES = [
   { value: 'pediatre', label: 'Pédiatre', icon: <Person /> }
 ];
 
-const GOOGLE_MAPS_API_KEY = 'AIzaSyAF89Nvk0ymdkSjMWv_2t-TYrfx43mF_YQ';
+const GOOGLE_MAPS_API_KEY = 'AIzaSyCBwr6styheEc8XB3JyeL9Ky3eebVUy9KU';
 
 // Constante pour éviter la recréation du tableau à chaque render
 const GOOGLE_MAPS_LIBRARIES = ['places', 'geometry'];
