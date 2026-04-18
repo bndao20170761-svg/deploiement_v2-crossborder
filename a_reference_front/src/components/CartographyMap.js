@@ -136,9 +136,6 @@ const CartographyMap = ({ hospitals, onHospitalUpdate,  onHospitalAdd, language 
   const [editingProvider, setEditingProvider] = useState(null);
   const [isEditingProvider, setIsEditingProvider] = useState(false);
 
-  // Cache temporaire pour les prestataires par hôpital
-  const [hospitalProvidersCache, setHospitalProvidersCache] = useState({});
-
   // Fonction pour charger les prestataires depuis le backend
   const loadProvidersFromBackend = async (hospitalId) => {
     try {
@@ -192,21 +189,13 @@ const CartographyMap = ({ hospitals, onHospitalUpdate,  onHospitalAdd, language 
     });
   }, [hospitals]);
 
-  // Effet pour charger les prestataires depuis localStorage au démarrage
+  // Effet pour initialiser les hôpitaux au démarrage
   useEffect(() => {
     if (hospitals.length > 0) {
-      const newCache = {};
       hospitals.forEach(hospital => {
-        const savedProviders = loadProvidersFromLocalStorage(hospital.id);
-        if (savedProviders && savedProviders.length > 0) {
-          newCache[hospital.id] = savedProviders;
-          console.log(`📂 Prestataires chargés au démarrage pour ${hospital.nom}:`, savedProviders);
-        }
+        // Les prestataires seront chargés à la demande via loadProvidersFromBackend
+        console.log(` Hôpital ${hospital.nom} prêt pour le chargement des prestataires`);
       });
-      
-      if (Object.keys(newCache).length > 0) {
-        setHospitalProvidersCache(prev => ({ ...prev, ...newCache }));
-      }
     }
   }, [hospitals]);
 
