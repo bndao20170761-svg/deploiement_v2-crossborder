@@ -1,0 +1,47 @@
+### Test final pour vérifier la correction des prestataires
+
+### Variables
+@gatewayUrl = http://34.28.161.231:8080
+@token = Bearer votre_token_jwt
+
+### Test 1: Modifier l'hôpital 4 avec un prestataire (type corrigé)
+PUT {{gatewayUrl}}/api/hopitaux-proxy/4
+Authorization: {{token}}
+Content-Type: application/json
+
+{
+  "nom": "Centre de Santé - Koungheul TEST",
+  "pays": "Sénégal",
+  "ville": "Koungheul",
+  "active": true,
+  "latitude": 13.980838191978421,
+  "type": "hopital",
+  "longitude": -14.792017936706543,
+  "adresseComplete": "X6J5+86J, N1, Koungheul, Sénégal",
+  "telephoneFixe": "774345678",
+  "services": [
+    {
+      "type": "Consultation VIH"
+    },
+    {
+      "type": "Dépistage VIH"
+    }
+  ],
+  "prestataires": [
+    {
+      "type": "medecin-pec",
+      "nom": "Dr Test Final",
+      "specialite": "Infectiologie",
+      "telephone": "+221 77 123 45 67",
+      "email": "test.final@hopital.sn"
+    }
+  ]
+}
+
+### Test 2: Vérifier que le prestataire a été sauvegardé
+GET {{gatewayUrl}}/api/hopitaux-proxy/4/prestataires-only
+Authorization: {{token}}
+
+### Test 3: Vérifier l'hôpital complet avec prestataires
+GET {{gatewayUrl}}/api/hopitaux-proxy/4/prestataires
+Authorization: {{token}}

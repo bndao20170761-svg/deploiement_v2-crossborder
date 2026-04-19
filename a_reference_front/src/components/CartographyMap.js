@@ -265,14 +265,22 @@ const CartographyMap = ({ hospitals, onHospitalUpdate,  onHospitalAdd, language 
             console.error('Erreur fallback géolocalisation:', fallbackError);
           setLoadingLocation(false);
 
-            const senegalCenter = { lat: 14.4974, lng: -14.4524 };
-            setUserLocation(senegalCenter);
+            // Fallback vers Dakar si la géolocalisation échoue
+            const dakar = { lat: 14.6928, lng: -17.4467 };
+            setUserLocation(dakar);
           setShowUserInfo(true);
 
           if (map) {
-              map.panTo(senegalCenter);
+              map.panTo(dakar);
               map.setZoom(DEFAULT_ZOOM);
           }
+
+          // Message d'information pour l'utilisateur
+          let message = "Géolocalisation non disponible. La carte est centrée sur Dakar.";
+          if (fallbackError.code === fallbackError.PERMISSION_DENIED) {
+            message = "Géolocalisation refusée. La carte est centrée sur Dakar par défaut.";
+          }
+          alert(message);
         },
         {
           enableHighAccuracy: true,
@@ -1427,16 +1435,16 @@ const saveNewHospital = async () => {
                       console.error('❌ Erreur getCurrentPosition:', fallbackError);
                       setLoadingLocation(false);
 
-                      let errorMessage = "Impossible de déterminer votre position";
+                      let errorMessage = "Géolocalisation non disponible. Utilisation de la position par défaut.";
                       switch (fallbackError.code) {
                         case fallbackError.PERMISSION_DENIED:
-                          errorMessage = "📍 Autorisation de localisation refusée. Veuillez autoriser la géolocalisation dans les paramètres de votre navigateur.";
+                          errorMessage = "Géolocalisation refusée. Utilisation de la position par défaut (Dakar).";
                           break;
                         case fallbackError.POSITION_UNAVAILABLE:
-                          errorMessage = "📍 Information de localisation indisponible (GPS désactivé ?)";
+                          errorMessage = "Information de localisation indisponible. Utilisation de la position par défaut (Dakar).";
                           break;
                         case fallbackError.TIMEOUT:
-                          errorMessage = "📍 Délai de localisation dépassé. Réessayez.";
+                          errorMessage = "Délai de localisation dépassé. Utilisation de la position par défaut (Dakar).";
                           break;
                       }
 
@@ -1454,17 +1462,17 @@ const saveNewHospital = async () => {
                         
                         alert(`Position trouvée avec une précision de ${Math.round(bestPosition.accuracy)}m. ${errorMessage}`);
                       } else if (!userLocation) {
-                        // Fallback vers Ziguinchor uniquement si aucune position n'est connue
-                        const ziguinchor = { lat: 12.5833, lng: -16.2719 };
-                        setUserLocation(ziguinchor);
+                        // Fallback vers Dakar si aucune position n'est connue
+                        const dakar = { lat: 14.6928, lng: -17.4467 };
+                        setUserLocation(dakar);
                         setShowUserInfo(true);
 
                         if (map) {
-                          map.panTo(ziguinchor);
+                          map.panTo(dakar);
                           map.setZoom(12);
                         }
                         
-                        alert(errorMessage);
+                        alert(errorMessage + "\n\nLa carte est centrée sur Dakar par défaut.");
                       } else {
                         alert(errorMessage);
                       }
