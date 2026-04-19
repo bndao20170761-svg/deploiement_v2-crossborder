@@ -265,20 +265,20 @@ const CartographyMap = ({ hospitals, onHospitalUpdate,  onHospitalAdd, language 
             console.error('Erreur fallback géolocalisation:', fallbackError);
           setLoadingLocation(false);
 
-            // Fallback vers centre par défaut si la géolocalisation échoue
-            const defaultCenter = { lat: 40.12150192260742, lng: -100.45039367675781 };
-            setUserLocation(defaultCenter);
+            // Fallback vers Université Assane Seck de Ziguinchor si la géolocalisation échoue
+            const uaszZiguinchor = { lat: 12.5833, lng: -16.2719 };
+            setUserLocation(uaszZiguinchor);
           setShowUserInfo(true);
 
           if (map) {
-              map.panTo(defaultCenter);
-              map.setZoom(4);
+              map.panTo(uaszZiguinchor);
+              map.setZoom(12);
           }
 
           // Message d'information pour l'utilisateur
-          let message = "Géolocalisation non disponible. La carte est centrée sur la position par défaut.";
+          let message = "Géolocalisation non disponible. La carte est centrée sur l'Université Assane Seck de Ziguinchor.";
           if (fallbackError.code === fallbackError.PERMISSION_DENIED) {
-            message = "Géolocalisation refusée. La carte est centrée sur la position par défaut.";
+            message = "Géolocalisation refusée. La carte est centrée sur l'Université Assane Seck de Ziguinchor.";
           }
           alert(message);
         },
@@ -1435,16 +1435,16 @@ const saveNewHospital = async () => {
                       console.error('❌ Erreur getCurrentPosition:', fallbackError);
                       setLoadingLocation(false);
 
-                      let errorMessage = "Géolocalisation non disponible. Utilisation de la position par défaut.";
+                      let errorMessage = "Géolocalisation non disponible. Utilisation de l'Université Assane Seck de Ziguinchor par défaut.";
                       switch (fallbackError.code) {
                         case fallbackError.PERMISSION_DENIED:
-                          errorMessage = "Géolocalisation refusée. Utilisation de la position par défaut.";
+                          errorMessage = "Géolocalisation refusée. Utilisation de l'Université Assane Seck de Ziguinchor par défaut.";
                           break;
                         case fallbackError.POSITION_UNAVAILABLE:
-                          errorMessage = "Information de localisation indisponible. Utilisation de la position par défaut.";
+                          errorMessage = "Information de localisation indisponible. Utilisation de l'Université Assane Seck de Ziguinchor par défaut.";
                           break;
                         case fallbackError.TIMEOUT:
-                          errorMessage = "Délai de localisation dépassé. Utilisation de la position par défaut.";
+                          errorMessage = "Délai de localisation dépassé. Utilisation de l'Université Assane Seck de Ziguinchor par défaut.";
                           break;
                       }
 
@@ -1462,17 +1462,17 @@ const saveNewHospital = async () => {
                         
                         alert(`Position trouvée avec une précision de ${Math.round(bestPosition.accuracy)}m. ${errorMessage}`);
                       } else if (!userLocation) {
-                        // Fallback vers centre par défaut si aucune position n'est connue
-                        const defaultCenter = { lat: 40.12150192260742, lng: -100.45039367675781 };
-                        setUserLocation(defaultCenter);
+                        // Fallback vers Université Assane Seck de Ziguinchor si aucune position n'est connue
+                        const uaszZiguinchor = { lat: 12.5833, lng: -16.2719 };
+                        setUserLocation(uaszZiguinchor);
                         setShowUserInfo(true);
 
                         if (map) {
-                          map.panTo(defaultCenter);
-                          map.setZoom(4);
+                          map.panTo(uaszZiguinchor);
+                          map.setZoom(12);
                         }
                         
-                        alert(errorMessage + "\n\nLa carte est centrée sur la position par défaut.");
+                        alert(errorMessage + "\n\nLa carte est centrée sur l'Université Assane Seck de Ziguinchor.");
                       } else {
                         alert(errorMessage);
                       }
