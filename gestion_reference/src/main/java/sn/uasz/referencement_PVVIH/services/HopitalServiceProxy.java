@@ -30,12 +30,12 @@ public class HopitalServiceProxy {
         return hopitalClient.getHopitalById(id);
     }
 
-    public HopitalDto createHopital(HopitalDto dto) {
-        return hopitalClient.createHopital(dto);
+    public HopitalDto createHospital(HopitalDto dto) {
+        return hopitalClient.createHospital(dto);
     }
 
-    public HopitalDto updateHopital(Long id, HopitalDto dto) {
-        return hopitalClient.updateHopital(id, dto);
+    public HopitalDto updateHospital(Long id, HopitalDto dto) {
+        return hopitalClient.updateHospital(id, dto);
     }
 
     public void deleteHopital(Long id) {

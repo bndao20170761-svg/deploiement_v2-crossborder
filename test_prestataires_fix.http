@@ -66,6 +66,35 @@ Content-Type: application/json
   ]
 }
 
+### 5b. Test de création d'un hôpital avec prestataires (via gestion-reference)
+POST {{gatewayUrl}}/api/hopitaux-proxy
+Authorization: {{token}}
+Content-Type: application/json
+
+{
+  "nom": "Hôpital Test Prestataires Proxy",
+  "pays": "Sénégal",
+  "ville": "Dakar",
+  "latitude": 14.6928,
+  "longitude": -17.4467,
+  "telephoneFixe": "+221 33 123 45 67",
+  "type": "hopital",
+  "services": [
+    {
+      "type": "Consultation VIH"
+    }
+  ],
+  "prestataires": [
+    {
+      "type": "medecin-pec",
+      "nom": "Dr Alioune Fall",
+      "specialite": "Infectiologie",
+      "telephone": "+221 77 555 66 77",
+      "email": "alioune.fall@hopital.sn"
+    }
+  ]
+}
+
 ###
 
 ### 6. Test de modification d'un hôpital avec prestataires (via gestion-reference)

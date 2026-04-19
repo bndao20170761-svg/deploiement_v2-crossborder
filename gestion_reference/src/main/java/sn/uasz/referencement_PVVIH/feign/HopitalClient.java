@@ -25,10 +25,12 @@ public interface HopitalClient {
     HopitalDto getHopitalById(@PathVariable("id") Long id);
 
     @PostMapping("/api/hospitaux")
-    HopitalDto createHopital(@RequestBody HopitalDto dto);
+    HopitalDto createHospital(@RequestBody HopitalDto dto);
+
+    
 
     @PutMapping("/api/hospitaux/{id}")
-    HopitalDto updateHopital(@PathVariable("id") Long id, @RequestBody HopitalDto dto);
+    HopitalDto updateHospital(@PathVariable("id") Long id, @RequestBody HopitalDto dto);
     // AJOUTER CETTE MÉTHODE
     @GetMapping("/api/hospitaux/tous")
     List<HopitalDto> getAllHospitals();

@@ -39,13 +39,13 @@ public class HopitalProxyController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping
     public HopitalDto createHopital(@RequestBody HopitalDto dto) {
-        return hopitalProxy.createHopital(dto);
+        return hopitalProxy.createHospital(dto);
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")
     @PutMapping("/{id}")
     public HopitalDto updateHopital(@PathVariable Long id, @RequestBody HopitalDto dto) {
-        return hopitalProxy.updateHopital(id, dto);
+        return hopitalProxy.updateHospital(id, dto);
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")

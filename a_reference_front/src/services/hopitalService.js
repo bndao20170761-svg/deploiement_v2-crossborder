@@ -37,8 +37,8 @@ export const getHopitalById = async (id) => {
 // Créer un hôpital
 export const createHopital = async (hopitalData) => {
   try {
-    // Utiliser le service user direct pour la création (contournement temporaire du 403 sur proxy)
-    const response = await api.post('/hospitaux', hopitalData);
+    // Utiliser le proxy pour la cohérence avec la modification
+    const response = await api.post('/hopitaux-proxy', hopitalData);
     return response.data;
   } catch (error) {
     console.error("Erreur lors de la création de l'hôpital :", error);

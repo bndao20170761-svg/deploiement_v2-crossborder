@@ -26,6 +26,7 @@ public class HopitalController {
     public ResponseEntity<List<HopitalDto>> getAllHospitals() {
         return ResponseEntity.ok(hopitalService.getAllHospitals());
     }
+
     @PreAuthorize("isAuthenticated()")
     @PostMapping
     public ResponseEntity<HopitalDto> createHospital(@Valid @RequestBody HopitalDto hopitalDto) {
