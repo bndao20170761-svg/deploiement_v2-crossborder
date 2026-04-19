@@ -1,0 +1,39 @@
+### Test simple pour vérifier la correction des prestataires
+
+### Variables
+@baseUrl = http://localhost:8080
+@gatewayUrl = http://34.28.161.231:8080
+@token = Bearer votre_token_jwt
+
+### Test 1: Création d'un hôpital avec UN SEUL prestataire simple
+POST {{gatewayUrl}}/api/hopitaux-proxy
+Authorization: {{token}}
+Content-Type: application/json
+
+{
+  "nom": "Hôpital Test Simple",
+  "pays": "Sénégal",
+  "ville": "Dakar",
+  "latitude": 14.6928,
+  "longitude": -17.4467,
+  "telephoneFixe": "+221 33 123 45 67",
+  "type": "hopital",
+  "services": [
+    {
+      "type": "Consultation VIH"
+    }
+  ],
+  "prestataires": [
+    {
+      "type": "medecin-pec",
+      "nom": "Dr Simple Test",
+      "specialite": "Infectiologie",
+      "telephone": "+221 77 123 45 67",
+      "email": "simple.test@hopital.sn"
+    }
+  ]
+}
+
+### Test 2: Vérifier que le prestataire a été bien sauvegardé
+GET {{gatewayUrl}}/api/hopitaux-proxy/1/prestataires-only
+Authorization: {{token}}

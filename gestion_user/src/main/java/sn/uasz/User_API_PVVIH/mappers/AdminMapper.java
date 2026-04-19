@@ -106,7 +106,7 @@ public interface AdminMapper {
     @Mapping(target = "hopitalId", source = "hopital.id")
     PrestataireDto prestataireToDto(Prestataire prestataire);
 
-    @Mapping(target = "hopital", expression = "java(mapHopitalId(prestataireDto.getHopitalId()))")
+    @Mapping(target = "hopital", ignore = true)
     Prestataire dtoToPrestataire(PrestataireDto prestataireDto);
 
     // ========== MÉTHODES DE MAPPING PERSONNALISÉES ==========
