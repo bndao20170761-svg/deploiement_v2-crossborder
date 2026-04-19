@@ -107,6 +107,7 @@ public interface AdminMapper {
     PrestataireDto prestataireToDto(Prestataire prestataire);
 
     @Mapping(target = "hopital", ignore = true)
+    @Mapping(target = "type", expression = "java(convertTypePrestataire(prestataireDto.getType()))")
     Prestataire dtoToPrestataire(PrestataireDto prestataireDto);
 
     // ========== MÉTHODES DE MAPPING PERSONNALISÉES ==========
@@ -186,6 +187,26 @@ public interface AdminMapper {
     // ========== MÉTHODES DE MISE À JOUR ==========
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateHopitalFromDto(HopitalDto hopitalDto, @MappingTarget Hopital hopital);
+
+    // ========== MÉTHODE UTILITAIRE POUR LA CONVERSION DES TYPES DE PRESTATAIRES ==========
+    default Prestataire.TypePrestataire convertTypePrestataire(String type) {
+        if (type == null) {
+            return null;
+        }
+        
+        switch (type.toLowerCase().replace("-", "_")) {
+            case "medecin_pec":
+                return Prestataire.TypePrestataire.MEDECIN_PEC;
+            case "assistant_social":
+                return Prestataire.TypePrestataire.ASSISTANT_SOCIAL;
+            case "pediatre":
+                return Prestataire.TypePrestataire.PEDIATRE;
+            default:
+                // Valeur par défaut si le type n'est pas reconnu
+                System.out.println("⚠️ Type de prestataire non reconnu: " + type + ", utilisation de MEDECIN_PEC par défaut");
+                return Prestataire.TypePrestataire.MEDECIN_PEC;
+        }
+    }
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateServiceFromDto(ServiceDto serviceDto, @MappingTarget Service service);
