@@ -833,8 +833,6 @@ const saveNewHospital = async () => {
     }),
     prestataires: providers.map(provider => ({
       nom: provider.nom,
-      nom_prestataire: provider.nom_prestataire,   // ✅ AJOUTER
-      prenom: provider.prenom,                     // ✅ AJOUTER
       type: provider.type,
       specialite: provider.specialite,
       telephone: provider.telephone,
@@ -892,8 +890,6 @@ const saveNewHospital = async () => {
         }),
         prestataires: providers.map(provider => ({
           nom: provider.nom,
-          nom_prestataire: provider.nom_prestataire,   // ✅ AJOUTER
-          prenom: provider.prenom,                     // ✅ AJOUTER
           type: provider.type,
           specialite: provider.specialite,
           telephone: provider.telephone,
