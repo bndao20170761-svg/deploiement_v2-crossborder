@@ -253,26 +253,26 @@ const CartographyMap = ({ hospitals, onHospitalUpdate,  onHospitalAdd, language 
           setUserLocation(userLoc);
           setShowUserInfo(false);
 
-            if (map) {
-              map.panTo(userLoc);
-              setTimeout(() => {
+          if (map) {
+            map.panTo(userLoc);
+            setTimeout(() => {
               map.setZoom(15);
-          setLoadingLocation(false);
-              }, 1000);
-            }
+              setLoadingLocation(false);
+            }, 1000);
+          }
         },
-          (fallbackError) => {
-            console.error('Erreur fallback géolocalisation:', fallbackError);
+        (fallbackError) => {
+          console.error('Erreur fallback géolocalisation:', fallbackError);
           setLoadingLocation(false);
 
-            // Fallback vers Université Assane Seck de Ziguinchor si la géolocalisation échoue
-            const uaszZiguinchor = { lat: 12.5833, lng: -16.2719 };
-            setUserLocation(uaszZiguinchor);
+          // Fallback vers Université Assane Seck de Ziguinchor si la géolocalisation échoue
+          const uaszZiguinchor = { lat: 12.5833, lng: -16.2719 };
+          setUserLocation(uaszZiguinchor);
           setShowUserInfo(true);
 
           if (map) {
-              map.panTo(uaszZiguinchor);
-              map.setZoom(12);
+            map.panTo(uaszZiguinchor);
+            map.setZoom(12);
           }
 
           // Message d'information pour l'utilisateur
@@ -284,10 +284,10 @@ const CartographyMap = ({ hospitals, onHospitalUpdate,  onHospitalAdd, language 
         },
         {
           enableHighAccuracy: true,
-            timeout: 15000, // Réduire de 30s à 15s
-            maximumAge: 0
-          }
-        );
+          timeout: 15000, // Réduire de 30s à 15s
+          maximumAge: 0
+        }
+      );
       },
       {
         enableHighAccuracy: true,
