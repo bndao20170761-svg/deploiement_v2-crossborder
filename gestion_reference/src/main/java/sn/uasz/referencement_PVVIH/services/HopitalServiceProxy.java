@@ -31,10 +31,18 @@ public class HopitalServiceProxy {
     }
 
     public HopitalDto createHospital(HopitalDto dto) {
+        // Pour la création, hopitalId sera géré automatiquement par gestion-user
+        // dans la méthode creerHopital (voir le code ligne 365-366)
         return hopitalClient.createHospital(dto);
     }
 
     public HopitalDto updateHospital(Long id, HopitalDto dto) {
+        // Renseigner le hopitalId dans les prestataires avant d'envoyer à gestion-user
+        if (dto.getPrestataires() != null) {
+            dto.getPrestataires().forEach(prestataire -> {
+                prestataire.setHopitalId(id);
+            });
+        }
         return hopitalClient.updateHospital(id, dto);
     }
 
