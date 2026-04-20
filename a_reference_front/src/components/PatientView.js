@@ -5,7 +5,7 @@ import FormulaireMultiEtapes from "./FormulaireMultiEtapes";
 import { getTranslation } from '../utils/translations';
 
 import FormulaireCompletFusionne from "./FormulaireCompletFusionne";
-import DossierView from "./DossierView"; // ⚡ nouveau composant à créer
+import DossierViewRouter from "./DossierViewRouter"; // ⚡ routeur vers les vues spécifiques
 
 const PatientView = ({ patient, onUpdate,language,onBack   }) => {
   const [editing, setEditing] = useState(false);
@@ -99,7 +99,7 @@ const handleUpdate = async (updatedData) => {
 
   // 🔹 Mode visualisation dossier
   if (viewingDossier) {
-    return <DossierView patient={patient}
+    return <DossierViewRouter patient={patient}
     language={language}
     onBack={() => setViewingDossier(false)} />;
   }
