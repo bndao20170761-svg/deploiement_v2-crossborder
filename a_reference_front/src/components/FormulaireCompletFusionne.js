@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import DossierView from "./DossierView";
 import axios from "axios";
 import { getTranslation } from '../utils/translations';
-export default function FormulaireCompletFusionne({patient,language}) {
+export default function FormulaireCompletFusionne({patient, language, codePatient}) {
   const totalSteps = 16;
   const [step, setStep] = useState(1);
 const [dossierCree, setDossierCree] = useState(null);
@@ -693,8 +693,8 @@ const mettreAJourBilan = (index, field, value) => {
 
 const handleSubmit = async () => {
   const payload = {
-    codeDossier: (patient?.codePatient + "-" + new Date().toISOString().split("T")[0] + "-DOC" + Math.random().toString(36).substr(2, 9).toUpperCase()),   // peut venir dâ€™un state
-    codePatient: patient?.codePatient || "",
+    codeDossier: (codePatient || patient?.codePatient + "-" + new Date().toISOString().split("T")[0] + "-DOC" + Math.random().toString(36).substr(2, 9).toUpperCase()),   // peut venir dâ€™un state
+    codePatient: codePatient || patient?.codePatient || "",
     identificationBiom: localStorage.getItem("irisTemplate") || localStorage.getItem("identificationBiom") || "",
     irisImageBase64: localStorage.getItem("irisImage") || "",
     pages: [
