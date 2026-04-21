@@ -25,10 +25,16 @@ const PatientList = ({ patients, language, onEdit, onDelete,onView, onViewDossie
     }
     
     try {
+      console.log(`🔍 Vérification dossiers pour patient ${codePatient}...`);
       const dossiers = await referenceDossierService.getDossiersByPatientFromGestionPatient(codePatient);
+      console.log(`📋 Dossiers trouvés pour ${codePatient}:`, dossiers);
+      
       if (dossiers && dossiers.length > 0) {
+        console.log(`✅ Patient ${codePatient} a ${dossiers.length} dossier(s)`);
         setPatientsWithDossiers(prev => new Set([...prev, codePatient]));
         return true;
+      } else {
+        console.log(`❌ Patient ${codePatient} n'a pas de dossier`);
       }
     } catch (error) {
       console.error(`Erreur vérification dossier pour ${codePatient}:`, error);
@@ -40,16 +46,32 @@ const PatientList = ({ patients, language, onEdit, onDelete,onView, onViewDossie
   useEffect(() => {
     const checkAllPatientsDossiers = async () => {
       if (normalizedPatients && normalizedPatients.length > 0) {
+        console.log("🔍 Début vérification dossiers pour tous les patients...");
         const patientCodes = normalizedPatients.map(p => p.codePatient);
         const checks = patientCodes.map(code => 
           checkPatientHasDossier(code)
         );
         await Promise.all(checks);
+        console.log("📊 État final patientsWithDossiers:", Array.from(patientsWithDossiers));
       }
     };
     
     checkAllPatientsDossiers();
   }, [patients]); // Utiliser patients au lieu de normalizedPatients
+
+  // Fonction de test pour vérifier un patient spécifique
+  const testPatientDossier = async () => {
+    if (normalizedPatients && normalizedPatients.length > 0) {
+      const firstPatient = normalizedPatients[0];
+      console.log("🧪 Test avec le premier patient:", firstPatient);
+      try {
+        const result = await referenceDossierService.getDossiersByPatientFromGestionPatient(firstPatient.codePatient);
+        console.log("🧪 Résultat du test:", result);
+      } catch (error) {
+        console.error("🧪 Erreur du test:", error);
+      }
+    }
+  };
 
 
 
@@ -111,6 +133,17 @@ const PatientList = ({ patients, language, onEdit, onDelete,onView, onViewDossie
     <div className="max-w-7xl mx-auto">
       <div className="bg-white rounded-lg shadow-lg">
         <div className="px-6 py-4 border-b border-gray-200">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-bold text-gray-800">
+              {getTranslation('patientList', language) || 'Liste des Patients'}
+            </h2>
+            <button
+              onClick={testPatientDossier}
+              className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
+            >
+              🧪 Test Dossier
+            </button>
+          </div>
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-gray-900">
               {getTranslation('patientList', language)}{' '}
