@@ -82,6 +82,15 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
     }
   }, [searchPatient]);
 
+  // Recherche de dossiers
+  useEffect(() => {
+    if (searchDossier.length >= 2 && selectedPatient) {
+      searchDossiers();
+    } else {
+      setDossierResults([]);
+    }
+  }, [searchDossier, selectedPatient]);
+
   // Chargement des médecins quand un hôpital est sélectionné
   useEffect(() => {
     if (selectedHopital) {
@@ -90,25 +99,6 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
       setMedecins([]);
     }
   }, [selectedHopital]);
-
-  const loadCurrentDoctor = async () => {
-    try {
-      const doctor = await getCurrentDoctor();
-      setCurrentDoctor(doctor);
-      // Pré-remplir le formulaire avec le docteur connecté
-      setFormData(prev => ({
-        ...prev,
-        codeDocteur: doctor.codeDocteur || doctor.codePrestataire,
-        nomDocteur: doctor.nomDocteur || doctor.nomPrestataire || `${doctor.prenomUtilisateur} ${doctor.nomUtilisateur}`,
-        codeReferenceur: doctor.codeDocteur || doctor.codePrestataire,
-        nomReferenceur: doctor.nomDocteur || doctor.nomPrestataire || `${doctor.prenomUtilisateur} ${doctor.nomUtilisateur}`,
-        telephoneReferenceur: doctor.telephone,
-        emailReferenceur: doctor.email
-      }));
-    } catch (err) {
-      console.error('Erreur lors du chargement du docteur connecté:', err);
-    }
-  };
 
   const searchPatients = async () => {
     try {
@@ -119,24 +109,12 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
     }
   };
 
-  const loadPatientDossiers = async (codePatient) => {
+  const searchDossiers = async () => {
     try {
-      setLoadingDossiers(true);
-      const dossiers = await referenceDossierService.getDossiersByPatientFromGestionPatient(codePatient);
+      const dossiers = await referenceDossierService.getDossiersByPatientFromGestionPatient(selectedPatient.codePatient);
       setDossierResults(dossiers || []);
-      // Si un seul dossier, le sélectionner automatiquement
-      if (dossiers && dossiers.length === 1) {
-        setSelectedDossier(dossiers[0]);
-        setFormData(prev => ({
-          ...prev,
-          codeDossier: dossiers[0].codeDossier
-        }));
-      }
     } catch (err) {
-      console.error('Erreur lors du chargement des dossiers du patient:', err);
-      setDossierResults([]);
-    } finally {
-      setLoadingDossiers(false);
+      console.error('Erreur lors de la recherche de dossiers:', err);
     }
   };
 
@@ -161,6 +139,25 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
     }
   };
 
+  const loadCurrentDoctor = async () => {
+    try {
+      const doctor = await getCurrentDoctor();
+      setCurrentDoctor(doctor);
+      // Pré-remplir le formulaire avec le docteur connecté
+      setFormData(prev => ({
+        ...prev,
+        codeDocteur: doctor.codeDocteur || doctor.codePrestataire,
+        nomDocteur: doctor.nomDocteur || doctor.nomPrestataire || `${doctor.prenomUtilisateur} ${doctor.nomUtilisateur}`,
+        codeReferenceur: doctor.codeDocteur || doctor.codePrestataire,
+        nomReferenceur: doctor.nomDocteur || doctor.nomPrestataire || `${doctor.prenomUtilisateur} ${doctor.nomUtilisateur}`,
+        telephoneReferenceur: doctor.telephone,
+        emailReferenceur: doctor.email
+      }));
+    } catch (err) {
+      console.error('Erreur lors du chargement du docteur connecté:', err);
+    }
+  };
+
   const handlePatientSelect = (patient) => {
     setSelectedPatient(patient);
     setFormData(prev => ({
@@ -174,6 +171,27 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
     // Charger automatiquement les dossiers du patient
     if (patient.codePatient) {
       loadPatientDossiers(patient.codePatient);
+    }
+  };
+
+  const loadPatientDossiers = async (codePatient) => {
+    try {
+      setLoadingDossiers(true);
+      const dossiers = await referenceDossierService.getDossiersByPatientFromGestionPatient(codePatient);
+      setDossierResults(dossiers || []);
+      // Si un seul dossier, le sélectionner automatiquement
+      if (dossiers && dossiers.length === 1) {
+        setSelectedDossier(dossiers[0]);
+        setFormData(prev => ({
+          ...prev,
+          codeDossier: dossiers[0].codeDossier
+        }));
+      }
+    } catch (err) {
+      console.error('Erreur lors du chargement des dossiers du patient:', err);
+      setDossierResults([]);
+    } finally {
+      setLoadingDossiers(false);
     }
   };
 
@@ -267,12 +285,6 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
       setLoading(true);
       setError(null);
 
-      // Validation: le docteur doit être sélectionné
-      if (!formData.codeDocteur) {
-        setError('Veuillez sélectionner un docteur');
-        return;
-      }
-
       const submissionData = {
         ...formData,
         dateReference: formData.dateReference || new Date().toISOString().split('T')[0]
@@ -285,32 +297,42 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
         result = await referenceDossierService.createReference(submissionData);
       }
 
-      setSuccess(true);
-      setTimeout(() => {
+      setLoading(false);
+      if (onComplete) {
         onComplete(result);
-      }, 1500);
-
+      }
     } catch (err) {
       console.error('Erreur lors de la soumission:', err);
-      setError(err.response?.data?.message || 'Erreur lors de la création de la référence');
-    } finally {
+      setError('Erreur lors de la création/mise à jour de la référence');
       setLoading(false);
     }
   };
 
   const nextStep = () => {
-    if (currentStep < totalSteps) {
+    if (validateCurrentStep()) {
       setCurrentStep(currentStep + 1);
     }
   };
 
   const prevStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
+    setCurrentStep(currentStep - 1);
+  };
+
+  const validateCurrentStep = () => {
+    switch (currentStep) {
+      case 1:
+        return selectedPatient && selectedDossier;
+      case 2:
+        return selectedHopital;
+      case 3:
+        return selectedMedecin;
+      case 4:
+        return formData.motifReference && formData.typeReference;
+      default:
+        return true;
     }
   };
 
-  // Rendu des étapes
   const renderStep = () => {
     switch (currentStep) {
       case 1:
@@ -374,7 +396,7 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
                     <Eye size={16} className="text-gray-600" />
                   </button>
                 </div>
-              </div>
+              ))}
             ))}
           </div>
         )}
@@ -421,20 +443,13 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
             />
           </div>
           
-          {loadingDossiers ? (
-            <div className="flex items-center justify-center py-4">
-              <Loader className="animate-spin text-blue-500" size={24} />
-              <span className="ml-2 text-gray-600">Chargement des dossiers...</span>
-            </div>
-          ) : dossierResults.length > 0 ? (
+          {dossierResults.length > 0 && (
             <div className="mt-2 border border-gray-300 rounded-lg max-h-40 overflow-y-auto">
               {dossierResults.map((dossier) => (
                 <div
                   key={dossier.codeDossier}
                   onClick={() => handleDossierSelect(dossier)}
-                  className={`px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200 last:border-b-0 ${
-                    selectedDossier?.codeDossier === dossier.codeDossier ? 'bg-blue-50' : ''
-                  }`}
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200 last:border-b-0"
                 >
                   <div className="flex items-center justify-between">
                     <div>
@@ -445,7 +460,7 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleViewDossier(dossier);
+                          setShowDossierDetails(!showDossierDetails);
                         }}
                         className="p-1 hover:bg-gray-200 rounded"
                       >
@@ -464,12 +479,16 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
                       )}
                     </div>
                   </div>
+                  {showDossierDetails && (
+                    <div className="mt-2 p-2 bg-gray-50 rounded text-sm">
+                      <p><strong>Code:</strong> {dossier.codeDossier}</p>
+                      <p><strong>ID Biom:</strong> {dossier.identificationBiom || 'N/A'}</p>
+                      <p><strong>Créé par:</strong> {dossier.doctorCreateNom || 'N/A'}</p>
+                      <p><strong>Date:</strong> {dossier.dateCreation ? new Date(dossier.dateCreation).toLocaleDateString() : 'N/A'}</p>
+                    </div>
+                  )}
                 </div>
               ))}
-            </div>
-          ) : (
-            <div className="mt-2 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p className="text-yellow-800">Aucun dossier trouvé pour ce patient</p>
             </div>
           )}
         </div>
@@ -511,9 +530,9 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
           value={selectedHopital?.codeHopital || ''}
           onChange={(e) => {
             const hopital = hopitaux.find(h => h.codeHopital === e.target.value);
-            if (hopital) handleHopitalSelect(hopital);
+            handleHopitalSelect(hopital);
           }}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         >
           <option value="">Choisir un hôpital...</option>
           {hopitaux.map((hopital) => (
@@ -526,18 +545,11 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
 
       {selectedHopital && (
         <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium text-purple-900">Hôpital sélectionné:</h3>
-            <button
-              onClick={handleHopitalUnselect}
-              className="p-1 hover:bg-purple-200 rounded"
-            >
-              <X size={16} className="text-purple-600" />
-            </button>
-          </div>
-          <div className="text-sm mt-2">
+          <h3 className="font-medium text-purple-900 mb-2">Hôpital sélectionné:</h3>
+          <div className="text-sm">
             <div><strong>Nom:</strong> {selectedHopital.nomHopital}</div>
-            <div><strong>Ville:</strong> {selectedHopital.ville}</div>
+            <div><strong>Code:</strong> {selectedHopital.codeHopital}</div>
+            <div><strong>Adresse:</strong> {selectedHopital.adresseHopital || '-'}</div>
           </div>
         </div>
       )}
@@ -547,16 +559,15 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
   const renderMedecinStep = () => (
     <div className="bg-white rounded-lg shadow-lg p-6">
       <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-        <User className="w-5 h-5 mr-2 text-green-600" />
-        Étape 3: Sélection du Médecin
+        <User className="w-5 h-5 mr-2 text-orange-600" />
+        Étape 3: Sélection du Médecin Destinataire
       </h2>
 
-      {loadingMedecins ? (
-        <div className="flex items-center justify-center py-8">
-          <Loader className="animate-spin text-green-500" size={24} />
-          <span className="ml-2 text-gray-600">Chargement des médecins...</span>
+      {medecins.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">
+          <p>Aucun médecin trouvé pour cet hôpital</p>
         </div>
-      ) : medecins.length > 0 ? (
+      ) : (
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Sélectionner un médecin
@@ -565,37 +576,27 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
             value={selectedMedecin?.codePrestataire || ''}
             onChange={(e) => {
               const medecin = medecins.find(m => m.codePrestataire === e.target.value);
-              if (medecin) handleMedecinSelect(medecin);
+              handleMedecinSelect(medecin);
             }}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">Choisir un médecin...</option>
             {medecins.map((medecin) => (
               <option key={medecin.codePrestataire} value={medecin.codePrestataire}>
-                {medecin.nomPrestataire}
+                {medecin.nomPrestataire} - {medecin.typePrestataire}
               </option>
             ))}
           </select>
         </div>
-      ) : (
-        <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-yellow-800">Aucun médecin trouvé pour cet hôpital</p>
-        </div>
       )}
 
       {selectedMedecin && (
-        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium text-green-900">Médecin sélectionné:</h3>
-            <button
-              onClick={handleMedecinUnselect}
-              className="p-1 hover:bg-green-200 rounded"
-            >
-              <X size={16} className="text-green-600" />
-            </button>
-          </div>
-          <div className="text-sm mt-2">
+        <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
+          <h3 className="font-medium text-orange-900 mb-2">Médecin sélectionné:</h3>
+          <div className="text-sm">
             <div><strong>Nom:</strong> {selectedMedecin.nomPrestataire}</div>
+            <div><strong>Type:</strong> {selectedMedecin.typePrestataire}</div>
+            <div><strong>Téléphone:</strong> {selectedMedecin.telephonePrestataire || '-'}</div>
           </div>
         </div>
       )}
@@ -605,65 +606,66 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
   const renderReferenceStep = () => (
     <div className="bg-white rounded-lg shadow-lg p-6">
       <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-        <FileText className="w-5 h-5 mr-2 text-indigo-600" />
-        Étape 4: Informations de la Référence
+        <FileText className="w-5 h-5 mr-2 text-green-600" />
+        Étape 4: Détails de la Référence
       </h2>
 
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Motif de la référence
-          </label>
-          <textarea
-            value={formData.motifReference}
-            onChange={(e) => setFormData(prev => ({ ...prev, motifReference: e.target.value }))}
-            rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            placeholder="Décrivez le motif de la référence..."
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Type de référence
+            Type de Référence *
           </label>
           <select
             value={formData.typeReference}
             onChange={(e) => setFormData(prev => ({ ...prev, typeReference: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
-            <option value="">Sélectionner un type</option>
+            <option value="">Choisir un type...</option>
             <option value="CONSULTATION">Consultation</option>
             <option value="HOSPITALISATION">Hospitalisation</option>
-            <option value="EXAMEN">Examen complémentaire</option>
+            <option value="EXAMEN">Examen</option>
+            <option value="SUIVI">Suivi</option>
             <option value="URGENCE">Urgence</option>
           </select>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Date de la référence
+            Date de Référence
           </label>
           <input
             type="date"
             value={formData.dateReference}
             onChange={(e) => setFormData(prev => ({ ...prev, dateReference: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
+      </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Observations
-          </label>
-          <textarea
-            value={formData.observations}
-            onChange={(e) => setFormData(prev => ({ ...prev, observations: e.target.value }))}
-            rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            placeholder="Ajoutez des observations supplémentaires..."
-          />
-        </div>
+      <div className="mt-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Motif de la Référence *
+        </label>
+        <textarea
+          value={formData.motifReference}
+          onChange={(e) => setFormData(prev => ({ ...prev, motifReference: e.target.value }))}
+          rows={4}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Décrivez le motif de la référence..."
+        />
+      </div>
+
+      <div className="mt-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Observations
+        </label>
+        <textarea
+          value={formData.observations}
+          onChange={(e) => setFormData(prev => ({ ...prev, observations: e.target.value }))}
+          rows={3}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Observations supplémentaires..."
+        />
       </div>
     </div>
   );
@@ -675,176 +677,166 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
         Étape 5: Confirmation
       </h2>
 
-      <div className="bg-gray-50 p-6 rounded-lg">
-        <h3 className="font-medium text-gray-900 mb-4">Récapitulatif de la référence</h3>
-        
-        <div className="space-y-3">
-          <div className="flex justify-between">
-            <span className="text-gray-600">Patient:</span>
-            <span className="font-medium">
-              {formData.nomPatient} {formData.prenomPatient}
-            </span>
-          </div>
+      <div className="space-y-6">
+        {/* Résumé */}
+        <div className="bg-gray-50 p-4 rounded-lg">
+          <h3 className="font-medium text-gray-900 mb-4">Résumé de la Référence</h3>
           
-          {formData.codeDossier && (
-            <div className="flex justify-between">
-              <span className="text-gray-600">Dossier:</span>
-              <span className="font-medium">{formData.codeDossier}</span>
-            </div>
-          )}
-          
-          <div className="flex justify-between">
-            <span className="text-gray-600">Hôpital:</span>
-            <span className="font-medium">{formData.nomHopital}</span>
-          </div>
-          
-          <div className="flex justify-between">
-            <span className="text-gray-600">Médecin:</span>
-            <span className="font-medium">{formData.nomDocteur}</span>
-          </div>
-          
-          <div className="flex justify-between">
-            <span className="text-gray-600">Type:</span>
-            <span className="font-medium">{formData.typeReference}</span>
-          </div>
-          
-          <div className="flex justify-between">
-            <span className="text-gray-600">Date:</span>
-            <span className="font-medium">{formData.dateReference}</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div><strong>Patient:</strong> {formData.nomPatient} {formData.prenomPatient}</div>
+            <div><strong>Dossier:</strong> {formData.codeDossier}</div>
+            <div><strong>Hôpital:</strong> {formData.nomHopital}</div>
+            <div><strong>Médecin:</strong> {formData.nomDocteur}</div>
+            <div><strong>Type:</strong> {formData.typeReference}</div>
+            <div><strong>Date:</strong> {formData.dateReference}</div>
           </div>
           
           {formData.motifReference && (
-            <div>
-              <span className="text-gray-600 block mb-1">Motif:</span>
-              <p className="text-sm bg-white p-2 rounded border">{formData.motifReference}</p>
+            <div className="mt-4">
+              <strong>Motif:</strong>
+              <p className="mt-1 text-gray-700">{formData.motifReference}</p>
+            </div>
+          )}
+          
+          {formData.observations && (
+            <div className="mt-4">
+              <strong>Observations:</strong>
+              <p className="mt-1 text-gray-700">{formData.observations}</p>
             </div>
           )}
         </div>
-      </div>
 
-      <div className="mt-6 bg-blue-50 p-4 rounded-lg">
-        <p className="text-blue-800 text-sm">
-          En cliquant sur "Créer la référence", vous confirmez que toutes les informations sont correctes.
-        </p>
+        {/* Informations du référenceur */}
+        <div className="bg-blue-50 p-4 rounded-lg">
+          <h3 className="font-medium text-blue-900 mb-4">Informations du Référenceur</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Nom</label>
+              <input
+                type="text"
+                value={formData.nomReferenceur}
+                onChange={(e) => setFormData(prev => ({ ...prev, nomReferenceur: e.target.value }))}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Votre nom"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Téléphone</label>
+              <input
+                type="tel"
+                value={formData.telephoneReferenceur}
+                onChange={(e) => setFormData(prev => ({ ...prev, telephoneReferenceur: e.target.value }))}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Votre téléphone"
+              />
+            </div>
+            
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+              <input
+                type="email"
+                value={formData.emailReferenceur}
+                onChange={(e) => setFormData(prev => ({ ...prev, emailReferenceur: e.target.value }))}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Votre email"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 
-  const [success, setSuccess] = useState(false);
-
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-      <div className="flex items-center justify-between mb-6">
-        <button
-          onClick={onBack}
-          className="flex items-center text-gray-600 hover:text-gray-900"
-        >
-          <ArrowLeft size={20} className="mr-2" />
-          Retour
-        </button>
-        
-        <div className="flex items-center space-x-2">
-          {Array.from({ length: totalSteps }, (_, i) => i + 1).map((step) => (
+    <div className="max-w-4xl mx-auto p-6 bg-gray-50 min-h-screen">
+      {/* En-tête */}
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-3xl font-bold text-gray-900">
+            {initialData ? '📝 Modifier une Référence' : '📋 Créer une Référence de Dossier'}
+          </h1>
+          <button
+            onClick={onBack}
+            className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 flex items-center"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            {getTranslation("retour", language) || "Retour"}
+          </button>
+        </div>
+
+        {/* Progress bar */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-700">
+              Étape {currentStep} sur {totalSteps}
+            </span>
+            <span className="text-sm text-gray-500">
+              {Math.round((currentStep / totalSteps) * 100)}% complété
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
             <div
-              key={step}
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                step === currentStep
-                  ? 'bg-blue-600 text-white'
-                  : step < currentStep
-                  ? 'bg-green-500 text-white'
-                  : 'bg-gray-200 text-gray-600'
-              }`}
+              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Erreur */}
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-700">❌ {error}</p>
+        </div>
+      )}
+
+      {/* Contenu de l'étape */}
+      <div className="mb-6">
+        {renderStep()}
+      </div>
+
+      {/* Navigation */}
+      <div className="bg-white rounded-lg shadow-lg p-6">
+        <div className="flex justify-between">
+          <button
+            onClick={prevStep}
+            disabled={currentStep === 1}
+            className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Précédent
+          </button>
+
+          {currentStep < totalSteps ? (
+            <button
+              onClick={nextStep}
+              disabled={!validateCurrentStep()}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {step < currentStep ? <Check size={16} /> : step}
-            </div>
-          ))}
+              Suivant
+            </button>
+          ) : (
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Traitement...
+                </>
+              ) : (
+                <>
+                  <Check className="w-4 h-4 mr-2" />
+                  {initialData ? 'Mettre à Jour' : 'Créer la Référence'}
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
-
-      {renderStep()}
-
-      <div className="flex justify-between mt-8">
-        <button
-          onClick={prevStep}
-          disabled={currentStep === 1 || loading || success}
-          className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Précédent
-        </button>
-        
-        {currentStep < totalSteps && currentStep < 4 && (
-          <button
-            onClick={nextStep}
-            disabled={
-              (currentStep === 1 && !selectedPatient) ||
-              (currentStep === 2 && !selectedHopital) ||
-              loading
-            }
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Suivant
-          </button>
-        )}
-        
-        {currentStep === 4 && (
-          <button
-            onClick={nextStep}
-            disabled={!formData.motifReference || loading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Confirmer
-          </button>
-        )}
-        
-        {currentStep === 5 && (
-          <button
-            onClick={handleSubmit}
-            disabled={loading || success}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {success ? 'Référence créée!' : 'Créer la référence'}
-          </button>
-        )}
-      </div>
-
-      {/* Modales pour les vues détaillées */}
-      {patientViewModal && selectedPatientForView && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full m-4 max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">Détails du Patient</h2>
-                <button
-                  onClick={closePatientView}
-                  className="p-2 hover:bg-gray-100 rounded"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-              <PatientView patient={selectedPatientForView} language={language} />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {dossierViewModal && selectedDossierForView && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full m-4 max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">Détails du Dossier</h2>
-                <button
-                  onClick={closeDossierView}
-                  className="p-2 hover:bg-gray-100 rounded"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-              <DossierView dossier={selectedDossierForView} language={language} />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

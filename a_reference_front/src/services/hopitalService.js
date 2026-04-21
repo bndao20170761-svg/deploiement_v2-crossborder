@@ -105,7 +105,7 @@ export const getMyHospitals = async () => {
 // Récupérer tous les hôpitaux
 export const getAllHospitals = async () => {
   try {
-    const response = await api.get('/hopitaux-proxy');
+    const response = await api.get('/hopitaux-proxy/carte');
     return response.data;
   } catch (error) {
     console.error("Erreur lors de la récupération de tous les hôpitaux :", error);

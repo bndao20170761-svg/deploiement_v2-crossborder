@@ -102,12 +102,13 @@ spring:
         - id: user-api-alternatives
           uri: http://gestion-user:8080
           predicates:
-            - Path=/api/hopitaux/**,/hospitaux/**,/hopitaux/**,/api/hopitaux-proxy/**
+            - Path=/api/hopitaux/**,/hospitaux/**,/hopitaux/**,/api/hopitaux-proxy/**,/hopitaux-proxy/**
           filters:
             - RewritePath=/api/hopitaux/(?<path>.*), /api/hospitaux/$\{path}
             - RewritePath=/hospitaux/(?<path>.*), /api/hospitaux/$\{path}
             - RewritePath=/hopitaux/(?<path>.*), /api/hospitaux/$\{path}
             - RewritePath=/api/hopitaux-proxy/(?<path>.*), /api/hospitaux/$\{path}
+            - RewritePath=/hopitaux-proxy/(?<path>.*), /api/hospitaux/$\{path}
         
         # --------------------------------------------------------------------
         # USER_API_PVVIH - Accès direct au service

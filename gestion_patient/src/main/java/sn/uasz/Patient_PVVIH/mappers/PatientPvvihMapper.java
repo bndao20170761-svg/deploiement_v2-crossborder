@@ -53,7 +53,7 @@ public interface PatientPvvihMapper {
     // DossierView (pour la réponse frontend)
     @Mapping(source = "patientCode", target = "codePatient")
     @Mapping(target = "nomComplet", ignore = true) // Sera rempli par le service
-    @Mapping(target = "doctorCreateNom", ignore = true) // Sera rempli par le service
+    @Mapping(source = "doctorCreate.nomUtilisateur", target = "doctorCreateNom")
     @Mapping(source = "dateCreation", target = "dateCreation")
     DossierViewDto toDossierViewDto(Dossier dossier);
 
