@@ -101,8 +101,20 @@ public class UserIntegrationController {
             PatientFeignDto patient = userIntegrationService.getPatientByCode(codePatient);
             return ResponseEntity.ok(patient);
         } catch (Exception e) {
-            log.error("❌ Erreur dans getPatientByCode: {}", e.getMessage());
+            log.error("Erreur dans getPatientByCode: {}", e.getMessage());
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR') or hasRole('ASSISTANT') or hasRole('USER')")
+    @GetMapping("/patients/search")
+    public ResponseEntity<List<PatientFeignDto>> searchPatients(@RequestParam("q") String searchTerm) {
+        try {
+            List<PatientFeignDto> patients = userIntegrationService.searchPatients(searchTerm);
+            return ResponseEntity.ok(patients);
+        } catch (Exception e) {
+            log.error("Erreur dans searchPatients: {}", e.getMessage());
+            return ResponseEntity.internalServerError().build();
         }
     }
 

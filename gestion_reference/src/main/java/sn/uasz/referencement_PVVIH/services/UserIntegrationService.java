@@ -185,6 +185,30 @@ public class UserIntegrationService {
         }
     }
 
+    public List<PatientFeignDto> searchPatients(String searchTerm) {
+        try {
+            log.info("Recherche de patients avec terme: {} via Feign Client", searchTerm);
+            
+            // Récupérer tous les patients et filtrer localement
+            List<PatientFeignDto> allPatients = getAllPatients();
+            
+            // Filtrer par nom, prénom, email, téléphone ou code patient
+            String searchLower = searchTerm.toLowerCase();
+            return allPatients.stream()
+                    .filter(patient -> {
+                        return (patient.getNom() != null && patient.getNom().toLowerCase().contains(searchLower)) ||
+                               (patient.getPrenom() != null && patient.getPrenom().toLowerCase().contains(searchLower)) ||
+                               (patient.getEmail() != null && patient.getEmail().toLowerCase().contains(searchLower)) ||
+                               (patient.getTelephone() != null && patient.getTelephone().contains(searchTerm)) ||
+                               (patient.getCodePatient() != null && patient.getCodePatient().toLowerCase().contains(searchLower));
+                    })
+                    .toList();
+        } catch (Exception e) {
+            log.error("Erreur lors de la recherche des patients: {}", e.getMessage());
+            throw new RuntimeException("Erreur lors de la recherche des patients", e);
+        }
+    }
+
     // ========== HOSPITALS ==========
     public List<sn.uasz.referencement_PVVIH.dtos.HopitalDto> getAllHospitals() {
         try {
