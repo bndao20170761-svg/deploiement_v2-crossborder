@@ -197,6 +197,14 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
     setDossierResults([]);
   };
 
+  const handleDossierUnselect = () => {
+    setSelectedDossier(null);
+    setFormData(prev => ({
+      ...prev,
+      codeDossier: ''
+    }));
+  };
+
   const handleHopitalUnselect = () => {
     setSelectedHopital(null);
     setMedecins([]);
