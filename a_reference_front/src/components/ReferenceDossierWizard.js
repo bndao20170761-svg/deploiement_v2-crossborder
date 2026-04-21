@@ -50,6 +50,8 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
   const [showHopitalDetails, setShowHopitalDetails] = useState(false);
   const [showMedecinDetails, setShowMedecinDetails] = useState(false);
   const [currentDoctor, setCurrentDoctor] = useState(null);
+  const [loadingDossiers, setLoadingDossiers] = useState(false);
+  const [loadingMedecins, setLoadingMedecins] = useState(false);
 
   const totalSteps = 5;
 
@@ -119,10 +121,13 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
 
   const fetchMedecins = async () => {
     try {
+      setLoadingMedecins(true);
       const data = await getDoctorsByHospital(selectedHopital.codeHopital);
       setMedecins(data || []);
     } catch (err) {
       console.error('Erreur lors du chargement des médecins:', err);
+    } finally {
+      setLoadingMedecins(false);
     }
   };
 
@@ -163,6 +168,7 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
 
   const loadPatientDossiers = async (codePatient) => {
     try {
+      setLoadingDossiers(true);
       const dossiers = await referenceDossierService.getDossiersByPatientFromGestionPatient(codePatient);
       setDossierResults(dossiers || []);
       // Si un seul dossier, le sélectionner automatiquement
@@ -176,6 +182,8 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
     } catch (err) {
       console.error('Erreur lors du chargement des dossiers du patient:', err);
       setDossierResults([]);
+    } finally {
+      setLoadingDossiers(false);
     }
   };
 
@@ -189,11 +197,25 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
     setDossierResults([]);
   };
 
-  const handleDossierUnselect = () => {
-    setSelectedDossier(null);
+  const handleHopitalUnselect = () => {
+    setSelectedHopital(null);
+    setMedecins([]);
+    setSelectedMedecin(null);
     setFormData(prev => ({
       ...prev,
-      codeDossier: ''
+      codeHopital: '',
+      nomHopital: '',
+      codeDocteur: currentDoctor?.codeDocteur || '',
+      nomDocteur: currentDoctor?.nomDocteur || ''
+    }));
+  };
+
+  const handleMedecinUnselect = () => {
+    setSelectedMedecin(null);
+    setFormData(prev => ({
+      ...prev,
+      codeDocteur: currentDoctor?.codeDocteur || '',
+      nomDocteur: currentDoctor?.nomDocteur || ''
     }));
   };
 
@@ -207,8 +229,8 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
     setSelectedMedecin(null);
     setFormData(prev => ({
       ...prev,
-      codeDocteur: '',
-      nomDocteur: ''
+      codeDocteur: currentDoctor?.codeDocteur || '',
+      nomDocteur: currentDoctor?.nomDocteur || ''
     }));
   };
 

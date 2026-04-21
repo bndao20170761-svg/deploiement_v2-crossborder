@@ -147,7 +147,7 @@ spring:
         - id: referencement-pvvih
           uri: http://gestion-reference:8080
           predicates:
-            - Path=/api/references/**,/api/contre-references/**,/api/hopitaux-proxy/**,/api/integration/**,/api/reference-auth/**,/reference_pvvih/**
+            - Path=/api/references/**,/api/contre-references/**,/api/hopitaux-proxy/**,/api/integration/**,/api/reference-auth/**,/api/references-dossiers/**,/reference_pvvih/**
           filters:
             - RewritePath=/api/reference-auth/(?<path>.*), /api/auth/$\{path}
             - RewritePath=/reference_pvvih/(?<path>.*), /$\{path}
