@@ -150,14 +150,7 @@
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>2.3.0</version>
 		</dependency>
-		
-		<!-- Dépendance vers gestion_patient pour accéder aux DTOs -->
-		<dependency>
-			<groupId>sn.uasz.referencement_PVVIH</groupId>
-			<artifactId>Patient_PVVIH</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-    </dependencies>
+	</dependencies>
 
 	<!-- ✅ Gestion des dépendances Spring Cloud -->
 	<dependencyManagement>
