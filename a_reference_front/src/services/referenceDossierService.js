@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_GATEWAY_URL || 'http://34.28.161.231:8080';
+const API_BASE_URL = process.env.REACT_APP_GATEWAY_URL || 'http://16.171.10.0:8080';
 
 const referenceDossierService = {
   // Obtenir toutes les références
