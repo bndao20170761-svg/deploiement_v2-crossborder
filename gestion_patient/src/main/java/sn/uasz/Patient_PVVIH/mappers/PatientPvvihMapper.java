@@ -1,9 +1,9 @@
-package sn.uasz.Patient_PVVIH.mappers;
+package sn.uasz.referencement_PVVIH.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import sn.uasz.Patient_PVVIH.entities.*;
-import sn.uasz.Patient_PVVIH.dtos.*;
+import sn.uasz.referencement_PVVIH.dtos.*;
 @Mapper(componentModel = "spring")
 public interface PatientPvvihMapper {
 
@@ -54,6 +54,7 @@ public interface PatientPvvihMapper {
     @Mapping(source = "patientCode", target = "codePatient")
     @Mapping(target = "nomComplet", ignore = true) // Sera rempli par le service
     @Mapping(target = "doctorCreateNom", ignore = true) // Sera rempli par le service
+    @Mapping(source = "dateCreation", target = "dateCreation")
     DossierViewDto toDossierViewDto(Dossier dossier);
 
 

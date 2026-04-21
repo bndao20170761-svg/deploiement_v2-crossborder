@@ -1,4 +1,4 @@
-package sn.uasz.Patient_PVVIH.repositories;
+package sn.uasz.referencement_PVVIH.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import sn.uasz.Patient_PVVIH.entities.Dossier;

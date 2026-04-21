@@ -3,6 +3,9 @@ import Header from "./components/Header";
 import Login from "./components/Login";
 import ReferenceWizard from "./components/ReferenceWizard";
 import ReferenceList from "./components/ReferenceList";
+import ReferenceDossierList from "./components/ReferenceDossierList";
+import ReferenceDossierView from "./components/ReferenceDossierView";
+import ReferenceDossierWizard from "./components/ReferenceDossierWizard";
 import PatientView from "./components/PatientView";
 import PatientForm from "./components/PatientForm";
 import CartographyContainer from './components/CartographyContainer';
@@ -47,6 +50,11 @@ function App() {
 const [selectedDossier, setSelectedDossier] = useState(null);
  const [activeMenu, setActiveMenu] = useState("patients");
 
+  // États pour les références de dossiers
+  const [referenceDossiers, setReferenceDossiers] = useState([]);
+  const [selectedReferenceDossier, setSelectedReferenceDossier] = useState(null);
+  const [editingReferenceDossier, setEditingReferenceDossier] = useState(null);
+
 // --- Navigation / Langue ---
 const handleMenuSelect = (view) => {
   setCurrentView(view);
@@ -54,6 +62,12 @@ const handleMenuSelect = (view) => {
     setIsCartographyOpen(true);
   } else {
     setIsCartographyOpen(false);
+  }
+  
+  // Réinitialiser les états de référence de dossier
+  if (view.includes('dossier-')) {
+    setSelectedReferenceDossier(null);
+    setEditingReferenceDossier(null);
   }
 };
 
@@ -411,6 +425,67 @@ const handleViewDossier = (patient) => {
             onCancel={handlePatientCancel}
             language={language}
             onBack={() => setCurrentView("patientView")}
+          />
+        );
+      case "dossier-received":
+        return (
+          <ReferenceDossierList
+            language={language}
+            filterStatus="recues"
+            onReferenceSelect={() => setCurrentView("dossier-add")}
+            onViewReference={(reference) => {
+              setSelectedReferenceDossier(reference);
+              setCurrentView("dossier-view");
+            }}
+            onEditReference={(reference) => {
+              setEditingReferenceDossier(reference);
+              setCurrentView("dossier-edit");
+            }}
+          />
+        );
+      case "dossier-sent":
+        return (
+          <ReferenceDossierList
+            language={language}
+            filterStatus="envoyees"
+            onReferenceSelect={() => setCurrentView("dossier-add")}
+            onViewReference={(reference) => {
+              setSelectedReferenceDossier(reference);
+              setCurrentView("dossier-view");
+            }}
+            onEditReference={(reference) => {
+              setEditingReferenceDossier(reference);
+              setCurrentView("dossier-edit");
+            }}
+          />
+        );
+      case "dossier-view":
+        return (
+          <ReferenceDossierView
+            codeReference={selectedReferenceDossier?.codeReference}
+            language={language}
+            onBack={() => setCurrentView("dossier-received")}
+            onEdit={(reference) => {
+              setEditingReferenceDossier(reference);
+              setCurrentView("dossier-edit");
+            }}
+          />
+        );
+      case "dossier-add":
+        return (
+          <ReferenceDossierWizard
+            language={language}
+            onComplete={() => setCurrentView("dossier-received")}
+            onBack={() => setCurrentView("dossier-received")}
+          />
+        );
+      case "dossier-edit":
+        return (
+          <ReferenceDossierWizard
+            language={language}
+            initialData={editingReferenceDossier}
+            onComplete={() => setCurrentView("dossier-received")}
+            onBack={() => setCurrentView("dossier-received")}
           />
         );
       default:

@@ -229,6 +229,24 @@ const [currentLang, setCurrentLang] = useState(language);
                       <span>{getTranslation('receivedReference', language)}</span>
                       <span className="bg-red-500 text-white text-xs rounded-full px-2 py-0.5">{receivedCount}</span>
                     </button>
+                    <div className="border-t border-gray-100 my-1"></div>
+                    <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      📋 Références de Dossiers
+                    </div>
+                    <button
+                      onClick={() => handleMenuItemClick('dossier-received')}
+                      className="flex items-center justify-between w-full px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-800"
+                      type="button"
+                    >
+                      <span>{getTranslation('dossierReceivedReference', language) || 'Dossiers Reçus'}</span>
+                    </button>
+                    <button
+                      onClick={() => handleMenuItemClick('dossier-sent')}
+                      className="flex items-center justify-between w-full px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-800"
+                      type="button"
+                    >
+                      <span>{getTranslation('dossierSentReference', language) || 'Dossiers Envoyés'}</span>
+                    </button>
                   </div>
                 </div>
               )}

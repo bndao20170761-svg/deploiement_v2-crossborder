@@ -10,7 +10,7 @@
 		<version>3.1.7</version> <!-- ✅ version compatible -->
 	</parent>
 
-	<groupId>sn.uasz.Patient_PVVIH</groupId>
+	<groupId>sn.uasz.referencement_PVVIH</groupId>
 	<artifactId>Patient_PVVIH</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Patient_PVVIH</name>

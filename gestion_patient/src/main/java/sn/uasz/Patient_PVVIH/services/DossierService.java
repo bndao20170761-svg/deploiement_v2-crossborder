@@ -1,10 +1,10 @@
-package sn.uasz.Patient_PVVIH.services;
+package sn.uasz.referencement_PVVIH.services;
 
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import sn.uasz.Patient_PVVIH.dtos.*;
+import sn.uasz.referencement_PVVIH.dtos.*;
 import sn.uasz.Patient_PVVIH.entities.*;
 import sn.uasz.Patient_PVVIH.mappers.PatientPvvihMapper;
 import sn.uasz.Patient_PVVIH.repositories.DossierRepository;
@@ -437,6 +437,50 @@ public class DossierService {
     public boolean hasDossier(String codePatient) {
         return dossierRepository.findByPatientCode(codePatient).isPresent();
     }
+    
+    /**
+     * ✅ Méthode pour obtenir un dossier par codeDossier (pour Feign Client)
+     */
+    public DossierViewDto getDossierByCode(String codeDossier) {
+        Dossier dossier = dossierRepository.findByCodeDossier(codeDossier)
+                .orElseThrow(() -> new sn.uasz.Patient_PVVIH.exceptions.DossierNotFoundException(
+                        "Dossier non trouvé avec le code: " + codeDossier));
+        
+        return mapper.toDossierViewDto(dossier);
+    }
+    
+    /**
+     * ✅ Méthode pour obtenir tous les dossiers d'un patient (pour Feign Client)
+     */
+    public java.util.List<DossierViewDto> getDossiersByPatient(String codePatient) {
+        java.util.List<Dossier> dossiers = dossierRepository.findAllByPatientCode(codePatient);
+        return dossiers.stream()
+                .map(mapper::toDossierViewDto)
+                .collect(java.util.stream.Collectors.toList());
+    }
+    
+    /**
+     * ✅ Méthode pour obtenir un dossier avec infos patient complètes (pour Feign Client)
+     */
+    public DossierViewDto getDossierWithPatient(String codeDossier) {
+        Dossier dossier = dossierRepository.findByCodeDossier(codeDossier)
+                .orElseThrow(() -> new sn.uasz.Patient_PVVIH.exceptions.DossierNotFoundException(
+                        "Dossier non trouvé avec le code: " + codeDossier));
+        
+        DossierViewDto dto = mapper.toDossierViewDto(dossier);
+        
+        // Ajouter les informations du patient si disponible
+        try {
+            UserPatientDto patient = userIntegrationService.getPatientByCode(dossier.getPatientCode());
+            dto.setNomComplet(patient.getNomUtilisateur() + " " + patient.getPrenomUtilisateur());
+        } catch (Exception e) {
+            // Continuer sans infos patient si erreur
+            System.err.println("Impossible de récupérer les infos patient: " + e.getMessage());
+        }
+        
+        return dto;
+    }
+    
     public UserPatientDto getPatientWithDossier(String codePatient) {
         // Récupérer les informations du patient via Feign Client
         try {

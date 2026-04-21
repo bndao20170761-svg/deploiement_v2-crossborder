@@ -3,6 +3,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import { toggleHospitalStatus } from '../services/hospitalService';
 import { createHopital, updateHopital, getHopitalAvecPrestataires, getPrestatairesByHopitalId } from '../services/hopitalService';
+import SearchPatientNew from './SearchPatientNew';
 
 import {
   Box,
@@ -51,7 +52,8 @@ import {
   Groups,
   Map as MapIcon,
   GpsFixed,
-  Edit
+  Edit,
+  Description as FileText
 } from '@mui/icons-material';
 
 // Configuration de la carte
@@ -136,6 +138,10 @@ const CartographyMap = ({ hospitals, onHospitalUpdate,  onHospitalAdd, language 
   const [editingProvider, setEditingProvider] = useState(null);
   const [isEditingProvider, setIsEditingProvider] = useState(false);
 
+  // État pour gérer la référence de patient
+  const [showReferenceDialog, setShowReferenceDialog] = useState(false);
+  const [selectedHopitalForReference, setSelectedHopitalForReference] = useState(null);
+
   // Fonction pour charger les prestataires depuis le backend
   const loadProvidersFromBackend = async (hospitalId) => {
     try {
@@ -178,6 +184,14 @@ const CartographyMap = ({ hospitals, onHospitalUpdate,  onHospitalAdd, language 
 
   // Steps pour le stepper
   const steps = ['Informations établissement', 'Services disponibles', 'Prestataires'];
+
+  // Fonction pour gérer la référence de patient
+  const handleReferencePatient = (hospital) => {
+    console.log('Référencer un patient pour l\'hôpital:', hospital);
+    setSelectedHopitalForReference(hospital);
+    setShowReferenceDialog(true);
+    setSelectedHospital(null); // Fermer la fenêtre d'info
+  };
 
   // ✅ AJOUT DU LOG DE DEBUG POUR LES HÔPITAUX REÇUS
   useEffect(() => {
@@ -1875,6 +1889,22 @@ const saveNewHospital = async () => {
                     <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
         <Button
           size="small"
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleReferencePatient(selectedHospital)}
+                        startIcon={<FileText sx={{ fontSize: 16 }} />}
+                        sx={{
+                          fontSize: '0.75rem',
+                          py: 0.5,
+                          px: 1.5,
+                          minWidth: 'auto',
+                          background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)'
+                        }}
+                      >
+                        Référencer un patient
+        </Button>
+        <Button
+          size="small"
                         variant="outlined"
                         onClick={() => handleEditHospital(selectedHospital)}
                         startIcon={<Edit sx={{ fontSize: 16 }} />}
@@ -1982,6 +2012,32 @@ const saveNewHospital = async () => {
                 </Typography>
               </Box>
             )}
+
+            {/* Dialog pour la référence de patient */}
+            <Dialog
+              open={showReferenceDialog}
+              onClose={() => setShowReferenceDialog(false)}
+              maxWidth="lg"
+              fullWidth
+            >
+              <DialogTitle>
+                <Box display="flex" alignItems="center" gap={1}>
+                  <FileText color="primary" />
+                  Référencer un patient pour {selectedHopitalForReference?.nom}
+                </Box>
+              </DialogTitle>
+              <DialogContent>
+                <SearchPatientNew
+                  language={language}
+                  initialHopital={selectedHopitalForReference}
+                  onReferenceCreate={(data) => {
+                    console.log('Référence créée:', data);
+                    setShowReferenceDialog(false);
+                    setSelectedHopitalForReference(null);
+                  }}
+                />
+              </DialogContent>
+            </Dialog>
           </Box>
         );
       };

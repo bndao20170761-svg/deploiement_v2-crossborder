@@ -43,3 +43,14 @@ export const deletePatient = async (codePatient) => {
   return result.data;
 };
 
+// Rechercher des patients
+export const searchPatients = async (searchTerm) => {
+  try {
+    const result = await api.get(`/integration/patients/search?q=${encodeURIComponent(searchTerm)}`);
+    return result.data;
+  } catch (error) {
+    console.error("Erreur lors de la recherche de patients:", error);
+    throw error;
+  }
+};
+

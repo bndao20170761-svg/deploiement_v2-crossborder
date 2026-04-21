@@ -13,6 +13,6 @@ public class DossierViewDto {
     private String identificationBiom; // Base64
     private LocalDateTime dateCreation;
 
-    // ⚠️ Ici on utilise ton propre DTO et non celui de Spring
+    // Pages du dossier
     private List<PageDTO> pages;
 }

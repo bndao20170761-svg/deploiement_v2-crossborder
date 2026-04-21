@@ -130,10 +130,13 @@ export const getPrestatairesByHopitalId = async (hopitalId) => {
     const response = await api.get(`/hopitaux-proxy/${hopitalId}/prestataires-only`);
     return response.data;
   } catch (error) {
-    console.error(`Erreur lors de la récupération des prestataires de l'hôpital ${hopitalId} :`, error);
+    console.error("Erreur lors de la récupération des prestataires de l'hôpital :", error);
     throw error;
   }
 };
+
+// Alias pour compatibilité
+export const getPrestatairesByHopital = getPrestatairesByHopitalId;
 
 // Alias pour compatibilité éventuelle
 export const deleteHopitalService = deleteHopital;
