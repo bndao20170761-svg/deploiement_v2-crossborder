@@ -344,8 +344,30 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
                 onClick={() => handlePatientSelect(patient)}
                 className="px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200 last:border-b-0"
               >
-                <div className="font-medium">{patient.nomUtilisateur} {patient.prenomUtilisateur}</div>
-                <div className="text-sm text-gray-500">{patient.codePatient}</div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium">{patient.nomUtilisateur} {patient.prenomUtilisateur}</div>
+                    <div className="text-sm text-gray-500">{patient.codePatient}</div>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowPatientDetails(!showPatientDetails);
+                    }}
+                    className="p-1 hover:bg-gray-200 rounded"
+                  >
+                    <Eye size={16} className="text-gray-600" />
+                  </button>
+                </div>
+                {showPatientDetails && (
+                  <div className="mt-2 p-2 bg-gray-50 rounded text-sm">
+                    <p><strong>Âge:</strong> {patient.age} ans</p>
+                    <p><strong>Sexe:</strong> {patient.sexe}</p>
+                    <p><strong>Téléphone:</strong> {patient.telephone}</p>
+                    <p><strong>Adresse:</strong> {patient.adressePermanent}</p>
+                    <p><strong>Profession:</strong> {patient.profession}</p>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -355,8 +377,21 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
       {/* Patient sélectionné */}
       {selectedPatient && (
         <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <h3 className="font-medium text-blue-900 mb-2">Patient sélectionné:</h3>
-          <div className="text-sm">
+          <div className="flex items-center justify-between">
+            <h3 className="font-medium text-blue-900">Patient sélectionné:</h3>
+            <button
+              onClick={() => {
+                setSelectedPatient(null);
+                setFormData(prev => ({ ...prev, codePatient: '', nomPatient: '', prenomPatient: '' }));
+                setDossierResults([]);
+                setSelectedDossier(null);
+              }}
+              className="p-1 hover:bg-blue-200 rounded"
+            >
+              <X size={16} className="text-blue-600" />
+            </button>
+          </div>
+          <div className="text-sm mt-2">
             <div><strong>Nom:</strong> {selectedPatient.nomUtilisateur} {selectedPatient.prenomUtilisateur}</div>
             <div><strong>Code:</strong> {selectedPatient.codePatient}</div>
           </div>
@@ -388,8 +423,42 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
                   onClick={() => handleDossierSelect(dossier)}
                   className="px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200 last:border-b-0"
                 >
-                  <div className="font-medium">{dossier.codeDossier}</div>
-                  <div className="text-sm text-gray-500">Créé le: {new Date(dossier.dateCreation).toLocaleDateString('fr-FR')}</div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-medium">{dossier.codeDossier}</div>
+                      <div className="text-sm text-gray-500">Créé le: {new Date(dossier.dateCreation).toLocaleDateString('fr-FR')}</div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowDossierDetails(!showDossierDetails);
+                        }}
+                        className="p-1 hover:bg-gray-200 rounded"
+                      >
+                        <Eye size={16} className="text-gray-600" />
+                      </button>
+                      {selectedDossier?.codeDossier === dossier.codeDossier && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDossierUnselect();
+                          }}
+                          className="p-1 hover:bg-red-200 rounded"
+                        >
+                          <EyeOff size={16} className="text-red-600" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  {showDossierDetails && (
+                    <div className="mt-2 p-2 bg-gray-50 rounded text-sm">
+                      <p><strong>Code:</strong> {dossier.codeDossier}</p>
+                      <p><strong>ID Biom:</strong> {dossier.identificationBiom || 'N/A'}</p>
+                      <p><strong>Créé par:</strong> {dossier.doctorCreateNom || 'N/A'}</p>
+                      <p><strong>Date:</strong> {dossier.dateCreation ? new Date(dossier.dateCreation).toLocaleDateString() : 'N/A'}</p>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -400,8 +469,16 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
       {/* Dossier sélectionné */}
       {selectedDossier && (
         <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-          <h3 className="font-medium text-green-900 mb-2">Dossier sélectionné:</h3>
-          <div className="text-sm">
+          <div className="flex items-center justify-between">
+            <h3 className="font-medium text-green-900">Dossier sélectionné:</h3>
+            <button
+              onClick={handleDossierUnselect}
+              className="p-1 hover:bg-green-200 rounded"
+            >
+              <X size={16} className="text-green-600" />
+            </button>
+          </div>
+          <div className="text-sm mt-2">
             <div><strong>Code:</strong> {selectedDossier.codeDossier}</div>
             <div><strong>Date création:</strong> {new Date(selectedDossier.dateCreation).toLocaleDateString('fr-FR')}</div>
           </div>
