@@ -3,7 +3,7 @@ import { Search, User, Phone, Edit, Trash2, Filter, Eye, FileText } from 'lucide
 import { getTranslation } from '../utils/translations';
 import { normalizePatientList } from '../utils/patientUtils';
 import PatientView from './PatientView';
-import { getDossiersByPatientFromGestionPatient } from '../services/referenceDossierService';
+import referenceDossierService from '../services/referenceDossierService';
 const PatientList = ({ patients, language, onEdit, onDelete,onView, onViewDossier   }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState('nomUtilisateur');
@@ -25,7 +25,7 @@ const PatientList = ({ patients, language, onEdit, onDelete,onView, onViewDossie
     }
     
     try {
-      const dossiers = await getDossiersByPatientFromGestionPatient(codePatient);
+      const dossiers = await referenceDossierService.getDossiersByPatientFromGestionPatient(codePatient);
       if (dossiers && dossiers.length > 0) {
         setPatientsWithDossiers(prev => new Set([...prev, codePatient]));
         return true;
