@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, User, Phone, Edit, Trash2, Filter, Eye, FileText } from 'lucide-react';
 import { getTranslation } from '../utils/translations';
 import { normalizePatientList } from '../utils/patientUtils';
 import PatientView from './PatientView';
+import { getDossiersByPatientFromGestionPatient } from '../services/referenceDossierService';
 const PatientList = ({ patients, language, onEdit, onDelete,onView, onViewDossier   }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState('nomUtilisateur');
   const [sortDirection, setSortDirection] = useState('asc');
   const [expandedPatient, setExpandedPatient] = useState(null);
+  const [patientsWithDossiers, setPatientsWithDossiers] = useState(new Set());
   
   // Debug logs
   console.log("🔍 PatientList: Props reçues:", { patients, patientsCount: patients?.length });
@@ -15,6 +17,39 @@ const PatientList = ({ patients, language, onEdit, onDelete,onView, onViewDossie
   // Normaliser les données des patients
   const normalizedPatients = normalizePatientList(patients);
   console.log("🔍 PatientList: Patients normalisés:", { normalizedPatients, count: normalizedPatients?.length });
+
+  // Fonction pour vérifier si un patient a un dossier
+  const checkPatientHasDossier = async (codePatient) => {
+    if (patientsWithDossiers.has(codePatient)) {
+      return true; // Déjà vérifié
+    }
+    
+    try {
+      const dossiers = await getDossiersByPatientFromGestionPatient(codePatient);
+      if (dossiers && dossiers.length > 0) {
+        setPatientsWithDossiers(prev => new Set([...prev, codePatient]));
+        return true;
+      }
+    } catch (error) {
+      console.error(`Erreur vérification dossier pour ${codePatient}:`, error);
+    }
+    return false;
+  };
+
+  // Vérifier automatiquement les dossiers des patients affichés
+  useEffect(() => {
+    const checkAllPatientsDossiers = async () => {
+      if (normalizedPatients && normalizedPatients.length > 0) {
+        const patientCodes = normalizedPatients.map(p => p.codePatient);
+        const checks = patientCodes.map(code => 
+          checkPatientHasDossier(code)
+        );
+        await Promise.all(checks);
+      }
+    };
+    
+    checkAllPatientsDossiers();
+  }, [patients]); // Utiliser patients au lieu de normalizedPatients
 
 
 
@@ -163,9 +198,14 @@ const PatientList = ({ patients, language, onEdit, onDelete,onView, onViewDossie
                               onClick={() => onViewDossier(p)}
                               className="text-purple-600 hover:text-purple-900 flex items-center"
                               title="Voir le dossier"
+                              disabled={!patientsWithDossiers.has(p.codePatient)}
+                              style={{ 
+                                opacity: patientsWithDossiers.has(p.codePatient) ? 1 : 0.3,
+                                cursor: patientsWithDossiers.has(p.codePatient) ? 'pointer' : 'not-allowed'
+                              }}
                             >
                               <FileText className="h-4 w-4 mr-1" />
-                              Dossier
+                              {patientsWithDossiers.has(p.codePatient) ? 'Dossier' : 'Pas de dossier'}
                             </button>
                           )}
 
