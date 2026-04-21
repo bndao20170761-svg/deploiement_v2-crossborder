@@ -47,6 +47,11 @@ const PatientPage = ({ language }) => {
     setShowForm(true);
   };
 
+  const handleViewDossier = (patient) => {
+    // Rediriger vers la page de référence de dossier avec le patient pré-sélectionné
+    window.location.href = `/reference?codePatient=${patient.codePatient}&nomPatient=${patient.nomUtilisateur}&prenomPatient=${patient.prenomUtilisateur}`;
+  };
+
   const handleSave = async (patientData) => {
     try {
       if (editingPatient) {
@@ -85,7 +90,8 @@ const PatientPage = ({ language }) => {
             language={language}
             onEdit={handleEdit}
             onDelete={handleDelete}
-            onView={handleView} // 👈 important
+            onView={handleView} 
+            onViewDossier={handleViewDossier} 
           />
         ) : (
           <PatientForm

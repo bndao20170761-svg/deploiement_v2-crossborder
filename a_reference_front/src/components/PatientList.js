@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, User, Phone, Edit, Trash2, Filter, Eye } from 'lucide-react';
+import { Search, User, Phone, Edit, Trash2, Filter, Eye, FileText } from 'lucide-react';
 import { getTranslation } from '../utils/translations';
 import { normalizePatientList } from '../utils/patientUtils';
 import PatientView from './PatientView';
@@ -157,6 +157,17 @@ const PatientList = ({ patients, language, onEdit, onDelete,onView, onViewDossie
                                               <Eye className="h-4 w-4 mr-1" />
                                               {getTranslation('view', language) || 'Voir'}
                                             </button>
+
+                          {onViewDossier && (
+                            <button
+                              onClick={() => onViewDossier(p)}
+                              className="text-purple-600 hover:text-purple-900 flex items-center"
+                              title="Voir le dossier"
+                            >
+                              <FileText className="h-4 w-4 mr-1" />
+                              Dossier
+                            </button>
+                          )}
 
                           <button
                             onClick={() => onEdit && onEdit(p)}
