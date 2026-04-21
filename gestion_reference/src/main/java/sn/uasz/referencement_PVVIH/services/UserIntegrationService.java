@@ -7,6 +7,7 @@ import sn.uasz.referencement_PVVIH.dtos.DoctorDto;
 import sn.uasz.referencement_PVVIH.dtos.DoctorFeignDto;
 import sn.uasz.referencement_PVVIH.dtos.PatientDto;
 import sn.uasz.referencement_PVVIH.dtos.PatientFeignDto;
+import sn.uasz.referencement_PVVIH.dtos.DossierViewDto;
 import sn.uasz.referencement_PVVIH.feign.UserServiceClient;
 import sn.uasz.referencement_PVVIH.feign.DossierClient;
 import sn.uasz.referencement_PVVIH.mappers.DoctorMapper;
@@ -211,7 +212,7 @@ public class UserIntegrationService {
         }
     }
 
-    public List<sn.uasz.referencement_PVVIH.dtos.DossierViewDto> getDossiersByPatient(String codePatient) {
+    public List<DossierViewDto> getDossiersByPatient(String codePatient) {
         try {
             log.info("Récupération des dossiers du patient {} via Feign Client", codePatient);
             return dossierClient.getDossiersByPatient(codePatient);

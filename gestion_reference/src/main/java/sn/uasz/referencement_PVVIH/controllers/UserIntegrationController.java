@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import sn.uasz.referencement_PVVIH.dtos.DoctorFeignDto;
+import sn.uasz.referencement_PVVIH.dtos.DossierViewDto;
 import sn.uasz.referencement_PVVIH.dtos.PatientFeignDto;
 import sn.uasz.referencement_PVVIH.services.UserIntegrationService;
 
