@@ -125,7 +125,18 @@ public class UserIntegrationController {
             PatientFeignDto createdPatient = userIntegrationService.createPatient(patientDto);
             return ResponseEntity.ok(createdPatient);
         } catch (Exception e) {
-            log.error("❌ Erreur dans createPatient: {}", e.getMessage());
+            log.error("Erreur lors de la création du patient: {}", e.getMessage());
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/dossiers/by-patient/{codePatient}")
+    public ResponseEntity<List<DossierViewDto>> getDossiersByPatient(@PathVariable String codePatient) {
+        try {
+            List<DossierViewDto> dossiers = userIntegrationService.getDossiersByPatient(codePatient);
+            return ResponseEntity.ok(dossiers);
+        } catch (Exception e) {
+            log.error("Erreur lors de la récupération des dossiers du patient {}: {}", codePatient, e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
     }

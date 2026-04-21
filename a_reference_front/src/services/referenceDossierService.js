@@ -227,6 +227,23 @@ const referenceDossierService = {
       throw error;
     }
   },
+
+  // Obtenir les dossiers d'un patient depuis gestion-reference (via Feign Client)
+  getDossiersByPatientFromGestionPatient: async (codePatient) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_BASE_URL}/api/integration/dossiers/by-patient/${codePatient}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des dossiers du patient:', error);
+      throw error;
+    }
+  },
 };
 
 export default referenceDossierService;

@@ -8,6 +8,7 @@ import sn.uasz.referencement_PVVIH.dtos.DoctorFeignDto;
 import sn.uasz.referencement_PVVIH.dtos.PatientDto;
 import sn.uasz.referencement_PVVIH.dtos.PatientFeignDto;
 import sn.uasz.referencement_PVVIH.feign.UserServiceClient;
+import sn.uasz.referencement_PVVIH.feign.DossierClient;
 import sn.uasz.referencement_PVVIH.mappers.DoctorMapper;
 import sn.uasz.referencement_PVVIH.mappers.PatientMapper;
 
@@ -22,6 +23,7 @@ import static org.apache.kafka.common.requests.DeleteAclsResponse.log;
 public class UserIntegrationService {
 
     private final UserServiceClient userServiceClient;
+    private final DossierClient dossierClient;
     private final DoctorMapper doctorMapper;
     private final PatientMapper patientMapper;
     private final PatientMappingService patientMappingService;
@@ -206,6 +208,16 @@ public class UserIntegrationService {
         } catch (Exception e) {
             log.error("Erreur lors de la recherche des patients: {}", e.getMessage());
             throw new RuntimeException("Erreur lors de la recherche des patients", e);
+        }
+    }
+
+    public List<sn.uasz.referencement_PVVIH.dtos.DossierViewDto> getDossiersByPatient(String codePatient) {
+        try {
+            log.info("Récupération des dossiers du patient {} via Feign Client", codePatient);
+            return dossierClient.getDossiersByPatient(codePatient);
+        } catch (Exception e) {
+            log.error("Erreur lors de la récupération des dossiers du patient {}: {}", codePatient, e.getMessage());
+            throw new RuntimeException("Erreur lors de la récupération des dossiers du patient", e);
         }
     }
 
