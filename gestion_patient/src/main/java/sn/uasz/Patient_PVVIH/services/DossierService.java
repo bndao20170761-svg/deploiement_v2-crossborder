@@ -437,6 +437,17 @@ public class DossierService {
     public boolean hasDossier(String codePatient) {
         return dossierRepository.findByPatientCode(codePatient).isPresent();
     }
+    
+    /**
+     * Méthode pour obtenir tous les dossiers d'un patient (pour Frontend)
+     */
+    public java.util.List<DossierViewDto> getDossiersByPatient(String codePatient) {
+        java.util.List<Dossier> dossiers = dossierRepository.findAllByPatientCode(codePatient);
+        return dossiers.stream()
+                .map(mapper::toDossierViewDto)
+                .collect(java.util.stream.Collectors.toList());
+    }
+    
     public UserPatientDto getPatientWithDossier(String codePatient) {
         // Récupérer les informations du patient via Feign Client
         try {

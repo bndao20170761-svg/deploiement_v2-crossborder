@@ -232,7 +232,7 @@ const referenceDossierService = {
   getDossiersByPatientFromGestionPatient: async (codePatient) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_BASE_URL}/api/integration/dossiers/by-patient/${codePatient}`, {
+      const response = await axios.get(`${API_BASE_URL}/api/dossiers/by-patient/${codePatient}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',

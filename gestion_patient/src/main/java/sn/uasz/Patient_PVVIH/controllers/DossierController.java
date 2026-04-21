@@ -52,5 +52,12 @@ public class DossierController {
         return dossierService.hasDossier(codePatient);
     }
 
+    /**
+     * Endpoint pour obtenir tous les dossiers d'un patient (pour Frontend)
+     */
+    @GetMapping("/by-patient/{codePatient}")
+    public java.util.List<DossierViewDto> getDossiersByPatient(@PathVariable String codePatient) {
+        return dossierService.getDossiersByPatient(codePatient);
+    }
 
 }

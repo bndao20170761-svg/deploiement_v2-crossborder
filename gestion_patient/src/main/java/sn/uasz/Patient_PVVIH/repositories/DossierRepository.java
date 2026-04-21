@@ -3,6 +3,7 @@ package sn.uasz.Patient_PVVIH.repositories;
 import org.springframework.data.jpa.repository.JpaRepository;
 import sn.uasz.Patient_PVVIH.entities.Dossier;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface DossierRepository extends JpaRepository<Dossier, String> {
@@ -11,4 +12,7 @@ public interface DossierRepository extends JpaRepository<Dossier, String> {
     
     // ✅ Nouvelle méthode pour chercher par code patient stocké
     Optional<Dossier> findByPatientCode(String patientCode);
+    
+    // Méthode pour trouver tous les dossiers d'un patient
+    List<Dossier> findAllByPatientCode(String patientCode);
 }
