@@ -212,7 +212,7 @@ public class UserIntegrationService {
         }
     }
 
-    public List<DossierViewDto> getDossiersByPatient(String codePatient) {
+    public List<sn.uasz.referencement_PVVIH.dtos.DossierViewDto> getDossiersByPatient(String codePatient) {
         try {
             log.info("Récupération des dossiers du patient {} via Feign Client", codePatient);
             return dossierClient.getDossiersByPatient(codePatient);
