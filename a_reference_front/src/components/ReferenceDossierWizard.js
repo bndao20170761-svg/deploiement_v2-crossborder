@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Search, User, FileText, Hospital, Calendar, MessageSquare, Check, X } from 'lucide-react';
+import { ArrowLeft, Search, User, FileText, Hospital, Calendar, MessageSquare, Check, X, Eye, EyeOff } from 'lucide-react';
 import referenceDossierService from '../services/referenceDossierService';
 import * as patientService from '../services/patientService';
 import { getAllHospitals, getPrestatairesByHopital } from '../services/hopitalService';
+import { getCurrentDoctor, getDoctorsByHospital, getDoctorById } from '../services/doctorService';
 import { getTranslation } from '../utils/translations';
 
 const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialData = null }) => {
@@ -42,6 +43,13 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
   const [selectedDossier, setSelectedDossier] = useState(null);
   const [selectedHopital, setSelectedHopital] = useState(null);
   const [selectedMedecin, setSelectedMedecin] = useState(null);
+  
+  // États pour les détails et visibilité
+  const [showPatientDetails, setShowPatientDetails] = useState(false);
+  const [showDossierDetails, setShowDossierDetails] = useState(false);
+  const [showHopitalDetails, setShowHopitalDetails] = useState(false);
+  const [showMedecinDetails, setShowMedecinDetails] = useState(false);
+  const [currentDoctor, setCurrentDoctor] = useState(null);
 
   const totalSteps = 5;
 
@@ -51,6 +59,8 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
       setCurrentStep(5); // Mode édition
     }
     fetchHopitaux();
+    // Charger le docteur connecté
+    loadCurrentDoctor();
   }, [initialData]);
 
   // Recherche de patients
@@ -109,10 +119,29 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
 
   const fetchMedecins = async () => {
     try {
-      const data = await getPrestatairesByHopital(selectedHopital.codeHopital);
+      const data = await getDoctorsByHospital(selectedHopital.codeHopital);
       setMedecins(data || []);
     } catch (err) {
       console.error('Erreur lors du chargement des médecins:', err);
+    }
+  };
+
+  const loadCurrentDoctor = async () => {
+    try {
+      const doctor = await getCurrentDoctor();
+      setCurrentDoctor(doctor);
+      // Pré-remplir le formulaire avec le docteur connecté
+      setFormData(prev => ({
+        ...prev,
+        codeDocteur: doctor.codeDocteur || doctor.codePrestataire,
+        nomDocteur: doctor.nomDocteur || doctor.nomPrestataire || `${doctor.prenomUtilisateur} ${doctor.nomUtilisateur}`,
+        codeReferenceur: doctor.codeDocteur || doctor.codePrestataire,
+        nomReferenceur: doctor.nomDocteur || doctor.nomPrestataire || `${doctor.prenomUtilisateur} ${doctor.nomUtilisateur}`,
+        telephoneReferenceur: doctor.telephone,
+        emailReferenceur: doctor.email
+      }));
+    } catch (err) {
+      console.error('Erreur lors du chargement du docteur connecté:', err);
     }
   };
 
@@ -126,8 +155,28 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
     }));
     setSearchPatient('');
     setPatientResults([]);
-    setSelectedDossier(null);
-    setSearchDossier('');
+    // Charger automatiquement les dossiers du patient
+    if (patient.codePatient) {
+      loadPatientDossiers(patient.codePatient);
+    }
+  };
+
+  const loadPatientDossiers = async (codePatient) => {
+    try {
+      const dossiers = await referenceDossierService.getDossiersByPatientFromGestionPatient(codePatient);
+      setDossierResults(dossiers || []);
+      // Si un seul dossier, le sélectionner automatiquement
+      if (dossiers && dossiers.length === 1) {
+        setSelectedDossier(dossiers[0]);
+        setFormData(prev => ({
+          ...prev,
+          codeDossier: dossiers[0].codeDossier
+        }));
+      }
+    } catch (err) {
+      console.error('Erreur lors du chargement des dossiers du patient:', err);
+      setDossierResults([]);
+    }
   };
 
   const handleDossierSelect = (dossier) => {
@@ -138,6 +187,14 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
     }));
     setSearchDossier('');
     setDossierResults([]);
+  };
+
+  const handleDossierUnselect = () => {
+    setSelectedDossier(null);
+    setFormData(prev => ({
+      ...prev,
+      codeDossier: ''
+    }));
   };
 
   const handleHopitalSelect = (hopital) => {
