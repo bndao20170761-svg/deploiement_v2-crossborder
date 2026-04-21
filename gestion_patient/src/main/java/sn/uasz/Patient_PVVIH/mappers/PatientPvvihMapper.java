@@ -52,8 +52,8 @@ public interface PatientPvvihMapper {
 
     // DossierView (pour la réponse frontend)
     @Mapping(source = "patientCode", target = "codePatient")
-    @Mapping(target = "nomComplet", ignore = true) // Sera rempli par le service
-    @Mapping(target = "doctorCreateNom", ignore = true) // Sera rempli par le service
+    @Mapping(target = "nomComplet", expression = "java(dossier.getPatient() != null ? dossier.getPatient().getNomUtilisateur() + ' ' + dossier.getPatient().getPrenomUtilisateur() : '')")
+    @Mapping(target = "doctorCreateNom", expression = "java(dossier.getDoctorCreate() != null && dossier.getDoctorCreate().getUtilisateur() != null ? dossier.getDoctorCreate().getUtilisateur().getNom() + ' ' + dossier.getDoctorCreate().getUtilisateur().getPrenom() : '')")
     DossierViewDto toDossierViewDto(Dossier dossier);
 
 
