@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -50,9 +49,6 @@ public class Dossier {
     @Column(name = "doctor_create_code")
     private String doctorCreateCode;
 
-    @Column(name = "date_creation")
-    private LocalDateTime dateCreation;
-
     // ✅ Garder les références pour la compatibilité (optionnel)
     @OneToOne(mappedBy = "dossier")
     private Patient patient;
@@ -65,9 +61,6 @@ public class Dossier {
     public void prePersist() {
         if (this.codeDossier == null) {
             this.codeDossier = "DOSS-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-        }
-        if (this.dateCreation == null) {
-            this.dateCreation = LocalDateTime.now();
         }
         // ✅ SUPPRIMER la génération automatique de code-barres
         // Le champ identificationBiom sera rempli avec le template d'iris

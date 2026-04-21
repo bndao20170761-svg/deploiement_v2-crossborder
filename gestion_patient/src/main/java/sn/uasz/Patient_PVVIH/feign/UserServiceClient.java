@@ -9,7 +9,7 @@ import java.util.List;
 
 @FeignClient(
         name = "user-api-pvvih",
-        url = "${feign.user-service.url:http://gestion-user:8080}",  // URL du microservice gestion_user
+        url = "http://localhost:9089",  // URL du microservice gestion_user
         configuration = FeignClientConfig.class
 )
 public interface UserServiceClient {

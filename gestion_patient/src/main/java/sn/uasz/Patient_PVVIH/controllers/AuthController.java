@@ -18,7 +18,7 @@ import sn.uasz.Patient_PVVIH.security.JwtUtils;
 import java.time.LocalDateTime;
 import java.util.*;
 
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:3003", "http://gateway-pvvih:8080"}, maxAge = 3600)
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3002"}, maxAge = 3600)
 
 @RestController
 @RequestMapping("/api/auth")

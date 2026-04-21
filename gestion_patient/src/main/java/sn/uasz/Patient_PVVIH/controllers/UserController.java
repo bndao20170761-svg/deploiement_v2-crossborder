@@ -13,7 +13,7 @@ import sn.uasz.Patient_PVVIH.repositories.UserRepository;
 
 import java.util.Optional;
 
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:3003", "http://gateway-pvvih:8080"})
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 public class UserController {
 

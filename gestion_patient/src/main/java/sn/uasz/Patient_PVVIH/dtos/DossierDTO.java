@@ -1,4 +1,4 @@
-package sn.uasz.referencement_PVVIH.dtos;
+package sn.uasz.Patient_PVVIH.dtos;
 
 import lombok.*;
 import java.util.List;

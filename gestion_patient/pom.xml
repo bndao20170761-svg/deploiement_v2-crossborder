@@ -158,6 +158,26 @@
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>2.3.0</version>
 		</dependency>
+        <dependency>
+            <groupId>sn.uasz.referencement_PVVIH</groupId>
+            <artifactId>Patient_PVVIH</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>sn.uasz.Patient_PVVIH</groupId>
+            <artifactId>Patient_PVVIH</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>sn.uasz.Getway_PVVIH</groupId>
+            <artifactId>Getway_PVVIH</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>sn.uasz.referencement_PVVIH</groupId>
+            <artifactId>referencement_PVVIH</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
 	<!-- ✅ Gestion des dépendances Spring Cloud -->
