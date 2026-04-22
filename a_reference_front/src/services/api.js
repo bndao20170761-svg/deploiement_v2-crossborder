@@ -23,8 +23,17 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = normalizeToken(localStorage.getItem("token"));
+    console.log("🔵 [API Request]", {
+      url: config.url,
+      hasToken: !!token,
+      tokenValid: token ? isJwtFormatValid(token) : false
+    });
+    
     if (token && isJwtFormatValid(token)) {
       config.headers["Authorization"] = `Bearer ${token}`;
+      console.log("✅ Token ajouté au header Authorization");
+    } else {
+      console.warn("⚠️ Pas de token valide stocké");
     }
     return config;
   },
@@ -47,9 +56,18 @@ api.interceptors.response.use(
       localStorage.removeItem("user");
       
       // Redirection vers login SEULEMENT si on n'est pas déjà sur /login
-      if (window.location.pathname !== "/login") {
-        console.warn("🔄 Redirection vers /login suite à erreur d'authentification");
-        window.location.href = "/login";
+      // et SEULEMENT pour les requêtes critiques
+      const isCriticalEndpoint = error.config?.url && (
+        error.config.url.includes('/user-auth/') ||
+        error.config.url.includes('/user/me') ||
+        error.config.url.includes('/current-user')
+      );
+      
+      if (isCriticalEndpoint && window.location.pathname !== "/login") {
+        console.warn("🔄 Redirection vers /login suite à erreur d'authentification (endpoint critique)");
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 100);
       }
     } else {
       // Autres erreurs - laisser le composant les gérer
@@ -82,6 +100,12 @@ const apiSafe = axios.create({
 apiSafe.interceptors.request.use(
   (config) => {
     const token = normalizeToken(localStorage.getItem("token"));
+    console.log("🟡 [API Safe Request]", {
+      url: config.url,
+      hasToken: !!token,
+      tokenValid: token ? isJwtFormatValid(token) : false
+    });
+    
     if (token && isJwtFormatValid(token)) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }

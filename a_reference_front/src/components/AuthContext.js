@@ -13,11 +13,19 @@ export const AuthProvider = ({ children }) => {
     const storedUser = localStorage.getItem("user");
     const token = normalizeToken(localStorage.getItem("token"));
 
+    console.log("🔐 AuthContext init:", {
+      hasStoredUser: !!storedUser,
+      hasToken: !!token,
+      tokenValid: token ? isJwtFormatValid(token) : false
+    });
+
     if (storedUser && token && isJwtFormatValid(token)) {
       localStorage.setItem("token", token);
       setUser(JSON.parse(storedUser));
       setIsAuthenticated(true);
+      console.log("✅ AuthContext: Utilisateur restauré depuis localStorage");
     } else {
+      console.warn("⚠️ AuthContext: Pas de session valide trouvée");
       localStorage.removeItem("token");
       localStorage.removeItem("user");
     }

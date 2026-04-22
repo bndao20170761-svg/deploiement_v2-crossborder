@@ -59,8 +59,11 @@ const Login = () => {
       // persist token and user
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(userData));
+      console.log("💾 Token sauvegardé dans localStorage");
+      console.log("📌 Token value:", token);
 
       login(userData, token);
+      console.log("✅ Context login appelé avec userData et token");
       navigate("/");
     } catch (error) {
       console.error("Erreur de connexion complète :", error);

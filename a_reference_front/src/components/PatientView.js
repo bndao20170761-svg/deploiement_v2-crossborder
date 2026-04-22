@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Edit3, Trash2, FileText } from "lucide-react";
 import { updatePatient, deletePatient, checkPatientHasDossier, getDossiersByPatient } from "../services/patientService";
 import FormulaireMultiEtapes from "./FormulaireMultiEtapes";
@@ -10,33 +10,38 @@ import DossierViewRouter from "./DossierViewRouter"; // ⚡ routeur vers les vue
 const PatientView = ({ patient, onUpdate,language,onBack   }) => {
   const [editing, setEditing] = useState(false);
   const [viewingDossier, setViewingDossier] = useState(false);
-  const [hasDossier, setHasDossier] = useState(false);
-  useEffect(() => {
-    const checkHasDossier = async () => {
-      try {
-        if (!patient?.codePatient) return;
-        const hasDossierValue = await checkPatientHasDossier(patient.codePatient);
-        if (typeof hasDossierValue === "boolean") {
-          setHasDossier(hasDossierValue);
-          return;
-        }
-
-        // Fallback: certains environnements renvoient un tableau de dossiers
-        const dossiers = await getDossiersByPatient(patient.codePatient);
-        setHasDossier(Array.isArray(dossiers) ? dossiers.length > 0 : Boolean(dossiers?.codeDossier));
-      } catch (e) {
-        console.error("❌ Vérification dossier échouée:", e);
-        console.error("❌ Réponse erreur:", e.response?.data);
-        console.error("❌ Status erreur:", e.response?.status);
-        // Assume no dossier if check fails, but stay on page
-        setHasDossier(false);
-      }
-    };
-    checkHasDossier();
-  }, [patient]);
+  const [hasDossier, setHasDossier] = useState(null);
+  const [checkingDossier, setCheckingDossier] = useState(false);
 
   const handleEditClick = () => setEditing(true);
-  const handleViewDossier = () => setViewingDossier(true);
+
+  const handleCheckDossier = async () => {
+    if (!patient?.codePatient) return false;
+    setCheckingDossier(true);
+    try {
+      const dossierExists = await checkPatientHasDossier(patient.codePatient);
+      setHasDossier(dossierExists);
+      return dossierExists;
+    } catch (error) {
+      console.warn("⚠️ PatientView: checkPatientHasDossier a échoué:", error);
+      setHasDossier(false);
+      return false;
+    } finally {
+      setCheckingDossier(false);
+    }
+  };
+
+  const handleViewDossier = async () => {
+    let dossierExists = hasDossier;
+    if (dossierExists === null) {
+      dossierExists = await handleCheckDossier();
+    }
+    if (!dossierExists) {
+      alert("Aucun dossier trouvé pour ce patient ou vous n'y avez pas accès.");
+      return;
+    }
+    setViewingDossier(true);
+  };
 
 const handleUpdate = async (updatedData) => {
   try {
@@ -165,7 +170,7 @@ const handleUpdate = async (updatedData) => {
 
     {/* Actions */}
     <div className="pt-6 flex justify-end space-x-4 border-t">
-      {hasDossier ? (
+      {hasDossier === true ? (
         <>
           <button
             onClick={handleViewDossier}
@@ -180,6 +185,14 @@ const handleUpdate = async (updatedData) => {
             <Edit3 className="h-5 w-5 mr-2" /> {getTranslation("mettreAJourDossier", language) || "Mettre à jour le dossier"}
           </button>
         </>
+      ) : hasDossier === null ? (
+        <button
+          onClick={handleCheckDossier}
+          disabled={checkingDossier}
+          className="px-4 py-2 bg-yellow-500 text-white rounded-lg flex items-center hover:bg-yellow-600"
+        >
+          {checkingDossier ? "Vérification..." : getTranslation("verifierDossier", language) || "Vérifier dossier"}
+        </button>
       ) : (
         <button
           onClick={handleEditClick}
