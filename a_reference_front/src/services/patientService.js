@@ -6,15 +6,16 @@ export const createPatient = async (patientData) => {
   return result.data;
 };
 
-// Vérifier si un patient a un dossier - utilise l'endpoint /has-dossier du backend
+// Vérifier si un patient a un dossier - utilise l'endpoint /by-patient/ du backend
 export const checkPatientHasDossier = async (codePatient) => {
   try {
-    const response = await apiSafe.get(`/dossiers/${codePatient}/has-dossier`);
-    const hasDossier = response.data;
-    console.log("✅ Dossier check successful:", { codePatient, hasDossier });
+    const response = await apiSafe.get(`/dossiers/by-patient/${codePatient}`);
+    const dossiers = response.data;
+    const hasDossier = Array.isArray(dossiers) ? dossiers.length > 0 : Boolean(dossiers?.codeDossier);
+    console.log("Dossier check successful:", { codePatient, hasDossier, dossiersCount: Array.isArray(dossiers) ? dossiers.length : 1 });
     return hasDossier;
   } catch (error) {
-    console.warn("⚠️ Erreur vérification dossier (non critique):", {
+    console.warn("Erreur vérification dossier (non critique):", {
       codePatient,
       status: error.response?.status,
       message: error.message,
