@@ -27,7 +27,7 @@ export const checkPatientHasDossier = async (codePatient) => {
 // Récupérer les dossiers d'un patient (gestion_patient)
 export const getDossiersByPatient = async (codePatient) => {
   try {
-    const response = await apiSafe.get(`/dossiers/${codePatient}`);
+    const response = await apiSafe.get(`/dossiers/by-patient/${codePatient}`);
     return response.data;
   } catch (error) {
     console.warn("⚠️ Erreur getDossiersByPatient (non critique):", {
