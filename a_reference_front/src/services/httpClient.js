@@ -45,6 +45,11 @@ httpClient.interceptors.response.use(
       console.error("❌ 403 Forbidden: Accès refusé - vérifiez vos permissions");
       console.error("URL:", error.config?.url);
       console.error("Méthode:", error.config?.method);
+      // En pratique, un 403 récurrent ici vient souvent d'un token invalide/corrompu
+      // conservé dans le navigateur. On purge la session pour forcer une reconnexion propre.
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "/login";
     }
     return Promise.reject(error);
   }
