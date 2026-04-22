@@ -1,6 +1,6 @@
 // src/components/ViewDossierMineur.jsx
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../services/api";
 import { getTranslation } from '../utils/translations';
 
 // Composant Section avec style amélioré
@@ -102,19 +102,9 @@ const ViewDossierMineur = ({ patient, onBack, language = "fr", dossierProp = nul
     const fetchDossier = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem("token");
         if (!patient || !patient.codePatient) return;
 
-        const response = await axios.get(
-          `${process.env.REACT_APP_GATEWAY_URL || 'http://34.28.161.231:8080'}/api/dossiers/${patient.codePatient}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
+        const response = await api.get(`/dossiers/${patient.codePatient}`);
         setDossier(response.data);
         setError(null);
       } catch (err) {

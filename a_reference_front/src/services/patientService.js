@@ -6,15 +6,13 @@ export const createPatient = async (patientData) => {
   return result.data;
 };
 
-// Vérifier si un patient a un dossier
+// Vérifier si un patient a un dossier en appelant l'endpoint direct du dossier
 export const checkPatientHasDossier = async (codePatient) => {
   try {
-    // On se base sur l'endpoint le plus stable en production:
-    // GET /api/dossiers/by-patient/{codePatient}
-    const response = await apiSafe.get(`/dossiers/by-patient/${codePatient}`);
-    const dossiers = response.data;
-    console.log("✅ Dossier check successful:", { codePatient, dossiers });
-    return Array.isArray(dossiers) ? dossiers.length > 0 : Boolean(dossiers?.codeDossier);
+    const response = await apiSafe.get(`/dossiers/${codePatient}`);
+    const dossier = response.data;
+    console.log("✅ Dossier check successful:", { codePatient, dossier });
+    return Boolean(dossier);
   } catch (error) {
     console.warn("⚠️ Erreur vérification dossier (non critique):", {
       codePatient,
@@ -22,7 +20,6 @@ export const checkPatientHasDossier = async (codePatient) => {
       message: error.message,
       path: error.config?.url
     });
-    // Si l'endpoint n'existe pas ou erreur d'authentification, assume false mais ne crash pas
     return false;
   }
 };
@@ -30,7 +27,7 @@ export const checkPatientHasDossier = async (codePatient) => {
 // Récupérer les dossiers d'un patient (gestion_patient)
 export const getDossiersByPatient = async (codePatient) => {
   try {
-    const response = await apiSafe.get(`/dossiers/by-patient/${codePatient}`);
+    const response = await apiSafe.get(`/dossiers/${codePatient}`);
     return response.data;
   } catch (error) {
     console.warn("⚠️ Erreur getDossiersByPatient (non critique):", {
@@ -38,7 +35,7 @@ export const getDossiersByPatient = async (codePatient) => {
       status: error.response?.status,
       message: error.message
     });
-    return [];
+    return null;
   }
 };
 
