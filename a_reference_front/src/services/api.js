@@ -1,5 +1,6 @@
 // src/services/api.js
 import axios from "axios";
+import { isJwtFormatValid, normalizeToken } from "../utils/tokenUtils";
 
 const API_BASE_URL = process.env.REACT_APP_GATEWAY_URL || "http://34.28.161.231:8080";
 
@@ -14,8 +15,8 @@ const api = axios.create({
 // Intercepteur pour ajouter le token à chaque requête
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
+    const token = normalizeToken(localStorage.getItem("token"));
+    if (token && isJwtFormatValid(token)) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }
     return config;

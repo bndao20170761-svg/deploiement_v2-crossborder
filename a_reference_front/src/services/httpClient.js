@@ -1,5 +1,6 @@
 // src/services/httpClient.js
 import axios from "axios";
+import { isJwtFormatValid, normalizeToken } from "../utils/tokenUtils";
 
 // Nouveau port et nom
 let API_BASE_URL = process.env.REACT_APP_GATEWAY_URL || "http://16.171.10.0:8080";
@@ -20,11 +21,15 @@ const httpClient = axios.create({
 // Intercepteur pour ajouter le token à chaque requête
 httpClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
+    const token = normalizeToken(localStorage.getItem("token"));
+    if (token && isJwtFormatValid(token)) {
       config.headers["Authorization"] = `Bearer ${token}`;
       console.log(`🔐 Token ajouté à la requête ${config.method?.toUpperCase()} ${config.url}`);
     } else {
+      if (localStorage.getItem("token")) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      }
       console.warn(`⚠️ Aucun token trouvé pour ${config.method?.toUpperCase()} ${config.url}`);
     }
     return config;

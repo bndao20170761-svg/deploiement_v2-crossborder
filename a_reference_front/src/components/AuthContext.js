@@ -1,5 +1,6 @@
 // src/components/AuthContext.js
 import React, { createContext, useState, useEffect } from "react";
+import { isJwtFormatValid, normalizeToken } from "../utils/tokenUtils";
 
 export const AuthContext = createContext();
 
@@ -10,9 +11,10 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    const token = localStorage.getItem("token");
+    const token = normalizeToken(localStorage.getItem("token"));
 
-    if (storedUser && token && token.split(".").length === 3) {
+    if (storedUser && token && isJwtFormatValid(token)) {
+      localStorage.setItem("token", token);
       setUser(JSON.parse(storedUser));
       setIsAuthenticated(true);
     } else {
@@ -24,8 +26,9 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (userData, token) => {
-    if (!token || token.split(".").length !== 3) return;
-    localStorage.setItem("token", token);
+    const normalizedToken = normalizeToken(token);
+    if (!normalizedToken || !isJwtFormatValid(normalizedToken)) return;
+    localStorage.setItem("token", normalizedToken);
     localStorage.setItem("user", JSON.stringify(userData));
     setUser(userData);
     setIsAuthenticated(true);

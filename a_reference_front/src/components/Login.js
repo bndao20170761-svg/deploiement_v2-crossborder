@@ -6,6 +6,7 @@ import { getTranslation } from "../utils/translations";
 import { useNavigate } from "react-router-dom";
 import LanguageSelector from "./LanguageSelector";
 import logo from "../im/feve_logo.jpg";
+import { isJwtFormatValid, normalizeToken } from "../utils/tokenUtils";
 
 const Login = () => {
   // ...existing code...
@@ -42,12 +43,13 @@ const Login = () => {
       console.log("Réponse reçue :", response.data);
 
       // accept several possible token shapes
-      const token =
+      const rawToken =
         response?.data?.token ||
         response?.data?.accessToken ||
         response?.data?.data?.token;
+      const token = normalizeToken(rawToken);
 
-      if (!token) {
+      if (!token || !isJwtFormatValid(token)) {
         console.error("Token manquant dans la réponse :", response.data);
         alert(getTranslation("login_failed", selectedLang) || "Nom d'utilisateur ou mot de passe incorrect");
         return;
