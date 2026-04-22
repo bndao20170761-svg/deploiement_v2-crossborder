@@ -9,9 +9,11 @@ export const createPatient = async (patientData) => {
 // Vérifier si un patient a un dossier
 export const checkPatientHasDossier = async (codePatient) => {
   try {
-    // Endpoint direct gestion_patient via gateway
-    const response = await api.get(`/dossiers/${codePatient}/has-dossier`);
-    return response.data;
+    // On se base sur l'endpoint le plus stable en production:
+    // GET /api/dossiers/by-patient/{codePatient}
+    const response = await api.get(`/dossiers/by-patient/${codePatient}`);
+    const dossiers = response.data;
+    return Array.isArray(dossiers) ? dossiers.length > 0 : Boolean(dossiers?.codeDossier);
   } catch (error) {
     console.error("❌ Erreur vérification dossier:", error);
     return false;
