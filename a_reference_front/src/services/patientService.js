@@ -1,4 +1,4 @@
-import api from './api';
+import api, { apiSafe } from './api';
 
 // Créer un patient
 export const createPatient = async (patientData) => {
@@ -11,18 +11,25 @@ export const checkPatientHasDossier = async (codePatient) => {
   try {
     // On se base sur l'endpoint le plus stable en production:
     // GET /api/dossiers/by-patient/{codePatient}
-    const response = await api.get(`/dossiers/by-patient/${codePatient}`);
+    const response = await apiSafe.get(`/dossiers/by-patient/${codePatient}`);
     const dossiers = response.data;
+    console.log("✅ Dossier check successful:", { codePatient, dossiers });
     return Array.isArray(dossiers) ? dossiers.length > 0 : Boolean(dossiers?.codeDossier);
   } catch (error) {
-    console.error("❌ Erreur vérification dossier:", error);
+    console.warn("⚠️ Erreur vérification dossier (non critique):", {
+      codePatient,
+      status: error.response?.status,
+      message: error.message,
+      path: error.config?.url
+    });
+    // Si l'endpoint n'existe pas ou erreur d'authentification, assume false mais ne crash pas
     return false;
   }
 };
 
 // Récupérer les dossiers d'un patient (gestion_patient)
 export const getDossiersByPatient = async (codePatient) => {
-  const response = await api.get(`/dossiers/by-patient/${codePatient}`);
+  const response = await apiSafe.get(`/dossiers/by-patient/${codePatient}`);
   return response.data;
 };
 

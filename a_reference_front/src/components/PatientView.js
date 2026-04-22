@@ -26,6 +26,9 @@ const PatientView = ({ patient, onUpdate,language,onBack   }) => {
         setHasDossier(Array.isArray(dossiers) ? dossiers.length > 0 : Boolean(dossiers?.codeDossier));
       } catch (e) {
         console.error("❌ Vérification dossier échouée:", e);
+        console.error("❌ Réponse erreur:", e.response?.data);
+        console.error("❌ Status erreur:", e.response?.status);
+        // Assume no dossier if check fails, but stay on page
         setHasDossier(false);
       }
     };

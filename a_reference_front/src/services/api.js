@@ -36,10 +36,29 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-      console.error("Token invalide ou expiré, veuillez vous reconnecter.");
+      console.error("❌ Erreur d'authentification:", {
+        status: error.response.status,
+        path: error.config?.url,
+        data: error.response.data
+      });
+      
+      // Nettoyer le token invalide
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      window.location.href = "/login"; // redirection forcée
+      
+      // Redirection vers login SEULEMENT si on n'est pas déjà sur /login
+      if (window.location.pathname !== "/login") {
+        console.warn("🔄 Redirection vers /login suite à erreur d'authentification");
+        window.location.href = "/login";
+      }
+    } else {
+      // Autres erreurs - laisser le composant les gérer
+      console.error("❌ Erreur API:", {
+        status: error.response?.status,
+        path: error.config?.url,
+        message: error.message,
+        data: error.response?.data
+      });
     }
     return Promise.reject(error);
   }
@@ -50,4 +69,40 @@ export const getCurrentUser = async () => {
   return api.get("/user/me");
 };
 
+// Instance API "sécurisée" sans redirection auto (pour les appels optionnels)
+export const apiSafe = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+  withCredentials: true,
+});
+
+// Intercepteur request pour apiSafe
+apiSafe.interceptors.request.use(
+  (config) => {
+    const token = normalizeToken(localStorage.getItem("token"));
+    if (token && isJwtFormatValid(token)) {
+      config.headers["Authorization"] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Intercepteur response pour apiSafe - NOT REDIRECTING
+apiSafe.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error("⚠️ Erreur API (safe):", {
+      status: error.response?.status,
+      path: error.config?.url,
+      message: error.message
+    });
+    // NE PAS rediriger - laisser le composant gérer l'erreur
+    return Promise.reject(error);
+  }
+);
+
 export default api;
+export { apiSafe };
