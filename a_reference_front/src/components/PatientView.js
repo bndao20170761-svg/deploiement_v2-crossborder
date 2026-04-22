@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Edit3, Trash2, FileText } from "lucide-react";
-import { updatePatient, deletePatient } from "../services/patientService";
+import { updatePatient, deletePatient, checkPatientHasDossier, getDossiersByPatient } from "../services/patientService";
 import FormulaireMultiEtapes from "./FormulaireMultiEtapes";
 import { getTranslation } from '../utils/translations';
 
@@ -15,15 +15,17 @@ const PatientView = ({ patient, onUpdate,language,onBack   }) => {
     const checkHasDossier = async () => {
       try {
         if (!patient?.codePatient) return;
-        const token = localStorage.getItem("token");
-        const url = `${process.env.REACT_APP_GATEWAY_URL || 'http://16.171.10.0:8080'}/api/dossiers/by-patient/${patient.codePatient}`;
-        const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-        if (!res.ok) throw new Error("dossiers check failed");
-        const data = await res.json();
-        console.log("📋 Données dossiers reçues:", data);
-        // L'API retourne un objet ou un tableau
-        setHasDossier(Array.isArray(data) ? data.length > 0 : data && data.codeDossier);
+        const hasDossierValue = await checkPatientHasDossier(patient.codePatient);
+        if (typeof hasDossierValue === "boolean") {
+          setHasDossier(hasDossierValue);
+          return;
+        }
+
+        // Fallback: certains environnements renvoient un tableau de dossiers
+        const dossiers = await getDossiersByPatient(patient.codePatient);
+        setHasDossier(Array.isArray(dossiers) ? dossiers.length > 0 : Boolean(dossiers?.codeDossier));
       } catch (e) {
+        console.error("❌ Vérification dossier échouée:", e);
         setHasDossier(false);
       }
     };

@@ -109,7 +109,12 @@ const PatientPage = ({ language }) => {
           >
             🔙 Retour à la liste
           </button>
-          <PatientView patient={selectedPatient} onUpdate={loadPatients} />
+          <PatientView
+            patient={selectedPatient}
+            onUpdate={loadPatients}
+            language={language}
+            onBack={handleBack}
+          />
         </div>
       )}
       <button

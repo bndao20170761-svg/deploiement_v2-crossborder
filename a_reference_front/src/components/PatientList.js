@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Search, User, Phone, Edit, Trash2, Filter, Eye } from 'lucide-react';
 import { getTranslation } from '../utils/translations';
 import { normalizePatientList } from '../utils/patientUtils';
-import PatientView from './PatientView';
 
 const PatientList = ({ patients, language, onEdit, onDelete, onView }) => {
   const [searchTerm, setSearchTerm] = useState('');
