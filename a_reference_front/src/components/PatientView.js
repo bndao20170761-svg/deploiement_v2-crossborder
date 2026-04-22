@@ -16,11 +16,11 @@ const PatientView = ({ patient, onUpdate,language,onBack   }) => {
       try {
         if (!patient?.codePatient) return;
         const token = localStorage.getItem("token");
-        const url = `${process.env.REACT_APP_GATEWAY_URL || 'http://34.28.161.231:8080'}/api/dossiers/${patient.codePatient}/has-dossier`;
+        const url = `${process.env.REACT_APP_GATEWAY_URL || 'http://16.171.10.0:8080'}/api/dossiers/by-patient/${patient.codePatient}`;
         const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-        if (!res.ok) throw new Error("has-dossier failed");
+        if (!res.ok) throw new Error("dossiers check failed");
         const data = await res.json();
-        setHasDossier(Boolean(data));
+        setHasDossier(Array.isArray(data) && data.length > 0);
       } catch (e) {
         setHasDossier(false);
       }

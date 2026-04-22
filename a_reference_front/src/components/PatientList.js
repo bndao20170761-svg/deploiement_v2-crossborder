@@ -8,55 +8,13 @@ const PatientList = ({ patients, language, onEdit, onDelete, onView }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState('nomUtilisateur');
   const [sortDirection, setSortDirection] = useState('asc');
-
+  
   // Debug logs
   console.log("PatientList: Props reçues:", { patients, patientsCount: patients?.length });
-
+  
   // Normaliser les données des patients
   const normalizedPatients = normalizePatientList(patients);
   console.log("PatientList: Patients normalisés:", { normalizedPatients, count: normalizedPatients?.length });
-      } else {
-        console.log(`❌ Patient ${codePatient} n'a pas de dossier`);
-      }
-    } catch (error) {
-      console.error(`Erreur vérification dossier pour ${codePatient}:`, error);
-    }
-    return false;
-  };
-
-  // Vérifier automatiquement les dossiers des patients affichés
-  useEffect(() => {
-    const checkAllPatientsDossiers = async () => {
-      if (normalizedPatients && normalizedPatients.length > 0) {
-        console.log("🔍 Début vérification dossiers pour tous les patients...");
-        const patientCodes = normalizedPatients.map(p => p.codePatient);
-        const checks = patientCodes.map(code => 
-          checkPatientHasDossier(code)
-        );
-        await Promise.all(checks);
-        console.log("📊 État final patientsWithDossiers:", Array.from(patientsWithDossiers));
-      }
-    };
-    
-    checkAllPatientsDossiers();
-  }, [patients]); // Utiliser patients au lieu de normalizedPatients
-
-  // Fonction de test pour vérifier un patient spécifique
-  const testPatientDossier = async () => {
-    if (normalizedPatients && normalizedPatients.length > 0) {
-      const firstPatient = normalizedPatients[0];
-      console.log("🧪 Test avec le premier patient:", firstPatient);
-      try {
-        const result = await referenceDossierService.getDossiersByPatientFromGestionPatient(firstPatient.codePatient);
-        console.log("🧪 Résultat du test:", result);
-      } catch (error) {
-        console.error("🧪 Erreur du test:", error);
-      }
-    }
-  };
-
-
-
 
   const normalize = (text) =>
     text
@@ -115,17 +73,6 @@ const PatientList = ({ patients, language, onEdit, onDelete, onView }) => {
     <div className="max-w-7xl mx-auto">
       <div className="bg-white rounded-lg shadow-lg">
         <div className="px-6 py-4 border-b border-gray-200">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold text-gray-800">
-              {getTranslation('patientList', language) || 'Liste des Patients'}
-            </h2>
-            <button
-              onClick={testPatientDossier}
-              className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
-            >
-              🧪 Test Dossier
-            </button>
-          </div>
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-gray-900">
               {getTranslation('patientList', language)}{' '}
@@ -200,29 +147,13 @@ const PatientList = ({ patients, language, onEdit, onDelete, onView }) => {
                       <td className="px-6 py-4 text-sm text-gray-500">{calculateAge(p.dateNaissance)}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div className="flex justify-end space-x-2">
-                       <button
-                                              onClick={() => onView(p)}
-                                              className="text-green-600 hover:text-green-900 flex items-center"
-                                            >
-                                              <Eye className="h-4 w-4 mr-1" />
-                                              {getTranslation('view', language) || 'Voir'}
-                                            </button>
-
-                          {onViewDossier && (
-                            <button
-                              onClick={() => onViewDossier(p)}
-                              className="text-purple-600 hover:text-purple-900 flex items-center"
-                              title="Voir le dossier"
-                              disabled={!patientsWithDossiers.has(p.codePatient)}
-                              style={{ 
-                                opacity: patientsWithDossiers.has(p.codePatient) ? 1 : 0.3,
-                                cursor: patientsWithDossiers.has(p.codePatient) ? 'pointer' : 'not-allowed'
-                              }}
-                            >
-                              <FileText className="h-4 w-4 mr-1" />
-                              {patientsWithDossiers.has(p.codePatient) ? 'Dossier' : 'Pas de dossier'}
-                            </button>
-                          )}
+                          <button
+                            onClick={() => onView(p)}
+                            className="text-green-600 hover:text-green-900 flex items-center"
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            {getTranslation('view', language) || 'Voir'}
+                          </button>
 
                           <button
                             onClick={() => onEdit && onEdit(p)}
