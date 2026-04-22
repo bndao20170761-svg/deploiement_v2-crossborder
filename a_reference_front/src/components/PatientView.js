@@ -20,7 +20,9 @@ const PatientView = ({ patient, onUpdate,language,onBack   }) => {
         const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
         if (!res.ok) throw new Error("dossiers check failed");
         const data = await res.json();
-        setHasDossier(Array.isArray(data) && data.length > 0);
+        console.log("📋 Données dossiers reçues:", data);
+        // L'API retourne un objet ou un tableau
+        setHasDossier(Array.isArray(data) ? data.length > 0 : data && data.codeDossier);
       } catch (e) {
         setHasDossier(false);
       }
