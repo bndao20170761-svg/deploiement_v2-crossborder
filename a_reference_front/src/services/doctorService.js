@@ -1,4 +1,4 @@
-import api from './httpClient';
+import api from './api';
 
 // Récupérer tous les docteurs
 export const getAllDoctors = async () => {

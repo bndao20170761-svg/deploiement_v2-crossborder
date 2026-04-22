@@ -1,5 +1,5 @@
 // src/services/referenceService.js
-import api from './httpClient';
+import api from './api';
 
 
 // Obtenir les références envoyées

@@ -2,7 +2,13 @@
 import axios from "axios";
 import { isJwtFormatValid, normalizeToken } from "../utils/tokenUtils";
 
-const API_BASE_URL = process.env.REACT_APP_GATEWAY_URL || "http://34.28.161.231:8080";
+let API_BASE_URL = process.env.REACT_APP_GATEWAY_URL || "http://16.171.10.0:8080";
+
+// Normaliser: s'assurer que le préfixe /api est présent
+if (!API_BASE_URL.endsWith("/api")) {
+  API_BASE_URL = API_BASE_URL.replace(/\/+$/, "");
+  API_BASE_URL = `${API_BASE_URL}/api`;
+}
 
 // Création d'une instance axios
 const api = axios.create({
@@ -10,6 +16,7 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true, // Pour les cookies et les sessions
 });
 
 // Intercepteur pour ajouter le token à chaque requête

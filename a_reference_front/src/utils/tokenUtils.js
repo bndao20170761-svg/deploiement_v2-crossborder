@@ -14,17 +14,8 @@ export const isJwtFormatValid = (token) => {
   const parts = normalized.split(".");
   if (parts.length !== 3) return false;
 
-  try {
-    const payloadPart = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-    const payloadJson = decodeURIComponent(
-      atob(payloadPart)
-        .split("")
-        .map((c) => `%${(`00${c.charCodeAt(0).toString(16)}`).slice(-2)}`)
-        .join("")
-    );
-    JSON.parse(payloadJson);
-    return true;
-  } catch {
-    return false;
-  }
+  // Validation légère: un JWT peut être base64url sans padding, donc
+  // on évite tout décodage strict ici pour ne pas rejeter des tokens valides.
+  const jwtPartRegex = /^[A-Za-z0-9\-_]+$/;
+  return parts.every((part) => part.length > 0 && jwtPartRegex.test(part));
 };

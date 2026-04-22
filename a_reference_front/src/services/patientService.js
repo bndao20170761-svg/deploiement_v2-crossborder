@@ -1,4 +1,4 @@
-import api from './httpClient';
+import api from './api';
 
 // Créer un patient
 export const createPatient = async (patientData) => {

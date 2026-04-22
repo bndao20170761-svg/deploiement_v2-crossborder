@@ -1,9 +1,16 @@
-const BASE_URL = process.env.REACT_APP_GATEWAY_URL || 'http://34.28.161.231:8080';
+let BASE_URL = process.env.REACT_APP_GATEWAY_URL || 'http://16.171.10.0:8080';
+
+// Normaliser: s'assurer que le préfixe /api est présent
+if (!BASE_URL.endsWith('/api')) {
+  BASE_URL = BASE_URL.replace(/\/+$/, '');
+  BASE_URL = `${BASE_URL}/api`;
+}
 
 export async function apiGet(path) {
   const token = localStorage.getItem('token');
   const response = await fetch(`${BASE_URL}${path}`, {
     headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    credentials: 'include', // Pour les cookies et les sessions
   });
   if (!response.ok) throw new Error(`Erreur GET ${path} : ${response.status}`);
   return await response.json();

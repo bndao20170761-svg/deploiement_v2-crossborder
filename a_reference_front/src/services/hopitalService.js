@@ -1,5 +1,5 @@
 // src/services/hopitalService.js
-import api from './httpClient';
+import api from './api';
 
 // Récupérer les hôpitaux actifs
 export const getHopitauxActifs = async () => {
