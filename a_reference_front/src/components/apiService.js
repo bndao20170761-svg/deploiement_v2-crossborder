@@ -49,7 +49,7 @@ export async function apiDelete(path) {
 
 // Ajoute ces fonctions spécifiques ici
 export async function getAllPatients() {
-  return apiGet('/api/integration/patients');
+  return apiGet('/integration/patients');
 }
 
 export async function getAllDoctors() {

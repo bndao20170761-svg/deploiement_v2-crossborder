@@ -20,7 +20,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // use api instance baseURL (configured in src/services/api.js)
-  const LOGIN_PATH = "/api/user-auth/login";
+  const LOGIN_PATH = "/user-auth/login";
 
   const handleLogin = async (e) => {
     e.preventDefault();

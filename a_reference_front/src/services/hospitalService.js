@@ -65,7 +65,7 @@ export const getInactiveHospitals = async () => {
 // Activer ou désactiver un hôpital (admin uniquement)
 export const toggleHospitalStatus = async (id, active) => {
   try {
-    const response = await api.patch(`/api/hospitaux/${id}/status`, null, { params: { active } }); // Reste sur user service pour admin
+    const response = await api.patch(`/hospitaux/${id}/status`, null, { params: { active } }); // Reste sur user service pour admin
     return response.data;
   } catch (error) {
     console.error('Erreur lors du changement de statut de l\'hôpital:', error);
