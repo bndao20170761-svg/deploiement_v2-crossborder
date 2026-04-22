@@ -12,18 +12,32 @@ const PatientView = ({ patient, onUpdate,language,onBack   }) => {
   const [viewingDossier, setViewingDossier] = useState(false);
   const [hasDossier, setHasDossier] = useState(null);
   const [checkingDossier, setCheckingDossier] = useState(false);
+  const [dossierError, setDossierError] = useState(null);
+
+  const patientHasDossierInfo =
+    patient?.codeDossier ||
+    patient?.dossier_code_dossier ||
+    patient?.dossier?.codeDossier ||
+    patient?.dossierCode ||
+    patient?.patient_dossier_code;
 
   const handleEditClick = () => setEditing(true);
 
   const handleCheckDossier = async () => {
     if (!patient?.codePatient) return false;
     setCheckingDossier(true);
+    setDossierError(null);
     try {
       const dossierExists = await checkPatientHasDossier(patient.codePatient);
       setHasDossier(dossierExists);
       return dossierExists;
     } catch (error) {
       console.warn("⚠️ PatientView: checkPatientHasDossier a échoué:", error);
+      if (error.response?.status === 403) {
+        setDossierError("Accès refusé : vous n'avez pas la permission de voir ce dossier.");
+      } else {
+        setDossierError("Impossible de vérifier le dossier médical pour ce patient.");
+      }
       setHasDossier(false);
       return false;
     } finally {
@@ -37,7 +51,7 @@ const PatientView = ({ patient, onUpdate,language,onBack   }) => {
       dossierExists = await handleCheckDossier();
     }
     if (!dossierExists) {
-      alert("Aucun dossier trouvé pour ce patient ou vous n'y avez pas accès.");
+      alert(dossierError || "Aucun dossier trouvé pour ce patient ou vous n'y avez pas accès.");
       return;
     }
     setViewingDossier(true);
@@ -170,13 +184,14 @@ const handleUpdate = async (updatedData) => {
 
     {/* Actions */}
     <div className="pt-6 flex justify-end space-x-4 border-t">
-      {hasDossier === true ? (
+      {patientHasDossierInfo || hasDossier === true ? (
         <>
           <button
             onClick={handleViewDossier}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg flex items-center hover:bg-green-700"
+            disabled={checkingDossier}
+            className="px-4 py-2 bg-green-600 text-white rounded-lg flex items-center hover:bg-green-700 disabled:opacity-50"
           >
-            <FileText className="h-5 w-5 mr-2" /> {getTranslation("voirDossier", language)}
+            <FileText className="h-5 w-5 mr-2" /> {checkingDossier ? "Vérification..." : getTranslation("voirDossier", language)}
           </button>
           <button
             onClick={handleEditClick}
@@ -189,7 +204,7 @@ const handleUpdate = async (updatedData) => {
         <button
           onClick={handleCheckDossier}
           disabled={checkingDossier}
-          className="px-4 py-2 bg-yellow-500 text-white rounded-lg flex items-center hover:bg-yellow-600"
+          className="px-4 py-2 bg-yellow-500 text-white rounded-lg flex items-center hover:bg-yellow-600 disabled:opacity-50"
         >
           {checkingDossier ? "Vérification..." : getTranslation("verifierDossier", language) || "Vérifier dossier"}
         </button>
