@@ -70,7 +70,7 @@ export const getCurrentUser = async () => {
 };
 
 // Instance API "sécurisée" sans redirection auto (pour les appels optionnels)
-export const apiSafe = axios.create({
+const apiSafe = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
