@@ -1,5 +1,21 @@
 import api, { apiSafe } from './api';
 
+const getDossiersByPatientWithFallback = async (codePatient) => {
+  try {
+    return await apiSafe.get(`/dossiers/by-patient/${codePatient}`);
+  } catch (error) {
+    // Some environments expose dossiers via /integration instead of /dossiers.
+    if (error?.response?.status === 403 || error?.response?.status === 404) {
+      console.warn("⚠️ /dossiers/by-patient inaccessible, tentative via /integration:", {
+        codePatient,
+        status: error.response?.status
+      });
+      return apiSafe.get(`/integration/dossiers/by-patient/${codePatient}`);
+    }
+    throw error;
+  }
+};
+
 // Créer un patient
 export const createPatient = async (patientData) => {
   const result = await api.post('/integration/patients', patientData);
@@ -9,7 +25,7 @@ export const createPatient = async (patientData) => {
 // Vérifier si un patient a un dossier - utilise l'endpoint /by-patient/ du backend
 export const checkPatientHasDossier = async (codePatient) => {
   try {
-    const response = await apiSafe.get(`/dossiers/by-patient/${codePatient}`);
+    const response = await getDossiersByPatientWithFallback(codePatient);
     const dossiers = response.data;
     const hasDossier = Array.isArray(dossiers) ? dossiers.length > 0 : Boolean(dossiers?.codeDossier);
     console.log("Dossier check successful:", { codePatient, hasDossier, dossiersCount: Array.isArray(dossiers) ? dossiers.length : 1 });
@@ -28,7 +44,7 @@ export const checkPatientHasDossier = async (codePatient) => {
 // Récupérer les dossiers d'un patient (gestion_patient)
 export const getDossiersByPatient = async (codePatient) => {
   try {
-    const response = await apiSafe.get(`/dossiers/by-patient/${codePatient}`);
+    const response = await getDossiersByPatientWithFallback(codePatient);
     return response.data;
   } catch (error) {
     console.warn("⚠️ Erreur getDossiersByPatient (non critique):", {
