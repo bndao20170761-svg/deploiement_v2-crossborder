@@ -34,36 +34,39 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // CORS gateway : l’appli authentifie par JWT (header), pas par cookie.
-        // Un .env avec CORS_ALLOWED_ORIGINS souvent figé (3000-3003) provoque 403 dès qu’on utilise
-        // le port 5173 (Vite), un autre hôte, ou l’https — d’où "Invalid CORS request".
-        // Défaut = une seule règle : * + pas de credentials (autorisé par Spring).
-        // Mode stricte (opt-in) : CORS_GATEWAY_STRICT=true + CORS_ALLOWED_ORIGINS=...
-        String strictEnv = System.getenv("CORS_GATEWAY_STRICT");
-        String allowedOriginsEnv = System.getenv("CORS_ALLOWED_ORIGINS");
-        String allowCredEnv = System.getenv("CORS_ALLOW_CREDENTIALS");
-
-        if ("true".equalsIgnoreCase(strictEnv) && allowedOriginsEnv != null && !allowedOriginsEnv.trim().isEmpty()) {
-            List<String> patterns = new ArrayList<>();
-            for (String part : allowedOriginsEnv.split(",")) {
-                String p = part.trim();
-                if (!p.isEmpty()) {
-                    patterns.add(p);
-                }
-            }
-            configuration.setAllowedOriginPatterns(patterns);
-            boolean cred = "true".equalsIgnoreCase(allowCredEnv) || "1".equals(allowCredEnv);
-            configuration.setAllowCredentials(cred);
-        } else {
-            configuration.setAllowedOriginPatterns(Collections.singletonList("*"));
-            configuration.setAllowCredentials(false);
-        }
-
+        // Autoriser tous les fronts pour le développement
+        List<String> allowedOrigins = Arrays.asList(
+            // Développement local
+            "http://localhost:3000",
+            "http://localhost:3001", 
+            "http://localhost:3002",
+            "http://localhost:3003",
+            "http://localhost:3004",
+            "http://localhost:4000",
+            "http://localhost:8080",
+            "http://127.0.0.1:3000",
+            "http://127.0.0.1:3001",
+            "http://127.0.0.1:3002",
+            "http://127.0.0.1:3003",
+            "http://127.0.0.1:3004",
+            "http://127.0.0.1:4000",
+            "http://127.0.0.1:8080",
+            // Production GCP
+            "http://16.171.10.0:3000",
+            "http://16.171.10.0:3001",
+            "http://16.171.10.0:3002",
+            "http://16.171.10.0:3003",
+            "http://16.171.10.0:4000",
+            "http://16.171.10.0:8080"
+        );
+        
+        configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "Origin",
                 "X-Requested-With", "Access-Control-Request-Method",
                 "Access-Control-Request-Headers"));
         configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Disposition"));
+        configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
