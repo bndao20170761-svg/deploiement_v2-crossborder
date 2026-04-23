@@ -8,8 +8,7 @@ import sn.uasz.Patient_PVVIH.dtos.*;
 import java.util.List;
 
 @FeignClient(
-        name = "user-api-pvvih",
-        url = "http://localhost:9089",  // URL du microservice gestion_user
+        name = "USER_API_PVVIH",
         configuration = FeignClientConfig.class
 )
 public interface UserServiceClient {

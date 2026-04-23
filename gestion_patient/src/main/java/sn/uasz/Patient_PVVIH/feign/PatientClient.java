@@ -8,8 +8,7 @@ import sn.uasz.Patient_PVVIH.dtos.PatientDto;
 import java.util.List;
 
 @FeignClient(
-        name = "referencement-PVVIH",
-        url = "http://localhost:9090",  // ⚡ URL du MS referencement_PVVIH
+        name = "REFERENCE_API_PVVIH",
         configuration = FeignClientConfig.class
 )
 public interface PatientClient {
