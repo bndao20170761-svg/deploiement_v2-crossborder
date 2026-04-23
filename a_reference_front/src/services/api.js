@@ -16,7 +16,8 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true, // Pour les cookies et les sessions
+  // Pas de cookies : JWT en header. withCredentials:true exige une origine CORS explicite sur la gateway.
+  withCredentials: false,
 });
 
 // Intercepteur pour ajouter le token à chaque requête
@@ -102,7 +103,7 @@ const apiSafe = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true,
+  withCredentials: false,
 });
 
 // Intercepteur request pour apiSafe

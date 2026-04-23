@@ -11,6 +11,7 @@ import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Configuration
@@ -33,37 +34,36 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // Motifs d'origine : avec allowCredentials(true), une liste fixe de ports casse vite (3000 vs 5173, etc.)
+        // CORS gateway : l’appli authentifie par JWT (header), pas par cookie.
+        // Un .env avec CORS_ALLOWED_ORIGINS souvent figé (3000-3003) provoque 403 dès qu’on utilise
+        // le port 5173 (Vite), un autre hôte, ou l’https — d’où "Invalid CORS request".
+        // Défaut = une seule règle : * + pas de credentials (autorisé par Spring).
+        // Mode stricte (opt-in) : CORS_GATEWAY_STRICT=true + CORS_ALLOWED_ORIGINS=...
+        String strictEnv = System.getenv("CORS_GATEWAY_STRICT");
         String allowedOriginsEnv = System.getenv("CORS_ALLOWED_ORIGINS");
+        String allowCredEnv = System.getenv("CORS_ALLOW_CREDENTIALS");
 
-        List<String> patterns = new ArrayList<>(Arrays.asList(
-                "http://localhost:*",
-                "http://127.0.0.1:*",
-                // Serveur de démo / LAN (tout port sur cette IP, ex. React 3000 ou Vite 5173)
-                "http://16.171.10.0:*",
-                // Communication interne Docker (origines exactes, sans joker port)
-                "http://gateway-pvvih:8080",
-                "http://gestion-forum-front",
-                "http://a-reference-front",
-                "http://a-user-front"
-        ));
-
-        if (allowedOriginsEnv != null && !allowedOriginsEnv.trim().isEmpty()) {
+        if ("true".equalsIgnoreCase(strictEnv) && allowedOriginsEnv != null && !allowedOriginsEnv.trim().isEmpty()) {
+            List<String> patterns = new ArrayList<>();
             for (String part : allowedOriginsEnv.split(",")) {
                 String p = part.trim();
                 if (!p.isEmpty()) {
                     patterns.add(p);
                 }
             }
+            configuration.setAllowedOriginPatterns(patterns);
+            boolean cred = "true".equalsIgnoreCase(allowCredEnv) || "1".equals(allowCredEnv);
+            configuration.setAllowCredentials(cred);
+        } else {
+            configuration.setAllowedOriginPatterns(Collections.singletonList("*"));
+            configuration.setAllowCredentials(false);
         }
 
-        configuration.setAllowedOriginPatterns(patterns);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "Origin",
                 "X-Requested-With", "Access-Control-Request-Method",
                 "Access-Control-Request-Headers"));
         configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Disposition"));
-        configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

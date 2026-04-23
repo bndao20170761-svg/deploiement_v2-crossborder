@@ -193,35 +193,54 @@ const [maxScanAttempts] = useState(10);
         const script = document.createElement('script');
         script.src = src;
         script.async = true;
+        const maxWait = 120000;
+        const start = Date.now();
         script.onload = () => {
-          // Le script est chargé, maintenant on attend que le runtime soit prêt
           const interval = setInterval(() => {
             if (typeof cv !== 'undefined' && cv.getBuildInformation) {
               clearInterval(interval);
               console.log("✅ OpenCV est initialisé et prêt.");
               resolve();
+            } else if (Date.now() - start > maxWait) {
+              clearInterval(interval);
+              reject(new Error('Timeout initialisation OpenCV'));
             } else {
               console.log("⏳ Script chargé, attente de l'initialisation du runtime OpenCV...");
             }
           }, 100);
         };
         script.onerror = (err) => {
-          console.error("❌ Erreur de chargement du script OpenCV depuis le CDN.", err);
+          console.error("❌ Erreur de chargement du script OpenCV :", src, err);
           reject(err);
         };
         document.body.appendChild(script);
       });
     };
 
+    // opencv.js@4.0.0-v1 sur jsDelivr est souvent absent / 404 ; ordre de secours documenté.
+    const OPENCV_CDN_URLS = [
+      'https://cdn.jsdelivr.net/npm/opencv.js@1.2.1/opencv.js',
+      'https://unpkg.com/opencv.js@1.2.1/opencv.js',
+      'https://docs.opencv.org/4.5.0/opencv.js',
+    ];
+
     const initializeOpenCv = async () => {
-      try {
-        console.log("⏳ Chargement d'OpenCV depuis le CDN jsDelivr...");
-        await loadScript('https://cdn.jsdelivr.net/npm/opencv.js@4.0.0-v1/opencv.js');
-        setCvReady(true);
-        loadClassifier();
-      } catch (error) {
-        setDetectionLog("ERREUR CRITIQUE: Impossible de charger OpenCV.");
+      let lastErr;
+      for (const url of OPENCV_CDN_URLS) {
+        try {
+          console.log("⏳ Chargement OpenCV depuis :", url);
+          await loadScript(url);
+          setCvReady(true);
+          return;
+        } catch (e) {
+          lastErr = e;
+          console.warn("⚠️ Échec CDN, essai suivant…", e?.message || e);
+        }
       }
+      console.error("❌ Aucun CDN OpenCV n'a répondu.", lastErr);
+      setDetectionLog(
+        "ERREUR: OpenCV indisponible (réseau / pare-feu). Utilisez « Simuler la capture » ou ouvrez les accès CDN (jsdelivr, unpkg, docs.opencv.org)."
+      );
     };
 
     initializeOpenCv();
@@ -285,6 +304,11 @@ const loadClassifier = () => {
     }
   };
 
+  // Après setCvReady(true), l’état n’est pas encore à jour dans le même tick : charger le classifieur ici
+  useEffect(() => {
+    if (!cvReady) return;
+    loadClassifier();
+  }, [cvReady]);
 
 
 // 🆕 Fonction de détection de clignement avancée
@@ -1523,7 +1547,7 @@ const handleSubmit = async () => {
 
     if (error.response?.status === 403) {
       alert(
-        "⚠️ Accès refusé (403). Vérifiez le token, les droits du compte, et que l’URL du front est autorisée en CORS sur la gateway (variable CORS_ALLOWED_ORIGINS)."
+        "⚠️ Accès refusé (403 CORS). Redéployez la gateway (CORS par défaut = toutes origines) ou ajustez CORS_ALLOWED_ORIGINS / désactivez CORS_GATEWAY_STRICT."
       );
       if (detail) console.warn("Détail 403 :", detail);
     } else {
