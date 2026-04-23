@@ -7,6 +7,14 @@ import  { ArrowLeft, ArrowRight, Camera, Eye, Video, Circle } from "lucide-react
 import { createDossier } from "../services/patientService";
 import { getTranslation } from '../utils/translations';
 
+/** Data-URL valide pour <img src> (évite jpeg + payload PNG ou préfixe data: dupliqué → ERR_INVALID_URL). */
+function irisImageDataUrl(irisImageBase64) {
+  if (!irisImageBase64 || typeof irisImageBase64 !== 'string') return '';
+  const raw = irisImageBase64.trim();
+  if (raw.startsWith('data:')) return raw;
+  if (raw.startsWith('iVBOR')) return `data:image/png;base64,${raw}`;
+  return `data:image/jpeg;base64,${raw}`;
+}
 
 function Utils(errorOutputId) {
     this.createFileFromUrl = function(path, url, callback) {
@@ -917,7 +925,9 @@ useEffect(() => {
   // ✅ Simulation capture iris (en attendant un vrai SDK biométrique)
   const simulerCaptureIris = () => {
     setBiometrieIris({
-      irisImageBase64: "iVBORw0KGgoAAAANSUhEUgAAAAUA...", // base64 factice
+      // PNG 1×1 valide (évite "..." ou base64 tronqué → net::ERR_INVALID_URL)
+      irisImageBase64:
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
       biometricStatus: "CAPTURED",
       captureMessage: "Simulation réussie ✅",
       isCameraActive: false
@@ -1565,7 +1575,7 @@ const sections = [
             ) : biometrieIris.irisImageBase64 ? ( // 👈 CORRECTION ICI - enlevé le { en trop
               <div className="relative">
                 <img
-                  src={`data:image/jpeg;base64,${biometrieIris.irisImageBase64}`}
+                  src={irisImageDataUrl(biometrieIris.irisImageBase64)}
                   alt="Iris capturé"
                   className="w-full max-w-md mx-auto rounded-lg border-2 border-green-500 shadow-md"
                 />

@@ -9,6 +9,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,43 +33,31 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // Récupérer les origines autorisées depuis les variables d'environnement
+        // Motifs d'origine : avec allowCredentials(true), une liste fixe de ports casse vite (3000 vs 5173, etc.)
         String allowedOriginsEnv = System.getenv("CORS_ALLOWED_ORIGINS");
-        
-        List<String> allowedOrigins;
-        if (allowedOriginsEnv != null && !allowedOriginsEnv.isEmpty()) {
-            // Utiliser les origines depuis l'environnement (production)
-            allowedOrigins = Arrays.asList(allowedOriginsEnv.split(","));
-        } else {
-            // Origines par défaut pour le développement local
-            allowedOrigins = Arrays.asList(
-                    // Accès depuis le navigateur (externe à Docker)
-                    "http://localhost:3000",
-                    "http://127.0.0.1:3000",
-                    "http://localhost:3001",
-                    "http://127.0.0.1:3001",
-                    "http://localhost:3002",
-                    "http://127.0.0.1:3002",
-                    "http://localhost:3003",
-                    "http://localhost:3004",
-                    "http://localhost:4000",
-                    "http://127.0.0.1:4000",
-                    "http://localhost:8080",
-                    "http://localhost:8081",
-                    // Démo / serveur (ex. front React sur la même machine que la gateway)
-                    "http://16.171.10.0:3000",
-                    "http://16.171.10.0:3001",
-                    "http://16.171.10.0:3002",
-                    "http://16.171.10.0:80",
-                    // Communication interne Docker
-                    "http://gateway-pvvih:8080",
-                    "http://gestion-forum-front",
-                    "http://a-reference-front",
-                    "http://a-user-front"
-            );
+
+        List<String> patterns = new ArrayList<>(Arrays.asList(
+                "http://localhost:*",
+                "http://127.0.0.1:*",
+                // Serveur de démo / LAN (tout port sur cette IP, ex. React 3000 ou Vite 5173)
+                "http://16.171.10.0:*",
+                // Communication interne Docker (origines exactes, sans joker port)
+                "http://gateway-pvvih:8080",
+                "http://gestion-forum-front",
+                "http://a-reference-front",
+                "http://a-user-front"
+        ));
+
+        if (allowedOriginsEnv != null && !allowedOriginsEnv.trim().isEmpty()) {
+            for (String part : allowedOriginsEnv.split(",")) {
+                String p = part.trim();
+                if (!p.isEmpty()) {
+                    patterns.add(p);
+                }
+            }
         }
-        
-        configuration.setAllowedOrigins(allowedOrigins);
+
+        configuration.setAllowedOriginPatterns(patterns);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "Origin",
                 "X-Requested-With", "Access-Control-Request-Method",
