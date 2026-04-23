@@ -56,6 +56,17 @@ export const getDossiersByPatient = async (codePatient) => {
   }
 };
 
+/**
+ * Pour l'affichage UI : GET /api/dossiers/{id} attend un code dossier, pas le code patient.
+ * On charge donc la liste via /by-patient puis on prend le premier dossier (comportement historique).
+ */
+export const getPrimaryDossierForPatient = async (codePatient) => {
+  const list = await getDossiersByPatient(codePatient);
+  if (list == null) return null;
+  if (Array.isArray(list)) return list.length > 0 ? list[0] : null;
+  return list;
+};
+
 // Récupérer tous les patients
 export const getAllPatients = async () => {
   // Correspond à GET /api/integration/patients (gestion_reference via gateway)

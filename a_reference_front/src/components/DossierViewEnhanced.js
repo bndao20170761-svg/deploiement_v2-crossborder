@@ -1,6 +1,6 @@
 // src/components/DossierViewEnhanced.jsx
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { getPrimaryDossierForPatient } from "../services/patientService";
 import { getTranslation } from '../utils/translations';
 
 // Composant Section avec style amélioré
@@ -103,20 +103,10 @@ const DossierViewEnhanced = ({ patient, dossier: dossierProp, onBack, language }
     const fetchDossier = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem("token");
         if (!patient || !patient.codePatient) return;
 
-        const response = await axios.get(
-          `${process.env.REACT_APP_GATEWAY_URL || 'http://34.28.161.231:8080'}/api/dossiers/${patient.codePatient}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        setDossier(response.data);
+        const dossierData = await getPrimaryDossierForPatient(patient.codePatient);
+        setDossier(dossierData);
         setError(null);
       } catch (err) {
         console.error("❌ Erreur chargement dossier :", err);

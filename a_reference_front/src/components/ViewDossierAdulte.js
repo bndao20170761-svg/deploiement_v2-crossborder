@@ -1,6 +1,6 @@
 // src/components/ViewDossierAdulte.jsx
 import React, { useEffect, useState } from "react";
-import api from "../services/api";
+import { getPrimaryDossierForPatient } from "../services/patientService";
 import { getTranslation } from '../utils/translations';
 
 // Composant Section avec style amélioré
@@ -104,8 +104,8 @@ const ViewDossierAdulte = ({ patient, onBack, language = "fr", dossierProp = nul
         setLoading(true);
         if (!patient || !patient.codePatient) return;
 
-        const response = await api.get(`/dossiers/${patient.codePatient}`);
-        setDossier(response.data);
+        const dossierData = await getPrimaryDossierForPatient(patient.codePatient);
+        setDossier(dossierData);
         setError(null);
       } catch (err) {
         console.error("❌ Erreur chargement dossier :", err);
