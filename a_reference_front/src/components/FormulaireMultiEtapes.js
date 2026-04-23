@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 
 import { motion, AnimatePresence } from "framer-motion";
 import  { ArrowLeft, ArrowRight, Camera, Eye, Video, Circle } from "lucide-react";
-import axios from "axios";
+import { createDossier } from "../services/patientService";
 import { getTranslation } from '../utils/translations';
 
 
@@ -1491,35 +1491,36 @@ const handleSubmit = async () => {
   };
 
   try {
-     const token = localStorage.getItem("token"); // là où tu stockes ton JWT après login
+    const data = await createDossier(payload);
 
-     const response = await axios.post(`${process.env.REACT_APP_GATEWAY_URL || 'http://34.28.161.231:8080'}/api/dossiers`, payload, {
-       headers: {
-         Authorization: `Bearer ${token}`,   // ✅ indispensable
-         "Content-Type": "application/json", // déjà par défaut mais c'est clair
-       },
-     });
+    console.log("✅ Succès :", data);
+    if (onSuccess) {
+      cleanupStorage();
+      onSuccess(data);
+    } else {
+      cleanupStorage();
+      resetForm();
+      setDossierCree(data);
+    }
+  } catch (error) {
+    console.error("❌ Erreur :", error);
 
-  console.log("✅ Succès :", response.data);
-  if (onSuccess) {
-    cleanupStorage();
-    onSuccess(response.data);
-  } else {
-    cleanupStorage();
-    resetForm();
-    setDossierCree(response.data);
+    const msg = error.response?.data;
+    const detail =
+      typeof msg === "string"
+        ? msg
+        : msg?.message || error.response?.statusText || error.message;
+
+    if (error.response?.status === 403) {
+      alert(
+        "⚠️ Accès refusé (403). Vérifiez le token, les droits du compte, et que l’URL du front est autorisée en CORS sur la gateway (variable CORS_ALLOWED_ORIGINS)."
+      );
+      if (detail) console.warn("Détail 403 :", detail);
+    } else {
+      alert("❌ Une erreur est survenue lors de la soumission.");
+    }
   }
-
-   }catch (error) {
-     console.error("❌ Erreur :", error);
-
-     if (error.response?.status === 403) {
-       alert("⚠️ Accès refusé : token manquant ou invalide.");
-     } else {
-       alert("❌ Une erreur est survenue lors de la soumission.");
-     }
-   }
- };
+};
 
 // Affichage direct de la vue dossier après création
 if (dossierCree) {

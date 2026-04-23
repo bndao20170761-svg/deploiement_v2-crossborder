@@ -1,8 +1,8 @@
-﻿// FormulaireCompletFusionne.jsx
+// FormulaireCompletFusionne.jsx
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import DossierView from "./DossierView";
-import axios from "axios";
+import { createDossier } from "../services/patientService";
 import { getTranslation } from '../utils/translations';
 export default function FormulaireCompletFusionne({patient, language, codePatient}) {
   const totalSteps = 16;
@@ -917,36 +917,31 @@ const handleSubmit = async () => {
   };
 
   try {
-    const token = localStorage.getItem("token");
+    const data = await createDossier(payload);
 
-    const response = await axios.post(
-      `${process.env.REACT_APP_GATEWAY_URL || 'http://34.28.161.231:8080'}/api/dossiers`,
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    console.log("✅ Succès :", data);
 
-    console.log("âœ… SuccÃ¨s :", response.data);
+    resetForm();
+    setDossierCree(data);
+  } catch (error) {
+    console.error("❌ Erreur :", error);
 
-         // âœ… Reset du formulaire uniquement en cas de succÃ¨s
-         resetForm();
-         // â¬‡ï¸ Afficher directement la vue dossier
-         setDossierCree(response.data);
+    const msg = error.response?.data;
+    const detail =
+      typeof msg === "string"
+        ? msg
+        : msg?.message || error.response?.statusText || error.message;
 
-       } catch (error) {
-         console.error("âŒ Erreur :", error);
-
-         if (error.response?.status === 403) {
-           alert("âš ï¸ AccÃ¨s refusÃ© : token manquant ou invalide.");
-         } else {
-           alert("âŒ Une erreur est survenue lors de la soumission.");
-         }
-       }
-     };
+    if (error.response?.status === 403) {
+      alert(
+        "⚠️ Accès refusé (403). Vérifiez le token, les droits du compte, et la configuration CORS de la gateway (CORS_ALLOWED_ORIGINS)."
+      );
+      if (detail) console.warn("Détail 403 :", detail);
+    } else {
+      alert("❌ Une erreur est survenue lors de la soumission.");
+    }
+  }
+};
 
      // âœ… Si un dossier est crÃ©Ã©, on bascule sur la vue dossier
     if (dossierCree) {

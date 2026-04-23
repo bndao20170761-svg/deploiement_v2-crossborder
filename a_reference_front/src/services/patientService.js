@@ -22,6 +22,12 @@ export const createPatient = async (patientData) => {
   return result.data;
 };
 
+/** Création dossier médical (gestion_patient via gateway) — utiliser `api` pour JWT + baseURL. */
+export const createDossier = async (dossierDTO) => {
+  const result = await api.post('/dossiers', dossierDTO);
+  return result.data;
+};
+
 // Vérifier si un patient a un dossier - utilise l'endpoint /by-patient/ du backend
 export const checkPatientHasDossier = async (codePatient) => {
   try {

@@ -55,6 +55,11 @@ public class SecurityConfig {
                     "http://127.0.0.1:4000",
                     "http://localhost:8080",
                     "http://localhost:8081",
+                    // Démo / serveur (ex. front React sur la même machine que la gateway)
+                    "http://16.171.10.0:3000",
+                    "http://16.171.10.0:3001",
+                    "http://16.171.10.0:3002",
+                    "http://16.171.10.0:80",
                     // Communication interne Docker
                     "http://gateway-pvvih:8080",
                     "http://gestion-forum-front",

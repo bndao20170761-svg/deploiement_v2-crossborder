@@ -44,16 +44,25 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+    const status = error.response?.status;
+    const data = error.response?.data;
+    const isCorsRejection =
+      status === 403 &&
+      (data === "Invalid CORS request" ||
+        (typeof data === "string" && data.toLowerCase().includes("cors")));
+
+    if (error.response && (status === 401 || status === 403)) {
       console.error("❌ Erreur d'authentification:", {
         status: error.response.status,
         path: error.config?.url,
         data: error.response.data
       });
-      
-      // Nettoyer le token invalide
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+
+      // 403 « Invalid CORS request » = origine non autorisée sur la gateway, pas un JWT expiré
+      if (!isCorsRejection) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      }
       
       // Redirection vers login SEULEMENT si on n'est pas déjà sur /login
       // et SEULEMENT pour les requêtes critiques
