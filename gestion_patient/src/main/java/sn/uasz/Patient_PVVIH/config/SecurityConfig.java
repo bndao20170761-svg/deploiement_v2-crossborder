@@ -17,6 +17,7 @@ import sn.uasz.Patient_PVVIH.config.JwtAuthTokenFilter;
 import sn.uasz.Patient_PVVIH.security.JwtUtils;
 import sn.uasz.Patient_PVVIH.services.JwtOnlyUserDetailsService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
@@ -73,10 +74,25 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:3001", "http://127.0.0.1:3000", "http://127.0.0.1:3001"));
+
+        String allowedOriginsEnv = System.getenv("CORS_ALLOWED_ORIGINS");
+        List<String> patterns = new ArrayList<>(List.of(
+                "http://localhost:*",
+                "http://127.0.0.1:*",
+                "http://16.171.10.0:*"
+        ));
+        if (allowedOriginsEnv != null && !allowedOriginsEnv.trim().isEmpty()) {
+            for (String part : allowedOriginsEnv.split(",")) {
+                String p = part.trim();
+                if (!p.isEmpty()) patterns.add(p);
+            }
+        }
+
+        configuration.setAllowedOriginPatterns(patterns);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true); // utile si tu gères les cookies ou headers d’authentification
+        // Auth via header Bearer, pas besoin de cookies.
+        configuration.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

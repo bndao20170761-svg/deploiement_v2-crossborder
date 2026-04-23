@@ -25,28 +25,13 @@ spring:
           enabled: true  # Active la découverte automatique
           lower-case-service-id: true
       
-      # ========================================================================
-      # CONFIGURATION CORS GLOBALE (IMPORTANT!)
+      # CORS : voir commentaire GETWAY_PVVIH-prod.yml (config centralisée = priorité sur le JAR)
       # ========================================================================
       globalcors:
         corsConfigurations:
           '[/**]':
-            allowedOrigins:
-              # Développement local
-              - "http://localhost:3000"
-              - "http://localhost:3001"
-              - "http://localhost:3002"
-              - "http://localhost:3003"
-              - "http://127.0.0.1:3000"
-              - "http://127.0.0.1:3001"
-              - "http://127.0.0.1:3002"
-              - "http://127.0.0.1:3003"
-              # Production GCP (IP: 34.28.161.231)
-              - "http://16.171.10.0:3000"
-              - "http://16.171.10.0:3001"
-              - "http://-16.171.10.0:3002"
-              - "http://16.171.10.0:3003"
-              - "http://16.171.10.0:8080"
+            allowedOriginPatterns:
+              - "*"
             allowedMethods:
               - GET
               - POST
@@ -55,7 +40,7 @@ spring:
               - OPTIONS
               - PATCH
             allowedHeaders: "*"
-            allowCredentials: true
+            allowCredentials: false
             maxAge: 3600
       
       # Filtres par défaut appliqués à toutes les routes
