@@ -30,8 +30,20 @@ spring:
       globalcors:
         corsConfigurations:
           '[/**]':
-            allowedOriginPatterns:
-              - "*"
+            allowedOrigins:
+              - "http://localhost:3000"
+              - "http://localhost:3001"
+              - "http://localhost:3002"
+              - "http://localhost:3003"
+              - "http://127.0.0.1:3000"
+              - "http://127.0.0.1:3001"
+              - "http://127.0.0.1:3002"
+              - "http://127.0.0.1:3003"
+              - "http://16.171.10.0:3000"
+              - "http://16.171.10.0:3001"
+              - "http://16.171.10.0:3002"
+              - "http://16.171.10.0:3003"
+              - "http://16.171.10.0:8080"
             allowedMethods:
               - GET
               - POST
@@ -40,7 +52,7 @@ spring:
               - OPTIONS
               - PATCH
             allowedHeaders: "*"
-            allowCredentials: false
+            allowCredentials: true
             maxAge: 3600
       
       # Filtres par défaut appliqués à toutes les routes
