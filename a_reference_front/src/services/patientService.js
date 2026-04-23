@@ -37,7 +37,7 @@ export const checkPatientHasDossier = async (codePatient) => {
     console.log("Dossier check successful:", { codePatient, hasDossier, dossiersCount: Array.isArray(dossiers) ? dossiers.length : 1 });
     return hasDossier;
   } catch (error) {
-    console.warn("Erreur vérification dossier (non critique):", {
+    console.warn("⚠️ Erreur vérification dossier (non critique):", {
       codePatient,
       status: error.response?.status,
       message: error.message,

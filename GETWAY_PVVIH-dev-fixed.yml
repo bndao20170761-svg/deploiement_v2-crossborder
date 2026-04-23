@@ -116,7 +116,7 @@ spring:
           filters:
             - RewritePath=/api/patients-proxy/(?<path>.*), /api/patients/$\{path}
             - RewritePath=/patient_pvvih/(?<path>.*), /$\{path}
-            - AddRequestHeader=Authorization, Bearer #{request.headers.Authorization[0].replace('Bearer ', '')}
+            - TokenRelay=
         
         # --------------------------------------------------------------------
         # FORUM_PVVIH - Toutes les routes du forum
