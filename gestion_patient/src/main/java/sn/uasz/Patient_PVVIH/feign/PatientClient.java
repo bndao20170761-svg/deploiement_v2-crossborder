@@ -8,8 +8,9 @@ import sn.uasz.Patient_PVVIH.dtos.PatientDto;
 import java.util.List;
 
 @FeignClient(
-        name = "REFERENCE_API_PVVIH",
-        configuration = FeignClientConfig.class
+        name = "gestion-user",
+    url = "${feign.user-service.url:http://gestion-user:8080}",
+    configuration = FeignClientConfig.class
 )
 public interface PatientClient {
 
