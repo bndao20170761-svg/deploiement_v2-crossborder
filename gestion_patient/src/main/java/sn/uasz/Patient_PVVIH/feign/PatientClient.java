@@ -9,7 +9,7 @@ import java.util.List;
 
 @FeignClient(
         name = "referencement-PVVIH",
-        url = "http://16.171.10.0:8080",  // ⚡ URL du MS referencement_PVVIH
+        url = "${feign.reference-service.url:http://referencement-PVVIH:8080}", // ⚡ URL du MS referencement_PVVIH
         configuration = FeignClientConfig.class
 )
 public interface PatientClient {
