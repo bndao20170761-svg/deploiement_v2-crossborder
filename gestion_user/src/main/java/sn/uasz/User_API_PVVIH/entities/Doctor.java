@@ -1,5 +1,6 @@
 package sn.uasz.User_API_PVVIH.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,6 +34,7 @@ public class Doctor {
     @Column(nullable = false)
     private String password;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "id_hopital")
     private Hopital hopital;
