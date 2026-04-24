@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Search, User, FileText, Hospital, Calendar, MessageSquare, Check, X, Eye, EyeOff, Loader } from 'lucide-react';
 import referenceDossierService from '../services/referenceDossierService';
 import * as patientService from '../services/patientService';
-import { getAllHospitals, getPrestatairesByHopital } from '../services/hopitalService';
+import { getAllHospitals,getHopitauxActifs, getPrestatairesByHopital } from '../services/hopitalService';
 import { getCurrentDoctor, getDoctorsByHospital, getDoctorById } from '../services/doctorService';
 import { getTranslation } from '../utils/translations';
 import PatientView from './PatientView';
@@ -120,7 +120,7 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
 
   const fetchHopitaux = async () => {
     try {
-      const data = await getAllHospitals();
+      const data = await getHopitauxActifs();
       setHopitaux(data || []);
     } catch (err) {
       console.error('Erreur lors du chargement des hôpitaux:', err);
