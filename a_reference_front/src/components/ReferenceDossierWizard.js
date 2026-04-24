@@ -157,7 +157,7 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
   const fetchMedecins = async () => {
     try {
       setLoadingMedecins(true);
-      const data = await getDoctorsByHospital(selectedHopital.codeHopital);
+      const data = await getDoctorsByHospital(selectedHopital.id);
       setMedecins(data || []);
     } catch (err) {
       console.error('Erreur lors du chargement des médecins:', err);
@@ -245,14 +245,11 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
 
   const handleHopitalSelect = (hopital) => {
     setSelectedHopital(hopital);
-    setFormData(prev => ({
-      ...prev,
-      codeHopital: hopital.codeHopital,
-      nomHopital: hopital.nomHopital
-    }));
     setSelectedMedecin(null);
     setFormData(prev => ({
       ...prev,
+      codeHopital: hopital.id,
+      nomHopital: hopital.nom,
       codeDocteur: currentDoctor?.codeDocteur || '',
       nomDocteur: currentDoctor?.nomDocteur || ''
     }));
@@ -518,17 +515,17 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
           Sélectionner un hôpital
         </label>
         <select
-          value={selectedHopital?.codeHopital || ''}
+          value={selectedHopital?.id || ''}
           onChange={(e) => {
-            const hopital = hopitaux.find(h => h.codeHopital === e.target.value);
+            const hopital = hopitaux.find(h => h.id === parseInt(e.target.value));
             if (hopital) handleHopitalSelect(hopital);
           }}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
         >
           <option value="">Choisir un hôpital...</option>
           {hopitaux.map((hopital) => (
-            <option key={hopital.codeHopital} value={hopital.codeHopital}>
-              {hopital.nomHopital}
+            <option key={hopital.id} value={hopital.id}>
+              {hopital.nom}
             </option>
           ))}
         </select>
@@ -546,7 +543,7 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
             </button>
           </div>
           <div className="text-sm mt-2">
-            <div><strong>Nom:</strong> {selectedHopital.nomHopital}</div>
+            <div><strong>Nom:</strong> {selectedHopital.nom}</div>
             <div><strong>Ville:</strong> {selectedHopital.ville}</div>
           </div>
         </div>
