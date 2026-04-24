@@ -157,10 +157,17 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
   const fetchMedecins = async () => {
     try {
       setLoadingMedecins(true);
+      console.log('🔄 ReferenceDossierWizard: Chargement des médecins pour l\'hôpital:', selectedHopital?.id);
       const data = await getDoctorsByHospital(selectedHopital.id);
+      console.log('✅ ReferenceDossierWizard: Médecins reçus:', data);
+      console.log('✅ ReferenceDossierWizard: Nombre de médecins:', data?.length || 0);
+      if (data && data.length > 0) {
+        console.log('✅ ReferenceDossierWizard: Premier médecin:', data[0]);
+      }
       setMedecins(data || []);
     } catch (err) {
-      console.error('Erreur lors du chargement des médecins:', err);
+      console.error('❌ ReferenceDossierWizard: Erreur lors du chargement des médecins:', err);
+      setMedecins([]);
     } finally {
       setLoadingMedecins(false);
     }
@@ -259,8 +266,8 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
     setSelectedMedecin(medecin);
     setFormData(prev => ({
       ...prev,
-      codeDocteur: medecin.codePrestataire,
-      nomDocteur: medecin.nomPrestataire
+      codeDocteur: medecin.codeDoctor,
+      nomDocteur: `${medecin.prenomUtilisateur} ${medecin.nomUtilisateur}`
     }));
   };
 
@@ -569,17 +576,17 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
             Sélectionner un médecin
           </label>
           <select
-            value={selectedMedecin?.codePrestataire || ''}
+            value={selectedMedecin?.codeDoctor || ''}
             onChange={(e) => {
-              const medecin = medecins.find(m => m.codePrestataire === e.target.value);
+              const medecin = medecins.find(m => m.codeDoctor === e.target.value);
               if (medecin) handleMedecinSelect(medecin);
             }}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
           >
             <option value="">Choisir un médecin...</option>
             {medecins.map((medecin) => (
-              <option key={medecin.codePrestataire} value={medecin.codePrestataire}>
-                {medecin.nomPrestataire}
+              <option key={medecin.codeDoctor} value={medecin.codeDoctor}>
+                {medecin.prenomUtilisateur} {medecin.nomUtilisateur}
               </option>
             ))}
           </select>
@@ -602,7 +609,8 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
             </button>
           </div>
           <div className="text-sm mt-2">
-            <div><strong>Nom:</strong> {selectedMedecin.nomPrestataire}</div>
+            <div><strong>Nom:</strong> {selectedMedecin.prenomUtilisateur} {selectedMedecin.nomUtilisateur}</div>
+            <div><strong>Code:</strong> {selectedMedecin.codeDoctor}</div>
           </div>
         </div>
       )}
