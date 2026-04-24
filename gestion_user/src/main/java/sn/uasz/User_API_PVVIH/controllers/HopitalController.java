@@ -138,4 +138,11 @@ public class HopitalController {
     public ResponseEntity<List<PrestataireDto>> getPrestatairesByHopitalId(@PathVariable Long id) {
         return ResponseEntity.ok(hopitalService.getPrestatairesByHopitalId(id));
     }
+
+    // 🔹 NOUVEL ENDPOINT : Récupérer les médecins d'un hôpital
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/{id}/doctors")
+    public ResponseEntity<List<Doctor>> getDoctorsByHopital(@PathVariable Long id) {
+        return ResponseEntity.ok(hopitalService.getDoctorsByHopital(id));
+    }
 }

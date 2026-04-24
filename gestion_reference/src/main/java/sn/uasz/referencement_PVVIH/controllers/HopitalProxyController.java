@@ -3,6 +3,7 @@ package sn.uasz.referencement_PVVIH.controllers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import sn.uasz.referencement_PVVIH.dtos.DoctorDto;
 import sn.uasz.referencement_PVVIH.dtos.HopitalDto;
 import sn.uasz.referencement_PVVIH.dtos.PrestataireDto;
 import sn.uasz.referencement_PVVIH.services.HopitalServiceProxy;
@@ -91,5 +92,11 @@ public class HopitalProxyController {
     @GetMapping("/{id}/prestataires-only")
     public List<PrestataireDto> getPrestatairesByHopitalId(@PathVariable Long id) {
         return hopitalProxy.getPrestatairesByHopitalId(id);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/{id}/doctors")
+    public List<DoctorDto> getDoctorsByHopital(@PathVariable Long id) {
+        return hopitalProxy.getDoctorsByHopital(id);
     }
 }

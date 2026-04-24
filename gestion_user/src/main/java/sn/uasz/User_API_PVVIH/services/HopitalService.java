@@ -652,4 +652,13 @@ public class HopitalService {
         hopitalRepository.delete(hopital);
     }
 
+    // 🔹 NOUVELLE MÉTHODE : Récupérer les médecins liés à un hôpital
+    public List<Doctor> getDoctorsByHopital(Long hopitalId) {
+        Hopital hopital = hopitalRepository.findById(hopitalId)
+                .orElseThrow(() -> new RuntimeException("Hôpital non trouvé avec ID: " + hopitalId));
+
+        // Retourner la liste des médecins associés à cet hôpital
+        return new ArrayList<>(hopital.getDoctors());
+    }
+
 }

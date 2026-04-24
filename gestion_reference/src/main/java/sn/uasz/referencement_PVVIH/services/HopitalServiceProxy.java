@@ -2,6 +2,7 @@ package sn.uasz.referencement_PVVIH.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import sn.uasz.referencement_PVVIH.dtos.DoctorDto;
 import sn.uasz.referencement_PVVIH.dtos.HopitalDto;
 import sn.uasz.referencement_PVVIH.dtos.PrestataireDto;
 import sn.uasz.referencement_PVVIH.feign.HopitalClient;
@@ -72,5 +73,9 @@ public class HopitalServiceProxy {
 
     public List<PrestataireDto> getPrestatairesByHopitalId(Long hopitalId) {
         return hopitalClient.getPrestatairesByHopitalId(hopitalId);
+    }
+
+    public List<DoctorDto> getDoctorsByHopital(Long hopitalId) {
+        return hopitalClient.getDoctorsByHopital(hopitalId);
     }
 }

@@ -14,7 +14,7 @@ export const getAllDoctors = async () => {
 // Récupérer les docteurs par hopital
 export const getDoctorsByHospital = async (hospitalId) => {
   try {
-    const response = await api.get(`/doctors/hospital/${hospitalId}`);
+    const response = await api.get(`/hopitaux-proxy/${hospitalId}/doctors`);
     return response.data;
   } catch (error) {
     console.error(`Erreur lors de la récupération des docteurs de l'hôpital ${hospitalId}:`, error);
