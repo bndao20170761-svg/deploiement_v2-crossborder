@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Search, User, FileText, Hospital, Calendar, MessageSquare, Check, X, Eye, EyeOff, Loader } from 'lucide-react';
 import referenceDossierService from '../services/referenceDossierService';
 import * as patientService from '../services/patientService';
-import { getAllHospitals,getHopitauxActifs, getPrestatairesByHopital } from '../services/hopitalService';
+import { getAllHospitals, getHopitauxActifs, getPrestatairesByHopital } from '../services/hopitalService';
 import { getCurrentDoctor, getDoctorsByHospital, getDoctorById } from '../services/doctorService';
 import { getTranslation } from '../utils/translations';
 import PatientView from './PatientView';
@@ -258,14 +258,11 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
 
   const handleHopitalSelect = (hopital) => {
     setSelectedHopital(hopital);
-    setFormData(prev => ({
-      ...prev,
-      codeHopital: hopital.codeHopital,
-      nomHopital: hopital.nomHopital
-    }));
     setSelectedMedecin(null);
     setFormData(prev => ({
       ...prev,
+      codeHopital: hopital.codeHopital,
+      nomHopital: hopital.nomHopital,
       codeDocteur: currentDoctor?.codeDocteur || '',
       nomDocteur: currentDoctor?.nomDocteur || ''
     }));
@@ -545,8 +542,16 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
 
       {selectedHopital && (
         <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
-          <h3 className="font-medium text-purple-900 mb-2">Hôpital sélectionné:</h3>
-          <div className="text-sm">
+          <div className="flex items-center justify-between">
+            <h3 className="font-medium text-purple-900">Hôpital sélectionné:</h3>
+            <button
+              onClick={handleHopitalUnselect}
+              className="p-1 hover:bg-purple-200 rounded"
+            >
+              <X size={16} className="text-purple-600" />
+            </button>
+          </div>
+          <div className="text-sm mt-2">
             <div><strong>Nom:</strong> {selectedHopital.nomHopital}</div>
             <div><strong>Code:</strong> {selectedHopital.codeHopital}</div>
             <div><strong>Adresse:</strong> {selectedHopital.adresseHopital || '-'}</div>
@@ -592,8 +597,16 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
 
       {selectedMedecin && (
         <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
-          <h3 className="font-medium text-orange-900 mb-2">Médecin sélectionné:</h3>
-          <div className="text-sm">
+          <div className="flex items-center justify-between">
+            <h3 className="font-medium text-orange-900">Médecin sélectionné:</h3>
+            <button
+              onClick={handleMedecinUnselect}
+              className="p-1 hover:bg-orange-200 rounded"
+            >
+              <X size={16} className="text-orange-600" />
+            </button>
+          </div>
+          <div className="text-sm mt-2">
             <div><strong>Nom:</strong> {selectedMedecin.nomPrestataire}</div>
             <div><strong>Type:</strong> {selectedMedecin.typePrestataire}</div>
             <div><strong>Téléphone:</strong> {selectedMedecin.telephonePrestataire || '-'}</div>
