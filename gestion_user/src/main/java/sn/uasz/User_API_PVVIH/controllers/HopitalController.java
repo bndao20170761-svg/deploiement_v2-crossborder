@@ -7,6 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import sn.uasz.User_API_PVVIH.dtos.HopitalDto;
 import sn.uasz.User_API_PVVIH.dtos.PrestataireDto;
+import sn.uasz.User_API_PVVIH.entities.Doctor;
 import sn.uasz.User_API_PVVIH.services.HopitalService;
 
 import java.util.List;
