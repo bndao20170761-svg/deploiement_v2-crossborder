@@ -100,9 +100,11 @@ public class JwtUtils {
             @SuppressWarnings("unchecked")
             java.util.List<String> authorities = (java.util.List<String>) claims.get("authorities");
             
+            System.out.println("🔍 Autorités extraites du JWT: " + authorities);
             return authorities != null ? authorities : java.util.List.of("ROLE_USER");
         } catch (Exception e) {
-            System.err.println("Erreur extraction authorities JWT: " + e.getMessage());
+            System.err.println("❌ Erreur extraction authorities JWT: " + e.getMessage());
+            e.printStackTrace();
             return java.util.List.of("ROLE_USER");
         }
     }
@@ -110,10 +112,12 @@ public class JwtUtils {
     public boolean validateJwtToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            System.out.println("✅ JWT validation réussie");
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            System.err.println("JWT Validation Error: " + e.getMessage());
+            System.err.println("❌ JWT Validation Error: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
-        return false;
     }
 }

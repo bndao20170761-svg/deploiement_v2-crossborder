@@ -47,12 +47,16 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         try {
             String jwt = parseJwt(request);
+            log.debug("🔍 JWT extrait de la requête: {}", jwt != null ? "présent" : "absent");
+            
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
+                log.debug("✅ JWT valide pour la requête: {}", request.getRequestURI());
                 String username = jwtUtils.getUsernameFromJwtToken(jwt);
-                log.debug("🔍 JWT valide pour utilisateur: {}", username);
+                log.debug("🔍 Utilisateur extrait du JWT: {}", username);
 
                 // Extraire les autorités directement du JWT pour éviter les problèmes de récursion
                 Collection<? extends GrantedAuthority> authorities = extractAuthoritiesFromJwt(jwt);
+                log.debug("🔍 Autorités extraites du JWT: {}", authorities);
                 
                 // Créer directement l'authentication sans UserDetails pour éviter la récursion
                 UsernamePasswordAuthenticationToken authentication =
@@ -64,9 +68,11 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 log.debug("✅ Authentification définie pour: {} avec autorités: {}", username, authorities);
+            } else {
+                log.debug("❌ JWT absent ou invalide pour la requête: {}", request.getRequestURI());
             }
         } catch (Exception e) {
-            log.error("❌ Erreur lors du traitement JWT: {}", e.getMessage());
+            log.error("❌ Erreur lors du traitement JWT: {}", e.getMessage(), e);
         }
 
         filterChain.doFilter(request, response);
