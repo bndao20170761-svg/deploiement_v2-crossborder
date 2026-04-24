@@ -143,10 +143,14 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
 
   const fetchHopitaux = async () => {
     try {
+      console.log('🔄 ReferenceDossierWizard: Chargement des hôpitaux...');
       const data = await getHopitauxActifs();
+      console.log('✅ ReferenceDossierWizard: Hôpitaux reçus:', data);
       setHopitaux(data || []);
+      console.log('✅ ReferenceDossierWizard: Hôpitaux définis dans le state:', data?.length || 0, 'hôpitaux');
     } catch (err) {
-      console.error('Erreur lors du chargement des hôpitaux:', err);
+      console.error('❌ ReferenceDossierWizard: Erreur lors du chargement des hôpitaux:', err);
+      setHopitaux([]);
     }
   };
 
@@ -503,6 +507,11 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
         <Hospital className="w-5 h-5 mr-2 text-purple-600" />
         Étape 2: Sélection de l'Hôpital de Destination
       </h2>
+
+      {/* Debug: Afficher le nombre d'hôpitaux */}
+      <div className="mb-4 p-2 bg-gray-100 rounded text-sm">
+        Debug: {hopitaux.length} hôpitaux chargés
+      </div>
 
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
