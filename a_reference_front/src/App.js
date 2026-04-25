@@ -209,6 +209,23 @@ const handleViewDossier = (patient) => {
   setCurrentView("dossierView"); // bascule la vue
 };
 
+const handleViewDossierFromReference = async (codeDossier) => {
+  try {
+    // Importer la fonction depuis patientService
+    const { getPatientByDossierCode } = await import('./services/patientService');
+    const patient = await getPatientByDossierCode(codeDossier);
+    if (patient) {
+      setSelectedDossier(patient);
+      setCurrentView("dossierView");
+    } else {
+      alert("Patient non trouvé pour ce dossier");
+    }
+  } catch (error) {
+    console.error("Erreur lors du chargement du dossier:", error);
+    alert("Erreur lors du chargement du dossier");
+  }
+};
+
   const handleEditPatient = (patient) => {
     setEditingPatient(patient);
     setCurrentView("addPatient");
@@ -469,6 +486,7 @@ const handleViewDossier = (patient) => {
               setEditingReferenceDossier(reference);
               setCurrentView("dossier-edit");
             }}
+            onViewDossier={handleViewDossierFromReference}
           />
         );
       case "dossier-add":

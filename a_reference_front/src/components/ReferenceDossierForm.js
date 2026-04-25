@@ -315,7 +315,7 @@ const ReferenceDossierForm = ({ language = "fr", onBack, onComplete, initialData
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="font-medium text-gray-900">
-                          {patient.nomUtilisateur} {patient.prenomUtilisateur}
+                          {patient.nom || patient.nomUtilisateur || '-'} {patient.prenom || patient.prenomUtilisateur || '-'}
                         </p>
                         <p className="text-sm text-gray-500">{patient.codePatient}</p>
                       </div>
@@ -351,7 +351,7 @@ const ReferenceDossierForm = ({ language = "fr", onBack, onComplete, initialData
                       {getTranslation('patientSelectionne', language) || 'Patient sélectionné'}:
                     </p>
                     <p className="text-green-700">
-                      {selectedPatient.nomUtilisateur} {selectedPatient.prenomUtilisateur}
+                      {selectedPatient.nom || selectedPatient.nomUtilisateur || '-'} {selectedPatient.prenom || selectedPatient.prenomUtilisateur || '-'}
                     </p>
                   </div>
                   <button
@@ -631,7 +631,7 @@ const ReferenceDossierForm = ({ language = "fr", onBack, onComplete, initialData
                           {getTranslation('medecinSelectionne', language) || 'Médecin sélectionné'}:
                         </p>
                         <p className="text-blue-700">
-                          {selectedMedecin.nomDocteur || selectedMedecin.nomPrestataire}
+                          {selectedMedecin.nomComplet || selectedMedecin.nomAffichage || selectedMedecin.nomDocteur || selectedMedecin.nomPrestataire || `${selectedMedecin.prenomUtilisateur || ''} ${selectedMedecin.nomUtilisateur || ''}`.trim() || selectedMedecin.codeDoctor}
                         </p>
                       </div>
                       <button

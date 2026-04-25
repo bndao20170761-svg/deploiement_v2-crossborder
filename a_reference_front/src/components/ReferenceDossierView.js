@@ -3,7 +3,7 @@ import { ArrowLeft, Edit, Trash2, CheckCircle, Clock, AlertCircle, User, FileTex
 import referenceDossierService from '../services/referenceDossierService';
 import { getTranslation } from '../utils/translations';
 
-const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }) => {
+const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, onViewDossier }) => {
   const [reference, setReference] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -251,9 +251,8 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
                 <p className="text-sm text-gray-900 font-semibold">{reference.codeDossier}</p>
                 <button
                   onClick={() => {
-                    // Ouvrir le dossier dans une nouvelle fenêtre ou modal
-                    if (reference.codeDossier) {
-                      window.open(`/dossier/${reference.codeDossier}`, '_blank');
+                    if (onViewDossier && reference.codeDossier) {
+                      onViewDossier(reference.codeDossier);
                     }
                   }}
                   className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 flex items-center"

@@ -410,7 +410,7 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
             </button>
           </div>
           <div className="text-sm mt-2">
-            <div><strong>Nom:</strong> {selectedPatient.nomUtilisateur} {selectedPatient.prenomUtilisateur}</div>
+            <div><strong>Nom:</strong> {selectedPatient.nom || selectedPatient.nomUtilisateur || '-'} {selectedPatient.prenom || selectedPatient.prenomUtilisateur || '-'}</div>
             <div><strong>Code:</strong> {selectedPatient.codePatient}</div>
           </div>
         </div>
@@ -451,7 +451,7 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="font-medium">{dossier.codeDossier}</div>
-                      <div className="text-sm text-gray-500">Créé le: {new Date(dossier.dateCreation).toLocaleDateString('fr-FR')}</div>
+                      <div className="text-sm text-gray-500">Créé le: {dossier.dateCreation ? new Date(dossier.dateCreation).toLocaleDateString('fr-FR') : 'Date inconnue'}</div>
                     </div>
                     <div className="flex items-center space-x-2">
                       <button
@@ -501,7 +501,7 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
           </div>
           <div className="text-sm mt-2">
             <div><strong>Code:</strong> {selectedDossier.codeDossier}</div>
-            <div><strong>Date création:</strong> {new Date(selectedDossier.dateCreation).toLocaleDateString('fr-FR')}</div>
+            <div><strong>Date création:</strong> {selectedDossier.dateCreation ? new Date(selectedDossier.dateCreation).toLocaleDateString('fr-FR') : 'Date inconnue'}</div>
           </div>
         </div>
       )}
@@ -612,9 +612,9 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
             </button>
           </div>
           <div className="text-sm mt-2 space-y-1">
-            <div><strong>Nom:</strong> {selectedMedecin.nomComplet || `${selectedMedecin.prenomUtilisateur} ${selectedMedecin.nomUtilisateur}`}</div>
+            <div><strong>Nom:</strong> {selectedMedecin.nomComplet || selectedMedecin.nomAffichage || `${selectedMedecin.prenomUtilisateur || selectedMedecin.prenomDocteur || ''} ${selectedMedecin.nomUtilisateur || selectedMedecin.nomDocteur || ''}`.trim() || selectedMedecin.codeDoctor}</div>
             <div><strong>Code:</strong> {selectedMedecin.codeDoctor}</div>
-            <div><strong>Fonction:</strong> {selectedMedecin.fonction || 'Non spécifiée'}</div>
+            <div><strong>Fonction:</strong> {selectedMedecin.fonction || selectedMedecin.specialite || 'Non spécifiée'}</div>
             <div><strong>Téléphone:</strong> {selectedMedecin.telephone || 'Non spécifié'}</div>
             <div><strong>Email:</strong> {selectedMedecin.email || 'Non spécifié'}</div>
             <div><strong>Lieu d'exercice:</strong> {selectedMedecin.lieuExercice || 'Non spécifié'}</div>
