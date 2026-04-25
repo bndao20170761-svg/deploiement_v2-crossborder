@@ -5,6 +5,7 @@ import * as patientService from '../services/patientService';
 import { getAllHospitals, getPrestatairesByHopital } from '../services/hopitalService';
 import { getCurrentDoctor, getDoctorsByHospital } from '../services/doctorService';
 import { getTranslation } from '../utils/translations';
+import { normalizeDoctorsList, getDoctorDisplayName } from '../utils/doctorMapper';
 
 const ReferenceDossierForm = ({ language = "fr", onBack, onComplete, initialData = null }) => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -144,7 +145,11 @@ const ReferenceDossierForm = ({ language = "fr", onBack, onComplete, initialData
     try {
       setLoadingMedecins(true);
       const data = await getDoctorsByHospital(selectedHopital.codeHopital);
-      setMedecins(data || []);
+      
+      // Normaliser les données des médecins
+      const normalizedMedecins = normalizeDoctorsList(data);
+      
+      setMedecins(normalizedMedecins);
     } catch (err) {
       console.error('Erreur lors du chargement des médecins:', err);
     } finally {
@@ -553,20 +558,28 @@ const ReferenceDossierForm = ({ language = "fr", onBack, onComplete, initialData
                   <div className="border border-gray-200 rounded-lg max-h-60 overflow-y-auto">
                     {medecins.map((medecin) => (
                       <div
-                        key={medecin.codeDocteur || medecin.codePrestataire}
+                        key={medecin.codeDocteur || medecin.codePrestataire || medecin.codeDoctor}
                         onClick={() => handleMedecinSelect(medecin)}
-                        className={`p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 ${
-                          selectedMedecin?.codeDocteur === medecin.codeDocteur ? 'bg-blue-50' : ''
+                        className={`p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition ${
+                          selectedMedecin?.codeDocteur === medecin.codeDocteur ? 'bg-blue-50 border-left-4 border-blue-500' : ''
                         }`}
                       >
                         <div className="flex items-center justify-between">
-                          <div>
+                          <div className="flex-1">
                             <p className="font-medium text-gray-900">
-                              {medecin.nomDocteur || medecin.nomPrestataire}
+                              {medecin.nomComplet || `${medecin.prenomDocteur || ''} ${medecin.nomDocteur || ''}`.trim() || medecin.nomPrestataire || 'Médecin'}
                             </p>
-                            <p className="text-sm text-gray-500">
-                              {medecin.specialite || 'Médecin'}
+                            <p className="text-sm text-gray-600">
+                              {medecin.specialite || medecin.fonction || 'Médecin'}
                             </p>
+                            <p className="text-xs text-gray-500">
+                              Code: {medecin.codeDocteur || medecin.codePrestataire || medecin.codeDoctor}
+                            </p>
+                            {medecin.telephone && (
+                              <p className="text-xs text-gray-500">
+                                Tel: {medecin.telephone}
+                              </p>
+                            )}
                           </div>
                           <div className="flex items-center space-x-2">
                             <button

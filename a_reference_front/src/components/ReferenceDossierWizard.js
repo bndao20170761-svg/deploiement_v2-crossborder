@@ -5,6 +5,7 @@ import * as patientService from '../services/patientService';
 import { getHopitauxActifs, getPrestatairesByHopital } from '../services/hopitalService';
 import { getCurrentDoctor, getDoctorsByHospital, getDoctorById } from '../services/doctorService';
 import { getTranslation } from '../utils/translations';
+import { normalizeDoctorsList } from '../utils/doctorMapper';
 import PatientView from './PatientView';
 import DossierView from './DossierView';
 
@@ -161,10 +162,12 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
       const data = await getDoctorsByHospital(selectedHopital.id);
       console.log('✅ ReferenceDossierWizard: Médecins reçus:', data);
       console.log('✅ ReferenceDossierWizard: Nombre de médecins:', data?.length || 0);
-      if (data && data.length > 0) {
-        console.log('✅ ReferenceDossierWizard: Premier médecin:', data[0]);
-      }
-      setMedecins(data || []);
+      
+      // Normaliser les données des médecins
+      const normalizedMedecins = normalizeDoctorsList(data);
+      
+      console.log('✅ ReferenceDossierWizard: Médecins normalisés:', normalizedMedecins);
+      setMedecins(normalizedMedecins);
     } catch (err) {
       console.error('❌ ReferenceDossierWizard: Erreur lors du chargement des médecins:', err);
       setMedecins([]);
@@ -586,7 +589,7 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
             <option value="">Choisir un médecin...</option>
             {medecins.map((medecin) => (
               <option key={medecin.codeDoctor} value={medecin.codeDoctor}>
-                {medecin.prenomUtilisateur} {medecin.nomUtilisateur}
+                {medecin.nomComplet || `${medecin.prenomUtilisateur} ${medecin.nomUtilisateur}`} - {medecin.fonction || 'Spécialiste'} ({medecin.codeDoctor})
               </option>
             ))}
           </select>
@@ -608,9 +611,13 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
               <X size={16} className="text-green-600" />
             </button>
           </div>
-          <div className="text-sm mt-2">
-            <div><strong>Nom:</strong> {selectedMedecin.prenomUtilisateur} {selectedMedecin.nomUtilisateur}</div>
+          <div className="text-sm mt-2 space-y-1">
+            <div><strong>Nom:</strong> {selectedMedecin.nomComplet || `${selectedMedecin.prenomUtilisateur} ${selectedMedecin.nomUtilisateur}`}</div>
             <div><strong>Code:</strong> {selectedMedecin.codeDoctor}</div>
+            <div><strong>Fonction:</strong> {selectedMedecin.fonction || 'Non spécifiée'}</div>
+            <div><strong>Téléphone:</strong> {selectedMedecin.telephone || 'Non spécifié'}</div>
+            <div><strong>Email:</strong> {selectedMedecin.email || 'Non spécifié'}</div>
+            <div><strong>Lieu d'exercice:</strong> {selectedMedecin.lieuExercice || 'Non spécifié'}</div>
           </div>
         </div>
       )}

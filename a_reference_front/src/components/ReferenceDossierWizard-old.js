@@ -131,7 +131,16 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
     try {
       setLoadingMedecins(true);
       const data = await getDoctorsByHospital(selectedHopital.codeHopital);
-      setMedecins(data || []);
+      
+      // Normaliser les données des médecins
+      const normalizedMedecins = data?.map(medecin => ({
+        ...medecin,
+        prenomUtilisateur: medecin.utilisateur?.prenom || medecin.prenomUtilisateur || '',
+        nomUtilisateur: medecin.utilisateur?.nom || medecin.nomUtilisateur || '',
+        nomComplet: `${medecin.utilisateur?.prenom || medecin.prenomUtilisateur || ''} ${medecin.utilisateur?.nom || medecin.nomUtilisateur || ''}`.trim()
+      })) || [];
+      
+      setMedecins(normalizedMedecins);
     } catch (err) {
       console.error('Erreur lors du chargement des médecins:', err);
     } finally {
