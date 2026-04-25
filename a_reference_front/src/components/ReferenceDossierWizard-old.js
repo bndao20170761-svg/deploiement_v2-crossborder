@@ -281,8 +281,8 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
     setSelectedMedecin(medecin);
     setFormData(prev => ({
       ...prev,
-      codeDocteur: medecin.codePrestataire,
-      nomDocteur: medecin.nomPrestataire
+      codeDocteur: medecin.codeDoctor || medecin.codeDocteur || medecin.codePrestataire,
+      nomDocteur: medecin.nomComplet || medecin.nomAffichage || medecin.nomDocteur || medecin.nomPrestataire || `${medecin.prenomUtilisateur || ''} ${medecin.nomUtilisateur || ''}`.trim() || medecin.codeDoctor
     }));
   };
 

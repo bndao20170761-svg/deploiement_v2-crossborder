@@ -206,7 +206,7 @@ const SearchPatientNew = ({
               </div>
               <div className="flex-1">
                 <div className="text-lg font-medium text-gray-900">
-                  {selectedPatient.nomUtilisateur} {selectedPatient.prenomUtilisateur}
+                  {selectedPatient.nom || selectedPatient.nomUtilisateur || '-'} {selectedPatient.prenom || selectedPatient.prenomUtilisateur || '-'}
                 </div>
                 <div className="text-sm text-gray-600 space-y-1">
                   <div><strong>Code:</strong> {selectedPatient.codePatient}</div>

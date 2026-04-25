@@ -247,7 +247,22 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
             
             <div>
               <label className="block text-sm font-medium text-gray-700">Code Dossier</label>
-              <p className="mt-1 text-sm text-gray-900 font-semibold">{reference.codeDossier}</p>
+              <div className="flex items-center gap-2 mt-1">
+                <p className="text-sm text-gray-900 font-semibold">{reference.codeDossier}</p>
+                <button
+                  onClick={() => {
+                    // Ouvrir le dossier dans une nouvelle fenêtre ou modal
+                    if (reference.codeDossier) {
+                      window.open(`/dossier/${reference.codeDossier}`, '_blank');
+                    }
+                  }}
+                  className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 flex items-center"
+                  title="Charger le dossier"
+                >
+                  <FileText className="w-3 h-3 mr-1" />
+                  Charger
+                </button>
+              </div>
             </div>
           </div>
         </div>

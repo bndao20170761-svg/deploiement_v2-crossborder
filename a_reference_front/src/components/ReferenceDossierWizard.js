@@ -181,8 +181,8 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
     setFormData(prev => ({
       ...prev,
       codePatient: patient.codePatient,
-      nomPatient: patient.nomUtilisateur,
-      prenomPatient: patient.prenomUtilisateur
+      nomPatient: patient.nom || patient.nomUtilisateur || '',
+      prenomPatient: patient.prenom || patient.prenomUtilisateur || ''
     }));
     setSearchPatient('');
     setPatientResults([]);
@@ -269,8 +269,8 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
     setSelectedMedecin(medecin);
     setFormData(prev => ({
       ...prev,
-      codeDocteur: medecin.codeDoctor,
-      nomDocteur: `${medecin.prenomUtilisateur} ${medecin.nomUtilisateur}`
+      codeDocteur: medecin.codeDoctor || medecin.codeDocteur,
+      nomDocteur: medecin.nomComplet || medecin.nomAffichage || `${medecin.prenomUtilisateur || ''} ${medecin.nomUtilisateur || ''}`.trim() || medecin.codeDoctor
     }));
   };
 
