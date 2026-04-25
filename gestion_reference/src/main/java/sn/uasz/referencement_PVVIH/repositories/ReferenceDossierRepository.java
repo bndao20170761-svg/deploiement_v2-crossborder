@@ -20,6 +20,10 @@ public interface ReferenceDossierRepository extends JpaRepository<ReferenceDossi
     
     List<ReferenceDossier> findByCodeDocteur(String codeDocteur);
     
+    List<ReferenceDossier> findByCodeDocteurAndStatutInOrderByDateCreationDesc(String codeDocteur, List<String> statuts);
+    
+    List<ReferenceDossier> findByCodeReferenceurOrderByDateCreationDesc(String codeReferenceur);
+    
     List<ReferenceDossier> findByStatut(String statut);
     
     List<ReferenceDossier> findByTypeReference(String typeReference);

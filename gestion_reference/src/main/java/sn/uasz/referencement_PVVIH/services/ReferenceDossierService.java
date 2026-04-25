@@ -1,13 +1,18 @@
 package sn.uasz.referencement_PVVIH.services;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sn.uasz.referencement_PVVIH.dtos.ReferenceDossierDto;
 import sn.uasz.referencement_PVVIH.dtos.DossierViewDto;
+import sn.uasz.referencement_PVVIH.entities.Doctor;
 import sn.uasz.referencement_PVVIH.entities.ReferenceDossier;
+import sn.uasz.referencement_PVVIH.entities.User;
 import sn.uasz.referencement_PVVIH.mappers.ReferenceDossierMapper;
 import sn.uasz.referencement_PVVIH.repositories.ReferenceDossierRepository;
+import sn.uasz.referencement_PVVIH.services.ReferenceServiceHelper;
 import sn.uasz.referencement_PVVIH.feign.DossierClient;
 
 import java.time.LocalDateTime;
@@ -23,6 +28,23 @@ public class ReferenceDossierService {
     private final ReferenceDossierRepository referenceDossierRepository;
     private final ReferenceDossierMapper referenceDossierMapper;
     private final DossierClient dossierClient;
+    private final ReferenceServiceHelper referenceServiceHelper;
+
+    private String getAuthenticatedUsername() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+        return authentication.getName();
+    }
+
+    private Optional<Doctor> getAuthenticatedDoctor() {
+        String username = getAuthenticatedUsername();
+        if (username == null) {
+            return Optional.empty();
+        }
+        return referenceServiceHelper.findDoctorByUsername(username);
+    }
     
     public List<ReferenceDossierDto> getAllReferences() {
         List<ReferenceDossier> references = referenceDossierRepository.findAll();
@@ -65,11 +87,26 @@ public class ReferenceDossierService {
     }
     
     public List<ReferenceDossierDto> getReferencesRecues() {
-        return getReferencesByStatut("RECUE");
+        Optional<Doctor> currentDoctor = getAuthenticatedDoctor();
+        if (currentDoctor.isEmpty()) {
+            return List.of();
+        }
+        List<String> statuses = List.of("EN_ATTENTE", "RECUE");
+        List<ReferenceDossier> references = referenceDossierRepository.findByCodeDocteurAndStatutInOrderByDateCreationDesc(currentDoctor.get().getCodeDoctor(), statuses);
+        return references.stream()
+                .map(referenceDossierMapper::entityToDto)
+                .toList();
     }
     
     public List<ReferenceDossierDto> getReferencesEnvoyees() {
-        return getReferencesByStatut("ENVOYEE");
+        Optional<Doctor> currentDoctor = getAuthenticatedDoctor();
+        if (currentDoctor.isEmpty()) {
+            return List.of();
+        }
+        List<ReferenceDossier> references = referenceDossierRepository.findByCodeReferenceurOrderByDateCreationDesc(currentDoctor.get().getCodeDoctor());
+        return references.stream()
+                .map(referenceDossierMapper::entityToDto)
+                .toList();
     }
     
     public List<ReferenceDossierDto> getReferencesEnAttente() {
@@ -77,6 +114,57 @@ public class ReferenceDossierService {
     }
     
     public ReferenceDossierDto createReference(ReferenceDossierDto referenceDossierDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            String username = authentication.getName();
+            referenceServiceHelper.findDoctorByUsername(username).ifPresent(doctor -> {
+                if (referenceDossierDto.getCodeReferenceur() == null || referenceDossierDto.getCodeReferenceur().isBlank()) {
+                    referenceDossierDto.setCodeReferenceur(doctor.getCodeDoctor());
+                }
+                if (referenceDossierDto.getNomReferenceur() == null || referenceDossierDto.getNomReferenceur().isBlank()) {
+                    if (doctor.getUtilisateur() != null) {
+                        referenceDossierDto.setNomReferenceur(doctor.getUtilisateur().getNom() + " " + doctor.getUtilisateur().getPrenom());
+                    } else if (doctor.getPseudo() != null && !doctor.getPseudo().isBlank()) {
+                        referenceDossierDto.setNomReferenceur(doctor.getPseudo());
+                    } else {
+                        referenceDossierDto.setNomReferenceur(doctor.getCodeDoctor());
+                    }
+                }
+                if ((referenceDossierDto.getTelephoneReferenceur() == null || referenceDossierDto.getTelephoneReferenceur().isBlank()) && doctor.getTelephone() != null) {
+                    referenceDossierDto.setTelephoneReferenceur(doctor.getTelephone());
+                }
+                if ((referenceDossierDto.getEmailReferenceur() == null || referenceDossierDto.getEmailReferenceur().isBlank()) && doctor.getEmail() != null) {
+                    referenceDossierDto.setEmailReferenceur(doctor.getEmail());
+                }
+            });
+            referenceServiceHelper.findUserByUsername(username).ifPresent(user -> {
+                if ((referenceDossierDto.getCodeReferenceur() == null || referenceDossierDto.getCodeReferenceur().isBlank()) && user.getUsername() != null) {
+                    referenceDossierDto.setCodeReferenceur(user.getUsername());
+                }
+                if ((referenceDossierDto.getNomReferenceur() == null || referenceDossierDto.getNomReferenceur().isBlank()) && user.getNom() != null) {
+                    referenceDossierDto.setNomReferenceur(user.getNom() + " " + user.getPrenom());
+                }
+                if ((referenceDossierDto.getTelephoneReferenceur() == null || referenceDossierDto.getTelephoneReferenceur().isBlank()) && user.getUsername() != null) {
+                    referenceDossierDto.setTelephoneReferenceur(user.getUsername());
+                }
+                if ((referenceDossierDto.getEmailReferenceur() == null || referenceDossierDto.getEmailReferenceur().isBlank()) && user.getUsername() != null) {
+                    referenceDossierDto.setEmailReferenceur(user.getUsername());
+                }
+            });
+        }
+
+        if ((referenceDossierDto.getNomDocteur() == null || referenceDossierDto.getNomDocteur().isBlank()) && referenceDossierDto.getCodeDocteur() != null) {
+            referenceServiceHelper.findDoctorByCode(referenceDossierDto.getCodeDocteur()).ifPresent(targetDoctor -> {
+                if (targetDoctor.getUtilisateur() != null && targetDoctor.getUtilisateur().getNom() != null) {
+                    referenceDossierDto.setNomDocteur(targetDoctor.getUtilisateur().getNom() + " " + targetDoctor.getUtilisateur().getPrenom());
+                } else if (targetDoctor.getPseudo() != null && !targetDoctor.getPseudo().isBlank()) {
+                    referenceDossierDto.setNomDocteur(targetDoctor.getPseudo());
+                } else {
+                    referenceDossierDto.setNomDocteur(targetDoctor.getCodeDoctor());
+                }
+            });
+        }
+
         // Générer un code de référence unique
         String codeReference = generateCodeReference();
         referenceDossierDto.setCodeReference(codeReference);
@@ -88,7 +176,6 @@ public class ReferenceDossierService {
         
         return referenceDossierMapper.entityToDto(savedReference);
     }
-    
     public ReferenceDossierDto updateReference(String codeReference, ReferenceDossierDto referenceDossierDto) {
         Optional<ReferenceDossier> existingReference = referenceDossierRepository.findByCodeReference(codeReference);
         if (existingReference.isPresent()) {
