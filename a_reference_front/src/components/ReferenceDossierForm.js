@@ -248,7 +248,7 @@ const ReferenceDossierForm = ({ language = "fr", onBack, onComplete, initialData
 
       const submissionData = {
         ...formData,
-        dateReference: formData.dateReference || new Date().toISOString().split('T')[0]
+        dateReference: formData.dateReference ? new Date(formData.dateReference).toISOString() : new Date().toISOString()
       };
 
       let result;

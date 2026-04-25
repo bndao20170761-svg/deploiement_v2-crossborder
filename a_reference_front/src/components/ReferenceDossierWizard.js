@@ -287,7 +287,7 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
 
       const submissionData = {
         ...formData,
-        dateReference: formData.dateReference || new Date().toISOString().split('T')[0]
+        dateReference: formData.dateReference ? new Date(formData.dateReference).toISOString() : new Date().toISOString()
       };
 
       let result;
