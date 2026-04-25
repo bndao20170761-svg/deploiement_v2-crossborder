@@ -23,18 +23,32 @@ const api = axios.create({
 // Intercepteur pour ajouter le token à chaque requête
 api.interceptors.request.use(
   (config) => {
+    // Debug complet du localStorage
+    console.log("🔍 [Debug] localStorage contenu:", {
+      token: localStorage.getItem("token"),
+      user: localStorage.getItem("user"),
+      allKeys: Object.keys(localStorage)
+    });
+    
     const token = normalizeToken(localStorage.getItem("token"));
     console.log("🔵 [API Request]", {
       url: config.url,
       hasToken: !!token,
-      tokenValid: token ? isJwtFormatValid(token) : false
+      tokenValid: token ? isJwtFormatValid(token) : false,
+      tokenPreview: token ? token.substring(0, 50) + "..." : null
     });
     
     if (token && isJwtFormatValid(token)) {
       config.headers["Authorization"] = `Bearer ${token}`;
       console.log("✅ Token ajouté au header Authorization");
     } else {
-      console.warn("⚠️ Pas de token valide stocké");
+      console.warn("⚠️ Pas de token valide stocké - Redirection vers login recommandée");
+      // Redirection automatique si pas de token
+      if (window.location.pathname !== "/login") {
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 100);
+      }
     }
     return config;
   },
@@ -109,15 +123,26 @@ const apiSafe = axios.create({
 // Intercepteur request pour apiSafe
 apiSafe.interceptors.request.use(
   (config) => {
+    // Debug complet du localStorage pour apiSafe aussi
+    console.log("🟡 [Debug Safe] localStorage contenu:", {
+      token: localStorage.getItem("token"),
+      user: localStorage.getItem("user"),
+      allKeys: Object.keys(localStorage)
+    });
+    
     const token = normalizeToken(localStorage.getItem("token"));
     console.log("🟡 [API Safe Request]", {
       url: config.url,
       hasToken: !!token,
-      tokenValid: token ? isJwtFormatValid(token) : false
+      tokenValid: token ? isJwtFormatValid(token) : false,
+      tokenPreview: token ? token.substring(0, 50) + "..." : null
     });
     
     if (token && isJwtFormatValid(token)) {
       config.headers["Authorization"] = `Bearer ${token}`;
+      console.log("✅ Token ajouté au header Authorization (apiSafe)");
+    } else {
+      console.warn("⚠️ Pas de token valide stocké (apiSafe)");
     }
     return config;
   },

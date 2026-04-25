@@ -113,7 +113,7 @@ export const searchPatients = async (searchTerm) => {
 // Récupérer le patient avec son dossier principal (dossierView)
 export const getPatientWithDossier = async (codePatient) => {
   try {
-    const result = await api.get(`/dossiers/view/${codePatient}`);
+    const result = await apiSafe.get(`/dossiers/view/${codePatient}`);
     return result.data;
   } catch (error) {
     console.error("Erreur lors de la récupération du patient avec dossier:", error);
