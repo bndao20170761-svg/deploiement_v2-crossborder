@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Search, User, FileText, Hospital, Calendar, MessageSquare, Check, X, Eye, EyeOff, Loader } from 'lucide-react';
 import referenceDossierService from '../services/referenceDossierService';
 import * as patientService from '../services/patientService';
+import { getPatientWithDossier } from '../services/patientService';
 import { getHopitauxActifs, getPrestatairesByHopital } from '../services/hopitalService';
 import { getCurrentDoctor, getDoctorsByHospital, getDoctorById } from '../services/doctorService';
 import { getTranslation } from '../utils/translations';
@@ -176,7 +177,7 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
     }
   };
 
-  const handlePatientSelect = (patient) => {
+  const handlePatientSelect = async (patient) => {
     setSelectedPatient(patient);
     setFormData(prev => ({
       ...prev,
@@ -186,9 +187,34 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
     }));
     setSearchPatient('');
     setPatientResults([]);
-    // Charger automatiquement les dossiers du patient
+    
+    // Charger le patient avec son vrai dossier principal
     if (patient.codePatient) {
-      loadPatientDossiers(patient.codePatient);
+      try {
+        console.log('🔄 ReferenceDossierWizard: Chargement du patient avec dossier principal...');
+        const patientWithDossier = await getPatientWithDossier(patient.codePatient);
+        console.log('✅ ReferenceDossierWizard: Patient avec dossier reçu:', patientWithDossier);
+        
+        // Si le patient a un dossier principal, le sélectionner automatiquement
+        if (patientWithDossier && patientWithDossier.dossier) {
+          const dossierPrincipal = patientWithDossier.dossier;
+          console.log('✅ ReferenceDossierWizard: Dossier principal trouvé:', dossierPrincipal);
+          
+          setSelectedDossier(dossierPrincipal);
+          setFormData(prev => ({
+            ...prev,
+            codeDossier: dossierPrincipal.codeDossier
+          }));
+          setDossierResults([dossierPrincipal]);
+        } else {
+          // Sinon, charger tous les dossiers disponibles
+          loadPatientDossiers(patient.codePatient);
+        }
+      } catch (error) {
+        console.error('❌ ReferenceDossierWizard: Erreur lors du chargement du patient avec dossier:', error);
+        // En cas d'erreur, charger les dossiers normalement
+        loadPatientDossiers(patient.codePatient);
+      }
     }
   };
 
