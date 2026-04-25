@@ -229,38 +229,61 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
             Informations du Patient
           </h2>
           
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Code Patient</label>
-              <p className="mt-1 text-sm text-gray-900 font-semibold">{reference.codePatient}</p>
+              <strong>Code Patient:</strong>
+              <p className="text-gray-900 font-semibold">{reference.codePatient || '-'}</p>
             </div>
-            
             <div>
-              <label className="block text-sm font-medium text-gray-700">Nom</label>
-              <p className="mt-1 text-sm text-gray-900">{reference.nomPatient || '-'}</p>
+              <strong>Nom:</strong>
+              <p className="text-gray-900">{reference.nomPatient || reference.nomUtilisateur || '-'}</p>
             </div>
-            
             <div>
-              <label className="block text-sm font-medium text-gray-700">Prénom</label>
-              <p className="mt-1 text-sm text-gray-900">{reference.prenomPatient || '-'}</p>
+              <strong>Prénom:</strong>
+              <p className="text-gray-900">{reference.prenomPatient || reference.prenomUtilisateur || '-'}</p>
             </div>
-            
             <div>
-              <label className="block text-sm font-medium text-gray-700">Code Dossier</label>
+              <strong>Date de Naissance:</strong>
+              <p className="text-gray-900">{reference.dateNaissance?.split("T")[0] || '-'}</p>
+            </div>
+            <div>
+              <strong>Âge:</strong>
+              <p className="text-gray-900">{reference.age ? `${reference.age} ans` : '-'}</p>
+            </div>
+            <div>
+              <strong>Sexe:</strong>
+              <p className="text-gray-900">{reference.sexe || '-'}</p>
+            </div>
+            <div>
+              <strong>Profession:</strong>
+              <p className="text-gray-900">{reference.profession || '-'}</p>
+            </div>
+            <div>
+              <strong>Téléphone:</strong>
+              <p className="text-gray-900">{reference.telephone || '-'}</p>
+            </div>
+            <div>
+              <strong>Nationalité:</strong>
+              <p className="text-gray-900">{reference.nationaliteUtilisateur || reference.nationalite || '-'}</p>
+            </div>
+            <div>
+              <strong>Code Dossier:</strong>
               <div className="flex items-center gap-2 mt-1">
-                <p className="text-sm text-gray-900 font-semibold">{reference.codeDossier}</p>
-                <button
-                  onClick={() => {
-                    if (onViewDossier && reference.codeDossier) {
-                      onViewDossier(reference.codeDossier);
-                    }
-                  }}
-                  className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 flex items-center"
-                  title="Charger le dossier"
-                >
-                  <FileText className="w-3 h-3 mr-1" />
-                  Charger
-                </button>
+                <p className="text-gray-900 font-semibold">{reference.codeDossier || '-'}</p>
+                {reference.codeDossier && (
+                  <button
+                    onClick={() => {
+                      if (onViewDossier && reference.codeDossier) {
+                        onViewDossier(reference.codeDossier);
+                      }
+                    }}
+                    className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 flex items-center"
+                    title="Charger le dossier"
+                  >
+                    <FileText className="w-3 h-3 mr-1" />
+                    Charger
+                  </button>
+                )}
               </div>
             </div>
           </div>
