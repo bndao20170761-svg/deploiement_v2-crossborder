@@ -7,6 +7,8 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
   const [reference, setReference] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [expandedDossier, setExpandedDossier] = useState(null);
+  const [loadingDossier, setLoadingDossier] = useState(false);
 
   useEffect(() => {
     if (codeReference) {
@@ -25,6 +27,30 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
       setError('Impossible de charger les détails de la référence');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLoadDossier = async (codeDossier) => {
+    try {
+      setLoadingDossier(true);
+      // Extraire le codePatient du codeDossier
+      const codePatient = codeDossier ? codeDossier.split('-')[0] : codeDossier;
+      console.log('🔍 handleLoadDossier: codeDossier:', codeDossier, '→ codePatient:', codePatient);
+      
+      // Importer dynamiquement le service patient
+      const patientService = (await import('../services/patientService'));
+      
+      // Charger le dossier
+      const dossierData = await patientService.getPatientWithDossier(codePatient);
+      console.log('✅ Dossier chargé:', dossierData);
+      
+      setExpandedDossier(dossierData);
+    } catch (err) {
+      console.error('❌ Erreur lors du chargement du dossier:', err);
+      // Afficher une erreur à l'utilisateur
+      alert('Erreur lors du chargement du dossier: ' + (err.message || 'Erreur inconnue'));
+    } finally {
+      setLoadingDossier(false);
     }
   };
 
@@ -272,16 +298,13 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
                 <p className="text-gray-900 font-semibold">{reference.codeDossier || '-'}</p>
                 {reference.codeDossier && (
                   <button
-                    onClick={() => {
-                      if (onViewDossier && reference.codeDossier) {
-                        onViewDossier(reference.codeDossier);
-                      }
-                    }}
-                    className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 flex items-center"
+                    onClick={() => handleLoadDossier(reference.codeDossier)}
+                    disabled={loadingDossier}
+                    className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
                     title="Charger le dossier"
                   >
                     <FileText className="w-3 h-3 mr-1" />
-                    Charger
+                    {loadingDossier ? 'Chargement...' : (expandedDossier ? 'Replier' : 'Charger')}
                   </button>
                 )}
               </div>
@@ -379,25 +402,113 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
         </div>
       )}
 
-      {/* Dates */}
+      {/* Informations Temporelles */}
       <div className="bg-white rounded-lg shadow-lg p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-          <Calendar className="w-5 h-5 mr-2 text-blue-600" />
+          <Calendar className="w-5 h-5 mr-2 text-orange-600" />
           Informations Temporelles
         </h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Date de Création</label>
-            <p className="mt-1 text-sm text-gray-900">{formatDate(reference.dateCreation)}</p>
+            <strong>Date de Création:</strong>
+            <p className="text-gray-900">{formatDate(reference.dateCreation)}</p>
           </div>
-          
           <div>
-            <label className="block text-sm font-medium text-gray-700">Dernière Modification</label>
-            <p className="mt-1 text-sm text-gray-900">{formatDate(reference.dateModification)}</p>
+            <strong>Dernière Modification:</strong>
+            <p className="text-gray-900">{formatDate(reference.dateModification)}</p>
           </div>
         </div>
       </div>
+
+      {/* Dossier Médical Expanded */}
+      {expandedDossier && (
+        <div className="bg-white rounded-lg shadow-lg p-6 border-2 border-blue-200">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-gray-900 flex items-center">
+              <FileText className="w-5 h-5 mr-2 text-blue-600" />
+              Dossier Médical Complet
+            </h2>
+            <button
+              onClick={() => setExpandedDossier(null)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              ✕
+            </button>
+          </div>
+          
+          {/* Informations du patient depuis le dossier */}
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+            <h3 className="font-semibold text-gray-900 mb-3">Informations du Patient</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <strong>Code Patient:</strong>
+                <p className="text-gray-900">{expandedDossier.codePatient || '-'}</p>
+              </div>
+              <div>
+                <strong>Nom Complet:</strong>
+                <p className="text-gray-900">{expandedDossier.nomComplet || '-'}</p>
+              </div>
+              <div>
+                <strong>Code Dossier:</strong>
+                <p className="text-gray-900 font-semibold">{expandedDossier.codeDossier || '-'}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Pages du dossier */}
+          {expandedDossier.pages && expandedDossier.pages.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="font-semibold text-gray-900">Pages du Dossier</h3>
+              {expandedDossier.pages.map((page, index) => (
+                <div key={page.id || index} className="border rounded-lg p-4 bg-gray-50">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {/* Informations de base */}
+                    <div>
+                      <strong>Date de Test:</strong>
+                      <p className="text-gray-900">{page.dateTest || '-'}</p>
+                    </div>
+                    <div>
+                      <strong>Date de Confirmation:</strong>
+                      <p className="text-gray-900">{page.dateConfirmation || '-'}</p>
+                    </div>
+                    <div>
+                      <strong>Lieu de Test:</strong>
+                      <p className="text-gray-900">{page.lieuTest || '-'}</p>
+                    </div>
+                    <div>
+                      <strong>Résultat:</strong>
+                      <p className={`font-semibold ${page.resultat === 'vih1' || page.resultat === 'vih2' ? 'text-red-600' : 'text-green-600'}`}>
+                        {page.resultat || '-'}
+                      </p>
+                    </div>
+                    <div>
+                      <strong>Date Début ARV:</strong>
+                      <p className="text-gray-900">{page.dateDebutArv || '-'}</p>
+                    </div>
+                    <div>
+                      <strong>Protocole ARV:</strong>
+                      <p className="text-gray-900">{page.protocoleInitialArv || '-'}</p>
+                    </div>
+                  </div>
+
+                  {/* Bilans si disponibles */}
+                  {page.bilans && page.bilans.length > 0 && (
+                    <div className="mt-4 p-3 bg-white rounded border">
+                      <h4 className="font-semibold text-sm mb-2">Bilans Biologiques</h4>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                        <div><strong>Hb:</strong> {page.bilans[0].hb || '-'}</div>
+                        <div><strong>VGM:</strong> {page.bilans[0].vgm || '-'}</div>
+                        <div><strong>GB:</strong> {page.bilans[0].gb || '-'}</div>
+                        <div><strong>Plaquettes:</strong> {page.bilans[0].plaquettes || '-'}</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
