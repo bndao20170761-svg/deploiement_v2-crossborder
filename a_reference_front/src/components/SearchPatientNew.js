@@ -101,7 +101,17 @@ const SearchPatientNew = ({
     try {
       setLoadingMedecins(true);
       const doctorsData = await getDoctorsByHospital(initialHopital.id);
+      
+      // Log pour débogage - voir la structure des données reçues
+      console.log('🔍 Données brutes des médecins reçues:', doctorsData);
+      console.log('🔍 Structure du premier médecin:', doctorsData?.[0]);
+      
       const normalizedDoctors = normalizeDoctorsList(doctorsData);
+      
+      // Log pour voir la normalisation
+      console.log('✅ Médecins normalisés:', normalizedDoctors);
+      console.log('✅ Structure du premier médecin normalisé:', normalizedDoctors?.[0]);
+      
       setMedecins(normalizedDoctors);
     } catch (err) {
       console.error('Erreur lors de la récupération des médecins:', err);
