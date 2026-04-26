@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Edit, Trash2, CheckCircle, Clock, AlertCircle, User, FileText, Hospital, Calendar, MessageSquare } from 'lucide-react';
 import referenceDossierService from '../services/referenceDossierService';
 import { getTranslation } from '../utils/translations';
+import DossierViewRouter from './DossierViewRouter';
 
 const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, onViewDossier }) => {
   const [reference, setReference] = useState(null);
@@ -54,6 +55,7 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
     }
   };
 
+  
   const handleDelete = async () => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cette référence ?')) {
       try {
@@ -420,10 +422,10 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
         </div>
       </div>
 
-      {/* Dossier Médical Expanded */}
+      {/* Dossier Médical Expanded avec DossierViewRouter */}
       {expandedDossier && (
-        <div className="bg-white rounded-lg shadow-lg p-6 border-2 border-blue-200">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-white rounded-lg shadow-lg border-2 border-blue-200">
+          <div className="flex items-center justify-between p-4 border-b">
             <h2 className="text-xl font-semibold text-gray-900 flex items-center">
               <FileText className="w-5 h-5 mr-2 text-blue-600" />
               Dossier Médical Complet
@@ -436,77 +438,22 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
             </button>
           </div>
           
-          {/* Informations du patient depuis le dossier */}
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-            <h3 className="font-semibold text-gray-900 mb-3">Informations du Patient</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <strong>Code Patient:</strong>
-                <p className="text-gray-900">{expandedDossier.codePatient || '-'}</p>
-              </div>
-              <div>
-                <strong>Nom Complet:</strong>
-                <p className="text-gray-900">{expandedDossier.nomComplet || '-'}</p>
-              </div>
-              <div>
-                <strong>Code Dossier:</strong>
-                <p className="text-gray-900 font-semibold">{expandedDossier.codeDossier || '-'}</p>
-              </div>
-            </div>
+          {/* Utiliser DossierViewRouter avec les données du dossier */}
+          <div className="p-0">
+            <DossierViewRouter 
+              patient={{
+                codePatient: expandedDossier.codePatient,
+                nomUtilisateur: expandedDossier.nomComplet?.split(' ')[0] || '',
+                prenomUtilisateur: expandedDossier.nomComplet?.split(' ')[1] || '',
+                dateNaissance: expandedDossier.pages?.[0]?.dateNaissance || null,
+                // Autres infos patient si disponibles
+                ...expandedDossier
+              }}
+              onBack={() => setExpandedDossier(null)}
+              language={language}
+              dossierProp={expandedDossier}
+            />
           </div>
-
-          {/* Pages du dossier */}
-          {expandedDossier.pages && expandedDossier.pages.length > 0 && (
-            <div className="space-y-4">
-              <h3 className="font-semibold text-gray-900">Pages du Dossier</h3>
-              {expandedDossier.pages.map((page, index) => (
-                <div key={page.id || index} className="border rounded-lg p-4 bg-gray-50">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {/* Informations de base */}
-                    <div>
-                      <strong>Date de Test:</strong>
-                      <p className="text-gray-900">{page.dateTest || '-'}</p>
-                    </div>
-                    <div>
-                      <strong>Date de Confirmation:</strong>
-                      <p className="text-gray-900">{page.dateConfirmation || '-'}</p>
-                    </div>
-                    <div>
-                      <strong>Lieu de Test:</strong>
-                      <p className="text-gray-900">{page.lieuTest || '-'}</p>
-                    </div>
-                    <div>
-                      <strong>Résultat:</strong>
-                      <p className={`font-semibold ${page.resultat === 'vih1' || page.resultat === 'vih2' ? 'text-red-600' : 'text-green-600'}`}>
-                        {page.resultat || '-'}
-                      </p>
-                    </div>
-                    <div>
-                      <strong>Date Début ARV:</strong>
-                      <p className="text-gray-900">{page.dateDebutArv || '-'}</p>
-                    </div>
-                    <div>
-                      <strong>Protocole ARV:</strong>
-                      <p className="text-gray-900">{page.protocoleInitialArv || '-'}</p>
-                    </div>
-                  </div>
-
-                  {/* Bilans si disponibles */}
-                  {page.bilans && page.bilans.length > 0 && (
-                    <div className="mt-4 p-3 bg-white rounded border">
-                      <h4 className="font-semibold text-sm mb-2">Bilans Biologiques</h4>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-                        <div><strong>Hb:</strong> {page.bilans[0].hb || '-'}</div>
-                        <div><strong>VGM:</strong> {page.bilans[0].vgm || '-'}</div>
-                        <div><strong>GB:</strong> {page.bilans[0].gb || '-'}</div>
-                        <div><strong>Plaquettes:</strong> {page.bilans[0].plaquettes || '-'}</div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       )}
     </div>
