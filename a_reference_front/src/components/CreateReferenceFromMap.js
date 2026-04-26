@@ -262,6 +262,55 @@ const CreateReferenceFromMap = ({ language = "fr", onBack, onComplete, selectedH
           Aucun patient trouvé pour "{searchPatient}"
         </div>
       )}
+
+      {/* Patient sélectionné et son dossier */}
+      {selectedPatient && (
+        <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+          <h4 className="font-medium text-blue-900 mb-3">👤 Patient sélectionné</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <strong>Nom:</strong> {selectedPatient.nomUtilisateur} {selectedPatient.prenomUtilisateur}
+            </div>
+            <div>
+              <strong>Code:</strong> {selectedPatient.codePatient}
+            </div>
+            <div>
+              <strong>Âge:</strong> {selectedPatient.age} ans
+            </div>
+            <div>
+              <strong>Sexe:</strong> {selectedPatient.sexe}
+            </div>
+            <div>
+              <strong>Téléphone:</strong> {selectedPatient.telephone}
+            </div>
+            <div>
+              <strong>Email:</strong> {selectedPatient.email || '-'}
+            </div>
+          </div>
+          
+          {/* Dossier du patient */}
+          {selectedDossier && (
+            <div className="mt-4 p-3 bg-white rounded border">
+              <h5 className="font-medium text-gray-900 mb-2">📁 Dossier sélectionné</h5>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                <div><strong>Code Dossier:</strong> {selectedDossier.codeDossier}</div>
+                <div><strong>Date:</strong> {selectedDossier.date || '-'}</div>
+              </div>
+            </div>
+          )}
+          
+          {/* Actions */}
+          <div className="mt-4 flex justify-end">
+            <button
+              onClick={() => setCurrentStep(2)}
+              disabled={!selectedDossier}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Suivant → Sélectionner un médecin
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 
@@ -303,7 +352,11 @@ const CreateReferenceFromMap = ({ language = "fr", onBack, onComplete, selectedH
               <div
                 key={medecin.codeDocteur}
                 onClick={() => handleMedecinSelect(medecin)}
-                className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                  selectedMedecin?.codeDocteur === medecin.codeDocteur
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-gray-200 hover:bg-gray-50'
+                }`}
               >
                 <div className="flex items-center justify-between">
                   <div>
@@ -314,7 +367,12 @@ const CreateReferenceFromMap = ({ language = "fr", onBack, onComplete, selectedH
                       {medecin.specialite || 'Médecin'} | {medecin.telephone || '-'}
                     </p>
                   </div>
-                  <ChevronRight className="h-5 w-5 text-gray-400" />
+                  {selectedMedecin?.codeDocteur === medecin.codeDocteur && (
+                    <Check className="h-5 w-5 text-blue-600" />
+                  )}
+                  {selectedMedecin?.codeDocteur !== medecin.codeDocteur && (
+                    <ChevronRight className="h-5 w-5 text-gray-400" />
+                  )}
                 </div>
               </div>
             ))}
@@ -325,6 +383,18 @@ const CreateReferenceFromMap = ({ language = "fr", onBack, onComplete, selectedH
       {medecins.length === 0 && !loading && (
         <div className="text-center py-8 text-gray-500">
           Aucun médecin disponible à cet hôpital
+        </div>
+      )}
+
+      {/* Actions - Bouton Suivant */}
+      {selectedMedecin && (
+        <div className="mt-6 flex justify-end">
+          <button
+            onClick={() => setCurrentStep(3)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Suivant → Détails de la référence
+          </button>
         </div>
       )}
     </div>
@@ -410,6 +480,18 @@ const CreateReferenceFromMap = ({ language = "fr", onBack, onComplete, selectedH
           {error}
         </div>
       )}
+
+      {/* Bouton Créer la référence */}
+      <div className="mt-6 flex justify-end">
+        <button
+          onClick={handleSubmit}
+          disabled={loading || !formData.motifReference || !formData.typeReference || !formData.dateReference}
+          className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+        >
+          {loading && <Loader className="h-4 w-4 animate-spin" />}
+          <span>📋 Créer la référence</span>
+        </button>
+      </div>
     </div>
   );
 
@@ -426,139 +508,34 @@ const CreateReferenceFromMap = ({ language = "fr", onBack, onComplete, selectedH
     }
   };
 
-  const canGoNext = () => {
-    switch (currentStep) {
-      case 1:
-        return selectedPatient !== null;
-      case 2:
-        return selectedMedecin !== null;
-      case 3:
-        return formData.motifReference && formData.typeReference && formData.dateReference;
-      default:
-        return false;
-    }
-  };
-
-  const handleNext = () => {
-    if (canGoNext() && currentStep < 3) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
-
-  const handlePrevious = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
+  
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={onBack}
-                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
-              >
-                <ArrowLeft className="h-5 w-5" />
-                <span>Retour</span>
-              </button>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  Référencer un patient pour {selectedHospital?.nom}
-                </h1>
-                <p className="text-gray-600">
-                  {selectedHospital?.adresse}, {selectedHospital?.region}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Progress bar */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                currentStep >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
-              }`}>
-                1
-              </div>
-              <span className="ml-2 text-sm font-medium">Patient</span>
-            </div>
-            <div className="flex-1 h-1 bg-gray-200 mx-4">
-              <div
-                className={`h-1 bg-blue-600 transition-all duration-300 ${
-                  currentStep >= 2 ? 'w-full' : 'w-0'
-                }`}
-              />
-            </div>
-            <div className="flex items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                currentStep >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
-              }`}>
-                2
-              </div>
-              <span className="ml-2 text-sm font-medium">Médecin</span>
-            </div>
-            <div className="flex-1 h-1 bg-gray-200 mx-4">
-              <div
-                className={`h-1 bg-blue-600 transition-all duration-300 ${
-                  currentStep >= 3 ? 'w-full' : 'w-0'
-                }`}
-              />
-            </div>
-            <div className="flex items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                currentStep >= 3 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
-              }`}>
-                3
-              </div>
-              <span className="ml-2 text-sm font-medium">Détails</span>
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={onBack}
+              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+            >
+              <ArrowLeft className="h-5 w-5" />
+              <span>← Retour</span>
+            </button>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Référencer un patient pour {selectedHospital?.nom}
+              </h1>
+              <p className="text-gray-600">
+                {selectedHospital?.adresse}, {selectedHospital?.region}
+              </p>
             </div>
           </div>
         </div>
 
         {/* Content */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div className="bg-white rounded-lg shadow-lg p-6">
           {renderStep()}
-        </div>
-
-        {/* Navigation */}
-        <div className="flex justify-between">
-          <div>
-            {currentStep > 1 && (
-              <button
-                onClick={handlePrevious}
-                disabled={loading}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-              >
-                Précédent
-              </button>
-            )}
-          </div>
-          <div className="flex space-x-3">
-            {currentStep < 3 ? (
-              <button
-                onClick={handleNext}
-                disabled={!canGoNext() || loading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Suivant
-              </button>
-            ) : (
-              <button
-                onClick={handleSubmit}
-                disabled={!canGoNext() || loading}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-              >
-                {loading && <Loader className="h-4 w-4 animate-spin" />}
-                <span>Créer la référence</span>
-              </button>
-            )}
-          </div>
         </div>
       </div>
     </div>
