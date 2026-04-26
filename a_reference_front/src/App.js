@@ -216,11 +216,15 @@ const findPatientByDossier = async (codeDossier) => {
     const mod = await import('./services/patientService');
     const svc = mod.default || mod;
 
+    // Extraire le codePatient du codeDossier (format: CODEPATIENT-DATE-DOCTOR)
+    const codePatient = codeDossier ? codeDossier.split('-')[0] : codeDossier;
+    console.log('🔍 findPatientByDossier: codeDossier:', codeDossier, '→ codePatient:', codePatient);
+
     if (svc && typeof svc.getPatientByDossierCode === 'function') {
       return await svc.getPatientByDossierCode(codeDossier);
     }
     if (svc && typeof svc.getPatientWithDossier === 'function') {
-      return await svc.getPatientWithDossier(codeDossier);
+      return await svc.getPatientWithDossier(codePatient);
     }
     // Fallback: fetch all patients and search their dossiers
     if (svc && typeof svc.getAllPatients === 'function') {
