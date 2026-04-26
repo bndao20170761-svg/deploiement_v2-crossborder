@@ -136,6 +136,15 @@ public class ReferenceDossierService {
                 if ((referenceDossierDto.getEmailReferenceur() == null || referenceDossierDto.getEmailReferenceur().isBlank()) && doctor.getEmail() != null) {
                     referenceDossierDto.setEmailReferenceur(doctor.getEmail());
                 }
+                // Remplir l'hôpital d'origine (référenceur) si disponible
+                if ((referenceDossierDto.getCodeHopitalReferenceur() == null || referenceDossierDto.getCodeHopitalReferenceur().isBlank())
+                        && doctor.getHopital() != null && doctor.getHopital().getId() != null) {
+                    referenceDossierDto.setCodeHopitalReferenceur(String.valueOf(doctor.getHopital().getId()));
+                }
+                if ((referenceDossierDto.getNomHopitalReferenceur() == null || referenceDossierDto.getNomHopitalReferenceur().isBlank())
+                        && doctor.getHopital() != null && doctor.getHopital().getNom() != null) {
+                    referenceDossierDto.setNomHopitalReferenceur(doctor.getHopital().getNom());
+                }
             });
             referenceServiceHelper.findUserByUsername(username).ifPresent(user -> {
                 if ((referenceDossierDto.getCodeReferenceur() == null || referenceDossierDto.getCodeReferenceur().isBlank()) && user.getUsername() != null) {

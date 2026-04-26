@@ -17,6 +17,8 @@ public class ReferenceDossierDto {
     private String prenomPatient;
     private String codeHopital;
     private String nomHopital;
+    private String codeHopitalReferenceur;
+    private String nomHopitalReferenceur;
     private String codeDocteur;
     private String nomDocteur;
     private String motifReference;

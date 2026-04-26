@@ -37,6 +37,13 @@ public class ReferenceDossier {
     @Column(name = "nom_hopital")
     private String nomHopital;
     
+    // Hôpital d'origine (référenceur)
+    @Column(name = "code_hopital_referenceur")
+    private String codeHopitalReferenceur;
+
+    @Column(name = "nom_hopital_referenceur")
+    private String nomHopitalReferenceur;
+    
     @Column(name = "code_docteur")
     private String codeDocteur;
     
