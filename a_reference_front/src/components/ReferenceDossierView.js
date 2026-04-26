@@ -244,7 +244,7 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
             </div>
             <div>
               <strong>Date de Naissance:</strong>
-              <p className="text-gray-900">{reference.dateNaissance?.split("T")[0] || '-'}</p>
+              <p className="text-gray-900">{reference.dateNaissance ? formatDate(reference.dateNaissance) : '-'}</p>
             </div>
             <div>
               <strong>Âge:</strong>
@@ -349,6 +349,11 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
           <div>
             <label className="block text-sm font-medium text-gray-700">Nom Référenceur</label>
             <p className="mt-1 text-sm text-gray-900">{reference.nomReferenceur || '-'}</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Hôpital d'origine</label>
+            <p className="mt-1 text-sm text-gray-900">{reference.nomHopitalReferenceur || reference.codeHopitalReferenceur || '-'}</p>
           </div>
           
           <div>

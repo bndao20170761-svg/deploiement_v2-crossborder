@@ -162,7 +162,7 @@ public class ReferenceDossierService {
             });
         }
 
-        if ((referenceDossierDto.getNomDocteur() == null || referenceDossierDto.getNomDocteur().isBlank()) && referenceDossierDto.getCodeDocteur() != null) {
+        if (isBlankOrUndefined(referenceDossierDto.getNomDocteur()) && referenceDossierDto.getCodeDocteur() != null) {
             referenceServiceHelper.findDoctorByCode(referenceDossierDto.getCodeDocteur()).ifPresent(targetDoctor -> {
                 if (targetDoctor.getUtilisateur() != null && targetDoctor.getUtilisateur().getNom() != null) {
                     referenceDossierDto.setNomDocteur(targetDoctor.getUtilisateur().getNom() + " " + targetDoctor.getUtilisateur().getPrenom());
@@ -183,7 +183,34 @@ public class ReferenceDossierService {
         ReferenceDossier referenceDossier = referenceDossierMapper.dtoToEntity(referenceDossierDto);
         ReferenceDossier savedReference = referenceDossierRepository.save(referenceDossier);
         
-        return referenceDossierMapper.entityToDto(savedReference);
+        // Convertir en DTO et enrichir avec informations patient non persistées
+        ReferenceDossierDto resultDto = referenceDossierMapper.entityToDto(savedReference);
+        try {
+            referenceServiceHelper.findPatientByCode(savedReference.getCodePatient()).ifPresent(patient -> {
+                if (patient.getDateNaissance() != null) {
+                    resultDto.setDateNaissance(patient.getDateNaissance().toInstant().toString());
+                }
+                resultDto.setAge(patient.getAge());
+                resultDto.setSexe(patient.getSexe());
+                resultDto.setProfession(patient.getProfession());
+                resultDto.setTelephone(patient.getTelephone());
+                // nationalite not available in Patient entity; leave null if unknown
+            });
+        } catch (Exception e) {
+            // Ne pas bloquer la création si l'enrichissement échoue
+            System.err.println("Erreur enrichment patient pour référence: " + e.getMessage());
+        }
+
+        return resultDto;
+    }
+
+    private boolean isBlankOrUndefined(String s) {
+        if (s == null) return true;
+        String trimmed = s.trim();
+        if (trimmed.isBlank()) return true;
+        if ("undefined".equalsIgnoreCase(trimmed)) return true;
+        if ("null".equalsIgnoreCase(trimmed)) return true;
+        return false;
     }
     public ReferenceDossierDto updateReference(String codeReference, ReferenceDossierDto referenceDossierDto) {
         Optional<ReferenceDossier> existingReference = referenceDossierRepository.findByCodeReference(codeReference);

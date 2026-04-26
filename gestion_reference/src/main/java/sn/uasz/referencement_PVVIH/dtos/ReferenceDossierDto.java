@@ -15,6 +15,13 @@ public class ReferenceDossierDto {
     private String codePatient;
     private String nomPatient;
     private String prenomPatient;
+    // Champs enrichis pour affichage (non persistés)
+    private String dateNaissance;
+    private Long age;
+    private String sexe;
+    private String profession;
+    private String telephone;
+    private String nationalite;
     private String codeHopital;
     private String nomHopital;
     private String codeHopitalReferenceur;

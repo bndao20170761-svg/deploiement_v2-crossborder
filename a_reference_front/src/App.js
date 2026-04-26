@@ -21,6 +21,7 @@ import {
   getAllPatients,
   updatePatient,
   deletePatient as deletePatientService,
+  getPatientByDossierCode,
 } from "./services/patientService";
 
 import {
@@ -211,8 +212,6 @@ const handleViewDossier = (patient) => {
 
 const handleViewDossierFromReference = async (codeDossier) => {
   try {
-    // Importer la fonction depuis patientService
-    const { getPatientByDossierCode } = await import('./services/patientService');
     const patient = await getPatientByDossierCode(codeDossier);
     if (patient) {
       setSelectedDossier(patient);
