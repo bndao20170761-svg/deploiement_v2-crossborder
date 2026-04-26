@@ -96,10 +96,17 @@ const SearchPatientNew = ({
   };
 
   const fetchMedecins = async () => {
-    if (!initialHopital?.id) return;
+    console.log('🔄 fetchMedecins appelé avec initialHopital:', initialHopital);
+    console.log('🔄 currentStep:', currentStep);
+    
+    if (!initialHopital?.id) {
+      console.log('❌ Pas d\'ID hôpital, retour');
+      return;
+    }
     
     try {
       setLoadingMedecins(true);
+      console.log('🔄 Appel getDoctorsByHospital avec ID:', initialHopital.id);
       const doctorsData = await getDoctorsByHospital(initialHopital.id);
       
       // Log pour débogage - voir la structure des données reçues
@@ -165,6 +172,9 @@ const SearchPatientNew = ({
   };
 
   const handleMedecinSelect = (medecin) => {
+    console.log('🩺 Médecin sélectionné:', medecin);
+    console.log('🩺 nomDocteur généré:', `${medecin.prenom} ${medecin.nom}`.trim());
+    
     setSelectedMedecin(medecin);
     setFormData(prev => ({
       ...prev,

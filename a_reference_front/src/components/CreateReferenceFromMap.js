@@ -325,7 +325,7 @@ const CreateReferenceFromMap = ({ language = "fr", onBack, onComplete, selectedH
           <div className="mb-4 p-4 bg-blue-50 rounded-lg">
             <p className="font-medium text-blue-900">Patient sélectionné:</p>
             <p className="text-blue-700">
-              {selectedPatient.nomUtilisateur} {selectedPatient.prenomUtilisateur} ({selectedPatient.codePatient})
+              {selectedPatient.nomUtilisateur} {selectedPatient.8} ({selectedPatient.codePatient})
             </p>
           </div>
         )}
@@ -361,7 +361,7 @@ const CreateReferenceFromMap = ({ language = "fr", onBack, onComplete, selectedH
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium text-gray-900">
-                      Dr {medecin.prenom} {medecin.nom}
+                      Dr {medecin.prenomUtilisateur} {medecin.nomUtilisateur}
                     </p>
                     <p className="text-sm text-gray-500">
                       {medecin.specialite || 'Médecin'} | {medecin.telephone || '-'}

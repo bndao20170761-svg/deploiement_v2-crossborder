@@ -6,17 +6,72 @@
 export const normalizeDoctorData = (doctor) => {
   if (!doctor) return null;
 
-  return {
+  // Extraire le nom depuis l'email si nom/prenom sont vides
+  let nom = '';
+  let prenom = '';
+  
+  if (doctor.nom && doctor.prenom) {
+    // Cas normal : nom et prenom existent
+    nom = doctor.nom;
+    prenom = doctor.prenom;
+  } else if (doctor.email) {
+    // Cas fallback : extraire depuis l'email (logique simplifiée)
+    const emailParts = doctor.email.split('@')[0];
+    const nameParts = emailParts.split('.');
+    
+    if (nameParts.length >= 2) {
+      // Filtrer les préfixes comme "dr", "dr_", "doctor"
+      const filteredParts = nameParts.filter(part => 
+        !part.toLowerCase().startsWith('dr') && 
+        !part.toLowerCase().startsWith('doc') &&
+        !part.toLowerCase().startsWith('med') &&
+        part.length > 1
+      );
+      
+      if (filteredParts.length >= 2) {
+        // Cas optimal : au moins 2 parties significatives
+        prenom = filteredParts[0]?.charAt(0).toUpperCase() + filteredParts[0]?.slice(1) || '';
+        nom = filteredParts[1]?.charAt(0).toUpperCase() + filteredParts[1]?.slice(1) || '';
+      } else if (filteredParts.length === 1) {
+        // Une seule partie significative
+        const name = filteredParts[0]?.charAt(0).toUpperCase() + filteredParts[0]?.slice(1) || '';
+        nom = name;
+        prenom = '';
+      } else {
+        // Utiliser la première partie comme nom
+        nom = nameParts[0]?.charAt(0).toUpperCase() + nameParts[0]?.slice(1) || '';
+        prenom = '';
+      }
+    } else {
+      // Pas de point dans l'email : utiliser le nom d'utilisateur de l'email
+      const fullName = emailParts.charAt(0).toUpperCase() + emailParts.slice(1);
+      nom = fullName;
+      prenom = '';
+    }
+  }
+
+  // Noms composés pour affichage avec fallback ultime
+  let displayName = `${prenom} ${nom}`.trim();
+  if (!displayName || displayName === ' ') {
+    // Fallback : utiliser le téléphone
+    if (doctor.telephone) {
+      displayName = `Médecin (${doctor.telephone})`;
+    } else {
+      displayName = 'Médecin';
+    }
+  }
+  
+  const result = {
     // Données originales
     ...doctor,
     
-    // Propriétés normalisées - gérer tous les formats possibles
-    prenom: doctor.prenom || doctor.prenomUtilisateur || doctor.utilisateur?.prenom || doctor.prenomDocteur || '',
-    nom: doctor.nom || doctor.nomUtilisateur || doctor.utilisateur?.nom || doctor.nomDocteur || '',
+    // Propriétés normalisées - utiliser les champs extraits
+    prenom: prenom || doctor.prenomUtilisateur || '',
+    nom: nom || doctor.nomUtilisateur || '',
     
     // Pour compatibilité avec le code existant
-    prenomUtilisateur: doctor.prenom || doctor.prenomUtilisateur || doctor.utilisateur?.prenom || doctor.prenomDocteur || '',
-    nomUtilisateur: doctor.nom || doctor.nomUtilisateur || doctor.utilisateur?.nom || doctor.nomDocteur || '',
+    prenomUtilisateur: prenom || doctor.prenomUtilisateur || '',
+    nomUtilisateur: nom || doctor.nomUtilisateur || '',
     
     // Codes - support de multiples formats
     codeDoctor: doctor.codeDoctor || '',
@@ -32,15 +87,15 @@ export const normalizeDoctorData = (doctor) => {
     // Localisation
     lieuExercice: doctor.lieuExercice || '',
     
-    // Noms composés pour affichage - utiliser les champs normalisés
-    nomComplet: `${doctor.prenom || doctor.prenomUtilisateur || doctor.utilisateur?.prenom || doctor.prenomDocteur || ''} ${doctor.nom || doctor.nomUtilisateur || doctor.utilisateur?.nom || doctor.nomDocteur || ''}`.trim(),
-    nomAffichage: `${doctor.prenom || doctor.prenomUtilisateur || doctor.utilisateur?.prenom || doctor.prenomDocteur || ''} ${doctor.nom || doctor.nomUtilisateur || doctor.utilisateur?.nom || doctor.nomDocteur || ''}`.trim() || 'Médecin',
-    
-    // Affichage détaillé pour les listes
-    affichageDetaille: `${doctor.prenom || doctor.prenomUtilisateur || doctor.utilisateur?.prenom || doctor.prenomDocteur || ''} ${doctor.nom || doctor.nomUtilisateur || doctor.utilisateur?.nom || doctor.nomDocteur || ''}`.trim() + 
+    // Ajouter les champs d'affichage
+    nomComplet: displayName,
+    nomAffichage: displayName,
+    affichageDetaille: displayName + 
       (doctor.specialite || doctor.fonction ? ` - ${doctor.specialite || doctor.fonction}` : '') +
       (doctor.codeDoctor ? ` (${doctor.codeDoctor})` : '')
   };
+  
+  return result;
 };
 
 export const normalizeDoctorsList = (doctors) => {
@@ -51,10 +106,28 @@ export const normalizeDoctorsList = (doctors) => {
 export const getDoctorDisplayName = (doctor) => {
   if (!doctor) return 'Médecin';
   
-  const firstName = doctor.prenom || doctor.prenomUtilisateur || doctor.utilisateur?.prenom || doctor.prenomDocteur || '';
-  const lastName = doctor.nom || doctor.nomUtilisateur || doctor.utilisateur?.nom || doctor.nomDocteur || '';
+  // Utiliser les champs normalisés (nomUtilisateur/prenomUtilisateur)
+  const firstName = doctor.prenomUtilisateur || doctor.prenom || '';
+  const lastName = doctor.nomUtilisateur || doctor.nom || '';
   
-  return `${firstName} ${lastName}`.trim() || 'Médecin';
+  if (firstName && lastName) {
+    return `${firstName} ${lastName}`.trim();
+  }
+  
+  // Fallback : extraire depuis l'email
+  if (doctor.email) {
+    const emailParts = doctor.email.split('@')[0];
+    const nameParts = emailParts.split('.');
+    if (nameParts.length >= 2) {
+      const firstName = nameParts[0]?.charAt(0).toUpperCase() + nameParts[0]?.slice(1) || '';
+      const lastName = nameParts[1]?.charAt(0).toUpperCase() + nameParts[1]?.slice(1) || '';
+      return `${firstName} ${lastName}`.trim();
+    } else {
+      return emailParts.charAt(0).toUpperCase() + emailParts.slice(1);
+    }
+  }
+  
+  return 'Médecin';
 };
 
 export const getDoctorCode = (doctor) => {
