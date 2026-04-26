@@ -29,6 +29,7 @@ const Header = ({
   language = "fr",
   onLanguageChange = () => {},
   patientCount = 0,
+  sentCountDossier = 0,
 
     // Nouvelle prop pour gérer l'état de la cartographie
    onCartographyToggle = () => {},
@@ -532,21 +533,24 @@ const [currentLang, setCurrentLang] = useState(language);
                      >
                        <span>{getTranslation('dossierReceivedReference', language) || 'Dossiers Reçus'}</span>
                      </button>
-                     <button
-                       onClick={() => handleMenuItemClick('dossier-sent')}
-                       className="flex items-center justify-between w-full px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-800"
-                       type="button"
-                     >
-                       <span>{getTranslation('dossierSentReference', language) || 'Dossiers Envoyés'}</span>
-                     </button>
-                   </div>
-                 </div>
-               )}
-             </div>
+                      <button
+                        onClick={() => handleMenuItemClick('dossier-sent')}
+                        className="flex items-center justify-between w-full px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-800"
+                        type="button"
+                      >
+                        <span>{getTranslation('dossierSentReference', language) || 'Dossiers Envoyés'}</span>
+                       <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-0.5">
+                         {sentCountDossier}
+                       </span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
 
-            {/* Section Auto-Références (Desktop / Tablet) */}
+             {/* Section Auto-Références (Desktop / Tablet) */}
             <div className="relative" ref={autoDropdownRef}>
-/* ... */
+              <button
                 onClick={() => setIsAutoReferenceOpen(!isAutoReferenceOpen)}
                 className="flex items-center px-3 xl:px-4 py-2 rounded-md hover:bg-green-600 transition-colors duration-200 text-sm font-medium"
                 type="button"
