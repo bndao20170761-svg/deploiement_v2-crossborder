@@ -21,8 +21,8 @@ import {
   getAllPatients,
   updatePatient,
   deletePatient as deletePatientService,
-  getPatientByDossierCode,
 } from "./services/patientService";
+// patientService will be imported dynamically in `findPatientByDossier` to support multiple module shapes
 
 import {
   createReference,
@@ -210,9 +210,33 @@ const handleViewDossier = (patient) => {
   setCurrentView("dossierView"); // bascule la vue
 };
 
+const findPatientByDossier = async (codeDossier) => {
+  // Try known helpers exported by different repo versions
+  try {
+    const mod = await import('./services/patientService');
+    const svc = mod.default || mod;
+
+    if (svc && typeof svc.getPatientByDossierCode === 'function') {
+      return await svc.getPatientByDossierCode(codeDossier);
+    }
+    if (svc && typeof svc.getPatientWithDossier === 'function') {
+      return await svc.getPatientWithDossier(codeDossier);
+    }
+    // Fallback: fetch all patients and search their dossiers
+    if (svc && typeof svc.getAllPatients === 'function') {
+      const patients = await svc.getAllPatients();
+      return patients.find(p => Array.isArray(p.dossiers) && p.dossiers.some(d => d.codeDossier === codeDossier));
+    }
+    return null;
+  } catch (e) {
+    console.error('Erreur findPatientByDossier:', e);
+    throw e;
+  }
+};
+
 const handleViewDossierFromReference = async (codeDossier) => {
   try {
-    const patient = await getPatientByDossierCode(codeDossier);
+    const patient = await findPatientByDossier(codeDossier);
     if (patient) {
       setSelectedDossier(patient);
       setCurrentView("dossierView");
