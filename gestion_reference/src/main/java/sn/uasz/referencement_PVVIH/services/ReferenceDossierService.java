@@ -16,6 +16,7 @@ import sn.uasz.referencement_PVVIH.services.ReferenceServiceHelper;
 import sn.uasz.referencement_PVVIH.feign.DossierClient;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -91,9 +92,14 @@ public class ReferenceDossierService {
         if (currentDoctor.isEmpty()) {
             return List.of();
         }
-        List<String> statuses = List.of("EN_ATTENTE", "RECUE");
-        List<ReferenceDossier> references = referenceDossierRepository.findByCodeDocteurAndStatutInOrderByDateCreationDesc(currentDoctor.get().getCodeDoctor(), statuses);
+        Doctor doctor = currentDoctor.get();
+        
+        // Références reçues : celles où le médecin est le destinataire
+        List<ReferenceDossier> references = referenceDossierRepository.findByMedecin_CodeDoctor(doctor.getCodeDoctor());
+        
+        // Filtrer seulement celles validées
         return references.stream()
+                .filter(ref -> Boolean.TRUE.equals(ref.getValidation()))
                 .map(referenceDossierMapper::entityToDto)
                 .toList();
     }
@@ -103,8 +109,17 @@ public class ReferenceDossierService {
         if (currentDoctor.isEmpty()) {
             return List.of();
         }
-        List<ReferenceDossier> references = referenceDossierRepository.findByCodeReferenceurOrderByDateCreationDesc(currentDoctor.get().getCodeDoctor());
-        return references.stream()
+        Doctor doctor = currentDoctor.get();
+        
+        // Références envoyées : fusion des deux cas
+        List<ReferenceDossier> refsDirectes = referenceDossierRepository.findByMedecinAuteur_CodeDoctor(doctor.getCodeDoctor());
+        List<ReferenceDossier> allRefs = new ArrayList<>();
+        allRefs.addAll(refsDirectes);
+        
+        // Filtrer seulement celles validées
+        return allRefs.stream()
+                .filter(ref -> Boolean.TRUE.equals(ref.getValidation()))
+                .filter(ref -> Boolean.FALSE.equals(ref.getEtat()))
                 .map(referenceDossierMapper::entityToDto)
                 .toList();
     }
@@ -179,7 +194,8 @@ public class ReferenceDossierService {
         referenceDossierDto.setCodeReference(codeReference);
         referenceDossierDto.setStatut("EN_ATTENTE");
         referenceDossierDto.setDateCreation(LocalDateTime.now());
-        
+        referenceDossierDto.setEtat(false);
+        referenceDossierDto.setValidation(true);
         ReferenceDossier referenceDossier = referenceDossierMapper.dtoToEntity(referenceDossierDto);
         ReferenceDossier savedReference = referenceDossierRepository.save(referenceDossier);
         
@@ -278,5 +294,35 @@ public class ReferenceDossierService {
             System.err.println("Erreur lors de l'import des dossiers du patient depuis gestion-patient: " + e.getMessage());
             throw new RuntimeException("Impossible d'importer les dossiers du patient depuis gestion-patient");
         }
+    }
+
+        public long countReferencesDossierEnvoyees() {
+        Optional<Doctor> currentDoctor = getAuthenticatedDoctor();
+        if (currentDoctor.isEmpty()) {
+            return 0;
+        }
+        Doctor doctor = currentDoctor.get();
+        
+        // Références envoyées : fusion des deux cas
+        List<ReferenceDossier> refsDirectes = referenceDossierRepository.findByMedecinAuteur_CodeDoctor(doctor.getCodeDoctor());
+        
+        return refsDirectes.stream()
+                .filter(ref -> Boolean.TRUE.equals(ref.getValidation()))
+                .filter(ref -> Boolean.FALSE.equals(ref.getEtat()))
+                .count();
+    }
+
+   public long countReferencesDossierRecuesNonLues() {
+        Optional<Doctor> currentDoctor = getAuthenticatedDoctor();
+        if (currentDoctor.isEmpty()) {
+            return 0;
+        }
+        Doctor doctor = currentDoctor.get();
+        
+        return referenceDossierRepository.findByMedecin_CodeDoctor(doctor.getCodeDoctor())
+                .stream()
+                .filter(ref -> Boolean.TRUE.equals(ref.getValidation()))
+                .filter(ref -> ref.getEtat() != null && !ref.getEtat()) // etat = false => non lue
+                .count();
     }
 }

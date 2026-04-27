@@ -40,4 +40,7 @@ public class ReferenceDossierDto {
     private String emailReferenceur;
     private LocalDateTime dateCreation;
     private LocalDateTime dateModification;
+    private Boolean active;
+    private Boolean etat;
+    private Boolean validation;
 }

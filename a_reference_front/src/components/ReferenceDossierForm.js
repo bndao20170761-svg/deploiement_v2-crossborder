@@ -331,11 +331,11 @@ const ReferenceDossierForm = ({ language = "fr", onBack, onComplete, initialData
                     </div>
                     {showPatientDetails && (
                       <div className="mt-2 p-2 bg-gray-50 rounded text-sm">
-                        <p><strong>Âge:</strong> {patient.age} ans</p>
-                        <p><strong>Sexe:</strong> {patient.sexe}</p>
-                        <p><strong>Téléphone:</strong> {patient.telephone}</p>
-                        <p><strong>Adresse:</strong> {patient.adressePermanent}</p>
-                        <p><strong>Profession:</strong> {patient.profession}</p>
+                        <p><strong>{getTranslation('age', language)}:</strong> {patient.age} {getTranslation('ans', language)}</p>
+                        <p><strong>{getTranslation('sexe', language)}:</strong> {patient.sexe}</p>
+                        <p><strong>{getTranslation('telephone', language)}:</strong> {patient.telephone}</p>
+                        <p><strong>{getTranslation('adressePermanente', language)}:</strong> {patient.adressePermanent}</p>
+                        <p><strong>{getTranslation('profession', language)}:</strong> {patient.profession}</p>
                       </div>
                     )}
                   </div>
@@ -424,10 +424,10 @@ const ReferenceDossierForm = ({ language = "fr", onBack, onComplete, initialData
                         </div>
                         {showDossierDetails && (
                           <div className="mt-2 p-2 bg-gray-50 rounded text-sm">
-                            <p><strong>Code:</strong> {dossier.codeDossier}</p>
-                            <p><strong>ID Biom:</strong> {dossier.identificationBiom || 'N/A'}</p>
-                            <p><strong>Créé par:</strong> {dossier.doctorCreateNom || 'N/A'}</p>
-                            <p><strong>Date:</strong> {dossier.dateCreation ? new Date(dossier.dateCreation).toLocaleDateString() : 'N/A'}</p>
+                            <p><strong>{getTranslation('code', language)}:</strong> {dossier.codeDossier}</p>
+                            <p><strong>{getTranslation('idBiom', language)}:</strong> {dossier.identificationBiom || getTranslation('na', language)}</p>
+                            <p><strong>{getTranslation('createPar', language)}:</strong> {dossier.doctorCreateNom || getTranslation('na', language)}</p>
+                            <p><strong>{getTranslation('date', language)}:</strong> {dossier.dateCreation ? new Date(dossier.dateCreation).toLocaleDateString() : getTranslation('na', language)}</p>
                           </div>
                         )}
                       </div>

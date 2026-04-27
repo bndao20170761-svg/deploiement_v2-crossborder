@@ -75,13 +75,13 @@ const Login = () => {
       let errorMessage = getTranslation("login_failed", selectedLang) || "Nom d'utilisateur ou mot de passe incorrect";
       
       if (error.response?.status === 403) {
-        errorMessage = "Accès interdit - Vérifiez vos permissions";
+        errorMessage = getTranslation("accessForbidden", selectedLang) || "Accès interdit - Vérifiez vos permissions";
       } else if (error.response?.status === 500) {
-        errorMessage = "Erreur serveur - Réessayez plus tard";
+        errorMessage = getTranslation("serverError", selectedLang) || "Erreur serveur - Réessayez plus tard";
       } else if (error.code === 'NETWORK_ERROR' || error.message?.includes('Network Error')) {
-        errorMessage = "Erreur de connexion - Vérifiez que le serveur est démarré";
+        errorMessage = getTranslation("connectionError", selectedLang) || "Erreur de connexion - Vérifiez que le serveur est démarré";
       } else if (error.response?.data?.message?.includes('JWT expired')) {
-        errorMessage = "Session expirée - Veuillez vous reconnecter";
+        errorMessage = getTranslation("sessionExpired", selectedLang) || "Session expirée - Veuillez vous reconnecter";
         // Nettoyer le localStorage en cas d'erreur JWT
         localStorage.removeItem("token");
         localStorage.removeItem("user");

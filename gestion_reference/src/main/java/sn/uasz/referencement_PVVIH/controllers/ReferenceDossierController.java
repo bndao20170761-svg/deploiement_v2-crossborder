@@ -130,4 +130,18 @@ public class ReferenceDossierController {
             return ResponseEntity.badRequest().build();
         }
     }
+    
+    @GetMapping("/count/envoyees")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Long> countReferencesDossierEnvoyees() {
+        long count = referenceDossierService.countReferencesDossierEnvoyees();
+        return ResponseEntity.ok(count);
+    }
+    
+    @GetMapping("/count/recues-non-lues")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Long> countReferencesDossierRecuesNonLues() {
+        long count = referenceDossierService.countReferencesDossierRecuesNonLues();
+        return ResponseEntity.ok(count);
+    }
 }

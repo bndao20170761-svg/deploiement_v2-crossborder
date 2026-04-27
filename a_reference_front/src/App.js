@@ -245,11 +245,11 @@ const handleViewDossierFromReference = async (codeDossier) => {
       setSelectedDossier(patient);
       setCurrentView("dossierView");
     } else {
-      alert("Patient non trouvé pour ce dossier");
+      alert(getTranslation("patientNotFoundForDossier", language) || "Patient non trouvé pour ce dossier");
     }
   } catch (error) {
     console.error("Erreur lors du chargement du dossier:", error);
-    alert("Erreur lors du chargement du dossier");
+    alert(getTranslation("errorLoadingDossier", language) || "Erreur lors du chargement du dossier");
   }
 };
 

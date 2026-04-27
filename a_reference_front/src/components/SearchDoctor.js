@@ -1,8 +1,9 @@
 // src/components/SearchDoctor.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Stethoscope, Check, Loader } from 'lucide-react';
+import { getTranslation } from '../utils/translations';
 
-const SearchDoctor = ({ doctors, onSelect, selectedDoctor }) => {
+const SearchDoctor = ({ doctors, onSelect, selectedDoctor, language }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -80,7 +81,7 @@ const SearchDoctor = ({ doctors, onSelect, selectedDoctor }) => {
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
         <input
           type="text"
-          placeholder="Rechercher un médecin par nom ou prénom..."
+          placeholder={getTranslation('searchDoctorPlaceholder', language) || 'Rechercher un médecin par nom ou prénom...'}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -105,7 +106,7 @@ const SearchDoctor = ({ doctors, onSelect, selectedDoctor }) => {
                       {doctor.nomUtilisateur} {doctor.prenomUtilisateur}
                     </div>
                     <div className="text-sm text-gray-500">
-                      {doctor.fonction || 'Spécialité inconnue'} • {doctor.lieuExercice || 'Lieu non spécifié'}
+                      {doctor.fonction || getTranslation('unknownSpecialty', language)} • {doctor.lieuExercice || getTranslation('unspecifiedLocation', language)}
                     </div>
                   </div>
                 </div>
@@ -113,7 +114,7 @@ const SearchDoctor = ({ doctors, onSelect, selectedDoctor }) => {
                   onClick={() => handleDoctorSelect(doctor)}
                   className="text-green-600 hover:underline font-medium"
                 >
-                  Sélectionner
+                  {getTranslation('select', language) || 'Sélectionner'}
                 </button>
               </div>
             ))}
@@ -130,20 +131,20 @@ const SearchDoctor = ({ doctors, onSelect, selectedDoctor }) => {
                 <Check className="h-6 w-6 text-white" />
               </div>
             </div>
-            <h3 className="text-lg font-medium text-green-900">Médecin sélectionné</h3>
+            <h3 className="text-lg font-medium text-green-900">{getTranslation('selectedDoctor', language) || 'Médecin sélectionné'}</h3>
           </div>
           <p className="text-green-800 font-medium">
             {selectedDoctor.nomUtilisateur} {selectedDoctor.prenomUtilisateur}
           </p>
           <p className="text-green-600 text-sm">
-            {selectedDoctor.fonction || 'Spécialité inconnue'} • {selectedDoctor.lieuExercice || 'Lieu non spécifié'}
+            {selectedDoctor.fonction || getTranslation('unknownSpecialty', language)} • {selectedDoctor.lieuExercice || getTranslation('unspecifiedLocation', language)}
           </p>
 
           <button
             onClick={handleLoadDetails}
             className="mt-3 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
           >
-            Voir détails complets
+            {getTranslation('viewFullDetails', language) || 'Voir détails complets'}
           </button>
         </div>
       )}
@@ -152,7 +153,7 @@ const SearchDoctor = ({ doctors, onSelect, selectedDoctor }) => {
       {isLoadingDetails && (
         <div className="p-4 bg-green-50 border border-green-200 rounded-lg flex items-center justify-center">
           <Loader className="animate-spin h-6 w-6 text-green-500" />
-          <span className="ml-2 text-green-700">Chargement des détails...</span>
+          <span className="ml-2 text-green-700">{getTranslation('loadingDetails', language) || 'Chargement des détails...'}</span>
         </div>
       )}
 
@@ -160,38 +161,38 @@ const SearchDoctor = ({ doctors, onSelect, selectedDoctor }) => {
       {selectedDoctor && showDetails && !isLoadingDetails && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-3">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-medium text-green-900">Détails du médecin</h3>
+            <h3 className="text-lg font-medium text-green-900">{getTranslation('doctorDetails', language) || 'Détails du médecin'}</h3>
             <button
               onClick={handleCloseDetails}
               className="px-2 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300"
             >
-              Fermer
+              {getTranslation('close', language) || 'Fermer'}
             </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Nom</label>
+              <label className="block text-sm font-medium text-gray-700">{getTranslation('lastName', language) || 'Nom'}</label>
               <input type="text" value={selectedDoctor.nomUtilisateur} readOnly className="mt-1 block w-full border border-gray-300 rounded-md bg-gray-100 p-2" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Prénom</label>
+              <label className="block text-sm font-medium text-gray-700">{getTranslation('firstName', language) || 'Prénom'}</label>
               <input type="text" value={selectedDoctor.prenomUtilisateur} readOnly className="mt-1 block w-full border border-gray-300 rounded-md bg-gray-100 p-2" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Spécialité</label>
-              <input type="text" value={selectedDoctor.fonction || 'Non spécifiée'} readOnly className="mt-1 block w-full border border-gray-300 rounded-md bg-gray-100 p-2" />
+              <label className="block text-sm font-medium text-gray-700">{getTranslation('specialty', language) || 'Spécialité'}</label>
+              <input type="text" value={selectedDoctor.fonction || getTranslation('notSpecified', language)} readOnly className="mt-1 block w-full border border-gray-300 rounded-md bg-gray-100 p-2" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Lieu d'exercice</label>
-              <input type="text" value={selectedDoctor.lieuExercice || 'Non spécifié'} readOnly className="mt-1 block w-full border border-gray-300 rounded-md bg-gray-100 p-2" />
+              <label className="block text-sm font-medium text-gray-700">{getTranslation('practiceLocation', language) || 'Lieu d\'exercice'}</label>
+              <input type="text" value={selectedDoctor.lieuExercice || getTranslation('notSpecified', language)} readOnly className="mt-1 block w-full border border-gray-300 rounded-md bg-gray-100 p-2" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Téléphone</label>
-              <input type="text" value={selectedDoctor.telephone || 'Non spécifié'} readOnly className="mt-1 block w-full border border-gray-300 rounded-md bg-gray-100 p-2" />
+              <label className="block text-sm font-medium text-gray-700">{getTranslation('phone', language) || 'Téléphone'}</label>
+              <input type="text" value={selectedDoctor.telephone || getTranslation('notSpecified', language)} readOnly className="mt-1 block w-full border border-gray-300 rounded-md bg-gray-100 p-2" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Email</label>
-              <input type="text" value={selectedDoctor.email || 'Non spécifié'} readOnly className="mt-1 block w-full border border-gray-300 rounded-md bg-gray-100 p-2" />
+              <label className="block text-sm font-medium text-gray-700">{getTranslation('email', language) || 'Email'}</label>
+              <input type="text" value={selectedDoctor.email || getTranslation('notSpecified', language)} readOnly className="mt-1 block w-full border border-gray-300 rounded-md bg-gray-100 p-2" />
             </div>
           </div>
         </div>

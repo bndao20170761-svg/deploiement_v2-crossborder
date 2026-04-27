@@ -85,4 +85,23 @@ public class ReferenceDossier {
     
     @Column(name = "date_modification")
     private LocalDateTime dateModification;
+    
+    // Nouveaux champs pour la gestion de l'état des références
+    @Column(name = "active")
+    private Boolean active;
+    
+    @Column(name = "etat")
+    private Boolean etat;
+    
+    @Column(name = "validation")
+    private Boolean validation;
+    
+    // Relations avec les médecins
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "medecin_id")
+    private Doctor medecin;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "medecin_auteur_id")
+    private Doctor medecinAuteur;
 }

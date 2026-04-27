@@ -40,4 +40,9 @@ public interface ReferenceDossierRepository extends JpaRepository<ReferenceDossi
     boolean existsByCodeReference(String codeReference);
     
     void deleteByCodeReference(String codeReference);
+    
+    // Méthodes pour les relations avec les médecins
+    List<ReferenceDossier> findByMedecin_CodeDoctor(String codeDoctor);
+    
+    List<ReferenceDossier> findByMedecinAuteur_CodeDoctor(String codeDoctor);
 }

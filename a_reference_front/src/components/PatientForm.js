@@ -64,7 +64,7 @@ const PatientForm = ({ initialData, onSave,language, onCancel }) => {
       const fullNumber = code + patient.telephone;
 
       if (!/^\+\d{6,15}$/.test(fullNumber)) {
-        setMessage("❌ Numéro de téléphone invalide.");
+        setMessage("❌ " + (getTranslation("invalidPhoneNumber", language) || "Numéro de téléphone invalide."));
         return;
       }
 
@@ -79,11 +79,11 @@ const PatientForm = ({ initialData, onSave,language, onCancel }) => {
 
     if (onSave) {
       await onSave(payload);
-      setMessage('✅ Patient enregistré avec succès !');
+      setMessage('✅ ' + (getTranslation("patientSavedSuccess", language) || "Patient enregistré avec succès !"));
     }
     } catch (error) {
       console.error("Erreur lors de l'enregistrement :", error);
-      setMessage("❌ Erreur lors de l'enregistrement du patient.");
+      setMessage("❌ " + (getTranslation("errorSavingPatient", language) || "Erreur lors de l'enregistrement du patient."));
     }
   };
 

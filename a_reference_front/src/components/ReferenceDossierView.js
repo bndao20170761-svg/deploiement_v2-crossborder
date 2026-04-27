@@ -122,7 +122,7 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">⏳ Chargement des détails...</p>
+          <p className="mt-4 text-gray-600">⏳ {getTranslation('loadingDetails', language) || 'Chargement des détails...'}</p>
         </div>
       </div>
     );
@@ -136,7 +136,7 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
           onClick={fetchReference}
           className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
         >
-          🔄 Réessayer
+          🔄 {getTranslation('retry', language) || 'Réessayer'}
         </button>
       </div>
     );
@@ -145,12 +145,12 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
   if (!reference) {
     return (
       <div className="p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
-        <p className="text-yellow-700">⚠️ Référence non trouvée</p>
+        <p className="text-yellow-700">⚠️ {getTranslation('referenceNotFound', language) || 'Référence non trouvée'}</p>
         <button
           onClick={onBack}
           className="mt-4 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
         >
-          🔙 Retour
+          🔙 {getTranslation('retour', language) || 'Retour'}
         </button>
       </div>
     );
@@ -162,7 +162,7 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
       <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-3xl font-bold text-gray-900">
-            📋 Détails de la Référence
+            📋 {getTranslation('referenceDetails', language) || 'Détails de la Référence'}
           </h1>
           <button
             onClick={onBack}
@@ -178,9 +178,9 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
           <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusBadgeClass(reference.statut)}`}>
             {getStatusIcon(reference.statut)}
             <span className="ml-2">
-              {reference.statut === 'RECUE' ? 'Reçue' : 
-               reference.statut === 'ENVOYEE' ? 'Envoyée' : 
-               reference.statut === 'EN_ATTENTE' ? 'En attente' : reference.statut}
+              {reference.statut === 'RECUE' ? getTranslation('statusRecue', language) : 
+               reference.statut === 'ENVOYEE' ? getTranslation('statusEnvoyee', language) : 
+               reference.statut === 'EN_ATTENTE' ? getTranslation('statusEnAttente', language) : reference.statut}
             </span>
           </span>
         </div>
@@ -192,7 +192,7 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
           >
             <Edit className="w-4 h-4 mr-2" />
-            Modifier
+            {getTranslation('edit', language) || 'Modifier'}
           </button>
           {reference.statut === 'EN_ATTENTE' && (
             <button
@@ -200,7 +200,7 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center"
             >
               <CheckCircle className="w-4 h-4 mr-2" />
-              Accepter
+              {getTranslation('accept', language) || 'Accepter'}
             </button>
           )}
           <button
@@ -208,7 +208,7 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
             className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center"
           >
             <Trash2 className="w-4 h-4 mr-2" />
-            Supprimer
+            {getTranslation('delete', language) || 'Supprimer'}
           </button>
         </div>
       </div>
@@ -219,32 +219,32 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
         <div className="bg-white rounded-lg shadow-lg p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
             <FileText className="w-5 h-5 mr-2 text-blue-600" />
-            Informations de la Référence
+            {getTranslation('referenceInformation', language) || 'Informations de la Référence'}
           </h2>
           
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Code Référence</label>
+              <label className="block text-sm font-medium text-gray-700">{getTranslation('codeReference', language) || 'Code Référence'}</label>
               <p className="mt-1 text-sm text-gray-900 font-semibold">{reference.codeReference}</p>
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700">Date de Référence</label>
+              <label className="block text-sm font-medium text-gray-700">{getTranslation('referenceDate', language) || 'Date de Référence'}</label>
               <p className="mt-1 text-sm text-gray-900">{formatDate(reference.dateReference)}</p>
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700">Type de Référence</label>
+              <label className="block text-sm font-medium text-gray-700">{getTranslation('referenceType', language) || 'Type de Référence'}</label>
               <p className="mt-1 text-sm text-gray-900">{reference.typeReference || '-'}</p>
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700">Motif</label>
+              <label className="block text-sm font-medium text-gray-700">{getTranslation('motif', language) || 'Motif'}</label>
               <p className="mt-1 text-sm text-gray-900">{reference.motifReference || '-'}</p>
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700">Date de Prise en Charge</label>
+              <label className="block text-sm font-medium text-gray-700">{getTranslation('priseEnChargeDate', language) || 'Date de Prise en Charge'}</label>
               <p className="mt-1 text-sm text-gray-900">{formatDate(reference.datePriseEnCharge)}</p>
             </div>
           </div>

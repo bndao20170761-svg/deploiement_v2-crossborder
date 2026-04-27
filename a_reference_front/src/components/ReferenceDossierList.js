@@ -45,32 +45,32 @@ const ReferenceDossierList = ({ language = "fr", filterStatus = "all", onReferen
     } catch (err) {
       console.error('Erreur lors du chargement des références:', err);
       console.error('Détails de l\'erreur:', err.response?.data || err.message);
-      setError(`Impossible de charger les références de dossiers: ${err.response?.data?.message || err.message}`);
+      setError(`${getTranslation('errorLoadReferences', language)}: ${err.response?.data?.message || err.message}`);
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (codeReference) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette référence ?')) {
+    if (window.confirm(getTranslation('confirmDeleteReference', language))) {
       try {
         await referenceDossierService.deleteReference(codeReference);
         setReferences(references.filter(ref => ref.codeReference !== codeReference));
       } catch (err) {
         console.error('Erreur lors de la suppression:', err);
-        alert('Erreur lors de la suppression de la référence');
+        alert(getTranslation('errorDeleteReference', language));
       }
     }
   };
 
   const handleAccept = async (codeReference) => {
-    if (window.confirm('Êtes-vous sûr de vouloir accepter cette référence ?')) {
+    if (window.confirm(getTranslation('confirmAcceptReference', language))) {
       try {
-        await referenceDossierService.accepterReference(codeReference, 'DOC_CURRENT', 'Médecin actuel');
+        await referenceDossierService.accepterReference(codeReference, 'DOC_CURRENT', getTranslation('currentDoctor', language));
         fetchReferences(); // Recharger la liste
       } catch (err) {
         console.error('Erreur lors de l\'acceptation:', err);
-        alert('Erreur lors de l\'acceptation de la référence');
+        alert(getTranslation('errorAcceptReference', language));
       }
     }
   };
@@ -127,7 +127,7 @@ const ReferenceDossierList = ({ language = "fr", filterStatus = "all", onReferen
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">⏳ Chargement des références...</p>
+          <p className="mt-4 text-gray-600">⏳ {getTranslation('loadingReferences', language)}</p>
         </div>
       </div>
     );
@@ -141,7 +141,7 @@ const ReferenceDossierList = ({ language = "fr", filterStatus = "all", onReferen
           onClick={fetchReferences}
           className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
         >
-          🔄 Réessayer
+          🔄 {getTranslation('retry', language)}
         </button>
       </div>
     );
@@ -156,7 +156,7 @@ const ReferenceDossierList = ({ language = "fr", filterStatus = "all", onReferen
             {getTranslation("referencesDossiers", language) || "Références de Dossiers"}
           </h1>
           <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-            Filtre: {filterStatus} | {references.length} résultat(s)
+            {getTranslation('filterLabel', language)}: {filterStatus} | {references.length} {getTranslation('results', language)}
           </div>
         </div>
 
@@ -182,8 +182,8 @@ const ReferenceDossierList = ({ language = "fr", filterStatus = "all", onReferen
               disabled
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-100"
             >
-              <option value="recues">Dossiers Reçus</option>
-              <option value="envoyees">Dossiers Envoyés</option>
+              <option value="recues">{getTranslation('dossierReceivedReference', language)}</option>
+              <option value="envoyees">{getTranslation('dossierSentReference', language)}</option>
             </select>
           </div>
 
@@ -204,28 +204,28 @@ const ReferenceDossierList = ({ language = "fr", filterStatus = "all", onReferen
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Code
+                  {getTranslation('code', language)}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Patient
+                  {getTranslation('patientLabel', language)}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Dossier
+                  {getTranslation('dossier', language)}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Hôpital
+                  {getTranslation('hopital', language)}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Médecin
+                  {getTranslation('medecin', language)}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date
+                  {getTranslation('date', language)}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Statut
+                  {getTranslation('statut', language)}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
+                  {getTranslation('actions', language)}
                 </th>
               </tr>
             </thead>
@@ -242,20 +242,20 @@ const ReferenceDossierList = ({ language = "fr", filterStatus = "all", onReferen
                       }</div>
                       <div className="text-lg font-medium mb-2">
                         {searchTerm 
-                          ? "Aucune référence trouvée pour cette recherche" 
+                          ? getTranslation('noReferenceFound', language)
                           : filterStatus === 'recues' 
-                            ? "Aucun dossier reçu"
+                            ? getTranslation('noReceivedFile', language)
                             : filterStatus === 'envoyees'
-                            ? "Aucun dossier envoyé"
+                            ? getTranslation('noSentFile', language)
                             : filterStatus === 'en-attente'
-                            ? "Aucun dossier en attente"
-                            : "Aucune référence trouvée"
+                            ? getTranslation('noPendingFile', language)
+                            : getTranslation('noReferenceFound', language)
                         }
                       </div>
                       <div className="text-sm text-gray-400">
                         {searchTerm 
-                          ? "Essayez avec d'autres termes de recherche"
-                          : "Créez votre première référence de dossier"
+                          ? getTranslation('tryOtherSearchTerms', language)
+                          : getTranslation('createFirstReference', language)
                         }
                       </div>
                     </div>
@@ -286,9 +286,9 @@ const ReferenceDossierList = ({ language = "fr", filterStatus = "all", onReferen
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusBadgeClass(reference.statut)}`}>
                         {getStatusIcon(reference.statut)}
                         <span className="ml-1">
-                          {reference.statut === 'RECUE' ? 'Reçue' : 
-                           reference.statut === 'ENVOYEE' ? 'Envoyée' : 
-                           reference.statut === 'EN_ATTENTE' ? 'En attente' : reference.statut}
+                          {reference.statut === 'RECUE' ? getTranslation('statusRecue', language) : 
+                           reference.statut === 'ENVOYEE' ? getTranslation('statusEnvoyee', language) : 
+                           reference.statut === 'EN_ATTENTE' ? getTranslation('statusEnAttente', language) : reference.statut}
                         </span>
                       </span>
                     </td>
@@ -297,14 +297,14 @@ const ReferenceDossierList = ({ language = "fr", filterStatus = "all", onReferen
                         <button
                           onClick={() => onViewReference && onViewReference(reference)}
                           className="text-blue-600 hover:text-blue-900"
-                          title="Voir"
+                          title={getTranslation('view', language)}
                         >
                           <Eye className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => onEditReference && onEditReference(reference)}
                           className="text-green-600 hover:text-green-900"
-                          title="Modifier"
+                          title={getTranslation('edit', language)}
                         >
                           <Edit className="w-4 h-4" />
                         </button>
@@ -312,7 +312,7 @@ const ReferenceDossierList = ({ language = "fr", filterStatus = "all", onReferen
                           <button
                             onClick={() => handleAccept(reference.codeReference)}
                             className="text-green-600 hover:text-green-900"
-                            title="Accepter"
+                            title={getTranslation('accept', language)}
                           >
                             <CheckCircle className="w-4 h-4" />
                           </button>
@@ -320,7 +320,7 @@ const ReferenceDossierList = ({ language = "fr", filterStatus = "all", onReferen
                         <button
                           onClick={() => handleDelete(reference.codeReference)}
                           className="text-red-600 hover:text-red-900"
-                          title="Supprimer"
+                          title={getTranslation('delete', language)}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -343,22 +343,22 @@ const ReferenceDossierList = ({ language = "fr", filterStatus = "all", onReferen
               disabled={currentPage === 1}
               className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
             >
-              Précédent
+              {getTranslation('previous', language)}
             </button>
             <button
               onClick={() => setCurrentPage(currentPage + 1)}
               disabled={currentPage === totalPages}
               className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
             >
-              Suivant
+              {getTranslation('next', language)}
             </button>
           </div>
           <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
             <div>
               <p className="text-sm text-gray-700">
-                Affichage de <span className="font-medium">{indexOfFirstItem + 1}</span> à{' '}
-                <span className="font-medium">{Math.min(indexOfLastItem, filteredReferences.length)}</span> sur{' '}
-                <span className="font-medium">{filteredReferences.length}</span> résultats
+                {getTranslation('showingResults', language)} <span className="font-medium">{indexOfFirstItem + 1}</span> {getTranslation('to', language)}{' '}
+                <span className="font-medium">{Math.min(indexOfLastItem, filteredReferences.length)}</span> {getTranslation('on', language)}{' '}
+                <span className="font-medium">{filteredReferences.length}</span> {getTranslation('results', language)}
               </p>
             </div>
             <div>
@@ -368,17 +368,17 @@ const ReferenceDossierList = ({ language = "fr", filterStatus = "all", onReferen
                   disabled={currentPage === 1}
                   className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
                 >
-                  Précédent
+                  {getTranslation('previous', language)}
                 </button>
                 <span className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
-                  Page {currentPage} sur {totalPages}
+                  {getTranslation('page', language)} {currentPage} {getTranslation('on', language)} {totalPages}
                 </span>
                 <button
                   onClick={() => setCurrentPage(currentPage + 1)}
                   disabled={currentPage === totalPages}
                   className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
                 >
-                  Suivant
+                  {getTranslation('next', language)}
                 </button>
               </nav>
             </div>

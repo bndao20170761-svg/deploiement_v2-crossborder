@@ -30,6 +30,7 @@ const Header = ({
   onLanguageChange = () => {},
   patientCount = 0,
   sentCountDossier = 0,
+  receivedCountDossier = 0,
 
     // Nouvelle prop pour gérer l'état de la cartographie
    onCartographyToggle = () => {},
@@ -185,7 +186,7 @@ const [currentLang, setCurrentLang] = useState(language);
             type="button"
           >
             <span className="hidden xl:inline">{getTranslation('home', language)}</span>
-            <span className="xl:hidden">Accueil</span>
+            <span className="xl:hidden">{getTranslation('homeShort', language)}</span>
           </button>
             {/* Menu Références */}
             <div className="relative" ref={dropdownRef}>
@@ -195,10 +196,10 @@ const [currentLang, setCurrentLang] = useState(language);
                 type="button"
               >
                 <span className="bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 mr-2">
-                  {receivedCount }
+                  {receivedCount + receivedCountDossier}
                 </span>
                 <span className="hidden xl:inline">{getTranslation('reference', language)}</span>
-                <span className="xl:hidden">Ref</span>
+                <span className="xl:hidden">{getTranslation('refShort', language)}</span>
                 <ChevronDown className={`ml-1 h-4 w-4 transition-transform duration-200 ${isReferenceOpen ? 'rotate-180' : ''}`} />
               </button>
               {isReferenceOpen && (
@@ -232,21 +233,27 @@ const [currentLang, setCurrentLang] = useState(language);
                     </button>
                     <div className="border-t border-gray-100 my-1"></div>
                     <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      📋 Références de Dossiers
+                      📋 {getTranslation('referenceFolder', language)}
                     </div>
                     <button
                       onClick={() => handleMenuItemClick('dossier-received')}
                       className="flex items-center justify-between w-full px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-800"
                       type="button"
                     >
-                      <span>{getTranslation('dossierReceivedReference', language) || 'Dossiers Reçus'}</span>
+                      <span>{getTranslation('dossierReceivedReference', language)}</span>
+                      <span className="bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
+                        {receivedCountDossier}
+                      </span>
                     </button>
                     <button
                       onClick={() => handleMenuItemClick('dossier-sent')}
                       className="flex items-center justify-between w-full px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-800"
                       type="button"
                     >
-                      <span>{getTranslation('dossierSentReference', language) || 'Dossiers Envoyés'}</span>
+                      <span>{getTranslation('dossierSentReference', language)}</span>
+                      <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-0.5">
+                        {sentCountDossier}
+                      </span>
                     </button>
                   </div>
                 </div>
@@ -264,7 +271,7 @@ const [currentLang, setCurrentLang] = useState(language);
                   {receivedCount}
                 </span>
                 <span className="hidden xl:inline">{getTranslation("autoReference", language)}</span>
-                <span className="xl:hidden">Auto</span>
+                <span className="xl:hidden">{getTranslation('autoShort', language)}</span>
                 <ChevronDown className={`ml-1 h-4 w-4 transition-transform duration-200 ${isAutoReferenceOpen ? "rotate-180" : ""}`} />
               </button>
 
@@ -311,7 +318,7 @@ const [currentLang, setCurrentLang] = useState(language);
                 type="button"
               >
                 <span className="hidden xl:inline">{getTranslation('patient', language)}</span>
-                <span className="xl:hidden">Patients</span>
+                <span className="xl:hidden">{getTranslation('patientShort', language)}</span>
                 <ChevronDown className={`ml-1 h-4 w-4 transition-transform duration-200 ${isPatientOpen ? 'rotate-180' : ''}`} />
               </button>
               {isPatientOpen && (
@@ -350,8 +357,8 @@ const [currentLang, setCurrentLang] = useState(language);
                type="button"
              >
                <Map className="h-4 w-4 mr-1" />
-               <span className="hidden xl:inline">{getTranslation('cartography', language)}</span>
-               <span className="xl:hidden">Carte</span>
+                <span className="hidden xl:inline">{getTranslation('cartography', language)}</span>
+                <span className="xl:hidden">{getTranslation('cartographyShort', language)}</span>
                {isCartographyActive && (
                  <span className="ml-2 bg-white text-green-600 text-xs rounded-full px-2 py-0.5">
                    ●
@@ -366,8 +373,8 @@ const [currentLang, setCurrentLang] = useState(language);
               title="Aller au Forum PVVIH (Port 3000)"
             >
               <MessageSquare className="h-4 w-4 mr-1" />
-              <span className="hidden xl:inline">{getTranslation('forum', language)}</span>
-              <span className="xl:hidden">Forum</span>
+                <span className="hidden xl:inline">{getTranslation('forum', language)}</span>
+                <span className="xl:hidden">{getTranslation('forumShort', language)}</span>
             </button>
 
             {/* Menu Langues - CORRIGÉ */}
@@ -469,12 +476,12 @@ const [currentLang, setCurrentLang] = useState(language);
                >
                  {/* Badge total */}
                  <span className="bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 mr-2">
-                   {receivedCount }
+                   {receivedCount + receivedCountDossier}
                  </span>
 
                  {/* Label */}
                  <span className="hidden xl:inline">{getTranslation('reference', language)}</span>
-                 <span className="xl:hidden">Ref</span>
+                 <span className="xl:hidden">{getTranslation('refShort', language)}</span>
 
                  {/* Chevron */}
                  <ChevronDown
@@ -524,21 +531,24 @@ const [currentLang, setCurrentLang] = useState(language);
                      </button>
                      <div className="border-t border-gray-100 my-1"></div>
                      <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                       Références de Dossiers
+                       {getTranslation('referenceFolder', language)}
                      </div>
                      <button
                        onClick={() => handleMenuItemClick('dossier-received')}
                        className="flex items-center justify-between w-full px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-800"
                        type="button"
                      >
-                       <span>{getTranslation('dossierReceivedReference', language) || 'Dossiers Reçus'}</span>
+                       <span>{getTranslation('dossierReceivedReference', language)}</span>
+                      <span className="bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
+                        {receivedCountDossier}
+                      </span>
                      </button>
                       <button
                         onClick={() => handleMenuItemClick('dossier-sent')}
                         className="flex items-center justify-between w-full px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-800"
                         type="button"
                       >
-                        <span>{getTranslation('dossierSentReference', language) || 'Dossiers Envoyés'}</span>
+                         <span>{getTranslation('dossierSentReference', language)}</span>
                        <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-0.5">
                          {sentCountDossier}
                        </span>
@@ -547,7 +557,6 @@ const [currentLang, setCurrentLang] = useState(language);
                   </div>
                 )}
               </div>
-
              {/* Section Auto-Références (Desktop / Tablet) */}
             <div className="relative" ref={autoDropdownRef}>
               <button
@@ -561,8 +570,8 @@ const [currentLang, setCurrentLang] = useState(language);
                 </span>
 
                 {/* Label */}
-                <span className="hidden xl:inline">{getTranslation("autoReference", language)}</span>
-                <span className="xl:hidden">AutoRef</span>
+                 <span className="hidden xl:inline">{getTranslation("autoReference", language)}</span>
+                 <span className="xl:hidden">{getTranslation('autoRefShort', language)}</span>
 
                 {/* Chevron */}
                 <ChevronDown
@@ -623,8 +632,8 @@ const [currentLang, setCurrentLang] = useState(language);
                 </span>
 
                 {/* Label */}
-                <span className="hidden xl:inline">{getTranslation('patient', language)}</span>
-                <span className="xl:hidden">Patients</span>
+                 <span className="hidden xl:inline">{getTranslation('patient', language)}</span>
+                 <span className="xl:hidden">{getTranslation('patientShort', language)}</span>
 
                 {/* Chevron */}
                 <ChevronDown
@@ -692,8 +701,8 @@ const [currentLang, setCurrentLang] = useState(language);
                   type="button"
                 >
                   <Globe className="h-4 w-4 mr-2" />
-                  <span className="hidden xl:inline">{getTranslation('languages', language)}</span>
-                  <span className="xl:hidden">Lang</span>
+                   <span className="hidden xl:inline">{getTranslation('languages', language)}</span>
+                   <span className="xl:hidden">{getTranslation('langShort', language)}</span>
                   <ChevronDown
                     className={`ml-1 h-4 w-4 transition-transform duration-200 ${
                       isLanguageOpen ? 'rotate-180' : ''

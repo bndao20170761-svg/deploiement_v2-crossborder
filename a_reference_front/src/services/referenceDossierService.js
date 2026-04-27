@@ -184,6 +184,26 @@ const referenceDossierService = {
       throw error;
     }
   },
+
+  // Compter les références de dossiers envoyées
+  countReferencesDossierEnvoyees: async () => {
+    try {
+      return await authRequest('get', '/api/references-dossiers/count/envoyees');
+    } catch (error) {
+      console.error('Erreur lors du comptage des références de dossiers envoyées:', error);
+      throw error;
+    }
+  },
+
+  // Compter les références de dossiers reçues non lues
+  countReferencesDossierRecuesNonLues: async () => {
+    try {
+      return await authRequest('get', '/api/references-dossiers/count/recues-non-lues');
+    } catch (error) {
+      console.error('Erreur lors du comptage des références de dossiers reçues non lues:', error);
+      throw error;
+    }
+  },
 };
 
 export default referenceDossierService;
