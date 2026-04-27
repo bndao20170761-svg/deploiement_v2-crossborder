@@ -187,14 +187,16 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
 
         {/* Actions */}
         <div className="flex items-center gap-4">
-          <button
-            onClick={() => onEdit && onEdit(reference)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
-          >
-            <Edit className="w-4 h-4 mr-2" />
-            {getTranslation('edit', language) || 'Modifier'}
-          </button>
-          {reference.statut === 'EN_ATTENTE' && (
+          {reference.statut === 'ENVOYEE' && (
+            <button
+              onClick={() => onEdit && onEdit(reference)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
+            >
+              <Edit className="w-4 h-4 mr-2" />
+              {getTranslation('edit', language) || 'Modifier'}
+            </button>
+          )}
+          {reference.statut === 'RECUE' && (
             <button
               onClick={handleAccept}
               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center"

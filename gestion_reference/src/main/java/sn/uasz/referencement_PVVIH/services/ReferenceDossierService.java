@@ -190,7 +190,7 @@ public class ReferenceDossierService {
         // Générer un code de référence unique
         String codeReference = generateCodeReference();
         referenceDossierDto.setCodeReference(codeReference);
-        referenceDossierDto.setStatut("EN_ATTENTE");
+        referenceDossierDto.setStatut("ENVOYEE");
         referenceDossierDto.setDateCreation(LocalDateTime.now());
         referenceDossierDto.setEtat(false);
         referenceDossierDto.setValidation(true);
@@ -262,6 +262,7 @@ public class ReferenceDossierService {
             reference.setStatut("RECUE");
             reference.setDatePriseEnCharge(LocalDateTime.now());
             reference.setCodeDocteur(codeDocteur);
+            reference.setEtat(true);
             reference.setNomDocteur(nomDocteur);
             reference.setDateModification(LocalDateTime.now());
             
