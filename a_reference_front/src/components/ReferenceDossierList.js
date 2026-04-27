@@ -263,7 +263,18 @@ const ReferenceDossierList = ({ language = "fr", filterStatus = "all", onReferen
                 </tr>
               ) : (
                 currentItems.map((reference) => (
-                  <tr key={reference.codeReference} className="hover:bg-gray-50">
+                  <tr
+                    key={reference.codeReference}
+                    className={`hover:bg-gray-50 ${
+                      filterStatus === "envoyees" && !reference.etat && reference.validation === false
+                        ? "bg-yellow-100"
+                        : filterStatus === "envoyees" && !reference.etat && reference.validation === true
+                        ? "bg-blue-100"
+                        : filterStatus === "recues" && !reference.etat
+                        ? "bg-red-100"
+                        : ""
+                    }`}
+                  >
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {reference.codeReference}
                     </td>

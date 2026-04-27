@@ -33,6 +33,7 @@ import {
   getCountReferencesEnvoyeesParAssistant,
   countEnvoyees,
 } from "./services/referenceService";
+import referenceDossierService from "./services/referenceDossierService";
 
 function App() {
   const { isAuthenticated, user, loading } = useContext(AuthContext);
@@ -55,6 +56,8 @@ const [selectedDossier, setSelectedDossier] = useState(null);
   const [referenceDossiers, setReferenceDossiers] = useState([]);
   const [selectedReferenceDossier, setSelectedReferenceDossier] = useState(null);
   const [editingReferenceDossier, setEditingReferenceDossier] = useState(null);
+  const [receivedCountDossier, setReceivedCountDossier] = useState(0);
+  const [sentCountDossier, setSentCountDossier] = useState(0);
 
 // --- Navigation / Langue ---
 const handleMenuSelect = (view) => {
@@ -126,20 +129,26 @@ const handleMenuSelect = (view) => {
     if (!isAuthenticated) return;
     const fetchCounts = async () => {
       try {
-        const [envoyees, recuesNonLues, envoyeesAssist] = await Promise.all([
+        const [envoyees, recuesNonLues, envoyeesAssist, recuesDossier, envoyeesDossier] = await Promise.all([
           countEnvoyees(),
           countRecuesNonLues(),
           getCountReferencesEnvoyeesParAssistant(),
+          referenceDossierService.countReferencesDossierRecuesNonLues(),
+          referenceDossierService.countReferencesDossierEnvoyees(),
         ]);
 
         setSentCount(envoyees || 0);
         setReceivedCount(recuesNonLues || 0);
         setSentCountAssist(envoyeesAssist || 0);
+        setReceivedCountDossier(recuesDossier || 0);
+        setSentCountDossier(envoyeesDossier || 0);
       } catch (error) {
         console.error("❌ Erreur lors du chargement des compteurs :", error);
         setSentCount(0);
         setReceivedCount(0);
         setSentCountAssist(0);
+        setReceivedCountDossier(0);
+        setSentCountDossier(0);
       }
     };
     fetchCounts();
@@ -551,6 +560,8 @@ return (
       sentCount={sentCount}
       sentCountAssist={sentCountAssist}
       receivedCount={receivedCount}
+      receivedCountDossier={receivedCountDossier}
+      sentCountDossier={sentCountDossier}
       language={language}
       onLanguageChange={handleLanguageChange}
       patientCount={patients.length}
