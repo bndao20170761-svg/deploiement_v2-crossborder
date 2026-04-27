@@ -94,8 +94,8 @@ public class ReferenceDossierService {
         }
         Doctor doctor = currentDoctor.get();
         
-        // Références reçues : celles où le médecin est le destinataire
-        List<ReferenceDossier> references = referenceDossierRepository.findByMedecin_CodeDoctor(doctor.getCodeDoctor());
+        // Références reçues : celles où le médecin est le destinataire (code_docteur)
+        List<ReferenceDossier> references = referenceDossierRepository.findByCodeDocteur(doctor.getCodeDoctor());
         
         // Filtrer seulement celles validées
         return references.stream()
@@ -111,13 +111,11 @@ public class ReferenceDossierService {
         }
         Doctor doctor = currentDoctor.get();
         
-        // Références envoyées : fusion des deux cas
-        List<ReferenceDossier> refsDirectes = referenceDossierRepository.findByMedecinAuteur_CodeDoctor(doctor.getCodeDoctor());
-        List<ReferenceDossier> allRefs = new ArrayList<>();
-        allRefs.addAll(refsDirectes);
+        // Références envoyées : celles où le médecin est l'auteur (code_referenceur)
+        List<ReferenceDossier> references = referenceDossierRepository.findByCodeReferenceur(doctor.getCodeDoctor());
         
         // Filtrer seulement celles validées
-        return allRefs.stream()
+        return references.stream()
                 .filter(ref -> Boolean.TRUE.equals(ref.getValidation()))
                 .filter(ref -> Boolean.FALSE.equals(ref.getEtat()))
                 .map(referenceDossierMapper::entityToDto)
@@ -303,10 +301,10 @@ public class ReferenceDossierService {
         }
         Doctor doctor = currentDoctor.get();
         
-        // Références envoyées : fusion des deux cas
-        List<ReferenceDossier> refsDirectes = referenceDossierRepository.findByMedecinAuteur_CodeDoctor(doctor.getCodeDoctor());
+        // Références envoyées : celles où le médecin est l'auteur (code_referenceur)
+        List<ReferenceDossier> references = referenceDossierRepository.findByCodeReferenceur(doctor.getCodeDoctor());
         
-        return refsDirectes.stream()
+        return references.stream()
                 .filter(ref -> Boolean.TRUE.equals(ref.getValidation()))
                 .filter(ref -> Boolean.FALSE.equals(ref.getEtat()))
                 .count();
@@ -319,7 +317,7 @@ public class ReferenceDossierService {
         }
         Doctor doctor = currentDoctor.get();
         
-        return referenceDossierRepository.findByMedecin_CodeDoctor(doctor.getCodeDoctor())
+        return referenceDossierRepository.findByCodeDocteur(doctor.getCodeDoctor())
                 .stream()
                 .filter(ref -> Boolean.TRUE.equals(ref.getValidation()))
                 .filter(ref -> ref.getEtat() != null && !ref.getEtat()) // etat = false => non lue

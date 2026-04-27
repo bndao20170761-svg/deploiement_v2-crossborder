@@ -24,6 +24,8 @@ public interface ReferenceDossierRepository extends JpaRepository<ReferenceDossi
     
     List<ReferenceDossier> findByCodeReferenceurOrderByDateCreationDesc(String codeReferenceur);
     
+    List<ReferenceDossier> findByCodeReferenceur(String codeReferenceur);
+    
     List<ReferenceDossier> findByStatut(String statut);
     
     List<ReferenceDossier> findByTypeReference(String typeReference);
