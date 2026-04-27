@@ -323,7 +323,14 @@ public class ReferenceDossierService {
         reference.setStatut("RECUE");
         reference.setDatePriseEnCharge(LocalDateTime.now());
         reference.setEtat(true);
-        reference.setNomDocteur(doctor.getNomUtilisateur());
+        // Construire le nom du médecin à partir de l'utilisateur associé
+        String nomComplet = "Médecin";
+        if (doctor.getUtilisateur() != null) {
+            User user = doctor.getUtilisateur();
+            nomComplet = (user.getNom() != null ? user.getNom() : "") + 
+                        (user.getPrenom() != null ? " " + user.getPrenom() : "");
+        }
+        reference.setNomDocteur(nomComplet.trim());
         reference.setDateModification(LocalDateTime.now());
         
         ReferenceDossier updatedReference = referenceDossierRepository.save(reference);
