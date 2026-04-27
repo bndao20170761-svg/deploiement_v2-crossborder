@@ -110,6 +110,36 @@ const referenceDossierService = {
     }
   },
 
+  // Vérifier si le médecin peut accepter la référence
+  canAcceptReference: async (codeReference) => {
+    try {
+      return await authRequest('get', `/api/references-dossiers/can-accept/${codeReference}`);
+    } catch (error) {
+      console.error('Erreur lors de la vérification des permissions d\'acceptation:', error);
+      return false;
+    }
+  },
+
+  // Vérifier si le médecin peut modifier la référence
+  canEditReference: async (codeReference) => {
+    try {
+      return await authRequest('get', `/api/references-dossiers/can-edit/${codeReference}`);
+    } catch (error) {
+      console.error('Erreur lors de la vérification des permissions de modification:', error);
+      return false;
+    }
+  },
+
+  // Accepter une référence
+  acceptReference: async (codeReference) => {
+    try {
+      return await authRequest('post', `/api/references-dossiers/accept/${codeReference}`);
+    } catch (error) {
+      console.error('Erreur lors de l\'acceptation de la référence:', error);
+      throw error;
+    }
+  },
+
   // Obtenir les références envoyées
   getReferencesEnvoyees: async () => {
     try {

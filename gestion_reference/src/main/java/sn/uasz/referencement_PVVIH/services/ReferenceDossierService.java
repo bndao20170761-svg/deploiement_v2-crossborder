@@ -190,7 +190,7 @@ public class ReferenceDossierService {
         // Générer un code de référence unique
         String codeReference = generateCodeReference();
         referenceDossierDto.setCodeReference(codeReference);
-        referenceDossierDto.setStatut("ENVOYEE");
+        referenceDossierDto.setStatut("EN_ATTENTE");
         referenceDossierDto.setDateCreation(LocalDateTime.now());
         referenceDossierDto.setEtat(false);
         referenceDossierDto.setValidation(true);
@@ -255,6 +255,84 @@ public class ReferenceDossierService {
         referenceDossierRepository.deleteByCodeReference(codeReference);
     }
     
+    /**
+     * Vérifie si le médecin connecté peut accepter cette référence
+     * Le médecin doit être celui à qui la référence a été adressée (code_docteur)
+     */
+    public boolean canAcceptReference(String codeReference) {
+        Optional<Doctor> currentDoctor = getAuthenticatedDoctor();
+        if (currentDoctor.isEmpty()) {
+            return false;
+        }
+        
+        Optional<ReferenceDossier> reference = referenceDossierRepository.findByCodeReference(codeReference);
+        if (reference.isEmpty()) {
+            return false;
+        }
+        
+        String currentDoctorCode = currentDoctor.get().getCodeDoctor();
+        String targetDoctorCode = reference.get().getCodeDocteur();
+        
+        return currentDoctorCode.equals(targetDoctorCode);
+    }
+    
+    /**
+     * Vérifie si le médecin connecté peut modifier cette référence
+     * Le médecin doit être celui qui a créé la référence (code_referenceur)
+     */
+    public boolean canEditReference(String codeReference) {
+        Optional<Doctor> currentDoctor = getAuthenticatedDoctor();
+        if (currentDoctor.isEmpty()) {
+            return false;
+        }
+        
+        Optional<ReferenceDossier> reference = referenceDossierRepository.findByCodeReference(codeReference);
+        if (reference.isEmpty()) {
+            return false;
+        }
+        
+        String currentDoctorCode = currentDoctor.get().getCodeDoctor();
+        String authorDoctorCode = reference.get().getCodeReferenceur();
+        
+        return currentDoctorCode.equals(authorDoctorCode);
+    }
+    
+    /**
+     * Accepte une référence de dossier
+     * Seul le médecin destinataire peut accepter
+     */
+    public ReferenceDossierDto accepterReference(String codeReference) {
+        Optional<Doctor> currentDoctor = getAuthenticatedDoctor();
+        if (currentDoctor.isEmpty()) {
+            throw new RuntimeException("Médecin non authentifié");
+        }
+        
+        Optional<ReferenceDossier> existingReference = referenceDossierRepository.findByCodeReference(codeReference);
+        if (existingReference.isEmpty()) {
+            throw new RuntimeException("Référence non trouvée avec le code: " + codeReference);
+        }
+        
+        ReferenceDossier reference = existingReference.get();
+        Doctor doctor = currentDoctor.get();
+        
+        // Vérifier que le médecin connecté est bien le destinataire
+        if (!doctor.getCodeDoctor().equals(reference.getCodeDocteur())) {
+            throw new RuntimeException("Vous n'êtes pas autorisé à accepter cette référence");
+        }
+        
+        reference.setStatut("RECUE");
+        reference.setDatePriseEnCharge(LocalDateTime.now());
+        reference.setEtat(true);
+        reference.setNomDocteur(doctor.getNomUtilisateur());
+        reference.setDateModification(LocalDateTime.now());
+        
+        ReferenceDossier updatedReference = referenceDossierRepository.save(reference);
+        return referenceDossierMapper.entityToDto(updatedReference);
+    }
+    
+    /**
+     * Ancienne méthode conservée pour compatibilité
+     */
     public ReferenceDossierDto accepterReference(String codeReference, String codeDocteur, String nomDocteur) {
         Optional<ReferenceDossier> existingReference = referenceDossierRepository.findByCodeReference(codeReference);
         if (existingReference.isPresent()) {

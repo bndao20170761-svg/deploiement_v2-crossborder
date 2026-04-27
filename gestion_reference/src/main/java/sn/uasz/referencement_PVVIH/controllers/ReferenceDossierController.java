@@ -144,4 +144,29 @@ public class ReferenceDossierController {
         long count = referenceDossierService.countReferencesDossierRecuesNonLues();
         return ResponseEntity.ok(count);
     }
+    
+    @GetMapping("/can-accept/{codeReference}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Boolean> canAcceptReference(@PathVariable String codeReference) {
+        boolean canAccept = referenceDossierService.canAcceptReference(codeReference);
+        return ResponseEntity.ok(canAccept);
+    }
+    
+    @GetMapping("/can-edit/{codeReference}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Boolean> canEditReference(@PathVariable String codeReference) {
+        boolean canEdit = referenceDossierService.canEditReference(codeReference);
+        return ResponseEntity.ok(canEdit);
+    }
+    
+    @PostMapping("/accept/{codeReference}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ReferenceDossierDto> acceptReference(@PathVariable String codeReference) {
+        try {
+            ReferenceDossierDto acceptedReference = referenceDossierService.accepterReference(codeReference);
+            return ResponseEntity.ok(acceptedReference);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }

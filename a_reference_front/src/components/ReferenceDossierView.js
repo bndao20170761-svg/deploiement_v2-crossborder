@@ -10,6 +10,8 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
   const [error, setError] = useState(null);
   const [expandedDossier, setExpandedDossier] = useState(null);
   const [loadingDossier, setLoadingDossier] = useState(false);
+  const [canAccept, setCanAccept] = useState(false);
+  const [canEdit, setCanEdit] = useState(false);
 
   useEffect(() => {
     if (codeReference) {
@@ -23,6 +25,14 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
       const data = await referenceDossierService.getReferenceByCode(codeReference);
       setReference(data);
       setError(null);
+      
+      // Vérifier les permissions
+      const [acceptPermission, editPermission] = await Promise.all([
+        referenceDossierService.canAcceptReference(codeReference),
+        referenceDossierService.canEditReference(codeReference)
+      ]);
+      setCanAccept(acceptPermission);
+      setCanEdit(editPermission);
     } catch (err) {
       console.error('Erreur lors du chargement de la référence:', err);
       setError('Impossible de charger les détails de la référence');
@@ -69,13 +79,13 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
   };
 
   const handleAccept = async () => {
-    if (window.confirm('Êtes-vous sûr de vouloir accepter cette référence ?')) {
+    if (window.confirm(getTranslation('confirmAcceptReference', language) || 'Êtes-vous sûr de vouloir accepter cette référence ?')) {
       try {
-        await referenceDossierService.accepterReference(codeReference, 'DOC_CURRENT', 'Médecin actuel');
+        await referenceDossierService.acceptReference(codeReference);
         fetchReference(); // Recharger les données
-      } catch (err) {
-        console.error('Erreur lors de l\'acceptation:', err);
-        alert('Erreur lors de l\'acceptation de la référence');
+      } catch (error) {
+        console.error('Erreur lors de l\'acceptation de la référence:', error);
+        alert(getTranslation('errorAcceptingReference', language) || 'Erreur lors de l\'acceptation de la référence');
       }
     }
   };
@@ -187,7 +197,7 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
 
         {/* Actions */}
         <div className="flex items-center gap-4">
-          {reference.statut === 'ENVOYEE' && (
+          {reference.statut === 'ENVOYEE' && canEdit && (
             <button
               onClick={() => onEdit && onEdit(reference)}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
@@ -196,7 +206,7 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
               {getTranslation('edit', language) || 'Modifier'}
             </button>
           )}
-          {reference.statut === 'RECUE' && (
+          {reference.statut === 'RECUE' && canAccept && (
             <button
               onClick={handleAccept}
               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center"
