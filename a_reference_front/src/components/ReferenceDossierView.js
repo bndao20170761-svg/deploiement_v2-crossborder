@@ -33,6 +33,14 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
       ]);
       setCanAccept(acceptPermission);
       setCanEdit(editPermission);
+      
+      // Debug logs
+      console.log('🔍 Permissions:', {
+        codeReference,
+        statut: data.statut,
+        canAccept: acceptPermission,
+        canEdit: editPermission
+      });
     } catch (err) {
       console.error('Erreur lors du chargement de la référence:', err);
       setError('Impossible de charger les détails de la référence');
@@ -197,7 +205,7 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
 
         {/* Actions */}
         <div className="flex items-center gap-4">
-          {reference.statut === 'ENVOYEE' && canEdit && (
+          {canEdit && (
             <button
               onClick={() => onEdit && onEdit(reference)}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
@@ -206,7 +214,7 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
               {getTranslation('edit', language) || 'Modifier'}
             </button>
           )}
-          {reference.statut === 'RECUE' && canAccept && (
+          {canAccept && reference.statut !== 'RECUE' && (
             <button
               onClick={handleAccept}
               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center"
