@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Search, User, FileText, Hospital, Calendar, MessageSquare, Check, X, Loader, ChevronRight } from 'lucide-react';
 import referenceDossierService from '../services/referenceDossierService';
 import * as patientService from '../services/patientService';
-import { getPatientWithDossier } from '../services/patientService';
 import { getDoctorsByHospital, getCurrentDoctor } from '../services/doctorService';
 import { getTranslation } from '../utils/translations';
 import { normalizeDoctorsList } from '../utils/doctorMapper';
+import SearchPatient from './SearchPatient';
+import PatientForm from './PatientForm';
 
 const CreateReferenceFromMap = ({ language = "fr", onBack, onComplete, selectedHospital }) => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -15,7 +16,6 @@ const CreateReferenceFromMap = ({ language = "fr", onBack, onComplete, selectedH
   // États pour les données
   const [formData, setFormData] = useState({
     codeReference: '',
-    codeDossier: '',
     codePatient: '',
     nomPatient: '',
     prenomPatient: '',
@@ -34,13 +34,12 @@ const CreateReferenceFromMap = ({ language = "fr", onBack, onComplete, selectedH
   });
 
   // États pour la recherche
-  const [searchPatient, setSearchPatient] = useState('');
-  const [patientResults, setPatientResults] = useState([]);
+  const [patients, setPatients] = useState([]);
   const [medecins, setMedecins] = useState([]);
   const [selectedPatient, setSelectedPatient] = useState(null);
-  const [selectedDossier, setSelectedDossier] = useState(null);
   const [selectedMedecin, setSelectedMedecin] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
+  const [showNewPatientForm, setShowNewPatientForm] = useState(false);
 
   // Types de référence
   const typesReference = [
@@ -60,6 +59,7 @@ const CreateReferenceFromMap = ({ language = "fr", onBack, onComplete, selectedH
       }));
       fetchMedecins();
     }
+    fetchPatients();
     fetchCurrentUser();
   }, [selectedHospital]);
 
@@ -79,6 +79,16 @@ const CreateReferenceFromMap = ({ language = "fr", onBack, onComplete, selectedH
     }
   };
 
+  const fetchPatients = async () => {
+    try {
+      const data = await patientService.getAllPatients();
+      setPatients(data || []);
+    } catch (error) {
+      console.error('❌ Erreur lors du chargement des patients:', error);
+      setPatients([]);
+    }
+  };
+
   const fetchMedecins = async () => {
     if (!selectedHospital?.id) return;
     
@@ -95,35 +105,23 @@ const CreateReferenceFromMap = ({ language = "fr", onBack, onComplete, selectedH
     }
   };
 
-  const handlePatientSearch = async (searchTerm) => {
-    if (!searchTerm || searchTerm.length < 2) {
-      setPatientResults([]);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const patients = await patientService.searchPatients(searchTerm);
-      setPatientResults(patients || []);
-    } catch (err) {
-      console.error('Erreur lors de la recherche de patients:', err);
-      setError('Erreur lors de la recherche de patients');
-    } finally {
-      setLoading(false);
-    }
+  const handlePatientSelect = (patient) => {
+    setSelectedPatient(patient);
+    setFormData(prev => ({
+      ...prev,
+      codePatient: patient.codePatient,
+      nomPatient: patient.nomUtilisateur || patient.nom || '',
+      prenomPatient: patient.prenomUtilisateur || patient.prenom || ''
+    }));
   };
 
-  const handlePatientSelect = async (patient) => {
-    try {
-      setLoading(true);
-      setSelectedPatient(patient);
-      
-      // Extraire le codePatient du codeDossier
-      const codePatient = patient.codePatient;
-      
-      // Charger le dossier du patient avec getPatientWithDossier
-      const dossierData = await getPatientWithDossier(codePatient);
-      
+  const handlePatientCreated = async (newPatient) => {
+    setPatients((prev) => [...prev, newPatient]);
+    handlePatientSelect(newPatient);
+    setShowNewPatientForm(false);
+  };
+
+        
       setSelectedDossier(dossierData);
       setFormData(prev => ({
         ...prev,
