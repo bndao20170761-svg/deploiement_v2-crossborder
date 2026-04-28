@@ -14,6 +14,7 @@ public interface ReferenceDossierMapper {
     @Mapping(target = "dateCreation", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "changementAdresseTemporaire", expression = "java(dto.getChangementAdresse() != null && dto.getChangementAdresseTemporaire())")
     @Mapping(target = "changementAdressePermanent", expression = "java(dto.getChangementAdresse() != null && dto.getChangementAdressePermanent())")
+    @Mapping(target = "motifs", ignore = true)
     @Mapping(target = "protocoles1s", ignore = true)
     @Mapping(target = "protocoles2s", ignore = true)
     @Mapping(target = "protocolesTheraps", ignore = true)
@@ -24,6 +25,7 @@ public interface ReferenceDossierMapper {
     @Mapping(target = "dateModification", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "changementAdresseTemporaire", expression = "java(dto.getChangementAdresse() != null && dto.getChangementAdresseTemporaire())")
     @Mapping(target = "changementAdressePermanent", expression = "java(dto.getChangementAdresse() != null && dto.getChangementAdressePermanent())")
+    @Mapping(target = "motifs", ignore = true)
     @Mapping(target = "protocoles1s", ignore = true)
     @Mapping(target = "protocoles2s", ignore = true)
     @Mapping(target = "protocolesTheraps", ignore = true)
@@ -31,6 +33,7 @@ public interface ReferenceDossierMapper {
     @Mapping(target = "stades", ignore = true)
     ReferenceDossier updateDtoToEntity(ReferenceDossierDto dto);
     
+    @Mapping(target = "motifs", source = "motifs")
     @Mapping(target = "protocoles1s", source = "protocoles1s")
     @Mapping(target = "protocoles2s", source = "protocoles2s")
     @Mapping(target = "protocolesTheraps", source = "protocolesTheraps")
@@ -63,4 +66,10 @@ public interface ReferenceDossierMapper {
     StadeOMS stadeOMSToEntity(StadeOMSDto dto);
     List<StadeOMSDto> stadesToDto(List<StadeOMS> stades);
     List<StadeOMS> stadesToEntity(List<StadeOMSDto> dtos);
+    
+    // Mappers pour les motifs
+    MotifDto motifToDto(Motif motif);
+    Motif motifToEntity(MotifDto dto);
+    List<MotifDto> motifsToDto(List<Motif> motifs);
+    List<Motif> motifsToEntity(List<MotifDto> dtos);
 }

@@ -18,7 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/references")
 @RequiredArgsConstructor
-public class ReferencementController {
+public class ReferencementController { /*
     private final ReferenceService service;
     private  final ReferenceMapper mapper;
 
@@ -147,5 +147,5 @@ public class ReferencementController {
         Reference updated = service.updateReference(id, dto);
         return ResponseEntity.ok(mapper.toReferenceDto(updated));
     }
-
+*/
 }

@@ -15,7 +15,7 @@ public class MotifDto {
     private Boolean changementAdresse;
     private Boolean services;
 
-    private List<ReferenceDto> references;
+    private List<ReferenceDossierDto> referenceDossiers;
     private MotifAutresDto motifAutres;
     private MotifChangementDto motifChangements;
     private MotifServDto motifServs;

@@ -39,8 +39,8 @@ public class Motif {
     private MotifServ motifServ;
 
     @ManyToOne
-    @JoinColumn(name = "reference_id")
+    @JoinColumn(name = "reference_dossier_id")
     @JsonBackReference
-    private Reference reference;
+    private ReferenceDossier referenceDossier;
 
 }

@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ReferenceService {
+public class ReferenceService { /*
     private final ReferenceRepository repository;
     private final ReferenceMapper mapper;
     private final DataSyncService dataSyncService;
@@ -34,7 +34,7 @@ public class ReferenceService {
     @PersistenceContext
     private EntityManager entityManager;
     @Transactional
-    public Reference createReference(ReferenceDto dto) {
+    /*public Reference createReference(ReferenceDto dto) {
         Reference ref = mapper.toReference(dto);
 
         // --- Utilisateur connectÃƒÂ© ---
@@ -170,7 +170,7 @@ public class ReferenceService {
 
 
     @Transactional
-    public Reference createReferenceByAssistant(ReferenceDto dto) {
+    /*public Reference createReferenceByAssistant(ReferenceDto dto) {
         Reference ref = mapper.toReference(dto);
 
         // --- Utilisateur connectÃƒÂ© ---
@@ -351,7 +351,7 @@ public class ReferenceService {
     /**
      * Liste des rÃƒÂ©fÃƒÂ©rences envoyÃƒÂ©es par le mÃƒÂ©decin connectÃƒÂ©
      */
-    public List<ReferenceDto> getReferencesEnvoyees() {
+    /*public List<ReferenceDto> getReferencesEnvoyees() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
 
@@ -380,7 +380,7 @@ public class ReferenceService {
 
 
 
-    public List<ReferenceDto> getReferencesRecues() {
+    /*public List<ReferenceDto> getReferencesRecues() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
 
@@ -398,7 +398,7 @@ public class ReferenceService {
 
 
     @Transactional
-    public Reference contreReference(Long referenceId) {
+    /*public Reference contreReference(Long referenceId) {
         // Récupération de la référence
         Reference ref = repository.findById(referenceId)
                 .orElseThrow(() -> new RuntimeException("Référence introuvable"));
@@ -453,8 +453,8 @@ public class ReferenceService {
         return mapper.toReferenceValidationDto(saved);
     }
 
-   /* @Transactional
-    public Reference validationReference(Long referenceId) {
+   // @Transactional
+    /*public Reference validationReference(Long referenceId) {
         // Ã°Å¸â€Â¹ RÃƒÂ©cupÃƒÂ©ration de la rÃƒÂ©fÃƒÂ©rence
         Reference ref = repository.findById(referenceId)
                 .orElseThrow(() -> new RuntimeException("RÃƒÂ©fÃƒÂ©rence introuvable"));
@@ -486,22 +486,21 @@ public class ReferenceService {
         ref.setValidation(true);
 
         return repository.save(ref);
-    }*/
+    }
 
-
-    public List<ReferenceDto> findAll() {
+public List<ReferenceDto> findAll() {
         return repository.findAll().stream()
                 .map(mapper::toReferenceDto)
                 .collect(Collectors.toList());
     }
 
-    public ReferenceDto findById(Long id) {
+    /*public ReferenceDto findById(Long id) {
         return repository.findById(id)
                 .map(mapper::toReferenceDto)
                 .orElse(null);
     }
 
-    public void deleteReference(Long id) {
+    /*public void deleteReference(Long id) {
         if (!repository.existsById(id)) {
             throw new EntityNotFoundException("RÃƒÂ©fÃƒÂ©rence avec l'id " + id + " introuvable !");
         }
@@ -512,7 +511,7 @@ public class ReferenceService {
     /**
      * Compter les rÃƒÂ©fÃƒÂ©rences reÃƒÂ§ues non lues (etat = false)
      */
-    public long countReferencesRecuesNonLues() {
+    /*public long countReferencesRecuesNonLues() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
 
@@ -529,7 +528,7 @@ public class ReferenceService {
     /**
      * Compter les rÃƒÂ©fÃƒÂ©rences envoyÃƒÂ©es (validation = true)
      */
-    public long countReferencesEnvoyees() {
+    /*public long countReferencesEnvoyees() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
 
@@ -544,7 +543,7 @@ public class ReferenceService {
                 .count();
     }
 
-    public long countReferencesEnvoyeesParAssistant() {
+    /*public long countReferencesEnvoyeesParAssistant() {
         // RÃƒÂ©cupÃƒÂ©rer le doctor connectÃƒÂ©
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
@@ -565,7 +564,7 @@ public class ReferenceService {
     }
 
     @Transactional
-    public Reference updateReference(Long id, ReferenceDto dto) {
+    /*public Reference updateReference(Long id, ReferenceDto dto) {
         Reference ref = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("RÃƒÂ©fÃƒÂ©rence introuvable avec id " + id));
 
@@ -630,7 +629,5 @@ public class ReferenceService {
 
         // Ã¢Å“â€¦ Sauvegarde
         return repository.save(ref);
-    }
-
-
+    } */
 }

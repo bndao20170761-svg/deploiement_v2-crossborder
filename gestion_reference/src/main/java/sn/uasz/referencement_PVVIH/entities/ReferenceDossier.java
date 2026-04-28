@@ -51,6 +51,9 @@ public class ReferenceDossier {
     @Column(name = "date_reference")
     private LocalDateTime dateReference;
     
+    @Column(name = "date_prise_en_charge")
+    private LocalDateTime datePriseEnCharge;
+    
     @Column(name = "statut")
     private String statut;
     
@@ -227,6 +230,10 @@ public class ReferenceDossier {
     
     @Column(name = "date_debut_arv")
     private LocalDate dateDebutARV;
+    
+    // Relations pour les motifs
+    @OneToMany(mappedBy = "referenceDossier", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Motif> motifs;
     
     // Relations pour les listes imbriquées
     @OneToMany(mappedBy = "referenceDossier", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

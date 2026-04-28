@@ -31,4 +31,10 @@ public class Protocole2 {
     @JoinColumn(name = "reference_dossier_id")
     @JsonBackReference
     private ReferenceDossier referenceDossier;
+    
+    // Garder l'ancienne relation pour compatibilité
+    @ManyToOne
+    @JoinColumn(name = "renseignementClinique_id")
+    @JsonBackReference
+    private RenseignementClinique renseignementClinique;
 }

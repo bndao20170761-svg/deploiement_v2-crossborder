@@ -1492,7 +1492,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
             Précédent
           </button>
           <button
-            onClick={() => setCurrentStep(6)}
+            onClick={() => setCurrentStep(12)}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             Suivant → Confirmation

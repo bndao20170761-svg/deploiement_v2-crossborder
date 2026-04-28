@@ -30,6 +30,7 @@ public class ReferenceDossierService {
     private final ReferenceDossierMapper referenceDossierMapper;
     private final DossierClient dossierClient;
     private final ReferenceServiceHelper referenceServiceHelper;
+    private final ReferenceDossierClinicalService clinicalService;
 
     private String getAuthenticatedUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -194,11 +195,25 @@ public class ReferenceDossierService {
         referenceDossierDto.setDateCreation(LocalDateTime.now());
         referenceDossierDto.setEtat(false);
         referenceDossierDto.setValidation(true);
+        
+        // Créer l'entité principale
         ReferenceDossier referenceDossier = referenceDossierMapper.dtoToEntity(referenceDossierDto);
         ReferenceDossier savedReference = referenceDossierRepository.save(referenceDossier);
         
+        // Sauvegarder les données cliniques avec le service spécialisé
+        clinicalService.saveClinicalData(savedReference, referenceDossierDto);
+        
         // Convertir en DTO et enrichir avec informations patient non persistées
         ReferenceDossierDto resultDto = referenceDossierMapper.entityToDto(savedReference);
+        
+        // Ajouter les données cliniques
+        ReferenceDossierDto clinicalData = clinicalService.getClinicalData(savedReference.getId());
+        resultDto.setMotifs(clinicalData.getMotifs());
+        resultDto.setProtocoles1s(clinicalData.getProtocoles1s());
+        resultDto.setProtocoles2s(clinicalData.getProtocoles2s());
+        resultDto.setProtocolesTheraps(clinicalData.getProtocolesTheraps());
+        resultDto.setProfils(clinicalData.getProfils());
+        resultDto.setStades(clinicalData.getStades());
         try {
             referenceServiceHelper.findPatientByCode(savedReference.getCodePatient()).ifPresent(patient -> {
                 if (patient.getDateNaissance() != null) {

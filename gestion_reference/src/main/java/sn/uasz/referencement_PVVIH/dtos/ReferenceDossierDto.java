@@ -25,11 +25,14 @@ public class ReferenceDossierDto {
     private String nationalite;
     private String codeHopital;
     private String nomHopital;
+    private String codeHopitalReferenceur;
+    private String nomHopitalReferenceur;
     private String codeDocteur;
     private String nomDocteur;
     private String motifReference;
     private String typeReference;
     private LocalDateTime dateReference;
+    private LocalDateTime datePriseEnCharge;
     private String statut;
     private String observations;
     private String codeReferenceur;
@@ -92,6 +95,9 @@ public class ReferenceDossierDto {
     private LocalDate dateAghbs;
     private LocalDate dateAutreAnalyse;
     private LocalDate dateDebutARV;
+    
+    // Relations pour les motifs
+    private List<MotifDto> motifs;
     
     // Listes imbriquées
     private List<Protocole1Dto> protocoles1s;
