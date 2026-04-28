@@ -1376,6 +1376,11 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
 
   // Étape 5: Résumé des informations (modèle ReferenceWizard.js)
   const renderSummaryStep = () => {
+    // Debug: afficher les données du patient et médecin
+    console.log("🔍 Debug CreateReferenceSurCarte - selectedPatient:", selectedPatient);
+    console.log("🔍 Debug CreateReferenceSurCarte - selectedMedecin:", selectedMedecin);
+    console.log("🔍 Debug CreateReferenceSurCarte - formData:", formData);
+    
     const rc = {
       poidsKg: formData.poidsKg,
       traitementARV: formData.traitementArv,
@@ -1406,17 +1411,17 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
             {/* Patient */}
             <div className="p-4 border rounded-lg shadow-sm bg-gray-50">
               <h3 className="font-semibold text-lg mb-2">Patient</h3>
-              <p><span className="font-medium">Nom :</span> {selectedPatient?.nomUtilisateur || "-"}</p>
-              <p><span className="font-medium">Prénom :</span> {selectedPatient?.prenomUtilisateur || "-"}</p>
-              <p><span className="font-medium">Code Patient :</span> {selectedPatient?.codePatient || "-"}</p>
+              <p><span className="font-medium">Nom :</span> {formData.nomPatient || selectedPatient?.nomUtilisateur || "-"}</p>
+              <p><span className="font-medium">Prénom :</span> {formData.prenomPatient || selectedPatient?.prenomUtilisateur || "-"}</p>
+              <p><span className="font-medium">Code Patient :</span> {formData.codePatient || selectedPatient?.codePatient || "-"}</p>
             </div>
 
             {/* Médecin */}
             <div className="p-4 border rounded-lg shadow-sm bg-gray-50">
               <h3 className="font-semibold text-lg mb-2">Médecin</h3>
-              <p><span className="font-medium">Nom :</span> {selectedMedecin?.nomComplet || selectedMedecin?.nomAffichage || selectedMedecin?.nomUtilisateur || "-"}</p>
+              <p><span className="font-medium">Nom :</span> {formData.nomDocteur || selectedMedecin?.nomComplet || selectedMedecin?.nomAffichage || selectedMedecin?.nomUtilisateur || "-"}</p>
               <p><span className="font-medium">Prénom :</span> {selectedMedecin?.prenomUtilisateur || selectedMedecin?.prenomDocteur || "-"}</p>
-              <p><span className="font-medium">Code Médecin :</span> {selectedMedecin?.codeDoctor || selectedMedecin?.codeDocteur || "-"}</p>
+              <p><span className="font-medium">Code Médecin :</span> {formData.codeDocteur || selectedMedecin?.codeDoctor || selectedMedecin?.codeDocteur || "-"}</p>
             </div>
 
             {/* Motif */}
