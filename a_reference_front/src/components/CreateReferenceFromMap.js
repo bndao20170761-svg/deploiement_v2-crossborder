@@ -176,6 +176,7 @@ const CreateReferenceFromMap = ({ language = "fr", onBack, onComplete, selectedH
     }
   };
 
+  // Étape 1: Sélection Patient (SearchPatient + PatientForm)
   const renderPatientSearch = () => (
     <div className="space-y-6">
       <div>
@@ -255,7 +256,7 @@ const CreateReferenceFromMap = ({ language = "fr", onBack, onComplete, selectedH
     </div>
   );
 
-  // Étape 2: Sélection Médecin (déjà existant)
+  // Étape 2: Sélection Médecin
   const renderMedecinSelection = () => (
     <div className="space-y-6">
       <div>
@@ -434,137 +435,6 @@ const CreateReferenceFromMap = ({ language = "fr", onBack, onComplete, selectedH
         return renderPatientSearch();
     }
   };
-  
-  return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={onBack}
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
-            >
-              <ArrowLeft className="h-5 w-5" />
-              <span>← Retour</span>
-            </button>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Référencer un patient pour {selectedHospital?.nom}
-              </h1>
-              <p className="text-gray-600">
-                {selectedHospital?.adresse}, {selectedHospital?.region}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          {renderStep()}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-          <p><strong>Médecin destinataire:</strong> Dr {selectedMedecin?.prenom} {selectedMedecin?.nom}</p>
-        </div>
-
-        {/* Motif */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Motif de la référence <span className="text-red-500">*</span>
-          </label>
-          <textarea
-            value={formData.motifReference}
-            onChange={(e) => setFormData(prev => ({ ...prev, motifReference: e.target.value }))}
-            placeholder="Décrivez le motif de la référence..."
-            rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
-        </div>
-
-        {/* Type de référence */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Type de référence <span className="text-red-500">*</span>
-          </label>
-          <select
-            value={formData.typeReference}
-            onChange={(e) => setFormData(prev => ({ ...prev, typeReference: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value="">Sélectionner un type</option>
-            {typesReference.map(type => (
-              <option key={type.value} value={type.value}>
-                {type.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Date de référence */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Date de la référence <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="date"
-            value={formData.dateReference}
-            onChange={(e) => setFormData(prev => ({ ...prev, dateReference: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
-        </div>
-
-        {/* Observations */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Observations
-          </label>
-          <textarea
-            value={formData.observations}
-            onChange={(e) => setFormData(prev => ({ ...prev, observations: e.target.value }))}
-            placeholder="Ajoutez des observations supplémentaires..."
-            rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
-        </div>
-      </div>
-
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-          {error}
-        </div>
-      )}
-
-      {/* Bouton Créer la référence */}
-      <div className="mt-6 flex justify-end">
-        <button
-          onClick={handleSubmit}
-          disabled={loading || !formData.motifReference || !formData.typeReference || !formData.dateReference}
-          className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-        >
-          {loading && <Loader className="h-4 w-4 animate-spin" />}
-          <span>📋 Créer la référence</span>
-        </button>
-      </div>
-    </div>
-  );
-
-  const renderStep = () => {
-    switch (currentStep) {
-      case 1:
-        return renderPatientSearch();
-      case 2:
-        return renderMedecinSelection();
-      case 3:
-        return renderReferenceDetails();
-      default:
-        return renderPatientSearch();
-    }
-  };
-
   
   return (
     <div className="min-h-screen bg-gray-50 py-8">
