@@ -801,14 +801,14 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
       {/* Boutons de navigation */}
       <div className="flex justify-between mt-8">
         <button
-          onClick={() => setCurrentStep(3)}
+          onClick={() => setCurrentStep(4)}
           className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Précédent
         </button>
         <button
-          onClick={() => setCurrentStep(5)}
+          onClick={() => setCurrentStep(6)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
           Suivant → Traitement ARV
@@ -902,14 +902,14 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
       {/* Boutons de navigation */}
       <div className="flex justify-between mt-8">
         <button
-          onClick={() => setCurrentStep(4)}
+          onClick={() => setCurrentStep(5)}
           className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Précédent
         </button>
         <button
-          onClick={() => setCurrentStep(6)}
+          onClick={() => setCurrentStep(7)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
           Suivant → CD4
@@ -957,14 +957,14 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
       {/* Boutons de navigation */}
       <div className="flex justify-between mt-8">
         <button
-          onClick={() => setCurrentStep(5)}
+          onClick={() => setCurrentStep(6)}
           className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Précédent
         </button>
         <button
-          onClick={() => setCurrentStep(7)}
+          onClick={() => setCurrentStep(8)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
           Suivant → Analyses biologiques
@@ -1049,14 +1049,14 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
       {/* Boutons de navigation */}
       <div className="flex justify-between mt-8">
         <button
-          onClick={() => setCurrentStep(6)}
+          onClick={() => setCurrentStep(7)}
           className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Précédent
         </button>
         <button
-          onClick={() => setCurrentStep(8)}
+          onClick={() => setCurrentStep(9)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
           Suivant → Analyses microbiologiques
@@ -1165,14 +1165,14 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
       {/* Boutons de navigation */}
       <div className="flex justify-between mt-8">
         <button
-          onClick={() => setCurrentStep(7)}
+          onClick={() => setCurrentStep(8)}
           className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Précédent
         </button>
         <button
-          onClick={() => setCurrentStep(9)}
+          onClick={() => setCurrentStep(10)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
           Suivant → Traitement TB
@@ -1236,14 +1236,14 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
       {/* Boutons de navigation */}
       <div className="flex justify-between mt-8">
         <button
-          onClick={() => setCurrentStep(8)}
+          onClick={() => setCurrentStep(9)}
           className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Précédent
         </button>
         <button
-          onClick={() => setCurrentStep(10)}
+          onClick={() => setCurrentStep(11)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
           Suivant → Autre traitement
@@ -1282,14 +1282,14 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
       {/* Boutons de navigation */}
       <div className="flex justify-between mt-8">
         <button
-          onClick={() => setCurrentStep(9)}
+          onClick={() => setCurrentStep(10)}
           className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Précédent
         </button>
         <button
-          onClick={() => setCurrentStep(11)}
+          onClick={() => setCurrentStep(12)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
           Suivant → Résumé
@@ -1379,14 +1379,14 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
         {/* Boutons de navigation */}
         <div className="flex justify-between mt-8">
           <button
-            onClick={() => setCurrentStep(4)}
+            onClick={() => setCurrentStep(11)}
             className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Précédent
           </button>
           <button
-            onClick={() => setCurrentStep(6)}
+            onClick={() => setCurrentStep(13)}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             Suivant → Confirmation
