@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, User, Hospital, Calendar, FileText, Loader, Check, ChevronRight } from 'lucide-react';
-import referenceDossierService from '../services/referenceDossierService';
 import * as patientService from '../services/patientService';
 import { getDoctorsByHospital, getCurrentDoctor } from '../services/doctorService';
 import { getTranslation } from '../utils/translations';
