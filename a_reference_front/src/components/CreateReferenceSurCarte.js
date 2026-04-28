@@ -1304,7 +1304,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
         <div className="mb-6 p-4 bg-gray-50 rounded-lg space-y-2">
           <p><strong>Patient:</strong> {selectedPatient?.nomUtilisateur} {selectedPatient?.prenomUtilisateur}</p>
           <p><strong>Hôpital de destination:</strong> {selectedHospital?.nom}</p>
-          <p><strong>Médecin destinataire:</strong> Dr {selectedMedecin?.prenom} {selectedMedecin?.nom}</p>
+          <p><strong>Médecin destinataire:</strong> Dr {selectedMedecin?.nomComplet || selectedMedecin?.nomAffichage || `${selectedMedecin?.prenomUtilisateur || ''} ${selectedMedecin?.nomUtilisateur || ''}`.trim() || selectedMedecin?.codeDoctor}</p>
         </div>
 
         {/* Date de référence */}
@@ -1414,9 +1414,9 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
             {/* Médecin */}
             <div className="p-4 border rounded-lg shadow-sm bg-gray-50">
               <h3 className="font-semibold text-lg mb-2">Médecin</h3>
-              <p><span className="font-medium">Nom :</span> {selectedMedecin?.nomUtilisateur || "-"}</p>
-              <p><span className="font-medium">Prénom :</span> {selectedMedecin?.prenomUtilisateur || "-"}</p>
-              <p><span className="font-medium">Code Médecin :</span> {selectedMedecin?.codeDoctor || "-"}</p>
+              <p><span className="font-medium">Nom :</span> {selectedMedecin?.nomComplet || selectedMedecin?.nomAffichage || selectedMedecin?.nomUtilisateur || "-"}</p>
+              <p><span className="font-medium">Prénom :</span> {selectedMedecin?.prenomUtilisateur || selectedMedecin?.prenomDocteur || "-"}</p>
+              <p><span className="font-medium">Code Médecin :</span> {selectedMedecin?.codeDoctor || selectedMedecin?.codeDocteur || "-"}</p>
             </div>
 
             {/* Motif */}

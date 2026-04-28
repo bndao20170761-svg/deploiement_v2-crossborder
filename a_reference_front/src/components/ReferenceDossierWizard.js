@@ -1338,9 +1338,9 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
           {/* Médecin */}
           <div className="p-4 border rounded-lg shadow-sm bg-gray-50">
             <h3 className="font-semibold text-lg mb-2">Médecin</h3>
-            <p><span className="font-medium">Nom :</span> {selectedMedecin?.nomUtilisateur || "-"}</p>
-            <p><span className="font-medium">Prénom :</span> {selectedMedecin?.prenomUtilisateur || "-"}</p>
-            <p><span className="font-medium">Code Médecin :</span> {selectedMedecin?.codeDoctor || "-"}</p>
+            <p><span className="font-medium">Nom :</span> {selectedMedecin?.nomComplet || selectedMedecin?.nomAffichage || selectedMedecin?.nomUtilisateur || "-"}</p>
+            <p><span className="font-medium">Prénom :</span> {selectedMedecin?.prenomUtilisateur || selectedMedecin?.prenomDocteur || "-"}</p>
+            <p><span className="font-medium">Code Médecin :</span> {selectedMedecin?.codeDoctor || selectedMedecin?.codeDocteur || "-"}</p>
           </div>
 
           {/* Motif */}
