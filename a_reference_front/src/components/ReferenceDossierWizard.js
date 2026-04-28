@@ -635,6 +635,23 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
           </div>
         )}
       </div>
+
+      {/* Boutons de navigation */}
+      <div className="flex justify-between mt-8">
+        <button
+          onClick={() => setCurrentStep(2)}
+          className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Précédent
+        </button>
+        <button
+          onClick={() => setCurrentStep(4)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Suivant → Informations cliniques
+        </button>
+      </div>
     </div>
   );
 
