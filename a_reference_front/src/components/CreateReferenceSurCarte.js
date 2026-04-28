@@ -44,13 +44,47 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
       crc: false,
       pvvih: false
     },
-    // Champs cliniques (modèle ClinicalInfoStep.js)
+    // Champs cliniques complets (modèle ClinicalInfoStep.js)
     poidsKg: '',
-    stades: [],
-    cd4: '',
-    chargeVirale: '',
-    traitementArv: '',
-    effetsSecondaires: ''
+    traitementARV: false,
+    traitementtb: false,
+    transaminase: '',
+    transaminaseAsat: '',
+    transaminaseAlat: '',
+    cd4Dernier: '',
+    cd4DebutTraitement: '',
+    cd4Inclusion: '',
+    chargeViraleNiveau: '',
+    hbNiveau: '',
+    lymphocytesTotaux: '',
+    allergie: '',
+    creatinemie: '',
+    cracheBaar: '',
+    aghbs: '',
+    autreAnalyse: false,
+    autreTraitement: false,
+    resultatTrans: '',
+    // Dates
+    date: '',
+    dateTransaminase: '',
+    dateCd4Dernier: '',
+    dateCd4DebutTraitement: '',
+    dateCd4Inclusion: '',
+    dateDebutChargeVirale: '',
+    dateHb: '',
+    dateLymphocytes: '',
+    dateAllergie: '',
+    dateCreatinemie: '',
+    dateCracheBaar: '',
+    dateAghbs: '',
+    dateAutreAnalyse: '',
+    dateDebutARV: '',
+    // Listes imbriquées
+    protocoles1s: [{ protocole1ereLigne: "", dateProtocole1: "" }],
+    protocoles2s: [{ protocole2emeLigne: "", dateProtocole2: "" }],
+    protocolesTheraps: [{ therapie: "", dateTherapie: "" }],
+    profils: [{ dateConfirmation: "", indetermine: false, profil1: false, profil12: false, profil2: false }],
+    stades: [{ stade1: false, stade2: false, stade3: false, stade4: false }]
   });
 
   // États pour la recherche
@@ -544,16 +578,16 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
     </div>
   );
 
-  // Étape 4: Informations cliniques (modèle ClinicalInfoStep.js)
-  const renderClinicalInfoStep = () => (
+  // Étape 4: Section 1 - Poids et Stades OMS (Section1Component)
+  const renderClinicalSection1 = () => (
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          📋 Renseignements cliniques
+          📋 Poids et Stades OMS
         </h3>
 
         <div className="space-y-6">
-          {/* Poids - modèle ClinicalInfoStep.js */}
+          {/* Poids */}
           <div className="p-4 border rounded-lg bg-gray-50">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               {getTranslation("weight", language) || "Poids (kg)"}
@@ -574,7 +608,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
             />
           </div>
 
-          {/* Stades OMS - modèle ClinicalInfoStep.js */}
+          {/* Stades OMS */}
           <div className="p-4 border rounded-lg bg-gray-50">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               {getTranslation("whoStage", language) || "Stade OMS"}
@@ -584,11 +618,11 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
                 <label key={field} className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    checked={formData.stades?.[index]?.[field] || false}
+                    checked={formData.stades?.[0]?.[field] || false}
                     onChange={(e) => {
                       const updated = [...(formData.stades || [])];
-                      if (!updated[index]) updated[index] = {};
-                      updated[index][field] = e.target.checked;
+                      if (!updated[0]) updated[0] = {};
+                      updated[0][field] = e.target.checked;
                       setFormData((prev) => ({ ...prev, stades: updated }));
                     }}
                   />
@@ -598,42 +632,353 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
             </div>
           </div>
 
-          {/* CD4 */}
+          {/* Profils VIH */}
           <div className="p-4 border rounded-lg bg-gray-50">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {getTranslation("cd4", language) || "CD4"}
+              {getTranslation("hivProfile", language) || "Profil VIH"}
+            </label>
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center gap-4">
+                {["profil1", "profil2", "profil12", "indetermine"].map((field) => (
+                  <label key={field} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.profils?.[0]?.[field] || false}
+                      onChange={(e) => {
+                        const updated = [...(formData.profils || [])];
+                        if (!updated[0]) updated[0] = {};
+                        updated[0][field] = e.target.checked;
+                        setFormData((prev) => ({ ...prev, profils: updated }));
+                      }}
+                    />
+                    <span>{field}</span>
+                  </label>
+                ))}
+              </div>
+              <div>
+                <span className="block text-xs text-gray-600 mb-1">
+                  {getTranslation("confirmationDate", language) || "Date de confirmation"}
+                </span>
+                <input
+                  type="date"
+                  value={formData.profils?.[0]?.dateConfirmation || ""}
+                  onChange={(e) => {
+                    const updated = [...(formData.profils || [])];
+                    if (!updated[0]) updated[0] = {};
+                    updated[0].dateConfirmation = e.target.value;
+                    setFormData((prev) => ({ ...prev, profils: updated }));
+                  }}
+                  className="border p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {error}
+        </div>
+      )}
+
+      {/* Boutons de navigation */}
+      <div className="mt-6 flex justify-between">
+        <button
+          onClick={() => setCurrentStep(3)}
+          className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Précédent
+        </button>
+        <button
+          onClick={() => setCurrentStep(5)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Suivant → Traitement ARV
+        </button>
+      </div>
+    </div>
+  );
+
+  // Étape 5: Section 2 - Traitement ARV (Section2Component)
+  const renderClinicalSection2 = () => (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          📋 Traitement ARV
+        </h3>
+
+        <div className="space-y-6">
+          {/* Traitement ARV */}
+          <div className="p-4 border rounded-lg bg-gray-50">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={formData.traitementARV || false}
+                onChange={(e) => setFormData(prev => ({ ...prev, traitementARV: e.target.checked }))}
+              />
+              <span>{getTranslation("treatmentARV", language) || "Sous ARV"}</span>
+            </label>
+
+            {/* Protocoles 1ère ligne */}
+            {formData.traitementARV &&
+              (formData.protocoles1s || []).map((p, i) => (
+                <div key={`p1-${i}`} className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {getTranslation("firstLineProtocol", language) || "Protocole 1ère ligne"}
+                  </label>
+                  <input
+                    type="text"
+                    value={p.protocole1ereLigne || ""}
+                    onChange={(e) => {
+                      const updated = [...(formData.protocoles1s || [])];
+                      updated[i].protocole1ereLigne = e.target.value;
+                      setFormData(prev => ({ ...prev, protocoles1s: updated }));
+                    }}
+                    className="border p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <input
+                    type="date"
+                    value={p.dateProtocole1 || ""}
+                    onChange={(e) => {
+                      const updated = [...(formData.protocoles1s || [])];
+                      updated[i].dateProtocole1 = e.target.value;
+                      setFormData(prev => ({ ...prev, protocoles1s: updated }));
+                    }}
+                    className="border p-2 rounded w-full mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              ))}
+
+            {/* Protocoles 2ème ligne */}
+            {formData.traitementARV &&
+              (formData.protocoles2s || []).map((p, i) => (
+                <div key={`p2-${i}`} className="mt-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {getTranslation("secondLineProtocol", language) || "Protocole 2ème ligne"}
+                  </label>
+                  <input
+                    type="text"
+                    value={p.protocole2emeLigne || ""}
+                    onChange={(e) => {
+                      const updated = [...(formData.protocoles2s || [])];
+                      updated[i].protocole2emeLigne = e.target.value;
+                      setFormData(prev => ({ ...prev, protocoles2s: updated }));
+                    }}
+                    className="border p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <input
+                    type="date"
+                    value={p.dateProtocole2 || ""}
+                    onChange={(e) => {
+                      const updated = [...(formData.protocoles2s || [])];
+                      updated[i].dateProtocole2 = e.target.value;
+                      setFormData(prev => ({ ...prev, protocoles2s: updated }));
+                    }}
+                    className="border p-2 rounded w-full mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              ))}
+          </div>
+        </div>
+      </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {error}
+        </div>
+      )}
+
+      {/* Boutons de navigation */}
+      <div className="mt-6 flex justify-between">
+        <button
+          onClick={() => setCurrentStep(4)}
+          className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Précédent
+        </button>
+        <button
+          onClick={() => setCurrentStep(6)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Suivant → CD4
+        </button>
+      </div>
+    </div>
+  );
+
+  // Étape 6: Section 3 - CD4 (Section3Component)
+  const renderClinicalSection3 = () => (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          📋 CD4
+        </h3>
+
+        <div className="space-y-6">
+          {[
+            ["cd4DebutTraitement", "dateCd4DebutTraitement"],
+            ["cd4Dernier", "dateCd4Dernier"],
+            ["cd4Inclusion", "dateCd4Inclusion"],
+          ].map(([field, dateField]) => (
+            <div key={field} className="p-4 border rounded-lg bg-gray-50">
+              <label className="block font-medium mb-2">
+                {getTranslation(field, language) || field}
+              </label>
+              <input
+                type="number"
+                value={formData[field] ?? ""}
+                onChange={(e) =>
+                  setFormData(prev => ({ ...prev, [field]: e.target.value ? parseFloat(e.target.value) : "" }))
+                }
+                className="border p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                type="date"
+                value={formData[dateField] || ""}
+                onChange={(e) => setFormData(prev => ({ ...prev, [dateField]: e.target.value }))}
+                className="border p-2 rounded w-full mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {error}
+        </div>
+      )}
+
+      {/* Boutons de navigation */}
+      <div className="mt-6 flex justify-between">
+        <button
+          onClick={() => setCurrentStep(5)}
+          className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Précédent
+        </button>
+        <button
+          onClick={() => setCurrentStep(7)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Suivant → Analyses biologiques
+        </button>
+      </div>
+    </div>
+  );
+
+  // Étape 7: Section 4 - Analyses biologiques (Section4Component)
+  const renderClinicalSection4 = () => (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          📋 Analyses biologiques
+        </h3>
+
+        <div className="space-y-6">
+          {/* Charge virale */}
+          <div className="p-4 border rounded-lg bg-gray-50">
+            <label className="block font-medium mb-2">
+              {getTranslation("viralLoad", language) || "Charge virale"}
             </label>
             <input
               type="number"
-              value={formData.cd4 ?? ""}
+              value={formData.chargeViraleNiveau ?? ""}
               onChange={(e) =>
-                setFormData((prev) => ({ 
-                  ...prev, 
-                  cd4: e.target.value ? parseFloat(e.target.value) : "" 
-                }))
+                setFormData(prev => ({ ...prev, chargeViraleNiveau: e.target.value ? parseFloat(e.target.value) : "" }))
               }
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              min="0"
-              placeholder="Ex: 350"
+              className="border p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <input
+              type="date"
+              value={formData.dateDebutChargeVirale || ""}
+              onChange={(e) => setFormData(prev => ({ ...prev, dateDebutChargeVirale: e.target.value }))}
+              className="border p-2 rounded w-full mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          {/* Charge Virale */}
+          {/* Lymphocytes totaux */}
           <div className="p-4 border rounded-lg bg-gray-50">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {getTranslation("viralLoad", language) || "Charge Virale"}
+            <label className="block font-medium mb-2">
+              {getTranslation("lymphocytesTotaux", language) || "Lymphocytes totaux"}
             </label>
             <input
-              type="text"
-              value={formData.chargeVirale ?? ""}
+              type="number"
+              value={formData.lymphocytesTotaux ?? ""}
               onChange={(e) =>
-                setFormData((prev) => ({ ...prev, chargeVirale: e.target.value }))
+                setFormData(prev => ({ ...prev, lymphocytesTotaux: e.target.value ? parseFloat(e.target.value) : "" }))
               }
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Ex: 5000 copies/ml"
+              className="border p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <input
+              type="date"
+              value={formData.dateLymphocytes || ""}
+              onChange={(e) => setFormData(prev => ({ ...prev, dateLymphocytes: e.target.value }))}
+              className="border p-2 rounded w-full mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
+          {/* Hémoglobine */}
+          <div className="p-4 border rounded-lg bg-gray-50">
+            <label className="block font-medium mb-2">
+              {getTranslation("hbNiveau", language) || "Hémoglobine (Hb)"}
+            </label>
+            <input
+              type="number"
+              value={formData.hbNiveau ?? ""}
+              onChange={(e) =>
+                setFormData(prev => ({ ...prev, hbNiveau: e.target.value ? parseFloat(e.target.value) : "" }))
+              }
+              className="border p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <input
+              type="date"
+              value={formData.dateHb || ""}
+              onChange={(e) => setFormData(prev => ({ ...prev, dateHb: e.target.value }))}
+              className="border p-2 rounded w-full mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+      </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {error}
+        </div>
+      )}
+
+      {/* Boutons de navigation */}
+      <div className="mt-6 flex justify-between">
+        <button
+          onClick={() => setCurrentStep(6)}
+          className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Précédent
+        </button>
+        <button
+          onClick={() => setCurrentStep(8)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Suivant → Analyses microbiologiques
+        </button>
+      </div>
+    </div>
+  );
+
+  // Étape 7: Traitements
+  const renderTreatmentsStep = () => (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          📋 Traitements
+        </h3>
+
+        <div className="space-y-6">
           {/* Traitement ARV */}
           <div className="p-4 border rounded-lg bg-gray-50">
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -650,19 +995,19 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
             />
           </div>
 
-          {/* Effets secondaires */}
+          {/* Autre traitement */}
           <div className="p-4 border rounded-lg bg-gray-50">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {getTranslation("sideEffects", language) || "Effets secondaires"}
+              {getTranslation("otherTreatment", language) || "Autre traitement"}
             </label>
             <textarea
-              value={formData.effetsSecondaires ?? ""}
+              value={formData.autreTraitement ?? ""}
               onChange={(e) =>
-                setFormData((prev) => ({ ...prev, effetsSecondaires: e.target.value }))
+                setFormData((prev) => ({ ...prev, autreTraitement: e.target.value }))
               }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               rows={3}
-              placeholder="Décrivez les effets secondaires observés..."
+              placeholder="Autres traitements en cours..."
             />
           </div>
         </div>
@@ -674,19 +1019,280 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
         </div>
       )}
 
-      {/* Bouton Suivant */}
-      <div className="mt-6 flex justify-end">
+      {/* Boutons de navigation */}
+      <div className="mt-6 flex justify-between">
         <button
-          onClick={() => setCurrentStep(5)}
+          onClick={() => setCurrentStep(6)}
+          className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Précédent
+        </button>
+        <button
+          onClick={() => setCurrentStep(8)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          Suivant → Confirmation
+          Suivant → Résumé
         </button>
       </div>
     </div>
   );
 
-  // Étape 5: Confirmation et création
+  // Étape 8: Section 5 - Analyses microbiologiques (Section5Component)
+  const renderClinicalSection5 = () => (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          📋 Analyses microbiologiques
+        </h3>
+
+        <div className="space-y-6">
+          {/* Crachat BAAR */}
+          <div className="p-4 border rounded-lg bg-gray-50">
+            <label className="block font-medium mb-2">
+              {getTranslation("cracheBaar", language) || "Crachat BAAR"}
+            </label>
+            <input
+              type="text"
+              value={formData.cracheBaar || ""}
+              onChange={(e) => setFormData(prev => ({ ...prev, cracheBaar: e.target.value }))}
+              className="border p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <input
+              type="date"
+              value={formData.dateCracheBaar || ""}
+              onChange={(e) => setFormData(prev => ({ ...prev, dateCracheBaar: e.target.value }))}
+              className="border p-2 rounded w-full mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* AgHBs */}
+          <div className="p-4 border rounded-lg bg-gray-50">
+            <label className="block font-medium mb-2">AgHBs</label>
+            <input
+              type="text"
+              value={formData.aghbs || ""}
+              onChange={(e) => setFormData(prev => ({ ...prev, aghbs: e.target.value }))}
+              className="border p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <input
+              type="date"
+              value={formData.dateAghbs || ""}
+              onChange={(e) => setFormData(prev => ({ ...prev, dateAghbs: e.target.value }))}
+              className="border p-2 rounded w-full mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Transaminases */}
+          <div className="p-4 border rounded-lg bg-gray-50">
+            <label className="block font-medium mb-2">
+              {getTranslation("transaminase", language) || "Transaminases"}
+            </label>
+            <input
+              type="text"
+              value={formData.transaminase || ""}
+              onChange={(e) => setFormData(prev => ({ ...prev, transaminase: e.target.value }))}
+              className="border p-2 rounded w-full mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <label className="block text-sm text-gray-700">ASAT</label>
+            <input
+              type="text"
+              value={formData.transaminaseAsat || ""}
+              onChange={(e) => setFormData(prev => ({ ...prev, transaminaseAsat: e.target.value }))}
+              className="border p-2 rounded w-full mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <label className="block text-sm text-gray-700">ALAT</label>
+            <input
+              type="text"
+              value={formData.transaminaseAlat || ""}
+              onChange={(e) => setFormData(prev => ({ ...prev, transaminaseAlat: e.target.value }))}
+              className="border p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <input
+              type="date"
+              value={formData.dateTransaminase || ""}
+              onChange={(e) => setFormData(prev => ({ ...prev, dateTransaminase: e.target.value }))}
+              className="border p-2 rounded w-full mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Autre analyse */}
+          <div className="p-4 border rounded-lg bg-gray-50">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={formData.autreAnalyse || false}
+                onChange={(e) => setFormData(prev => ({ ...prev, autreAnalyse: e.target.checked }))}
+              />
+              <span>{getTranslation("otherAnalysis", language) || "Autre analyse"}</span>
+            </label>
+            <input
+              type="date"
+              value={formData.dateAutreAnalyse || ""}
+              onChange={(e) => setFormData(prev => ({ ...prev, dateAutreAnalyse: e.target.value }))}
+              className="border p-2 rounded w-full mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+      </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {error}
+        </div>
+      )}
+
+      {/* Boutons de navigation */}
+      <div className="mt-6 flex justify-between">
+        <button
+          onClick={() => setCurrentStep(7)}
+          className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Précédent
+        </button>
+        <button
+          onClick={() => setCurrentStep(9)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Suivant → Traitement TB
+        </button>
+      </div>
+    </div>
+  );
+
+  // Étape 9: Section 6 - Traitement TB (Section6Component)
+  const renderClinicalSection6 = () => (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          📋 Traitement TB
+        </h3>
+
+        <div className="space-y-6">
+          <div className="p-4 border rounded-lg bg-gray-50">
+            {/* Traitement TB */}
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={formData.traitementtb || false}
+                onChange={(e) => setFormData(prev => ({ ...prev, traitementtb: e.target.checked }))}
+              />
+              <span>{getTranslation("tbTreatment", language) || "Traitement TB"}</span>
+            </label>
+
+            {/* Protocole thérapeutique */}
+            {formData.traitementtb &&
+              (formData.protocolesTheraps || []).map((t, i) => (
+                <div key={`t-${i}`} className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {getTranslation("therapyProtocol", language) || "Protocole thérapeutique"}
+                  </label>
+                  <input
+                    type="text"
+                    value={t.therapie || ""}
+                    onChange={(e) => {
+                      const updated = [...(formData.protocolesTheraps || [])];
+                      updated[i].therapie = e.target.value;
+                      setFormData(prev => ({ ...prev, protocolesTheraps: updated }));
+                    }}
+                    className="border p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <input
+                    type="date"
+                    value={t.dateTherapie || ""}
+                    onChange={(e) => {
+                      const updated = [...(formData.protocolesTheraps || [])];
+                      updated[i].dateTherapie = e.target.value;
+                      setFormData(prev => ({ ...prev, protocolesTheraps: updated }));
+                    }}
+                    className="border p-2 rounded w-full mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              ))}
+          </div>
+        </div>
+      </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {error}
+        </div>
+      )}
+
+      {/* Boutons de navigation */}
+      <div className="mt-6 flex justify-between">
+        <button
+          onClick={() => setCurrentStep(8)}
+          className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Précédent
+        </button>
+        <button
+          onClick={() => setCurrentStep(10)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Suivant → Autre traitement
+        </button>
+      </div>
+    </div>
+  );
+
+  // Étape 10: Section 7 - Autre traitement (Section7Component)
+  const renderClinicalSection7 = () => (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          📋 Autre traitement
+        </h3>
+
+        <div className="space-y-6">
+          <div className="p-4 border rounded-lg bg-gray-50">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={formData.autreTraitement || false}
+                onChange={(e) => setFormData(prev => ({ ...prev, autreTraitement: e.target.checked }))}
+              />
+              <span>{getTranslation("otherTreatment", language) || "Autre traitement"}</span>
+            </label>
+            <input
+              type="date"
+              value={formData.dateAutreAnalyse || ""}
+              onChange={(e) => setFormData(prev => ({ ...prev, dateAutreAnalyse: e.target.value }))}
+              className="border p-2 rounded w-full mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+      </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {error}
+        </div>
+      )}
+
+      {/* Boutons de navigation */}
+      <div className="mt-6 flex justify-between">
+        <button
+          onClick={() => setCurrentStep(9)}
+          className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Précédent
+        </button>
+        <button
+          onClick={() => setCurrentStep(11)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Suivant → Résumé
+        </button>
+      </div>
+    </div>
+  );
+
+  // Étape 11: Confirmation et création
   const renderConfirmationStep = () => (
     <div className="space-y-6">
       <div>
@@ -882,10 +1488,22 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
       case 3:
         return renderReferenceDetails();
       case 4:
-        return renderClinicalInfoStep();
+        return renderClinicalSection1();
       case 5:
-        return renderSummaryStep();
+        return renderClinicalSection2();
       case 6:
+        return renderClinicalSection3();
+      case 7:
+        return renderClinicalSection4();
+      case 8:
+        return renderClinicalSection5();
+      case 9:
+        return renderClinicalSection6();
+      case 10:
+        return renderClinicalSection7();
+      case 11:
+        return renderSummaryStep();
+      case 12:
         return renderConfirmationStep();
       default:
         return renderPatientSearch();
