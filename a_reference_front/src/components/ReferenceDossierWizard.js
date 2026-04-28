@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Search, User, FileText, Hospital, Calendar, MessageSquare, Check, X, Eye, EyeOff, Loader } from 'lucide-react';
 import referenceDossierService from '../services/referenceDossierService';
 import * as patientService from '../services/patientService';
-import { getPatientWithDossier } from '../services/patientService';
 import { getHopitauxActifs, getPrestatairesByHopital } from '../services/hopitalService';
 import { getCurrentDoctor, getDoctorsByHospital, getDoctorById } from '../services/doctorService';
 import { getTranslation } from '../utils/translations';
 import { normalizeDoctorsList } from '../utils/doctorMapper';
 import PatientView from './PatientView';
-import DossierView from './DossierView';
+import SearchPatient from './SearchPatient';
+import PatientForm from './PatientForm';
 
 const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialData = null }) => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -18,7 +18,6 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
   // États pour les données
   const [formData, setFormData] = useState({
     codeReference: '',
-    codeDossier: '',
     codePatient: '',
     nomPatient: '',
     prenomPatient: '',
@@ -37,53 +36,38 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
   });
 
   // États pour la recherche
-  const [searchPatient, setSearchPatient] = useState('');
-  const [searchDossier, setSearchDossier] = useState('');
-  const [patientResults, setPatientResults] = useState([]);
-  const [dossierResults, setDossierResults] = useState([]);
+  const [patients, setPatients] = useState([]);
   const [hopitaux, setHopitaux] = useState([]);
   const [medecins, setMedecins] = useState([]);
   const [selectedPatient, setSelectedPatient] = useState(null);
-  const [selectedDossier, setSelectedDossier] = useState(null);
   const [selectedHopital, setSelectedHopital] = useState(null);
   const [selectedMedecin, setSelectedMedecin] = useState(null);
+  const [showNewPatientForm, setShowNewPatientForm] = useState(false);
   
   // États pour les détails et visibilité
   const [showPatientDetails, setShowPatientDetails] = useState(false);
-  const [showDossierDetails, setShowDossierDetails] = useState(false);
   const [showHopitalDetails, setShowHopitalDetails] = useState(false);
   const [showMedecinDetails, setShowMedecinDetails] = useState(false);
   const [currentDoctor, setCurrentDoctor] = useState(null);
-  const [loadingDossiers, setLoadingDossiers] = useState(false);
   const [loadingMedecins, setLoadingMedecins] = useState(false);
   
   // États pour les vues modales
   const [patientViewModal, setPatientViewModal] = useState(false);
-  const [dossierViewModal, setDossierViewModal] = useState(false);
   const [selectedPatientForView, setSelectedPatientForView] = useState(null);
-  const [selectedDossierForView, setSelectedDossierForView] = useState(null);
   const [success, setSuccess] = useState(false);
 
-  const totalSteps = 5;
+  const totalSteps = 4; // Réduit à 4 étapes (plus de dossier médical)
 
   useEffect(() => {
     if (initialData) {
       setFormData(initialData);
-      setCurrentStep(5); // Mode édition
+      setCurrentStep(4); // Mode édition (4 étapes maintenant)
     }
     fetchHopitaux();
+    fetchPatients();
     // Charger le docteur connecté
     loadCurrentDoctor();
   }, [initialData]);
-
-  // Recherche de patients
-  useEffect(() => {
-    if (searchPatient.length >= 2) {
-      searchPatients();
-    } else {
-      setPatientResults([]);
-    }
-  }, [searchPatient]);
 
   // Chargement des médecins quand un hôpital est sélectionné
   useEffect(() => {
@@ -113,33 +97,16 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
     }
   };
 
-  const searchPatients = async () => {
+  
+  const fetchPatients = async () => {
     try {
-      const patients = await patientService.searchPatients(searchPatient);
-      setPatientResults(patients || []);
-    } catch (err) {
-      console.error('Erreur lors de la recherche de patients:', err);
-    }
-  };
-
-  const loadPatientDossiers = async (codePatient) => {
-    try {
-      setLoadingDossiers(true);
-      const dossiers = await referenceDossierService.getDossiersByPatientFromGestionPatient(codePatient);
-      setDossierResults(dossiers || []);
-      // Si un seul dossier, le sélectionner automatiquement
-      if (dossiers && dossiers.length === 1) {
-        setSelectedDossier(dossiers[0]);
-        setFormData(prev => ({
-          ...prev,
-          codeDossier: dossiers[0].codeDossier
-        }));
-      }
-    } catch (err) {
-      console.error('Erreur lors du chargement des dossiers du patient:', err);
-      setDossierResults([]);
-    } finally {
-      setLoadingDossiers(false);
+      console.log('🔄 ReferenceDossierWizard: Chargement des patients...');
+      const data = await patientService.getAllPatients();
+      console.log('✅ Patients chargés:', data);
+      setPatients(data || []);
+    } catch (error) {
+      console.error('❌ Erreur lors du chargement des patients:', error);
+      setPatients([]);
     }
   };
 
@@ -177,65 +144,27 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
     }
   };
 
-  const handlePatientSelect = async (patient) => {
+  
+  const handlePatientSelect = (patient) => {
     setSelectedPatient(patient);
     setFormData(prev => ({
       ...prev,
       codePatient: patient.codePatient,
-      nomPatient: patient.nom || patient.nomUtilisateur || '',
-      prenomPatient: patient.prenom || patient.prenomUtilisateur || ''
-    }));
-    setSearchPatient('');
-    setPatientResults([]);
-    
-    // Charger le patient avec son vrai dossier principal
-    if (patient.codePatient) {
-      try {
-        console.log('🔄 ReferenceDossierWizard: Chargement du patient avec dossier principal...');
-        const patientWithDossier = await getPatientWithDossier(patient.codePatient);
-        console.log('✅ ReferenceDossierWizard: Patient avec dossier reçu:', patientWithDossier);
-        
-        // Si le patient a un dossier principal, le sélectionner automatiquement
-        if (patientWithDossier && patientWithDossier.dossier) {
-          const dossierPrincipal = patientWithDossier.dossier;
-          console.log('✅ ReferenceDossierWizard: Dossier principal trouvé:', dossierPrincipal);
-          
-          setSelectedDossier(dossierPrincipal);
-          setFormData(prev => ({
-            ...prev,
-            codeDossier: dossierPrincipal.codeDossier
-          }));
-          setDossierResults([dossierPrincipal]);
-        } else {
-          // Sinon, charger tous les dossiers disponibles
-          loadPatientDossiers(patient.codePatient);
-        }
-      } catch (error) {
-        console.error('❌ ReferenceDossierWizard: Erreur lors du chargement du patient avec dossier:', error);
-        // En cas d'erreur, charger les dossiers normalement
-        loadPatientDossiers(patient.codePatient);
-      }
-    }
-  };
-
-  const handleDossierSelect = (dossier) => {
-    setSelectedDossier(dossier);
-    setFormData(prev => ({
-      ...prev,
-      codeDossier: dossier.codeDossier
-    }));
-    setSearchDossier('');
-    setDossierResults([]);
-  };
-
-  const handleDossierUnselect = () => {
-    setSelectedDossier(null);
-    setFormData(prev => ({
-      ...prev,
-      codeDossier: ''
+      nomPatient: patient.nomUtilisateur || patient.nom || '',
+      prenomPatient: patient.prenomUtilisateur || patient.prenom || ''
     }));
   };
 
+  const handlePatientCreated = async (newPatient) => {
+    // Ajouter le patient à la liste des patients
+    setPatients((prev) => [...prev, newPatient]);
+    // Sélectionner automatiquement le nouveau patient
+    handlePatientSelect(newPatient);
+    // Revenir à la sélection de patients
+    setShowNewPatientForm(false);
+  };
+
+  
   const handleHopitalUnselect = () => {
     setSelectedHopital(null);
     setMedecins([]);
@@ -264,21 +193,13 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
     setPatientViewModal(true);
   };
 
-  const handleViewDossier = (dossier) => {
-    setSelectedDossierForView(dossier);
-    setDossierViewModal(true);
-  };
-
+  
   const closePatientView = () => {
     setPatientViewModal(false);
     setSelectedPatientForView(null);
   };
 
-  const closeDossierView = () => {
-    setDossierViewModal(false);
-    setSelectedDossierForView(null);
-  };
-
+  
   const handleHopitalSelect = (hopital) => {
     setSelectedHopital(hopital);
     setSelectedMedecin(null);
@@ -305,7 +226,11 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
       setLoading(true);
       setError(null);
 
-      // Validation: le docteur doit être sélectionné
+      // Validation: le patient et le docteur doivent être sélectionnés
+      if (!formData.codePatient) {
+        setError('Veuillez sélectionner un patient');
+        return;
+      }
       if (!formData.codeDocteur) {
         setError('Veuillez sélectionner un docteur');
         return;
@@ -370,166 +295,33 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
     <div className="bg-white rounded-lg shadow-lg p-6">
       <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
         <User className="w-5 h-5 mr-2 text-blue-600" />
-        Étape 1: Sélection du Patient et du Dossier
+        Étape 1: Sélection du Patient
       </h2>
 
-      {/* Recherche patient */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Rechercher un patient
-        </label>
-        <div className="relative">
-          <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Tapez le nom ou code du patient..."
-            value={searchPatient}
-            onChange={(e) => setSearchPatient(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+      {!showNewPatientForm ? (
+        <>
+          <SearchPatient
+            patients={patients}
+            onSelect={handlePatientSelect}
+            selectedPatient={selectedPatient}
+            language={language}
           />
-        </div>
-        
-        {patientResults.length > 0 && (
-          <div className="mt-2 border border-gray-300 rounded-lg max-h-40 overflow-y-auto">
-            {patientResults.map((patient) => (
-              <div
-                key={patient.codePatient}
-                onClick={() => handlePatientSelect(patient)}
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200 last:border-b-0"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium">{patient.nomUtilisateur} {patient.prenomUtilisateur}</div>
-                    <div className="text-sm text-gray-500">{patient.codePatient}</div>
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleViewPatient(patient);
-                    }}
-                    className="p-1 hover:bg-gray-200 rounded"
-                  >
-                    <Eye size={16} className="text-gray-600" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
 
-      {/* Patient sélectionné */}
-      {selectedPatient && (
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium text-blue-900">Patient sélectionné:</h3>
-            <button
-              onClick={() => {
-                setSelectedPatient(null);
-                setFormData(prev => ({ ...prev, codePatient: '', nomPatient: '', prenomPatient: '' }));
-                setDossierResults([]);
-                setSelectedDossier(null);
-              }}
-              className="p-1 hover:bg-blue-200 rounded"
-            >
-              <X size={16} className="text-blue-600" />
-            </button>
-          </div>
-          <div className="text-sm mt-2">
-            <div><strong>Nom:</strong> {selectedPatient.nom || selectedPatient.nomUtilisateur || '-'} {selectedPatient.prenom || selectedPatient.prenomUtilisateur || '-'}</div>
-            <div><strong>Code:</strong> {selectedPatient.codePatient}</div>
-          </div>
-        </div>
-      )}
-
-      {/* Recherche dossier */}
-      {selectedPatient && (
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Rechercher un dossier pour ce patient
-          </label>
-          <div className="relative">
-            <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Tapez le code du dossier..."
-              value={searchDossier}
-              onChange={(e) => setSearchDossier(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-          
-          {loadingDossiers ? (
-            <div className="flex items-center justify-center py-4">
-              <Loader className="animate-spin text-blue-500" size={24} />
-              <span className="ml-2 text-gray-600">Chargement des dossiers...</span>
-            </div>
-          ) : dossierResults.length > 0 ? (
-            <div className="mt-2 border border-gray-300 rounded-lg max-h-40 overflow-y-auto">
-              {dossierResults.map((dossier) => (
-                <div
-                  key={dossier.codeDossier}
-                  onClick={() => handleDossierSelect(dossier)}
-                  className={`px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200 last:border-b-0 ${
-                    selectedDossier?.codeDossier === dossier.codeDossier ? 'bg-blue-50' : ''
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="font-medium">{dossier.codeDossier}</div>
-                      <div className="text-sm text-gray-500">Créé le: {dossier.dateCreation ? new Date(dossier.dateCreation).toLocaleDateString('fr-FR') : 'Date inconnue'}</div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleViewDossier(dossier);
-                        }}
-                        className="p-1 hover:bg-gray-200 rounded"
-                      >
-                        <Eye size={16} className="text-gray-600" />
-                      </button>
-                      {selectedDossier?.codeDossier === dossier.codeDossier && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDossierUnselect();
-                          }}
-                          className="p-1 hover:bg-red-200 rounded"
-                        >
-                          <EyeOff size={16} className="text-red-600" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="mt-2 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p className="text-yellow-800">Aucun dossier trouvé pour ce patient</p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Dossier sélectionné */}
-      {selectedDossier && (
-        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium text-green-900">Dossier sélectionné:</h3>
-            <button
-              onClick={handleDossierUnselect}
-              className="p-1 hover:bg-green-200 rounded"
-            >
-              <X size={16} className="text-green-600" />
-            </button>
-          </div>
-          <div className="text-sm mt-2">
-            <div><strong>Code:</strong> {selectedDossier.codeDossier}</div>
-            <div><strong>Date création:</strong> {selectedDossier.dateCreation ? new Date(selectedDossier.dateCreation).toLocaleDateString('fr-FR') : 'Date inconnue'}</div>
-          </div>
-        </div>
+          {/* Bouton pour ajouter un patient si aucun trouvé */}
+          <button
+            onClick={() => setShowNewPatientForm(true)}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            ➕ {getTranslation('addPatient', language) || 'Ajouter un patient'}
+          </button>
+        </>
+      ) : (
+        <PatientForm
+          initialData={null}
+          onSave={handlePatientCreated}
+          onCancel={() => setShowNewPatientForm(false)}
+          language={language}
+        />
       )}
     </div>
   );
@@ -654,7 +446,7 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
     <div className="bg-white rounded-lg shadow-lg p-6">
       <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
         <FileText className="w-5 h-5 mr-2 text-indigo-600" />
-        Étape 4: Informations de la Référence
+        Étape 3: Informations de la Référence
       </h2>
 
       <div className="space-y-4">
@@ -720,7 +512,7 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
     <div className="bg-white rounded-lg shadow-lg p-6">
       <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
         <Check className="w-5 h-5 mr-2 text-green-600" />
-        Étape 5: Confirmation
+        Étape 4: Confirmation
       </h2>
 
       <div className="bg-gray-50 p-6 rounded-lg">
@@ -734,13 +526,7 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
             </span>
           </div>
           
-          {formData.codeDossier && (
-            <div className="flex justify-between">
-              <span className="text-gray-600">Dossier:</span>
-              <span className="font-medium">{formData.codeDossier}</span>
-            </div>
-          )}
-          
+                    
           <div className="flex justify-between">
             <span className="text-gray-600">Hôpital:</span>
             <span className="font-medium">{formData.nomHopital}</span>
@@ -818,14 +604,30 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
           Précédent
         </button>
         
-        {currentStep < totalSteps && currentStep < 4 && (
+        {currentStep === 1 && (
           <button
             onClick={nextStep}
-            disabled={
-              (currentStep === 1 && !selectedPatient) ||
-              (currentStep === 2 && !selectedHopital) ||
-              loading
-            }
+            disabled={!selectedPatient || loading}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Suivant
+          </button>
+        )}
+        
+        {currentStep === 2 && (
+          <button
+            onClick={nextStep}
+            disabled={!selectedHopital || loading}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Suivant
+          </button>
+        )}
+        
+        {currentStep === 3 && (
+          <button
+            onClick={nextStep}
+            disabled={!selectedMedecin || loading}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Suivant
@@ -833,16 +635,6 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
         )}
         
         {currentStep === 4 && (
-          <button
-            onClick={nextStep}
-            disabled={!formData.motifReference || loading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Confirmer
-          </button>
-        )}
-        
-        {currentStep === 5 && (
           <button
             onClick={handleSubmit}
             disabled={loading || success}
@@ -868,25 +660,6 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
                 </button>
               </div>
               <PatientView patient={selectedPatientForView} language={language} />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {dossierViewModal && selectedDossierForView && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full m-4 max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">Détails du Dossier</h2>
-                <button
-                  onClick={closeDossierView}
-                  className="p-2 hover:bg-gray-100 rounded"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-              <DossierView dossier={selectedDossierForView} language={language} />
             </div>
           </div>
         </div>

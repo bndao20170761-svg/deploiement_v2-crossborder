@@ -127,6 +127,8 @@ export const translations = {
   confirmAcceptReference: { fr: 'Êtes-vous sûr de vouloir accepter cette référence ?', en: 'Are you sure you want to accept this reference?', pt: 'Tem certeza de que deseja aceitar esta referência?' },
   errorAcceptingReference: { fr: 'Erreur lors de l\'acceptation de la référence', en: 'Error accepting reference', pt: 'Erro ao aceitar referência' },
 
+  addPatient: { fr: 'Ajouter un patient', en: 'Add Patient', pt: 'Adicionar Paciente' },
+
   // Dossier references
   referenceFolder: { fr: 'Références de Dossiers', en: 'File References', pt: 'Referências de Fichas' },
   dossierReceivedReference: { fr: 'Dossiers Reçus', en: 'Received Files', pt: 'Fichas Recebidas' },
