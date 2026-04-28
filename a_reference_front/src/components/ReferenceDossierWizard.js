@@ -1344,7 +1344,7 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
             <h3 className="font-semibold text-lg mb-2">Médecin</h3>
             <p><span className="font-medium">Nom :</span> {
               (() => {
-                const nomComplet = formData.nomDocteur || selectedMedecin?.nomComplet || selectedMedecin?.nomAffichage || selectedMedecin?.nomUtilisateur || "";
+                const nomComplet = formData.nomDocteur || selectedMedecin?.nomComplet || selectedMedecin?.nomAffichage || selectedMedecin?.nomUtilisateur || selectedMedecin?.nom || "";
                 if (nomComplet && nomComplet.includes(" ")) {
                   const parts = nomComplet.split(" ");
                   return parts[parts.length - 1] || nomComplet; // Dernier élément = nom
@@ -1354,12 +1354,12 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
             }</p>
             <p><span className="font-medium">Prénom :</span> {
               (() => {
-                const nomComplet = formData.nomDocteur || selectedMedecin?.nomComplet || selectedMedecin?.nomAffichage || selectedMedecin?.nomUtilisateur || "";
+                const nomComplet = formData.nomDocteur || selectedMedecin?.nomComplet || selectedMedecin?.nomAffichage || selectedMedecin?.nomUtilisateur || selectedMedecin?.nom || "";
                 if (nomComplet && nomComplet.includes(" ")) {
                   const parts = nomComplet.split(" ");
                   return parts.slice(0, -1).join(" ") || ""; // Tout sauf le dernier = prénom(s)
                 }
-                return selectedMedecin?.prenomUtilisateur || selectedMedecin?.prenomDocteur || "-";
+                return selectedMedecin?.prenomUtilisateur || selectedMedecin?.prenomDocteur || selectedMedecin?.prenom || "-";
               })()
             }</p>
             <p><span className="font-medium">Code Médecin :</span> {formData.codeDocteur || selectedMedecin?.codeDoctor || selectedMedecin?.codeDocteur || "-"}</p>
