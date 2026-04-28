@@ -761,6 +761,111 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
     </div>
   );
 
+  // Étape 5: Résumé des informations (modèle ReferenceWizard.js)
+  const renderSummaryStep = () => {
+    const rc = {
+      poidsKg: formData.poidsKg,
+      traitementARV: formData.traitementArv,
+      cd4DebutTraitement: formData.cd4DebutTraitement,
+      cd4Dernier: formData.cd4Dernier,
+      chargeViraleNiveau: formData.chargeViraleNiveau,
+      hbNiveau: formData.hbNiveau,
+      lymphocytesTotaux: formData.lymphocytesTotaux,
+      cracheBaar: formData.cracheBaar,
+      aghbs: formData.aghbs,
+      transaminase: formData.transaminase,
+      autreAnalyse: formData.autreAnalyse,
+      autreTraitement: formData.autreTraitement,
+      protocoles1s: formData.protocoles1s,
+      protocoles2s: formData.protocoles2s,
+      traitementtb: formData.traitementtb,
+      protocolesTheraps: formData.protocolesTheraps
+    };
+
+    return (
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            📋 Résumé des Informations
+          </h3>
+
+          <div className="space-y-6">
+            {/* Patient */}
+            <div className="p-4 border rounded-lg shadow-sm bg-gray-50">
+              <h3 className="font-semibold text-lg mb-2">Patient</h3>
+              <p><span className="font-medium">Nom :</span> {selectedPatient?.nomUtilisateur || "-"}</p>
+              <p><span className="font-medium">Prénom :</span> {selectedPatient?.prenomUtilisateur || "-"}</p>
+              <p><span className="font-medium">Code Patient :</span> {selectedPatient?.codePatient || "-"}</p>
+            </div>
+
+            {/* Médecin */}
+            <div className="p-4 border rounded-lg shadow-sm bg-gray-50">
+              <h3 className="font-semibold text-lg mb-2">Médecin</h3>
+              <p><span className="font-medium">Nom :</span> {selectedMedecin?.nomUtilisateur || "-"}</p>
+              <p><span className="font-medium">Prénom :</span> {selectedMedecin?.prenomUtilisateur || "-"}</p>
+              <p><span className="font-medium">Code Médecin :</span> {selectedMedecin?.codeDoctor || "-"}</p>
+            </div>
+
+            {/* Motif */}
+            <div className="p-4 border rounded-lg shadow-sm bg-gray-50">
+              <h3 className="font-semibold text-lg mb-2">Motif de Référence</h3>
+              <p><span className="font-medium">Changement adresse :</span>
+                {formData.changementAdresse?.temporaire ? "Temporaire" :
+                 formData.changementAdresse?.permanent ? "Permanent" : "Non"}
+              </p>
+              <p><span className="font-medium">Autres :</span> {formData.autresMotif || "-"}</p>
+              <p><span className="font-medium">Services :</span> {Object.entries(formData.services || {})
+                .filter(([k,v]) => v).map(([k]) => k.toUpperCase()).join(", ") || "-"}
+              </p>
+            </div>
+
+            {/* Renseignements Cliniques */}
+            <div className="p-4 border rounded-lg shadow-sm bg-gray-50">
+              <h3 className="font-semibold text-lg mb-2">Renseignements Cliniques</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <p><span className="font-medium">Poids :</span> {rc.poidsKg || "-"}</p>
+                <p><span className="font-medium">Traitement ARV :</span> {rc.traitementARV ? "Oui" : "Non"}</p>
+                <p><span className="font-medium">CD4 Début :</span> {rc.cd4DebutTraitement || "-"}</p>
+                <p><span className="font-medium">CD4 Dernier :</span> {rc.cd4Dernier || "-"}</p>
+                <p><span className="font-medium">Charge Virale :</span> {rc.chargeViraleNiveau || "-"}</p>
+                <p><span className="font-medium">Hb :</span> {rc.hbNiveau || "-"}</p>
+                <p><span className="font-medium">Lymphocytes :</span> {rc.lymphocytesTotaux || "-"}</p>
+                <p><span className="font-medium">Crache BAAR :</span> {rc.cracheBaar || "-"}</p>
+                <p><span className="font-medium">Ag HBs :</span> {rc.aghbs || "-"}</p>
+                <p><span className="font-medium">Transaminases :</span> {rc.transaminase || "-"}</p>
+                <p><span className="font-medium">Autre Analyse :</span> {rc.autreAnalyse ? "Oui" : "Non"}</p>
+                <p><span className="font-medium">Autre Traitement :</span> {rc.autreTraitement ? "Oui" : "Non"}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            {error}
+          </div>
+        )}
+
+        {/* Boutons de navigation */}
+        <div className="mt-6 flex justify-between">
+          <button
+            onClick={() => setCurrentStep(4)}
+            className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Précédent
+          </button>
+          <button
+            onClick={() => setCurrentStep(6)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Suivant → Confirmation
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   const renderStep = () => {
     switch (currentStep) {
       case 1:
@@ -772,6 +877,8 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
       case 4:
         return renderClinicalInfoStep();
       case 5:
+        return renderSummaryStep();
+      case 6:
         return renderConfirmationStep();
       default:
         return renderPatientSearch();
