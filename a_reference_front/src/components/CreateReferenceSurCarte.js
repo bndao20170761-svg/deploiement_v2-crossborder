@@ -30,7 +30,27 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
     codeReferenceur: '',
     nomReferenceur: '',
     telephoneReferenceur: '',
-    emailReferenceur: ''
+    emailReferenceur: '',
+    // Champs pour le motif de référence (modèle ReferenceWizard.js)
+    changementAdresse: null,
+    motifs: {},
+    autresAPreciser: false,
+    autresMotif: '',
+    servicesEnabled: false,
+    services: {
+      arv: false,
+      laboratoire: false,
+      ptme: false,
+      crc: false,
+      pvvih: false
+    },
+    // Champs cliniques (modèle ClinicalInfoStep.js)
+    poidsKg: '',
+    stades: [],
+    cd4: '',
+    chargeVirale: '',
+    traitementArv: '',
+    effetsSecondaires: ''
   });
 
   // États pour la recherche
@@ -327,12 +347,344 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
     </div>
   );
 
-  // Étape 3: Détails Référence + Confirmation (copié de CreateReferenceFromMap.js)
+  // Étape 3: Motif de la Référence (modèle ReferenceWizard.js)
   const renderReferenceDetails = () => (
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          📋 Détails de la référence
+          📋 Motif de la Référence
+        </h3>
+
+        <div className="space-y-6">
+          {/* Changement d'adresse - modèle ReferenceWizard.js */}
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={formData.changementAdresse !== null}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  changementAdresse: e.target.checked
+                    ? { permanent: false, temporaire: false }
+                    : null,
+                  autresAPreciser: e.target.checked ? false : prev.autresAPreciser,
+                  autresMotif: '',
+                }))
+              }
+            />
+            <label>{getTranslation("changement_adresse", language)}</label>
+          </div>
+
+          {formData.changementAdresse && (
+            <div className="flex space-x-4">
+              {["temporaire", "permanent"].map((option) => (
+                <label key={option} className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="changementAdresse"
+                    value={option}
+                    checked={
+                      (option === "temporaire" && formData.changementAdresse?.temporaire) ||
+                      (option === "permanent" && formData.changementAdresse?.permanent)
+                    }
+                    onChange={() =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        changementAdresse: {
+                          temporaire: option === "temporaire",
+                          permanent: option === "permanent",
+                        },
+                      }))
+                    }
+                  />
+                  <span>{getTranslation(option, language)}</span>
+                </label>
+              ))}
+            </div>
+          )}
+
+          {/* Motifs de référence - modèle ReferenceWizard.js */}
+          <div className="space-y-2">
+            <p className="font-medium">{getTranslation("motif_reference", language)}</p>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                "rupture_arv",
+                "effet_indesirable",
+                "echec_therapeutique",
+                "toxicite_medicamenteuse",
+              ].map((option) => (
+                <label key={option} className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={formData.motifs?.[option] || false}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        motifs: {
+                          ...prev.motifs,
+                          [option]: e.target.checked,
+                        },
+                      }))
+                    }
+                  />
+                  <span>{getTranslation(option, language)}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Autre à préciser */}
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={formData.autresAPreciser}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  autresAPreciser: e.target.checked,
+                  autresMotif: '',
+                  changementAdresse: e.target.checked ? null : prev.changementAdresse,
+                }))
+              }
+              disabled={formData.changementAdresse !== null}
+            />
+            <label>{getTranslation("autre_a_preciser", language)}</label>
+          </div>
+
+          {formData.autresAPreciser && (
+            <input
+              type="text"
+              value={formData.autresMotif}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  autresMotif: e.target.value,
+                }))
+              }
+              className="w-full px-3 py-2 border rounded"
+            />
+          )}
+
+          {/* Services */}
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={formData.servicesEnabled}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  servicesEnabled: e.target.checked,
+                  services: {
+                    arv: false,
+                    laboratoire: false,
+                    ptme: false,
+                    crc: false,
+                    pvvih: false,
+                    ...prev.services,
+                  },
+                }))
+              }
+            />
+            <label>{getTranslation("services", language)}</label>
+          </div>
+
+          {formData.servicesEnabled && (
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { key: "arv", label: "ARV" },
+                { key: "laboratoire", label: "Laboratoire" },
+                { key: "ptme", label: "PTME" },
+                { key: "crc", label: "CRC" },
+                { key: "pvvih", label: "PVVIH" },
+              ].map((service) => (
+                <label key={service.key} className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={formData.services?.[service.key] || false}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        services: {
+                          ...prev.services,
+                          [service.key]: e.target.checked,
+                        },
+                      }))
+                    }
+                  />
+                  <span>{service.label}</span>
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {error}
+        </div>
+      )}
+
+      {/* Bouton Suivant */}
+      <div className="mt-6 flex justify-end">
+        <button
+          onClick={() => setCurrentStep(4)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Suivant → Informations cliniques
+        </button>
+      </div>
+    </div>
+  );
+
+  // Étape 4: Informations cliniques (modèle ClinicalInfoStep.js)
+  const renderClinicalInfoStep = () => (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          📋 Renseignements cliniques
+        </h3>
+
+        <div className="space-y-6">
+          {/* Poids - modèle ClinicalInfoStep.js */}
+          <div className="p-4 border rounded-lg bg-gray-50">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {getTranslation("weight", language) || "Poids (kg)"}
+            </label>
+            <input
+              type="number"
+              value={formData.poidsKg ?? ""}
+              onChange={(e) =>
+                setFormData((prev) => ({ 
+                  ...prev, 
+                  poidsKg: e.target.value ? parseFloat(e.target.value) : "" 
+                }))
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              step="0.1"
+              min="0"
+              placeholder="Ex: 70.5"
+            />
+          </div>
+
+          {/* Stades OMS - modèle ClinicalInfoStep.js */}
+          <div className="p-4 border rounded-lg bg-gray-50">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {getTranslation("whoStage", language) || "Stade OMS"}
+            </label>
+            <div className="grid grid-cols-2 gap-4">
+              {["stade1", "stade2", "stade3", "stade4"].map((field, index) => (
+                <label key={field} className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={formData.stades?.[index]?.[field] || false}
+                    onChange={(e) => {
+                      const updated = [...(formData.stades || [])];
+                      if (!updated[index]) updated[index] = {};
+                      updated[index][field] = e.target.checked;
+                      setFormData((prev) => ({ ...prev, stades: updated }));
+                    }}
+                  />
+                  <span>Stade {field.replace('stade', '')}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* CD4 */}
+          <div className="p-4 border rounded-lg bg-gray-50">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {getTranslation("cd4", language) || "CD4"}
+            </label>
+            <input
+              type="number"
+              value={formData.cd4 ?? ""}
+              onChange={(e) =>
+                setFormData((prev) => ({ 
+                  ...prev, 
+                  cd4: e.target.value ? parseFloat(e.target.value) : "" 
+                }))
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              min="0"
+              placeholder="Ex: 350"
+            />
+          </div>
+
+          {/* Charge Virale */}
+          <div className="p-4 border rounded-lg bg-gray-50">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {getTranslation("viralLoad", language) || "Charge Virale"}
+            </label>
+            <input
+              type="text"
+              value={formData.chargeVirale ?? ""}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, chargeVirale: e.target.value }))
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Ex: 5000 copies/ml"
+            />
+          </div>
+
+          {/* Traitement ARV */}
+          <div className="p-4 border rounded-lg bg-gray-50">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {getTranslation("arvTreatment", language) || "Traitement ARV"}
+            </label>
+            <textarea
+              value={formData.traitementArv ?? ""}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, traitementArv: e.target.value }))
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              rows={3}
+              placeholder="Décrivez le traitement ARV en cours..."
+            />
+          </div>
+
+          {/* Effets secondaires */}
+          <div className="p-4 border rounded-lg bg-gray-50">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {getTranslation("sideEffects", language) || "Effets secondaires"}
+            </label>
+            <textarea
+              value={formData.effetsSecondaires ?? ""}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, effetsSecondaires: e.target.value }))
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              rows={3}
+              placeholder="Décrivez les effets secondaires observés..."
+            />
+          </div>
+        </div>
+      </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {error}
+        </div>
+      )}
+
+      {/* Bouton Suivant */}
+      <div className="mt-6 flex justify-end">
+        <button
+          onClick={() => setCurrentStep(5)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Suivant → Confirmation
+        </button>
+      </div>
+    </div>
+  );
+
+  // Étape 5: Confirmation et création
+  const renderConfirmationStep = () => (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          📋 Confirmation de la référence
         </h3>
         
         {/* Récapitulatif */}
@@ -342,16 +694,15 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
           <p><strong>Médecin destinataire:</strong> Dr {selectedMedecin?.prenom} {selectedMedecin?.nom}</p>
         </div>
 
-        {/* Motif */}
+        {/* Date de référence */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Motif de la référence <span className="text-red-500">*</span>
+            Date de la référence <span className="text-red-500">*</span>
           </label>
-          <textarea
-            value={formData.motifReference}
-            onChange={(e) => setFormData(prev => ({ ...prev, motifReference: e.target.value }))}
-            placeholder="Décrivez le motif de la référence..."
-            rows={4}
+          <input
+            type="date"
+            value={formData.dateReference}
+            onChange={(e) => setFormData(prev => ({ ...prev, dateReference: e.target.value }))}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
@@ -373,19 +724,6 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
               </option>
             ))}
           </select>
-        </div>
-
-        {/* Date de référence */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Date de la référence <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="date"
-            value={formData.dateReference}
-            onChange={(e) => setFormData(prev => ({ ...prev, dateReference: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
         </div>
 
         {/* Observations */}
@@ -413,7 +751,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
       <div className="mt-6 flex justify-end">
         <button
           onClick={handleSubmit}
-          disabled={loading || !formData.motifReference || !formData.typeReference || !formData.dateReference}
+          disabled={loading || !formData.typeReference || !formData.dateReference}
           className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
         >
           {loading && <Loader className="h-4 w-4 animate-spin" />}
@@ -431,6 +769,10 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
         return renderMedecinSelection();
       case 3:
         return renderReferenceDetails();
+      case 4:
+        return renderClinicalInfoStep();
+      case 5:
+        return renderConfirmationStep();
       default:
         return renderPatientSearch();
     }
