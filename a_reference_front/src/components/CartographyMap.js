@@ -3,7 +3,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import { toggleHospitalStatus } from '../services/hospitalService';
 import { createHopital, updateHopital, getHopitalAvecPrestataires, getPrestatairesByHopitalId } from '../services/hopitalService';
-import SearchPatientNew from './SearchPatientNew';
+import CreateReferenceSurCarte from './CreateReferenceSurCarte';
 
 import {
   Box,
@@ -2027,10 +2027,14 @@ const saveNewHospital = async () => {
                 </Box>
               </DialogTitle>
               <DialogContent>
-                <SearchPatientNew
+                <CreateReferenceSurCarte
                   language={language}
-                  initialHopital={selectedHopitalForReference}
-                  onReferenceCreate={(data) => {
+                  selectedHospital={selectedHopitalForReference}
+                  onBack={() => {
+                    setShowReferenceDialog(false);
+                    setSelectedHopitalForReference(null);
+                  }}
+                  onComplete={(data) => {
                     console.log('Référence créée:', data);
                     setShowReferenceDialog(false);
                     setSelectedHopitalForReference(null);
