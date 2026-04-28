@@ -2,15 +2,15 @@ package sn.uasz.referencement_PVVIH.dtos;
 
 import lombok.*;
 
-import java.time.LocalDate;
-
 @Getter
 @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder
-public class ProtocoleTherapDto {
+public class StadeOMSDto {
     private Long id;
-    private String therapie;
-    private LocalDate dateTherapie;
+    private Boolean stade1;
+    private Boolean stade2;
+    private Boolean stade3;
+    private Boolean stade4;
     private Long referenceDossierId;
 }

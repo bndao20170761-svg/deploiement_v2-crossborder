@@ -2,8 +2,7 @@ package sn.uasz.referencement_PVVIH.dtos;
 
 import lombok.*;
 
-import java.time.LocalDateTime;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -12,7 +11,6 @@ import java.util.Date;
 public class Protocole2Dto {
     private Long id;
     private String protocole2emeLigne;
-    private Date dateProtocole2;
-    private Long renseignementCliniqueId;
+    private LocalDate dateProtocole2;
+    private Long referenceDossierId;
 }
-//

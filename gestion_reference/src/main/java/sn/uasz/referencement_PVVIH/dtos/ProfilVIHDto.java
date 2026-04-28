@@ -8,9 +8,12 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder
-public class ProtocoleTherapDto {
+public class ProfilVIHDto {
     private Long id;
-    private String therapie;
-    private LocalDate dateTherapie;
+    private LocalDate dateConfirmation;
+    private Boolean indetermine;
+    private Boolean profil1;
+    private Boolean profil12;
+    private Boolean profil2;
     private Long referenceDossierId;
 }

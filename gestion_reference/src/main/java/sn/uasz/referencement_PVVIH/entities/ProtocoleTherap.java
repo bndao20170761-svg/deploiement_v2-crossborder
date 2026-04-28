@@ -4,9 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
-import java.util.Date;
-
+import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -26,10 +24,10 @@ public class ProtocoleTherap {
     private Long id;
 
     private String therapie;
-    private Date dateTherapie;
+    private LocalDate dateTherapie;
 
     @ManyToOne
-    @JoinColumn(name = "renseignementClinique_id")
+    @JoinColumn(name = "reference_dossier_id")
     @JsonBackReference
-    private RenseignementClinique renseignementClinique;
+    private ReferenceDossier referenceDossier;
 }
