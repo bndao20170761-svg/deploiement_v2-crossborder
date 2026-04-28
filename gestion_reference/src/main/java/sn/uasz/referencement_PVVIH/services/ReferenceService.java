@@ -1,4 +1,5 @@
 package sn.uasz.referencement_PVVIH.services;
+/*
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
+@Slf4j*/
 public class ReferenceService { /*
     private final ReferenceRepository repository;
     private final ReferenceMapper mapper;

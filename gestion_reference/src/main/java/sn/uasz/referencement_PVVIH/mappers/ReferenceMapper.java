@@ -6,6 +6,7 @@ import sn.uasz.referencement_PVVIH.entities.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
 @Mapper(
         componentModel = "spring",
         nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
@@ -15,61 +16,68 @@ import java.util.List;
 
 
 
-
-public interface ReferenceMapper {
-
+public interface ReferenceMapper { */
 
 
 
-    // === Méthodes personnalisées pour listes ===
+
+    /* // === Méthodes personnalisées pour listes ===
     default RenseignementCliniqueDto toRenseignementCliniqueDtoFromList(List<RenseignementClinique> list) {
         if (list == null || list.isEmpty()) return null;
         return toRenseignementCliniqueDto(list.get(0));
-    }
+    } */
 
-    default List<RenseignementClinique> toRenseignementCliniqueListFromDto(RenseignementCliniqueDto dto) {
+    /* default List<RenseignementClinique> toRenseignementCliniqueListFromDto(RenseignementCliniqueDto dto) {
         if (dto == null) return new ArrayList<>();
         List<RenseignementClinique> list = new ArrayList<>();
         list.add(toRenseignementClinique(dto));
         return list;
-    }
+    } */
 
-    default MotifDto toMotifDtoFromList(List<Motif> list) {
+    /* default MotifDto toMotifDtoFromList(List<Motif> list) {
         if (list == null || list.isEmpty()) return null;
         return toMotifDto(list.get(0));
-    }
+    } */
 
-    default List<Motif> toMotifListFromDto(MotifDto dto) {
+    /* default List<Motif> toMotifListFromDto(MotifDto dto) {
         if (dto == null) return new ArrayList<>();
         List<Motif> list = new ArrayList<>();
         list.add(toMotif(dto));
         return list;
-    }
+    } */
 
 
-    default ReferenceValidationDto toReferenceValidationDto(Reference ref) {
+    /* default ReferenceValidationDto toReferenceValidationDto(Reference ref) {
         if (ref == null) return null;
+        return ReferenceValidationDto.builder()
+                .id(ref.getId())
+                .date(ref.getDate())
+                .medecinAuteur(ref.getMedecinAuteur() != null ? DoctorDto.builder()
+                        .codeDoctor(ref.getMedecinAuteur().getCodeDoctor())
+                        .nomComplet(ref.getMedecinAuteur().getNomComplet())
+                        .build() : null)
+                .medecin(ref.getMedecin() != null ? DoctorDto.builder()
+                        .codeDoctor(ref.getMedecin().getCodeDoctor())
+                        .nomComplet(ref.getMedecin().getNomComplet())
+                        .build() : null)
+                .patient(ref.getPatient() != null ? PatientDto.builder()
+                        .codePatient(ref.getPatient().getCodePatient())
+                        .nomUtilisateur(ref.getPatient().getNomUtilisateur())
+                        .prenomUtilisateur(ref.getPatient().getPrenomUtilisateur())
+                        .build() : null)
+                .hopital(ref.getHopital() != null ? HopitalDto.builder()
+                        .id(ref.getHopital().getId())
+                        .nom(ref.getHopital().getNom())
+                        .build() : null)
+                .assistantSocial(ref.getAssistantSocial() != null ? AssistantSocialDto.builder()
+                        .codeAssistant(ref.getAssistantSocial().getCodeAssistant())
+                        .build() : null)
+                .validation(ref.getValidation())
+                .build();
+    } */
 
-        ReferenceValidationDto dto = new ReferenceValidationDto();
-        dto.setId(ref.getId());
-        dto.setValidation(ref.getValidation()); // ✅ correction ici
 
-        dto.setMedecinAuteurId(
-                (ref.getMedecinAuteur() != null) ? ref.getMedecinAuteur().getCodeDoctor() : ""
-        );
-
-
-        dto.setMedecinAuteurNom(
-                (ref.getMedecinAuteur() != null && ref.getMedecinAuteur().getUtilisateur() != null)
-                        ? ref.getMedecinAuteur().getUtilisateur().getNom()
-                        : ""
-        );
-
-        return dto;
-    }
-
-
-    // === Mapping Reference ===
+    /* // === Mapping Reference ===
     @Mapping(source = "patient", target = "patient")
     @Mapping(source = "medecin", target = "medecin")
     @Mapping(source = "medecinAuteur", target = "medecinAuteur")
@@ -83,8 +91,8 @@ public interface ReferenceMapper {
 
     @InheritInverseConfiguration
     @Mapping(target = "renseignementsCliniques", source = "renseignementClinique")
-    @Mapping(target = "motifs", source = "motif")
-    Reference toReference(ReferenceDto dto);
+    @Mapping(target = "motifs", source = "motif") */
+    /* Reference toReference(ReferenceDto dto);
 
     // === Mapping ContreReference ===
     @Mapping(source = "reference.id", target = "referenceId")
@@ -93,8 +101,8 @@ public interface ReferenceMapper {
     @InheritInverseConfiguration
     ContreReference toContreReference(ContreReferenceDto dto);
 
-    // === Mapping Doctor ===
-    @Mapping(source = "hopital.id", target = "hopitalId")
+    // === Mapping Doctor === */
+    /* @Mapping(source = "hopital.id", target = "hopitalId")
     @Mapping(source = "utilisateur.id", target = "utilisateurId")
     @Mapping(source = "utilisateur.nom", target = "nomUtilisateur")
     @Mapping(source = "utilisateur.prenom", target = "prenomUtilisateur")
@@ -102,9 +110,9 @@ public interface ReferenceMapper {
     DoctorDto toDoctorDto(Doctor doctor);
 
     @InheritInverseConfiguration
-    Doctor toDoctor(DoctorDto doctorDto);
+    Doctor toDoctor(DoctorDto doctorDto); */
 
-    List<DoctorDto> toDoctorDtoList(List<Doctor> doctors);
+    /* List<DoctorDto> toDoctorDtoList(List<Doctor> doctors);
     List<Doctor> toDoctorList(List<DoctorDto> doctorDtos);
 
     // === Mapping Patient ===
@@ -112,8 +120,8 @@ public interface ReferenceMapper {
     @Mapping(source = "doctorCreate.codeDoctor", target = "doctorCreateCode")
     @Mapping(source = "utilisateur.id", target = "utilisateurId")
     @Mapping(source = "utilisateur.nom", target = "nomUtilisateur")
-    @Mapping(source = "utilisateur.prenom", target = "prenomUtilisateur")
-    @Mapping(source = "utilisateur.nationalite", target = "nationaliteUtilisateur")
+    @Mapping(source = "utilisateur.prenom", target = "prenomUtilisateur") */
+    /* @Mapping(source = "utilisateur.nationalite", target = "nationaliteUtilisateur")
     @Mapping(source = "codePatient", target = "codePatient")
     PatientDto toPatientDto(Patient patient);
 
@@ -121,9 +129,9 @@ public interface ReferenceMapper {
     Patient toPatient(PatientDto patientDto);
 
     List<PatientDto> toPatientDtoList(List<Patient> patients);
-    List<Patient> toPatientList(List<PatientDto> patientDtos);
+    List<Patient> toPatientList(List<PatientDto> patientDtos); */
 
-    // === Mapping RenseignementClinique ===
+    /* // === Mapping RenseignementClinique ===
 
     RenseignementCliniqueDto toRenseignementCliniqueDto(RenseignementClinique entity);
     @InheritInverseConfiguration
@@ -131,8 +139,8 @@ public interface ReferenceMapper {
 
     // === Mapping Protocole ===
     Protocole1Dto toProtocole1Dto(Protocole1 entity);
-    @InheritInverseConfiguration
-    Protocole1 toProtocole1(Protocole1Dto dto);
+    @InheritInverseConfiguration */
+    /* Protocole1 toProtocole1(Protocole1Dto dto);
 
     Protocole2Dto toProtocole2Dto(Protocole2 entity);
     @InheritInverseConfiguration
@@ -140,23 +148,27 @@ public interface ReferenceMapper {
 
     ProtocoleTherapDto toProtocoleTherapDto(ProtocoleTherap entity);
     @InheritInverseConfiguration
-    ProtocoleTherap toProtocoleTherap(ProtocoleTherapDto dto);
+    ProtocoleTherap toProtocoleTherap(ProtocoleTherapDto dto); */
 
-    // === Mapping Renseignements divers ===
+    /* // === Mapping Renseignements divers ===
     RenseignementProfilDto toRenseignementProfilDto(RenseignementProfil entity);
     @InheritInverseConfiguration
     RenseignementProfil toRenseignementProfil(RenseignementProfilDto dto);
 
     RenseignementStadeDto toRenseignementStadeDto(RenseignementStade entity);
     @InheritInverseConfiguration
-    RenseignementStade toRenseignementStade(RenseignementStadeDto dto);
+    RenseignementStade toRenseignementStade(RenseignementStadeDto dto); */
 
-    // === Mapping Motif ===
+    /* // === Mapping Motif ===
+    @Mapping(target = "reference", ignore = true)
     MotifDto toMotifDto(Motif motif);
-    @InheritInverseConfiguration
-    Motif toMotif(MotifDto dto);
 
-    // === Mapping MotifAutres personnalisé ===
+    @InheritInverseConfiguration
+    @Mapping(target = "reference", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    Motif toMotif(MotifDto motifDto); */
+
+    /* // === Mapping MotifAutres personnalisé ===
     default MotifAutres toMotifAutres(MotifAutresDto dto) {
         if (dto == null) return null;
         return MotifAutres.builder()
@@ -169,16 +181,18 @@ public interface ReferenceMapper {
         return MotifAutresDto.builder()
                 .autresMotif(entity.getAutresMotif())
                 .build();
-    }
+    } */
 
-    // === Mapping MotifChangement ===
+    /* // === Mapping MotifChangement ===
     MotifChangementDto toMotifChangementDto(MotifChangement entity);
     @InheritInverseConfiguration
+    @Mapping(target = "id", ignore = true)
     MotifChangement toMotifChangement(MotifChangementDto dto);
 
     // === Mapping MotifServ ===
     MotifServDto toMotifServDto(MotifServ entity);
-    @InheritInverseConfiguration
+    @InheritInverseConfiguration */
+    /* @Mapping(target = "id", ignore = true)
     MotifServ toMotifServ(MotifServDto dto);
 
     // === Mapping Hopital ===
@@ -191,8 +205,20 @@ public interface ReferenceMapper {
     @Mapping(target = "services", ignore = true) // Géré séparément si nécessaire
     Hopital toHopital(HopitalDto hopitalDto);
 
-    List<HopitalDto> toHopitalDtoList(List<Hopital> hopitals);
+    List<HopitalDto> toHopitalDtoList(List<Hopital> hopitaux);
     List<Hopital> toHopitalList(List<HopitalDto> hopitalDtos);
+
+    // === Mapping AssistantSocial ===
+    @Mapping(source = "hopital.id", target = "hopitalId")
+    @Mapping(source = "hopital.nom", target = "hopitalNom")
+    AssistantSocialDto toAssistantSocialDto(AssistantSocial assistantSocial);
+
+    @InheritInverseConfiguration
+    @Mapping(target = "hopital", ignore = true) // Géré séparément si nécessaire
+    AssistantSocial toAssistantSocial(AssistantSocialDto assistantSocialDto);
+
+    List<AssistantSocialDto> toAssistantSocialDtoList(List<AssistantSocial> assistantSocials);
+    List<AssistantSocial> toAssistantSocialList(List<AssistantSocialDto> assistantSocialDtos);
 
     // === Mapping Service ===
     @Mapping(source = "hopital.id", target = "hopitalId")
@@ -204,4 +230,102 @@ public interface ReferenceMapper {
 
     List<ServiceDto> toServiceDtoList(List<Service> services);
     List<Service> toServiceList(List<ServiceDto> serviceDtos);
-}
+
+    // === Mapping ReferenceValidation ===
+    ReferenceValidationDto toReferenceValidationDto(Reference reference);
+
+    // === Mapping RenseignementClinique ===
+    @Mapping(target = "reference", ignore = true)
+    @Mapping(target = "protocoles1s", ignore = true)
+    @Mapping(target = "protocoles2s", ignore = true)
+    @Mapping(target = "protocolesTheraps", ignore = true)
+    @Mapping(target = "profils", ignore = true)
+    @Mapping(target = "stades", ignore = true)
+    RenseignementCliniqueDto toRenseignementCliniqueDto(RenseignementClinique rc);
+
+    @InheritInverseConfiguration
+    @Mapping(target = "reference", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "protocoles1s", ignore = true)
+    @Mapping(target = "protocoles2s", ignore = true)
+    @Mapping(target = "protocolesTheraps", ignore = true)
+    @Mapping(target = "profils", ignore = true)
+    @Mapping(target = "stades", ignore = true)
+    RenseignementClinique toRenseignementClinique(RenseignementCliniqueDto rcDto);
+
+    // === Mapping MotifAutres ===
+    MotifAutresDto toMotifAutresDto(MotifAutres motifAutres);
+
+    @InheritInverseConfiguration
+    @Mapping(target = "id", ignore = true)
+    MotifAutres toMotifAutres(MotifAutresDto motifAutresDto);
+
+    // === Mapping MotifChangement ===
+    MotifChangementDto toMotifChangementDto(MotifChangement motifChangement);
+
+    @InheritInverseConfiguration
+    @Mapping(target = "id", ignore = true)
+    MotifChangement toMotifChangement(MotifChangementDto motifChangementDto);
+
+    // === Mapping MotifServ ===
+    MotifServDto toMotifServDto(MotifServ motifServ);
+
+    @InheritInverseConfiguration
+    @Mapping(target = "id", ignore = true)
+    MotifServ toMotifServ(MotifServDto motifServDto);
+
+    // === Mapping Protocole1 ===
+    @Mapping(target = "referenceDossier", ignore = true)
+    Protocole1Dto toProtocole1Dto(Protocole1 protocole1);
+
+    @InheritInverseConfiguration
+    @Mapping(target = "referenceDossier", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    Protocole1 toProtocole1(Protocole1Dto protocole1Dto);
+
+    // === Mapping Protocole2 ===
+    @Mapping(target = "referenceDossier", ignore = true)
+    Protocole2Dto toProtocole2Dto(Protocole2 protocole2);
+
+    @InheritInverseConfiguration
+    @Mapping(target = "referenceDossier", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    Protocole2 toProtocole2(Protocole2Dto protocole2Dto);
+
+    // === Mapping ProtocoleTherap ===
+    @Mapping(target = "referenceDossier", ignore = true)
+    ProtocoleTherapDto toProtocoleTherapDto(ProtocoleTherap protocoleTherap);
+
+    @InheritInverseConfiguration
+    @Mapping(target = "referenceDossier", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    ProtocoleTherap toProtocoleTherap(ProtocoleTherapDto protocoleTherapDto);
+
+    // === Mapping ProfilVIH ===
+    @Mapping(target = "referenceDossier", ignore = true)
+    ProfilVIHDto toProfilVIHDto(ProfilVIH profilVIH);
+
+    @InheritInverseConfiguration
+    @Mapping(target = "referenceDossier", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    ProfilVIH toProfilVIH(ProfilVIHDto profilVIHDto);
+
+    // === Mapping StadeOMS ===
+    @Mapping(target = "referenceDossier", ignore = true)
+    StadeOMSDto toStadeOMSDto(StadeOMS stadeOMS);
+
+    @InheritInverseConfiguration
+    @Mapping(target = "referenceDossier", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    StadeOMS toStadeOMS(StadeOMSDto stadeOMSDto);
+
+    // === Mapping Reference ===
+    @Mapping(target = "motifs", ignore = true)
+    @Mapping(target = "renseignementsCliniques", ignore = true)
+    ReferenceDto toReferenceDto(Reference reference);
+
+    @Mapping(target = "motifs", ignore = true)
+    @Mapping(target = "renseignementsCliniques", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    Reference toReference(ReferenceDto referenceDto);
+} */

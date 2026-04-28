@@ -1,5 +1,5 @@
 package sn.uasz.referencement_PVVIH.controllers;
-
+/*
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +17,7 @@ import java.util.List;
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:3003", "http://gateway-pvvih:8080"})
 @RestController
 @RequestMapping("/api/references")
-@RequiredArgsConstructor
+@RequiredArgsConstructor*/
 public class ReferencementController { /*
     private final ReferenceService service;
     private  final ReferenceMapper mapper;

@@ -42,5 +42,11 @@ public class Motif {
     @JoinColumn(name = "reference_dossier_id")
     @JsonBackReference
     private ReferenceDossier referenceDossier;
+    
+    // Ancienne relation pour compatibilité avec Reference
+    @ManyToOne
+    @JoinColumn(name = "reference_id")
+    @JsonBackReference
+    private Reference reference;
 
 }

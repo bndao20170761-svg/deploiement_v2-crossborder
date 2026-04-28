@@ -6,6 +6,7 @@ import sn.uasz.referencement_PVVIH.entities.Reference;
 
 import java.util.List;
 
+/*
 public interface ReferenceRepository   extends JpaRepository<Reference, Long> {
     // Rechercher toutes les références dont le medecinAuteur a un codeDoctor donné
     List<Reference> findByMedecinAuteur_CodeDoctor(String codeDoctor);
@@ -21,5 +22,5 @@ public interface ReferenceRepository   extends JpaRepository<Reference, Long> {
     List<Reference> findByPatient_CodePatient(String codePatient);
 
 
-}
+} */
 

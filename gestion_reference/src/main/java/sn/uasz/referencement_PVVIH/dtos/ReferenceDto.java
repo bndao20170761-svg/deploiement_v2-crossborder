@@ -6,12 +6,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
+/*
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class ReferenceDto {
+public class ReferenceDto { 
     private Long id;
     private Boolean active;
     private LocalDateTime date;
@@ -22,26 +23,25 @@ public class ReferenceDto {
     private Boolean validation;
     private AssistantSocialDto assistant;
     private String codeAssistant;
-    private String codeMedecinAuteur;
-    private String codeMedecin;
-    private String patientId;
-    private DoctorDto medecin;         // destinataire
-    private DoctorDto medecinAuteur;   // auteur
-    private PatientDto patient;         // patient
+    private DoctorDto medecinAuteur;
+    private DoctorDto medecin;
+    private PatientDto patient;
+    private HopitalDto hopital;
+    private String motifReference;
+    private String motifReferenceAutre;
+    private String typeReference;
     private RenseignementCliniqueDto renseignementClinique;
-     // auteur
-
-
-    // ✅ un seul objet et non une liste
     private MotifDto motif;
-
-
-
-    private String nomUtilisateur;
-    private String prenomUtilisateur;
-    private String nationaliteUtilisateur;
-    HopitalDto  hopitalDto;
-    private Long utilisateurId;
+    private String patientId;
+    private String codeDoctor;
+    private String codeHopital;
+    private String codeDocteur;
+    private String nomDocteur;
+    private String codeReferenceur;
+    private String nomReferenceur;
+    private String telephoneReferenceur;
+    private String emailReferenceur;
+    private String observations;
 
     public void setDateNowIfNull() {
         if (this.date == null) {
@@ -54,4 +54,4 @@ public class ReferenceDto {
         return date != null ? date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null;
     }
 
-}
+} */

@@ -1,12 +1,14 @@
 package sn.uasz.referencement_PVVIH.entities;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+
+/*
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 
 @Entity
@@ -15,9 +17,9 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Builder*/
 public class Reference {
-
+/*
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,19 +28,16 @@ public class Reference {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime date;
 
-
-    @Column(nullable = false)
     private String site;
-
     private String statut;
-
-    @Column(nullable = false)
     private String type;
-
     private Boolean etat;
-    private Boolean validation;
+    private String observations;
+    private String motifReference;
+    private String motifReferenceAutre;
+    private String typeReference;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "assistant", referencedColumnName = "code_assistant")
     @JsonIgnoreProperties({"references", "hopital", "user"})
     private AssistantSocial assistantSocial;
@@ -57,7 +56,12 @@ public class Reference {
     @JoinColumn(name = "patient", referencedColumnName = "code_patient")
     @JsonIgnoreProperties({"references", "doctorCreate", "user"})
     private Patient patient;
-    
+
+    @ManyToOne
+    @JoinColumn(name = "hopital", referencedColumnName = "id")
+    @JsonIgnoreProperties({"references", "user"})
+    private Hopital hopital;
+
     @Builder.Default
     @OneToMany(mappedBy = "reference", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
@@ -68,6 +72,15 @@ public class Reference {
     @JsonManagedReference
     private List<Motif> motifs = new ArrayList<>();
 
+} 
 
-
+/*
+@Entity
+@Table(name = "reference")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Reference { */
 }

@@ -1,5 +1,5 @@
 package sn.uasz.referencement_PVVIH.services;
-
+/*
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import sn.uasz.referencement_PVVIH.dtos.ContreReferenceDto;
@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
-public class ContreReferenceService {
+@RequiredArgsConstructor*/
+public class ContreReferenceService {/*
     private final ContreReferenceRepository repository;
     private final ReferenceMapper mapper;
 
@@ -35,5 +35,5 @@ public class ContreReferenceService {
 
     public void deleteById(Long id) {
         repository.deleteById(id);
-    }
+    }*/
 }
