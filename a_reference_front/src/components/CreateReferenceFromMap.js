@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Search, User, FileText, Hospital, Calendar, MessageSquare, Check, X, Loader, ChevronRight } from 'lucide-react';
+import { ArrowLeft, User, Hospital, Calendar, FileText, Loader, Check, ChevronRight } from 'lucide-react';
 import referenceDossierService from '../services/referenceDossierService';
 import * as patientService from '../services/patientService';
 import { getDoctorsByHospital, getCurrentDoctor } from '../services/doctorService';
@@ -121,25 +121,6 @@ const CreateReferenceFromMap = ({ language = "fr", onBack, onComplete, selectedH
     setShowNewPatientForm(false);
   };
 
-        
-      setSelectedDossier(dossierData);
-      setFormData(prev => ({
-        ...prev,
-        codePatient: patient.codePatient,
-        nomPatient: patient.nomUtilisateur || '',
-        prenomPatient: patient.prenomUtilisateur || '',
-        codeDossier: dossierData?.codeDossier || ''
-      }));
-      
-      setCurrentStep(2); // Passer à l'étape de sélection du médecin
-    } catch (err) {
-      console.error('Erreur lors de la sélection du patient:', err);
-      setError('Erreur lors du chargement du dossier patient');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleMedecinSelect = (medecin) => {
     setSelectedMedecin(medecin);
     setFormData(prev => ({
@@ -147,39 +128,46 @@ const CreateReferenceFromMap = ({ language = "fr", onBack, onComplete, selectedH
       codeDocteur: medecin.codeDocteur,
       nomDocteur: `${medecin.prenom} ${medecin.nom}`.trim()
     }));
-    setCurrentStep(3); // Passer à l'étape des détails de référence
   };
 
   const handleSubmit = async () => {
     try {
       setLoading(true);
       setError(null);
-      
-      // Validation
-      if (!formData.codePatient || !formData.codeHopital || !formData.codeDocteur || !formData.motifReference || !formData.typeReference) {
-        setError('Veuillez remplir tous les champs obligatoires');
+
+      // Validation: le patient et le médecin doivent être sélectionnés
+      if (!formData.codePatient) {
+        setError('Veuillez sélectionner un patient');
+        return;
+      }
+      if (!formData.codeDocteur) {
+        setError('Veuillez sélectionner un médecin');
+        return;
+      }
+      if (!formData.motifReference) {
+        setError('Veuillez renseigner le motif de la référence');
+        return;
+      }
+      if (!formData.typeReference) {
+        setError('Veuillez sélectionner le type de référence');
         return;
       }
 
-      // Créer la référence
-      const referenceData = {
-        codePatient: formData.codePatient,
-        codeHopital: formData.codeHopital,
-        codeDocteur: formData.codeDocteur,
-        motifReference: formData.motifReference,
-        typeReference: formData.typeReference,
-        dateReference: formData.dateReference,
-        observations: formData.observations,
-        codeReferenceur: formData.codeReferenceur,
-        telephoneReferenceur: formData.telephoneReferenceur,
-        emailReferenceur: formData.emailReferenceur
+      const submissionData = {
+        ...formData,
+        dateReference: formData.dateReference ? new Date(formData.dateReference).toISOString() : new Date().toISOString()
       };
 
-      const result = await referenceDossierService.createReference(referenceData);
+      const result = await referenceDossierService.createReference(submissionData);
       
+      // Afficher un message de succès
+      alert('Référence créée avec succès !');
+      
+      // Rediriger ou appeler le callback
       if (onComplete) {
         onComplete(result);
       }
+
     } catch (err) {
       console.error('Erreur lors de la création de la référence:', err);
       setError('Erreur lors de la création de la référence: ' + (err.message || 'Erreur inconnue'));
@@ -192,77 +180,38 @@ const CreateReferenceFromMap = ({ language = "fr", onBack, onComplete, selectedH
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          🔍 Rechercher un patient
+          👤 Sélectionner un patient
         </h3>
-        <div className="relative">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            value={searchPatient}
-            onChange={(e) => {
-              setSearchPatient(e.target.value);
-              handlePatientSearch(e.target.value);
-            }}
-            placeholder="Rechercher par nom, prénom ou code patient..."
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        
+        {!showNewPatientForm ? (
+          <>
+            <SearchPatient
+              patients={patients}
+              onSelect={handlePatientSelect}
+              selectedPatient={selectedPatient}
+              language={language}
+            />
+
+            {/* Bouton pour ajouter un patient si aucun trouvé */}
+            <button
+              onClick={() => setShowNewPatientForm(true)}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              ➕ {getTranslation('addPatient', language) || 'Ajouter un patient'}
+            </button>
+          </>
+        ) : (
+          <PatientForm
+            initialData={null}
+            onSave={handlePatientCreated}
+            onCancel={() => setShowNewPatientForm(false)}
+            language={language}
           />
-          {loading && (
-            <div className="absolute right-3 top-3">
-              <Loader className="h-4 w-4 animate-spin text-blue-500" />
-            </div>
-          )}
-        </div>
+        )}
       </div>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-          {error}
-        </div>
-      )}
-
-      {/* Résultats de recherche */}
-      {patientResults.length > 0 && (
-        <div className="space-y-3">
-          <h4 className="font-medium text-gray-900">Patients trouvés ({patientResults.length})</h4>
-          <div className="max-h-96 overflow-y-auto space-y-2">
-            {patientResults.map((patient) => (
-              <div
-                key={patient.codePatient}
-                onClick={() => handlePatientSelect(patient)}
-                className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <User className="h-8 w-8 text-gray-400" />
-                    <div>
-                      <p className="font-medium text-gray-900">
-                        {patient.nomUtilisateur} {patient.prenomUtilisateur}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        Code: {patient.codePatient} | Âge: {patient.age || '-'} ans | 
-                        Sexe: {patient.sexe || '-'} | Téléphone: {patient.telephone || '-'}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        Email: {patient.email || '-'}
-                      </p>
-                    </div>
-                  </div>
-                  <ChevronRight className="h-5 w-5 text-gray-400" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {searchPatient.length >= 2 && patientResults.length === 0 && !loading && (
-        <div className="text-center py-8 text-gray-500">
-          Aucun patient trouvé pour "{searchPatient}"
-        </div>
-      )}
-
-      {/* Patient sélectionné et son dossier */}
-      {selectedPatient && (
+      {/* Patient sélectionné */}
+      {selectedPatient && !showNewPatientForm && (
         <div className="mt-6 p-4 bg-blue-50 rounded-lg">
           <h4 className="font-medium text-blue-900 mb-3">👤 Patient sélectionné</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -286,53 +235,15 @@ const CreateReferenceFromMap = ({ language = "fr", onBack, onComplete, selectedH
             </div>
           </div>
           
-          {/* Dossier du patient */}
-          {selectedDossier && (
-            <div className="mt-4 p-3 bg-white rounded border">
-              <h5 className="font-medium text-gray-900 mb-2">📁 Dossier sélectionné</h5>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                <div><strong>Code Dossier:</strong> {selectedDossier.codeDossier}</div>
-                <div><strong>Date:</strong> {selectedDossier.date || '-'}</div>
-              </div>
-            </div>
-          )}
-          
           {/* Actions */}
-          <div className="mt-4 flex justify-end">
+          <div className="flex justify-end">
             <button
               onClick={() => setCurrentStep(2)}
-              disabled={!selectedDossier}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
             >
               Suivant → Sélectionner un médecin
             </button>
           </div>
-        </div>
-      )}
-    </div>
-  );
-
-  const renderMedecinSelection = () => (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          🩺 Sélectionner un médecin à {selectedHospital?.nom}
-        </h3>
-        
-        {selectedPatient && (
-          <div className="mb-4 p-4 bg-blue-50 rounded-lg">
-            <p className="font-medium text-blue-900">Patient sélectionné:</p>
-            <p className="text-blue-700">
-              {selectedPatient.nomUtilisateur} {selectedPatient.8} ({selectedPatient.codePatient})
-            </p>
-          </div>
-        )}
-      </div>
-
-      {loading && (
-        <div className="text-center py-8">
-          <Loader className="h-8 w-8 animate-spin text-blue-500 mx-auto mb-2" />
-          <p className="text-gray-500">Chargement des médecins...</p>
         </div>
       )}
 
@@ -341,63 +252,81 @@ const CreateReferenceFromMap = ({ language = "fr", onBack, onComplete, selectedH
           {error}
         </div>
       )}
-
-      {medecins.length > 0 && (
-        <div className="space-y-3">
-          <h4 className="font-medium text-gray-900">Médecins disponibles ({medecins.length})</h4>
-          <div className="max-h-96 overflow-y-auto space-y-2">
-            {medecins.map((medecin) => (
-              <div
-                key={medecin.codeDocteur}
-                onClick={() => handleMedecinSelect(medecin)}
-                className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                  selectedMedecin?.codeDocteur === medecin.codeDocteur
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:bg-gray-50'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-gray-900">
-                      Dr {medecin.prenomUtilisateur} {medecin.nomUtilisateur}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {medecin.specialite || 'Médecin'} | {medecin.telephone || '-'}
-                    </p>
-                  </div>
-                  {selectedMedecin?.codeDocteur === medecin.codeDocteur && (
-                    <Check className="h-5 w-5 text-blue-600" />
-                  )}
-                  {selectedMedecin?.codeDocteur !== medecin.codeDocteur && (
-                    <ChevronRight className="h-5 w-5 text-gray-400" />
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {medecins.length === 0 && !loading && (
-        <div className="text-center py-8 text-gray-500">
-          Aucun médecin disponible à cet hôpital
-        </div>
-      )}
-
-      {/* Actions - Bouton Suivant */}
-      {selectedMedecin && (
-        <div className="mt-6 flex justify-end">
-          <button
-            onClick={() => setCurrentStep(3)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Suivant → Détails de la référence
-          </button>
-        </div>
-      )}
     </div>
   );
 
+  // Étape 2: Sélection Médecin (déjà existant)
+  const renderMedecinSelection = () => (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          🩺 Sélectionner un médecin à {selectedHospital?.nom}
+        </h3>
+        
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            {error}
+          </div>
+        )}
+
+        {medecins.length > 0 && (
+          <div className="space-y-3">
+            <h4 className="font-medium text-gray-900">Médecins disponibles ({medecins.length})</h4>
+            <div className="max-h-96 overflow-y-auto space-y-2">
+              {medecins.map((medecin) => (
+                <div
+                  key={medecin.codeDocteur}
+                  onClick={() => handleMedecinSelect(medecin)}
+                  className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                    selectedMedecin?.codeDocteur === medecin.codeDocteur
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-gray-900">
+                        Dr {medecin.prenomUtilisateur} {medecin.nomUtilisateur}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {medecin.specialite || 'Médecin'} | {medecin.telephone || '-'}
+                      </p>
+                    </div>
+                    {selectedMedecin?.codeDocteur === medecin.codeDocteur && (
+                      <Check className="h-5 w-5 text-blue-600" />
+                    )}
+                    {selectedMedecin?.codeDocteur !== medecin.codeDocteur && (
+                      <ChevronRight className="h-5 w-5 text-gray-400" />
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {medecins.length === 0 && !loading && (
+          <div className="text-center py-8 text-gray-500">
+            Aucun médecin disponible à cet hôpital
+          </div>
+        )}
+
+        {/* Actions - Bouton Suivant */}
+        {selectedMedecin && (
+          <div className="mt-6 flex justify-end">
+            <button
+              onClick={() => setCurrentStep(3)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Suivant → Détails de la référence
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  // Étape 3: Détails Référence + Confirmation
   const renderReferenceDetails = () => (
     <div className="space-y-6">
       <div>
@@ -409,6 +338,136 @@ const CreateReferenceFromMap = ({ language = "fr", onBack, onComplete, selectedH
         <div className="mb-6 p-4 bg-gray-50 rounded-lg space-y-2">
           <p><strong>Patient:</strong> {selectedPatient?.nomUtilisateur} {selectedPatient?.prenomUtilisateur}</p>
           <p><strong>Hôpital de destination:</strong> {selectedHospital?.nom}</p>
+          <p><strong>Médecin destinataire:</strong> Dr {selectedMedecin?.prenom} {selectedMedecin?.nom}</p>
+        </div>
+
+        {/* Motif */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Motif de la référence <span className="text-red-500">*</span>
+          </label>
+          <textarea
+            value={formData.motifReference}
+            onChange={(e) => setFormData(prev => ({ ...prev, motifReference: e.target.value }))}
+            placeholder="Décrivez le motif de la référence..."
+            rows={4}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+
+        {/* Type de référence */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Type de référence <span className="text-red-500">*</span>
+          </label>
+          <select
+            value={formData.typeReference}
+            onChange={(e) => setFormData(prev => ({ ...prev, typeReference: e.target.value }))}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">Sélectionner un type</option>
+            {typesReference.map(type => (
+              <option key={type.value} value={type.value}>
+                {type.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Date de référence */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Date de la référence <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="date"
+            value={formData.dateReference}
+            onChange={(e) => setFormData(prev => ({ ...prev, dateReference: e.target.value }))}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+
+        {/* Observations */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Observations
+          </label>
+          <textarea
+            value={formData.observations}
+            onChange={(e) => setFormData(prev => ({ ...prev, observations: e.target.value }))}
+            placeholder="Ajoutez des observations supplémentaires..."
+            rows={3}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+      </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {error}
+        </div>
+      )}
+
+      {/* Bouton Créer la référence */}
+      <div className="mt-6 flex justify-end">
+        <button
+          onClick={handleSubmit}
+          disabled={loading || !formData.motifReference || !formData.typeReference || !formData.dateReference}
+          className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+        >
+          {loading && <Loader className="h-4 w-4 animate-spin" />}
+          <span>📋 Créer la référence</span>
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderStep = () => {
+    switch (currentStep) {
+      case 1:
+        return renderPatientSearch();
+      case 2:
+        return renderMedecinSelection();
+      case 3:
+        return renderReferenceDetails();
+      default:
+        return renderPatientSearch();
+    }
+  };
+  
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={onBack}
+              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+            >
+              <ArrowLeft className="h-5 w-5" />
+              <span>← Retour</span>
+            </button>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Référencer un patient pour {selectedHospital?.nom}
+              </h1>
+              <p className="text-gray-600">
+                {selectedHospital?.adresse}, {selectedHospital?.region}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          {renderStep()}
+        </div>
+      </div>
+    </div>
+  );
+};
+
           <p><strong>Médecin destinataire:</strong> Dr {selectedMedecin?.prenom} {selectedMedecin?.nom}</p>
         </div>
 
