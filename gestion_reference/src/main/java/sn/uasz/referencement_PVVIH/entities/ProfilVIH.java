@@ -1,15 +1,10 @@
 package sn.uasz.referencement_PVVIH.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 
 @Entity
 @Table(name = "profil_vih")
@@ -30,14 +25,9 @@ public class ProfilVIH {
     private Boolean profil12;
     private Boolean profil2;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reference_dossier_id")
-    @JsonBackReference
+    @JsonIgnore
     private ReferenceDossier referenceDossier;
-    
-    // Garder l'ancienne relation pour compatibilité
-    @ManyToOne
-    @JoinColumn(name = "renseignementClinique_id")
-    @JsonBackReference
-    private RenseignementClinique renseignementClinique;
+
 }

@@ -10,8 +10,4 @@ import java.util.List;
 public interface Protocole1Repository extends JpaRepository<Protocole1, Long> {
     List<Protocole1> findByReferenceDossierId(Long referenceDossierId);
     void deleteByReferenceDossierId(Long referenceDossierId);
-    
-    // Anciennes méthodes pour compatibilité
-    List<Protocole1> findByRenseignementCliniqueId(Long renseignementCliniqueId);
-    void deleteByRenseignementCliniqueId(Long renseignementCliniqueId);
 }

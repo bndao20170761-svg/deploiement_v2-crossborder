@@ -2,8 +2,6 @@ package sn.uasz.referencement_PVVIH.dtos;
 
 import lombok.*;
 
-import java.util.List;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -14,8 +12,8 @@ public class MotifDto {
     private Boolean autresAPreciser;
     private Boolean changementAdresse;
     private Boolean services;
+    private Long referenceDossierId;
 
-    private List<ReferenceDossierDto> referenceDossiers;
     private MotifAutresDto motifAutres;
     private MotifChangementDto motifChangements;
     private MotifServDto motifServs;

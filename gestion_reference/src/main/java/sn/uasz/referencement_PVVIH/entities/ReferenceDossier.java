@@ -232,22 +232,22 @@ public class ReferenceDossier {
     private LocalDate dateDebutARV;
     
     // Relations pour les motifs
-    @OneToMany(mappedBy = "referenceDossier", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "referenceDossier", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Motif> motifs;
     
     // Relations pour les listes imbriquées
-    @OneToMany(mappedBy = "referenceDossier", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "referenceDossier", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Protocole1> protocoles1s;
     
-    @OneToMany(mappedBy = "referenceDossier", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "referenceDossier", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Protocole2> protocoles2s;
     
-    @OneToMany(mappedBy = "referenceDossier", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "referenceDossier", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ProtocoleTherap> protocolesTheraps;
     
-    @OneToMany(mappedBy = "referenceDossier", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "referenceDossier", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ProfilVIH> profils;
     
-    @OneToMany(mappedBy = "referenceDossier", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "referenceDossier", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<StadeOMS> stades;
 }

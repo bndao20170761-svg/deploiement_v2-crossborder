@@ -1,6 +1,5 @@
 package sn.uasz.referencement_PVVIH.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -65,18 +64,6 @@ public class RenseignementClinique {
     @JsonBackReference
     private Reference reference; */
 
-
-    @OneToMany(mappedBy = "renseignementClinique", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    private List<Protocole1> protocoles1s;
-
-    @OneToMany(mappedBy = "renseignementClinique", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    private List<Protocole2> protocoles2s;
-
-    @OneToMany(mappedBy = "renseignementClinique", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    private List<ProtocoleTherap> protocolesTheraps;
 
     @OneToMany(mappedBy = "renseignementClinique", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
