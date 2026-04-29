@@ -183,11 +183,12 @@ public class ReferenceDossierService {
                         referenceDossierDto.setNomReferenceur(full);
                     }
                 }
-                if ((referenceDossierDto.getTelephoneReferenceur() == null || referenceDossierDto.getTelephoneReferenceur().isBlank()) && user.getTelephone() != null) {
-                    referenceDossierDto.setTelephoneReferenceur(user.getTelephone());
+                // La classe User n'a pas les champs telephone et email, on utilise username comme fallback
+                if ((referenceDossierDto.getTelephoneReferenceur() == null || referenceDossierDto.getTelephoneReferenceur().isBlank()) && user.getUsername() != null) {
+                    referenceDossierDto.setTelephoneReferenceur(user.getUsername());
                 }
-                if ((referenceDossierDto.getEmailReferenceur() == null || referenceDossierDto.getEmailReferenceur().isBlank()) && user.getEmail() != null) {
-                    referenceDossierDto.setEmailReferenceur(user.getEmail());
+                if ((referenceDossierDto.getEmailReferenceur() == null || referenceDossierDto.getEmailReferenceur().isBlank()) && user.getUsername() != null) {
+                    referenceDossierDto.setEmailReferenceur(user.getUsername());
                 }
             });
         }
