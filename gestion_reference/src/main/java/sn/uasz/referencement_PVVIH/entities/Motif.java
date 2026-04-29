@@ -43,10 +43,10 @@ public class Motif {
     @JsonBackReference
     private ReferenceDossier referenceDossier;
     
-    // Ancienne relation pour compatibilité avec Reference
+    /* // Ancienne relation pour compatibilité avec Reference
     @ManyToOne
     @JoinColumn(name = "reference_id")
     @JsonBackReference
-    private Reference reference;
+    private Reference reference; */
 
 }

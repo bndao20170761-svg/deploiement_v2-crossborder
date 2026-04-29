@@ -60,10 +60,10 @@ public class RenseignementClinique {
     private String transaminaseAsat;
     private LocalDateTime dateAghbs;
 
-    @ManyToOne
+    /* @ManyToOne
     @JoinColumn(name = "reference_id")
     @JsonBackReference
-    private Reference reference;
+    private Reference reference; */
 
 
     @OneToMany(mappedBy = "renseignementClinique", cascade = CascadeType.ALL, orphanRemoval = true)
