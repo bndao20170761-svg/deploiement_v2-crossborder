@@ -211,9 +211,29 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
         return;
       }
 
+      // Transformer les données pour le backend
       const submissionData = {
         ...formData,
-        dateReference: formData.dateReference ? new Date(formData.dateReference).toISOString() : new Date().toISOString()
+        dateReference: formData.dateReference ? new Date(formData.dateReference).toISOString() : new Date().toISOString(),
+        // Transformer changementAdresse d'objet vers booléens séparés
+        changementAdresse: formData.changementAdresse !== null,
+        changementAdresseTemporaire: formData.changementAdresse?.temporaire || false,
+        changementAdressePermanent: formData.changementAdresse?.permanent || false,
+        // Transformer les motifs d'objet vers liste de MotifDto
+        motifs: Object.entries(formData.motifs || {})
+          .filter(([key, value]) => value === true)
+          .map(([key]) => ({
+            id: null,
+            nomMotif: key,
+            description: '',
+            active: true
+          })),
+        // Transformer les services d'objet vers booléens séparés
+        serviceArv: formData.services?.arv || false,
+        serviceLaboratoire: formData.services?.laboratoire || false,
+        servicePtme: formData.services?.ptme || false,
+        serviceCrc: formData.services?.crc || false,
+        servicePvvih: formData.services?.pvvih || false
       };
 
       const result = await referenceDossierService.createReference(submissionData);
