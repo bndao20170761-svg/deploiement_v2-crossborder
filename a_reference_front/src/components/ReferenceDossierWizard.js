@@ -137,14 +137,29 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
       const doctor = await getCurrentDoctor();
       setCurrentDoctor(doctor);
       // Pré-remplir le formulaire avec le docteur connecté
+      // Robust fallbacks for different doctor object shapes
+      const docCode = doctor?.codeDocteur || doctor?.codeDoctor || doctor?.codePrestataire || doctor?.code || doctor?.id || '';
+      const docFirst = doctor?.prenomUtilisateur || doctor?.prenom || doctor?.firstName || '';
+      const docLast = doctor?.nomUtilisateur || doctor?.nom || doctor?.lastName || '';
+      const docFull = doctor?.nomComplet || doctor?.displayName || `${docFirst} ${docLast}`.trim() || doctor?.username || doctor?.email || '';
+
       setFormData(prev => ({
         ...prev,
+<<<<<<< HEAD
         codeDocteur: doctor.codeDocteur || doctor.codePrestataire,
         nomDocteur: doctor.nomUtilisateur || doctor.nomPrestataire || `${doctor.prenomUtilisateur} ${doctor.nomUtilisateur}`,
         codeReferenceur: doctor.codeDocteur || doctor.codePrestataire,
         nomReferenceur: doctor.nomUtilisateur || doctor.nomPrestataire || `${doctor.prenomUtilisateur} ${doctor.nomUtilisateur}`,
         telephoneReferenceur: doctor.telephone,
         emailReferenceur: doctor.email
+=======
+        codeDocteur: docCode,
+        nomDocteur: docFull,
+        codeReferenceur: docCode,
+        nomReferenceur: docFull,
+        telephoneReferenceur: doctor?.telephone || doctor?.phone || '',
+        emailReferenceur: doctor?.email || ''
+>>>>>>> dad1c5d (mise à jour)
       }));
     } catch (err) {
       console.error('Erreur lors du chargement du docteur connecté:', err);

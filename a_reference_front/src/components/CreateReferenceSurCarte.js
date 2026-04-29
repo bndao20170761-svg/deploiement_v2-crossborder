@@ -4,7 +4,7 @@ import referenceDossierService from '../services/referenceDossierService';
 import * as patientService from '../services/patientService';
 import { getDoctorsByHospital, getCurrentDoctor } from '../services/doctorService';
 import { getTranslation } from '../utils/translations';
-import { normalizeDoctorsList } from '../utils/doctorMapper';
+import { normalizeDoctorsList, getDoctorDisplayName } from '../utils/doctorMapper';
 import SearchPatient from './SearchPatient';
 import PatientForm from './PatientForm';
 
@@ -121,12 +121,18 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
     try {
       const user = await getCurrentDoctor();
       setCurrentUser(user);
+      // Robust fallback for various user field shapes
+      const refCode = user?.codeDocteur || user?.codeDoctor || user?.id || user?.codePrestataire || '';
+      const refFirst = user?.prenomUtilisateur || user?.prenom || user?.firstName || user?.givenName || '';
+      const refLast = user?.nomUtilisateur || user?.nom || user?.lastName || user?.familyName || '';
+      const refFullName = user?.nomComplet || user?.displayName || `${refFirst} ${refLast}`.trim() || user?.username || user?.email || '';
+
       setFormData(prev => ({
         ...prev,
-        codeReferenceur: user.codeDocteur || user.id || '',
-        nomReferenceur: `${user.prenom || ''} ${user.nom || ''}`.trim() || user.username || '',
-        telephoneReferenceur: user.telephone || '',
-        emailReferenceur: user.email || ''
+        codeReferenceur: refCode,
+        nomReferenceur: refFullName,
+        telephoneReferenceur: user?.telephone || user?.phone || user?.mobile || '',
+        emailReferenceur: user?.email || user?.username || ''
       }));
     } catch (err) {
       console.error('Erreur lors de la récupération de l\'utilisateur:', err);
@@ -179,8 +185,8 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
     setSelectedMedecin(medecin);
     setFormData(prev => ({
       ...prev,
-      codeDocteur: medecin.codeDocteur,
-      nomDocteur: `${medecin.prenom} ${medecin.nom}`.trim()
+      codeDocteur: medecin.codeDocteur || medecin.codeDoctor || medecin.code || '',
+      nomDocteur: medecin.nomComplet || medecin.nomAffichage || getDoctorDisplayName(medecin) || `${medecin.prenomUtilisateur || medecin.prenom || ''} ${medecin.nomUtilisateur || medecin.nom || ''}`.trim()
     }));
   };
 
@@ -218,6 +224,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
         return;
       }
 
+<<<<<<< HEAD
       // Transformer les données pour le backend
       const submissionData = {
         ...formData,
@@ -242,9 +249,29 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
         servicePtme: formData.services?.ptme || false,
         serviceCrc: formData.services?.crc || false,
         servicePvvih: formData.services?.pvvih || false
+=======
+      // Ensure we include patient & doctor identifying fields (fallbacks from selected objects)
+      const patientCode = formData.codePatient || selectedPatient?.codePatient || selectedPatient?.id || '';
+      const patientLast = formData.nomPatient || selectedPatient?.nomUtilisateur || selectedPatient?.nom || '';
+      const patientFirst = formData.prenomPatient || selectedPatient?.prenomUtilisateur || selectedPatient?.prenom || '';
+
+      const doctorCode = formData.codeDocteur || selectedMedecin?.codeDocteur || selectedMedecin?.codeDoctor || selectedMedecin?.code || '';
+      const doctorName = formData.nomDocteur || selectedMedecin?.nomComplet || selectedMedecin?.nomAffichage || getDoctorDisplayName(selectedMedecin) || '';
+
+      const submissionData = {
+        ...formData,
+        codePatient: patientCode,
+        nomPatient: patientLast,
+        prenomPatient: patientFirst,
+        codeDocteur: doctorCode,
+        nomDocteur: doctorName,
+        dateReference: formData.dateReference ? new Date(formData.dateReference).toISOString() : new Date().toISOString()
+>>>>>>> dad1c5d (mise à jour)
       };
 
-      const result = await referenceDossierService.createReference(submissionData);
+  // Debug: afficher ce qui est envoyé
+  console.log('⤴️ CreateReferenceSurCarte - submissionData:', submissionData);
+  const result = await referenceDossierService.createReference(submissionData);
       
       // Afficher un message de succès
       alert('Référence créée avec succès !');
