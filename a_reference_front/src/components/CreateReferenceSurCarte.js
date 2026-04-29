@@ -223,34 +223,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
         setError('Veuillez sélectionner le type de référence');
         return;
       }
-
-<<<<<<< HEAD
-      // Transformer les données pour le backend
-      const submissionData = {
-        ...formData,
-        codeDossier: 'REF_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9).toUpperCase(),
-        dateReference: formData.dateReference ? new Date(formData.dateReference).toISOString() : new Date().toISOString(),
-        // Transformer changementAdresse d'objet vers booléens séparés
-        changementAdresse: formData.changementAdresse !== null,
-        changementAdresseTemporaire: formData.changementAdresse?.temporaire || false,
-        changementAdressePermanent: formData.changementAdresse?.permanent || false,
-        // Transformer les motifs d'objet vers liste de MotifDto
-        motifs: Object.entries(formData.motifs || {})
-          .filter(([key, value]) => value === true)
-          .map(([key]) => ({
-            id: null,
-            nomMotif: key,
-            description: '',
-            active: true
-          })),
-        // Transformer les services d'objet vers booléens séparés
-        serviceArv: formData.services?.arv || false,
-        serviceLaboratoire: formData.services?.laboratoire || false,
-        servicePtme: formData.services?.ptme || false,
-        serviceCrc: formData.services?.crc || false,
-        servicePvvih: formData.services?.pvvih || false
-=======
-      // Ensure we include patient & doctor identifying fields (fallbacks from selected objects)
+      // Préparer fallbacks sûrs pour patient / médecin / référenceur
       const patientCode = formData.codePatient || selectedPatient?.codePatient || selectedPatient?.id || '';
       const patientLast = formData.nomPatient || selectedPatient?.nomUtilisateur || selectedPatient?.nom || '';
       const patientFirst = formData.prenomPatient || selectedPatient?.prenomUtilisateur || selectedPatient?.prenom || '';
@@ -258,20 +231,46 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
       const doctorCode = formData.codeDocteur || selectedMedecin?.codeDocteur || selectedMedecin?.codeDoctor || selectedMedecin?.code || '';
       const doctorName = formData.nomDocteur || selectedMedecin?.nomComplet || selectedMedecin?.nomAffichage || getDoctorDisplayName(selectedMedecin) || '';
 
+      const referrerCode = formData.codeReferenceur || currentUser?.codeDocteur || currentUser?.codeDoctor || currentUser?.id || '';
+      const refFirst = currentUser?.prenomUtilisateur || currentUser?.prenom || currentUser?.firstName || '';
+      const refLast = currentUser?.nomUtilisateur || currentUser?.nom || currentUser?.lastName || '';
+      const refName = formData.nomReferenceur || currentUser?.nomComplet || currentUser?.displayName || `${refFirst} ${refLast}`.trim() || currentUser?.username || currentUser?.email || '';
+
+      // Transformer les motifs d'objet vers liste de MotifDto
+      const mappedMotifs = Object.entries(formData.motifs || {})
+        .filter(([_, value]) => value === true)
+        .map(([key]) => ({ id: null, nomMotif: key, description: '', active: true }));
+
+      // Construire les données finales envoyées au backend
       const submissionData = {
         ...formData,
+        codeDossier: 'REF_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9).toUpperCase(),
         codePatient: patientCode,
         nomPatient: patientLast,
         prenomPatient: patientFirst,
         codeDocteur: doctorCode,
         nomDocteur: doctorName,
-        dateReference: formData.dateReference ? new Date(formData.dateReference).toISOString() : new Date().toISOString()
->>>>>>> dad1c5d (mise à jour)
+        codeReferenceur: referrerCode,
+        nomReferenceur: refName,
+        telephoneReferenceur: formData.telephoneReferenceur || currentUser?.telephone || currentUser?.phone || currentUser?.mobile || '',
+        emailReferenceur: formData.emailReferenceur || currentUser?.email || currentUser?.username || '',
+        dateReference: formData.dateReference ? new Date(formData.dateReference).toISOString() : new Date().toISOString(),
+        // Transformer changementAdresse d'objet vers booléens séparés
+        changementAdresse: formData.changementAdresse !== null,
+        changementAdresseTemporaire: formData.changementAdresse?.temporaire || false,
+        changementAdressePermanent: formData.changementAdresse?.permanent || false,
+        // Motifs et services
+        motifs: mappedMotifs,
+        serviceArv: formData.services?.arv || false,
+        serviceLaboratoire: formData.services?.laboratoire || false,
+        servicePtme: formData.services?.ptme || false,
+        serviceCrc: formData.services?.crc || false,
+        servicePvvih: formData.services?.pvvih || false
       };
 
-  // Debug: afficher ce qui est envoyé
-  console.log('⤴️ CreateReferenceSurCarte - submissionData:', submissionData);
-  const result = await referenceDossierService.createReference(submissionData);
+      // Debug: afficher ce qui est envoyé
+      console.log('⤴️ CreateReferenceSurCarte - submissionData:', submissionData);
+      const result = await referenceDossierService.createReference(submissionData);
       
       // Afficher un message de succès
       alert('Référence créée avec succès !');

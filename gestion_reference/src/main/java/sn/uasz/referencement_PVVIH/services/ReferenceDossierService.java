@@ -132,12 +132,23 @@ public class ReferenceDossierService {
         if (authentication != null && authentication.isAuthenticated()) {
             String username = authentication.getName();
             referenceServiceHelper.findDoctorByUsername(username).ifPresent(doctor -> {
+                // Code de référenceur
                 if (referenceDossierDto.getCodeReferenceur() == null || referenceDossierDto.getCodeReferenceur().isBlank()) {
                     referenceDossierDto.setCodeReferenceur(doctor.getCodeDoctor());
                 }
-                if (referenceDossierDto.getNomReferenceur() == null || referenceDossierDto.getNomReferenceur().isBlank()) {
+                // Nom du référenceur : construire proprement sans concaténer des null/undefined
+                if (isBlankOrUndefined(referenceDossierDto.getNomReferenceur())) {
+                    String nomUtil = null;
                     if (doctor.getUtilisateur() != null) {
-                        referenceDossierDto.setNomReferenceur(doctor.getUtilisateur().getNom() + " " + doctor.getUtilisateur().getPrenom());
+                        String nom = doctor.getUtilisateur().getNom() != null ? doctor.getUtilisateur().getNom().trim() : "";
+                        String prenom = doctor.getUtilisateur().getPrenom() != null ? doctor.getUtilisateur().getPrenom().trim() : "";
+                        String full = (nom + " " + prenom).trim();
+                        if (!isBlankOrUndefined(full)) {
+                            nomUtil = full;
+                        }
+                    }
+                    if (nomUtil != null) {
+                        referenceDossierDto.setNomReferenceur(nomUtil);
                     } else if (doctor.getPseudo() != null && !doctor.getPseudo().isBlank()) {
                         referenceDossierDto.setNomReferenceur(doctor.getPseudo());
                     } else {
@@ -164,22 +175,36 @@ public class ReferenceDossierService {
                 if ((referenceDossierDto.getCodeReferenceur() == null || referenceDossierDto.getCodeReferenceur().isBlank()) && user.getUsername() != null) {
                     referenceDossierDto.setCodeReferenceur(user.getUsername());
                 }
-                if ((referenceDossierDto.getNomReferenceur() == null || referenceDossierDto.getNomReferenceur().isBlank()) && user.getNom() != null) {
-                    referenceDossierDto.setNomReferenceur(user.getNom() + " " + user.getPrenom());
+                if (isBlankOrUndefined(referenceDossierDto.getNomReferenceur())) {
+                    String nom = user.getNom() != null ? user.getNom().trim() : "";
+                    String prenom = user.getPrenom() != null ? user.getPrenom().trim() : "";
+                    String full = (nom + " " + prenom).trim();
+                    if (!isBlankOrUndefined(full)) {
+                        referenceDossierDto.setNomReferenceur(full);
+                    }
                 }
-                if ((referenceDossierDto.getTelephoneReferenceur() == null || referenceDossierDto.getTelephoneReferenceur().isBlank()) && user.getUsername() != null) {
-                    referenceDossierDto.setTelephoneReferenceur(user.getUsername());
+                if ((referenceDossierDto.getTelephoneReferenceur() == null || referenceDossierDto.getTelephoneReferenceur().isBlank()) && user.getTelephone() != null) {
+                    referenceDossierDto.setTelephoneReferenceur(user.getTelephone());
                 }
-                if ((referenceDossierDto.getEmailReferenceur() == null || referenceDossierDto.getEmailReferenceur().isBlank()) && user.getUsername() != null) {
-                    referenceDossierDto.setEmailReferenceur(user.getUsername());
+                if ((referenceDossierDto.getEmailReferenceur() == null || referenceDossierDto.getEmailReferenceur().isBlank()) && user.getEmail() != null) {
+                    referenceDossierDto.setEmailReferenceur(user.getEmail());
                 }
             });
         }
 
         if (isBlankOrUndefined(referenceDossierDto.getNomDocteur()) && referenceDossierDto.getCodeDocteur() != null) {
             referenceServiceHelper.findDoctorByCode(referenceDossierDto.getCodeDocteur()).ifPresent(targetDoctor -> {
-                if (targetDoctor.getUtilisateur() != null && targetDoctor.getUtilisateur().getNom() != null) {
-                    referenceDossierDto.setNomDocteur(targetDoctor.getUtilisateur().getNom() + " " + targetDoctor.getUtilisateur().getPrenom());
+                String built = null;
+                if (targetDoctor.getUtilisateur() != null) {
+                    String nom = targetDoctor.getUtilisateur().getNom() != null ? targetDoctor.getUtilisateur().getNom().trim() : "";
+                    String prenom = targetDoctor.getUtilisateur().getPrenom() != null ? targetDoctor.getUtilisateur().getPrenom().trim() : "";
+                    String full = (nom + " " + prenom).trim();
+                    if (!isBlankOrUndefined(full)) {
+                        built = full;
+                    }
+                }
+                if (built != null) {
+                    referenceDossierDto.setNomDocteur(built);
                 } else if (targetDoctor.getPseudo() != null && !targetDoctor.getPseudo().isBlank()) {
                     referenceDossierDto.setNomDocteur(targetDoctor.getPseudo());
                 } else {
@@ -237,8 +262,10 @@ public class ReferenceDossierService {
         if (s == null) return true;
         String trimmed = s.trim();
         if (trimmed.isBlank()) return true;
-        if ("undefined".equalsIgnoreCase(trimmed)) return true;
-        if ("null".equalsIgnoreCase(trimmed)) return true;
+        // Consider any occurrence of the tokens "undefined" or "null" as invalid input
+        String lower = trimmed.toLowerCase();
+        if (lower.equals("undefined") || lower.equals("null")) return true;
+        if (lower.contains("undefined") || lower.contains("null")) return true;
         return false;
     }
     public ReferenceDossierDto updateReference(String codeReference, ReferenceDossierDto referenceDossierDto) {

@@ -66,12 +66,18 @@ const CreateReferenceFromMap = ({ language = "fr", onBack, onComplete, selectedH
     try {
       const user = await getCurrentDoctor();
       setCurrentUser(user);
+      // Robust fallback for various user field shapes
+      const refCode = user?.codeDocteur || user?.codeDoctor || user?.id || '';
+      const refFirst = user?.prenomUtilisateur || user?.prenom || user?.firstName || '';
+      const refLast = user?.nomUtilisateur || user?.nom || user?.lastName || '';
+      const refFullName = user?.nomComplet || user?.displayName || `${refFirst} ${refLast}`.trim() || user?.username || user?.email || '';
+
       setFormData(prev => ({
         ...prev,
-        codeReferenceur: user.codeDocteur || user.id || '',
-        nomReferenceur: `${user.prenom || ''} ${user.nom || ''}`.trim() || user.username || '',
-        telephoneReferenceur: user.telephone || '',
-        emailReferenceur: user.email || ''
+        codeReferenceur: refCode,
+        nomReferenceur: refFullName,
+        telephoneReferenceur: user?.telephone || user?.phone || user?.mobile || '',
+        emailReferenceur: user?.email || user?.username || ''
       }));
     } catch (err) {
       console.error('Erreur lors de la récupération de l\'utilisateur:', err);
@@ -122,10 +128,12 @@ const CreateReferenceFromMap = ({ language = "fr", onBack, onComplete, selectedH
 
   const handleMedecinSelect = (medecin) => {
     setSelectedMedecin(medecin);
+    const medCode = medecin?.codeDocteur || medecin?.codeDoctor || medecin?.code || '';
+    const medName = medecin?.nomComplet || medecin?.nomAffichage || `${medecin?.prenom || ''} ${medecin?.nom || ''}`.trim();
     setFormData(prev => ({
       ...prev,
-      codeDocteur: medecin.codeDocteur,
-      nomDocteur: `${medecin.prenom} ${medecin.nom}`.trim()
+      codeDocteur: medCode,
+      nomDocteur: medName
     }));
   };
 

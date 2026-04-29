@@ -83,12 +83,16 @@ const SearchPatientNew = ({
     try {
       const user = await getCurrentDoctor();
       setCurrentUser(user);
+      const refCode = user?.codeDocteur || user?.codeDoctor || user?.id || '';
+      const refFirst = user?.prenomUtilisateur || user?.prenom || user?.firstName || '';
+      const refLast = user?.nomUtilisateur || user?.nom || user?.lastName || '';
+      const refFullName = user?.nomComplet || user?.displayName || `${refFirst} ${refLast}`.trim() || user?.username || user?.email || '';
       setFormData(prev => ({
         ...prev,
-        codeReferenceur: user.codeDocteur || user.id || '',
-        nomReferenceur: `${user.prenom || ''} ${user.nom || ''}`.trim() || user.username || '',
-        telephoneReferenceur: user.telephone || '',
-        emailReferenceur: user.email || ''
+        codeReferenceur: refCode,
+        nomReferenceur: refFullName,
+        telephoneReferenceur: user?.telephone || user?.phone || user?.mobile || '',
+        emailReferenceur: user?.email || user?.username || ''
       }));
     } catch (err) {
       console.error('Erreur lors de la récupération de l\'utilisateur:', err);
@@ -173,13 +177,14 @@ const SearchPatientNew = ({
 
   const handleMedecinSelect = (medecin) => {
     console.log('🩺 Médecin sélectionné:', medecin);
-    console.log('🩺 nomDocteur généré:', `${medecin.prenom} ${medecin.nom}`.trim());
-    
+    const generatedMedName = `${medecin.prenom || medecin.prenomUtilisateur || medecin.prenomDocteur || ''} ${medecin.nom || medecin.nomUtilisateur || medecin.nomDocteur || ''}`.trim();
+    console.log('🩺 nomDocteur généré:', generatedMedName);
+
     setSelectedMedecin(medecin);
     setFormData(prev => ({
       ...prev,
-      codeDocteur: medecin.codeDocteur,
-      nomDocteur: `${medecin.prenom} ${medecin.nom}`.trim()
+      codeDocteur: medecin.codeDocteur || medecin.codeDoctor || '',
+      nomDocteur: generatedMedName || medecin.nomComplet || medecin.nomAffichage || medecin.codeDocteur || ''
     }));
     setCurrentStep(3); // Passer à l'étape des détails de référence
   };
