@@ -81,7 +81,7 @@ const ReferenceDossierList = ({ language = "fr", filterStatus = "all", onReferen
       reference.nomPatient?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       reference.prenomPatient?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       reference.nomHopital?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      reference.codeDossier?.toLowerCase().includes(searchTerm.toLowerCase());
+      reference.codeReference?.toLowerCase().includes(searchTerm.toLowerCase());
     
     return matchesSearch;
   });
@@ -209,10 +209,7 @@ const ReferenceDossierList = ({ language = "fr", filterStatus = "all", onReferen
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {getTranslation('patientLabel', language)}
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {getTranslation('dossier', language)}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {getTranslation('hopital', language)}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -281,10 +278,7 @@ const ReferenceDossierList = ({ language = "fr", filterStatus = "all", onReferen
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {reference.nomPatient} {reference.prenomPatient}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {reference.codeDossier}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {reference.nomHopital}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

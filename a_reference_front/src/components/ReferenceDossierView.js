@@ -413,6 +413,110 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit, 
         </div>
       </div>
 
+      {/* Motif Détaillé */}
+      {(reference.changementAdresse || reference.autresAPreciser || reference.motifs && reference.motifs.length > 0) && (
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+            <FileText className="w-5 h-5 mr-2 text-blue-600" />
+            Motif Détaillé
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {reference.changementAdresse && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Changement d'adresse</label>
+                <p className="mt-1 text-sm text-gray-900">
+                  {reference.changementAdressePermanent ? 'Permanent' : 
+                   reference.changementAdresseTemporaire ? 'Temporaire' : 'Oui'}
+                </p>
+              </div>
+            )}
+            {reference.autresAPreciser && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Autre motif</label>
+                <p className="mt-1 text-sm text-gray-900">{reference.autresMotif || '-'}</p>
+              </div>
+            )}
+            {reference.motifs && reference.motifs.length > 0 && (
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700">Motifs médicaux</label>
+                <div className="mt-1 flex flex-wrap gap-2">
+                  {reference.motifs.map((motif, index) => (
+                    <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                      {motif.nomMotif}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Services */}
+      {(reference.serviceArv || reference.serviceLaboratoire || reference.servicePtme || reference.serviceCrc || reference.servicePvvih) && (
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+            <Hospital className="w-5 h-5 mr-2 text-green-600" />
+            Services Demandés
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {reference.serviceArv && <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded">ARV</span>}
+            {reference.serviceLaboratoire && <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded">Laboratoire</span>}
+            {reference.servicePtme && <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded">PTME</span>}
+            {reference.serviceCrc && <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded">CRC</span>}
+            {reference.servicePvvih && <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded">PVVIH</span>}
+          </div>
+        </div>
+      )}
+
+      {/* Informations Cliniques */}
+      {(reference.poidsKg || reference.traitementARV || reference.cd4Dernier || reference.chargeViraleNiveau) && (
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+            <User className="w-5 h-5 mr-2 text-purple-600" />
+            Informations Cliniques
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {reference.poidsKg && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Poids</label>
+                <p className="mt-1 text-sm text-gray-900">{reference.poidsKg} kg</p>
+              </div>
+            )}
+            {reference.traitementARV !== undefined && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Traitement ARV</label>
+                <p className="mt-1 text-sm text-gray-900">{reference.traitementARV ? 'Oui' : 'Non'}</p>
+              </div>
+            )}
+            {reference.cd4Dernier && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700">CD4 (dernier)</label>
+                <p className="mt-1 text-sm text-gray-900">{reference.cd4Dernier}</p>
+              </div>
+            )}
+            {reference.chargeViraleNiveau && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Charge Virale</label>
+                <p className="mt-1 text-sm text-gray-900">{reference.chargeViraleNiveau}</p>
+              </div>
+            )}
+            {reference.hbNiveau && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Hémoglobine</label>
+                <p className="mt-1 text-sm text-gray-900">{reference.hbNiveau}</p>
+              </div>
+            )}
+            {reference.transaminase && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Transaminases</label>
+                <p className="mt-1 text-sm text-gray-900">{reference.transaminase}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Observations */}
       {reference.observations && (
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">

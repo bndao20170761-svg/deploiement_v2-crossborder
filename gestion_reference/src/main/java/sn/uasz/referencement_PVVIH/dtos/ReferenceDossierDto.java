@@ -12,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 public class ReferenceDossierDto {
     private Long id;
+    private String codeDossier;
     private String codeReference;
     private String codePatient;
     private String nomPatient;

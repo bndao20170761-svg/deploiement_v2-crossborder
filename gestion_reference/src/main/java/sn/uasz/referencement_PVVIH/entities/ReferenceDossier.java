@@ -18,6 +18,9 @@ public class ReferenceDossier {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    @Column(name = "code_dossier", unique = true, nullable = false)
+    private String codeDossier;
+    
     @Column(name = "code_reference", unique = true, nullable = false)
     private String codeReference;
     

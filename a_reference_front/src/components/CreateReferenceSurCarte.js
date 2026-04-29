@@ -221,6 +221,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
       // Transformer les données pour le backend
       const submissionData = {
         ...formData,
+        codeDossier: 'REF_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9).toUpperCase(),
         dateReference: formData.dateReference ? new Date(formData.dateReference).toISOString() : new Date().toISOString(),
         // Transformer changementAdresse d'objet vers booléens séparés
         changementAdresse: formData.changementAdresse !== null,

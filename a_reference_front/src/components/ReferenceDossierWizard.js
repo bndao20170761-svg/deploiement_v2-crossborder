@@ -298,6 +298,7 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
       // Transformer les données pour le backend - CLEANUP COMPLET
       const submissionData = {
         // Champs de base
+        codeDossier: 'REF_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9).toUpperCase(),
         codeReference: formData.codeReference || '',
         codePatient: formData.codePatient || '',
         nomPatient: formData.nomPatient || '',
