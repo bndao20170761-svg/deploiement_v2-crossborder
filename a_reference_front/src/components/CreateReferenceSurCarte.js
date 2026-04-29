@@ -198,9 +198,16 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
         setError('Veuillez sélectionner un médecin');
         return;
       }
+      // Debug: afficher les données de validation
+      console.log("🔍 Debug validation - formData.motifs:", formData.motifs);
+      console.log("🔍 Debug validation - formData.autresAPreciser:", formData.autresAPreciser);
+      console.log("🔍 Debug validation - formData.autresMotif:", formData.autresMotif);
+      
       // Validation du motif (vérifier si au moins un motif est coché ou autre motif est renseigné)
       const hasMotif = Object.values(formData.motifs || {}).some(value => value === true) || 
                      (formData.autresAPreciser && formData.autresMotif?.trim());
+      
+      console.log("🔍 Debug validation - hasMotif:", hasMotif);
       
       if (!hasMotif) {
         setError('Veuillez renseigner le motif de la référence');

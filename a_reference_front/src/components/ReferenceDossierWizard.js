@@ -290,10 +290,81 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
         return;
       }
 
+      // Debug: afficher les données de validation
+      console.log("🔍 Debug ReferenceDossierWizard - formData.motifs:", formData.motifs);
+      console.log("🔍 Debug ReferenceDossierWizard - formData.autresAPreciser:", formData.autresAPreciser);
+      console.log("🔍 Debug ReferenceDossierWizard - formData.autresMotif:", formData.autresMotif);
+      
+      // Transformer les données pour le backend - CLEANUP COMPLET
       const submissionData = {
-        ...formData,
-        dateReference: formData.dateReference ? new Date(formData.dateReference).toISOString() : new Date().toISOString()
+        // Champs de base
+        codeReference: formData.codeReference || '',
+        codePatient: formData.codePatient || '',
+        nomPatient: formData.nomPatient || '',
+        prenomPatient: formData.prenomPatient || '',
+        codeHopital: formData.codeHopital || '',
+        nomHopital: formData.nomHopital || '',
+        codeDocteur: formData.codeDocteur || '',
+        nomDocteur: formData.nomDocteur || '',
+        typeReference: formData.typeReference || '',
+        dateReference: formData.dateReference ? new Date(formData.dateReference).toISOString() : new Date().toISOString(),
+        observations: formData.observations || '',
+        codeReferenceur: formData.codeReferenceur || '',
+        nomReferenceur: formData.nomReferenceur || '',
+        telephoneReferenceur: formData.telephoneReferenceur || '',
+        emailReferenceur: formData.emailReferenceur || '',
+        
+        // Transformer changementAdresse d'objet vers booléens séparés
+        changementAdresse: formData.changementAdresse !== null,
+        changementAdresseTemporaire: formData.changementAdresse?.temporaire || false,
+        changementAdressePermanent: formData.changementAdresse?.permanent || false,
+        autresAPreciser: formData.autresAPreciser || false,
+        autresMotif: formData.autresMotif || '',
+        
+        // Transformer les motifs d'objet vers liste de MotifDto
+        motifs: Object.entries(formData.motifs || {})
+          .filter(([key, value]) => value === true)
+          .map(([key]) => ({
+            id: null,
+            nomMotif: key,
+            description: '',
+            active: true
+          })),
+          
+        // Transformer les services d'objet vers booléens séparés
+        serviceArv: formData.services?.arv || false,
+        serviceLaboratoire: formData.services?.laboratoire || false,
+        servicePtme: formData.services?.ptme || false,
+        serviceCrc: formData.services?.crc || false,
+        servicePvvih: formData.services?.pvvih || false,
+        
+        // Champs cliniques
+        poidsKg: formData.poidsKg || null,
+        traitementARV: formData.traitementARV || false,
+        traitementtb: formData.traitementtb || false,
+        transaminase: formData.transaminase || '',
+        transaminaseAsat: formData.transaminaseAsat || '',
+        transaminaseAlat: formData.transaminaseAlat || '',
+        cd4Dernier: formData.cd4Dernier || '',
+        cd4DebutTraitement: formData.cd4DebutTraitement || '',
+        cd4Inclusion: formData.cd4Inclusion || '',
+        chargeViraleNiveau: formData.chargeViraleNiveau || '',
+        hbNiveau: formData.hbNiveau || '',
+        lymphocytesTotaux: formData.lymphocytesTotaux || '',
+        allergie: formData.allergie || '',
+        creatinemie: formData.creatinemie || '',
+        cracheBaar: formData.cracheBaar || '',
+        aghbs: formData.aghbs || '',
+        autreAnalyse: formData.autreAnalyse || false,
+        autreTraitement: formData.autreTraitement || false,
+        resultatTrans: formData.resultatTrans || ''
       };
+      
+      // Supprimer explicitement les champs objets problématiques qui pourraient rester
+      // Pas besoin de supprimer motifs car on l'a déjà transformé en liste
+      // Pas besoin de supprimer services car on utilise les booléens séparés
+      
+      console.log("🔍 Debug ReferenceDossierWizard - submissionData:", submissionData);
 
       let result;
       if (initialData) {
