@@ -140,9 +140,9 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
       setFormData(prev => ({
         ...prev,
         codeDocteur: doctor.codeDocteur || doctor.codePrestataire,
-        nomDocteur: doctor.nomDocteur || doctor.nomPrestataire || `${doctor.prenomUtilisateur} ${doctor.nomUtilisateur}`,
+        nomDocteur: doctor.nomUtilisateur || doctor.nomPrestataire || `${doctor.prenomUtilisateur} ${doctor.nomUtilisateur}`,
         codeReferenceur: doctor.codeDocteur || doctor.codePrestataire,
-        nomReferenceur: doctor.nomDocteur || doctor.nomPrestataire || `${doctor.prenomUtilisateur} ${doctor.nomUtilisateur}`,
+        nomReferenceur: doctor.nomUtilisateur || doctor.nomPrestataire || `${doctor.prenomUtilisateur} ${doctor.nomUtilisateur}`,
         telephoneReferenceur: doctor.telephone,
         emailReferenceur: doctor.email
       }));
