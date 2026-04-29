@@ -1,12 +1,13 @@
 import axios from 'axios';
+import { normalizeToken, isJwtFormatValid } from '../utils/tokenUtils';
 
 const API_BASE_URL = process.env.REACT_APP_GATEWAY_URL || 'http://16.171.10.0:8080';
 
-const getToken = () => localStorage.getItem('token');
+const getToken = () => normalizeToken(localStorage.getItem('token'));
 
 const buildAuthHeaders = () => {
   const token = getToken();
-  if (!token || token === 'null' || token === 'undefined') {
+  if (!token || !isJwtFormatValid(token)) {
     throw new Error('Session expirée ou invalide. Veuillez vous reconnecter.');
   }
   return {
@@ -31,9 +32,10 @@ const authRequest = async (method, path, data = null, extraConfig = {}) => {
     const response = await axios(config);
     return response.data;
   } catch (error) {
-    if (error.response?.status === 401 || error.response?.status === 403) {
+    if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      window.location.href = '/';
     }
     throw error;
   }
