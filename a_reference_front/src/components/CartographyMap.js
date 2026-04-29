@@ -622,8 +622,12 @@ const onMapLoad = useCallback((mapInstance) => {
     const bounds = new window.google.maps.LatLngBounds();
 
     hospitals.forEach(hospital => {
-      if (hospital.latitude && hospital.longitude) {
-        bounds.extend(new window.google.maps.LatLng(hospital.latitude, hospital.longitude));
+      if (hospital.latitude != null && hospital.longitude != null && 
+          !isNaN(hospital.latitude) && !isNaN(hospital.longitude)) {
+        bounds.extend(new window.google.maps.LatLng(
+          parseFloat(hospital.latitude), 
+          parseFloat(hospital.longitude)
+        ));
       }
     });
 
@@ -1600,15 +1604,22 @@ const saveNewHospital = async () => {
   >
            {/* Hôpitaux - EXCLURE ceux à la position utilisateur */}
     {hospitals
-      .filter(hospital =>
-               !userLocation ||
+      .filter(hospital => {
+        // Filtrer les hôpitaux avec des coordonnées valides
+        const hasValidCoords = hospital.latitude != null && hospital.longitude != null && 
+                              !isNaN(hospital.latitude) && !isNaN(hospital.longitude);
+        
+        // Filtrer par rapport à la position utilisateur si elle existe
+        const isNotUserPosition = !userLocation ||
                (Math.abs(hospital.latitude - userLocation.lat) > 0.0001 ||
-                Math.abs(hospital.longitude - userLocation.lng) > 0.0001)
-             )
-             .map(hospital => (
+                Math.abs(hospital.longitude - userLocation.lng) > 0.0001);
+               
+        return hasValidCoords && isNotUserPosition;
+      })
+      .map(hospital => (
         <Marker
           key={hospital.id}
-                 position={{ lat: hospital.latitude, lng: hospital.longitude }}
+                 position={{ lat: parseFloat(hospital.latitude), lng: parseFloat(hospital.longitude) }}
                  icon={hospital.active ? ICONS.active : ICONS.inactive}
                  zIndex={10}
                  onClick={() => onMarkerClick(hospital)}
@@ -1733,11 +1744,12 @@ const saveNewHospital = async () => {
            )}
 
            {/* ✅ INFO WINDOW CORRIGÉE POUR AFFICHER LES PRESTATAIRES DEPUIS LES SERVICES */}
-    {selectedHospital && (
+    {selectedHospital && selectedHospital.latitude != null && selectedHospital.longitude != null && 
+     !isNaN(selectedHospital.latitude) && !isNaN(selectedHospital.longitude) && (
       <InfoWindow
         position={{
-          lat: selectedHospital.latitude || selectedHospital.lat || defaultCenter.lat,
-          lng: selectedHospital.longitude || selectedHospital.lng || defaultCenter.lng
+          lat: parseFloat(selectedHospital.latitude),
+          lng: parseFloat(selectedHospital.longitude)
         }}
         onCloseClick={() => setSelectedHospital(null)}
       >
