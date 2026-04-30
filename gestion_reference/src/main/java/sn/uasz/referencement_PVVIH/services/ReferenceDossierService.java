@@ -135,12 +135,10 @@ public class ReferenceDossierService {
             String username = authentication.getName();
             // Remplir les informations du référenceur si c'est un doctor
             referenceServiceHelper.findDoctorByUsername(username).ifPresent(doctor -> {
-                // Forcer la re-synchronisation pour s'assurer que l'hôpital d'origine est chargé
-                try {
-                    Doctor syncedDoctor = referenceServiceHelper.syncDoctor(doctor.getCodeDoctor());
-                    
-                    // Utiliser le doctor synchronisé qui a maintenant son hôpital
-                    Doctor doctorWithHopital = syncedDoctor;
+                // Forcer la synchronisation complète pour avoir l'hôpital d'origine
+                // La méthode getDoctorByUsername synchronise déjà depuis gestion_user
+                Doctor doctorWithHopital = referenceServiceHelper.getDoctorByUsername(username)
+                        .orElseThrow(() -> new RuntimeException("Doctor non trouvé: " + username));
                 if (referenceDossierDto.getCodeReferenceur() == null || referenceDossierDto.getCodeReferenceur().isBlank()) {
                     referenceDossierDto.setCodeReferenceur(doctor.getCodeDoctor());
                 }
