@@ -152,4 +152,11 @@ public class ReferenceServiceHelper {
             return Optional.empty();
         }
     }
+
+    /**
+     * Force la synchronisation d'un doctor depuis gestion_user avec son hôpital
+     */
+    public Doctor syncDoctorWithHospital(String username) {
+        return dataSyncService.getDoctorByUsername(username);
+    }
 }

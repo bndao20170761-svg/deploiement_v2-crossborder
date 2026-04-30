@@ -135,48 +135,48 @@ public class ReferenceDossierService {
             String username = authentication.getName();
             // Remplir les informations du référenceur si c'est un doctor
             try {
-                // Forcer la synchronisation complète pour avoir l'hôpital d'origine
-                // La méthode findDoctorByUsername synchronise déjà depuis gestion_user et retourne un Optional
-                referenceServiceHelper.findDoctorByUsername(username).ifPresent(doctorWithHopital -> {
-                    // Code de référenceur
-                    if (referenceDossierDto.getCodeReferenceur() == null || referenceDossierDto.getCodeReferenceur().isBlank()) {
-                        referenceDossierDto.setCodeReferenceur(doctorWithHopital.getCodeDoctor());
-                    }
-                    // Nom du référenceur : construire proprement sans concaténer des null/undefined
-                    if (isBlankOrUndefined(referenceDossierDto.getNomReferenceur())) {
-                        String nomUtil = null;
-                        if (doctorWithHopital.getUtilisateur() != null) {
-                            String nom = doctorWithHopital.getUtilisateur().getNom() != null ? doctorWithHopital.getUtilisateur().getNom().trim() : "";
-                            String prenom = doctorWithHopital.getUtilisateur().getPrenom() != null ? doctorWithHopital.getUtilisateur().getPrenom().trim() : "";
-                            String full = (nom + " " + prenom).trim();
-                            if (!isBlankOrUndefined(full)) {
-                                nomUtil = full;
-                            }
-                        }
-                        if (nomUtil != null) {
-                            referenceDossierDto.setNomReferenceur(nomUtil);
-                        } else if (doctorWithHopital.getPseudo() != null && !doctorWithHopital.getPseudo().isBlank()) {
-                            referenceDossierDto.setNomReferenceur(doctorWithHopital.getPseudo());
-                        } else {
-                            referenceDossierDto.setNomReferenceur(doctorWithHopital.getCodeDoctor());
+                // Forcer la synchronisation complète depuis gestion_user pour avoir l'hôpital d'origine
+                // On utilise la méthode syncDoctorWithHospital pour garantir la synchronisation avec l'hôpital
+                Doctor doctorWithHopital = referenceServiceHelper.syncDoctorWithHospital(username);
+                
+                // Code de référenceur
+                if (referenceDossierDto.getCodeReferenceur() == null || referenceDossierDto.getCodeReferenceur().isBlank()) {
+                    referenceDossierDto.setCodeReferenceur(doctorWithHopital.getCodeDoctor());
+                }
+                // Nom du référenceur : construire proprement sans concaténer des null/undefined
+                if (isBlankOrUndefined(referenceDossierDto.getNomReferenceur())) {
+                    String nomUtil = null;
+                    if (doctorWithHopital.getUtilisateur() != null) {
+                        String nom = doctorWithHopital.getUtilisateur().getNom() != null ? doctorWithHopital.getUtilisateur().getNom().trim() : "";
+                        String prenom = doctorWithHopital.getUtilisateur().getPrenom() != null ? doctorWithHopital.getUtilisateur().getPrenom().trim() : "";
+                        String full = (nom + " " + prenom).trim();
+                        if (!isBlankOrUndefined(full)) {
+                            nomUtil = full;
                         }
                     }
-                    if ((referenceDossierDto.getTelephoneReferenceur() == null || referenceDossierDto.getTelephoneReferenceur().isBlank()) && doctorWithHopital.getTelephone() != null) {
-                        referenceDossierDto.setTelephoneReferenceur(doctorWithHopital.getTelephone());
+                    if (nomUtil != null) {
+                        referenceDossierDto.setNomReferenceur(nomUtil);
+                    } else if (doctorWithHopital.getPseudo() != null && !doctorWithHopital.getPseudo().isBlank()) {
+                        referenceDossierDto.setNomReferenceur(doctorWithHopital.getPseudo());
+                    } else {
+                        referenceDossierDto.setNomReferenceur(doctorWithHopital.getCodeDoctor());
                     }
-                    if ((referenceDossierDto.getEmailReferenceur() == null || referenceDossierDto.getEmailReferenceur().isBlank()) && doctorWithHopital.getEmail() != null) {
-                        referenceDossierDto.setEmailReferenceur(doctorWithHopital.getEmail());
-                    }
-                    // Remplir l'hôpital d'origine (référenceur) si disponible
-                    if ((referenceDossierDto.getCodeHopitalReferenceur() == null || referenceDossierDto.getCodeHopitalReferenceur().isBlank())
-                            && doctorWithHopital.getHopital() != null && doctorWithHopital.getHopital().getId() != null) {
-                        referenceDossierDto.setCodeHopitalReferenceur(String.valueOf(doctorWithHopital.getHopital().getId()));
-                    }
-                    if ((referenceDossierDto.getNomHopitalReferenceur() == null || referenceDossierDto.getNomHopitalReferenceur().isBlank())
-                            && doctorWithHopital.getHopital() != null && doctorWithHopital.getHopital().getNom() != null) {
-                        referenceDossierDto.setNomHopitalReferenceur(doctorWithHopital.getHopital().getNom());
-                    }
-                });
+                }
+                if ((referenceDossierDto.getTelephoneReferenceur() == null || referenceDossierDto.getTelephoneReferenceur().isBlank()) && doctorWithHopital.getTelephone() != null) {
+                    referenceDossierDto.setTelephoneReferenceur(doctorWithHopital.getTelephone());
+                }
+                if ((referenceDossierDto.getEmailReferenceur() == null || referenceDossierDto.getEmailReferenceur().isBlank()) && doctorWithHopital.getEmail() != null) {
+                    referenceDossierDto.setEmailReferenceur(doctorWithHopital.getEmail());
+                }
+                // Remplir l'hôpital d'origine (référenceur) si disponible
+                if ((referenceDossierDto.getCodeHopitalReferenceur() == null || referenceDossierDto.getCodeHopitalReferenceur().isBlank())
+                        && doctorWithHopital.getHopital() != null && doctorWithHopital.getHopital().getId() != null) {
+                    referenceDossierDto.setCodeHopitalReferenceur(String.valueOf(doctorWithHopital.getHopital().getId()));
+                }
+                if ((referenceDossierDto.getNomHopitalReferenceur() == null || referenceDossierDto.getNomHopitalReferenceur().isBlank())
+                        && doctorWithHopital.getHopital() != null && doctorWithHopital.getHopital().getNom() != null) {
+                    referenceDossierDto.setNomHopitalReferenceur(doctorWithHopital.getHopital().getNom());
+                }
             } catch (Exception e) {
                 log.error("❌ Erreur lors de la synchronisation du doctor référenceur {}: {}", username, e.getMessage());
                 // Continuer avec le doctor local même si la synchronisation échoue
