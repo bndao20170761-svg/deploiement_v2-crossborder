@@ -136,8 +136,8 @@ public class ReferenceDossierService {
             // Remplir les informations du référenceur si c'est un doctor
             try {
                 // Forcer la synchronisation complète pour avoir l'hôpital d'origine
-                // La méthode getDoctorByUsername synchronise déjà depuis gestion_user et retourne un Optional
-                referenceServiceHelper.getDoctorByUsername(username).ifPresent(doctorWithHopital -> {
+                // La méthode findDoctorByUsername synchronise déjà depuis gestion_user et retourne un Optional
+                referenceServiceHelper.findDoctorByUsername(username).ifPresent(doctorWithHopital -> {
                     // Code de référenceur
                     if (referenceDossierDto.getCodeReferenceur() == null || referenceDossierDto.getCodeReferenceur().isBlank()) {
                         referenceDossierDto.setCodeReferenceur(doctorWithHopital.getCodeDoctor());
