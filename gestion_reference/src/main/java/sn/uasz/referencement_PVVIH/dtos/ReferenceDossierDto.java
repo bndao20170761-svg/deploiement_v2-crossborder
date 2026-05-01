@@ -24,6 +24,7 @@ public class ReferenceDossierDto {
     private String profession;
     private String telephone;
     private String nationalite;
+    private String statutMatrimoniale;
     private String codeHopital;
     private String nomHopital;
     private String codeHopitalReferenceur;

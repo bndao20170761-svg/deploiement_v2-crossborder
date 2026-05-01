@@ -121,7 +121,7 @@ public class ReferenceDossierController {
     }
     
     @DeleteMapping("/{codeReference}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
     public ResponseEntity<Void> deleteReference(@PathVariable String codeReference) {
         try {
             referenceDossierService.deleteReference(codeReference);

@@ -71,6 +71,11 @@ public class ReferenceDossierService {
                             dto.setSexe(patient.getSexe());
                             dto.setProfession(patient.getProfession());
                             dto.setTelephone(patient.getTelephone());
+                            dto.setStatutMatrimoniale(patient.getStatutMatrimoniale());
+                            // Nationalité depuis l'utilisateur associé
+                            if (patient.getUtilisateur() != null) {
+                                dto.setNationalite(patient.getUtilisateur().getNationalite());
+                            }
                         });
                     } catch (Exception e) {
                         log.warn("Enrichissement patient échoué pour {}: {}", entity.getCodePatient(), e.getMessage());
@@ -307,6 +312,10 @@ public class ReferenceDossierService {
                 resultDto.setSexe(patient.getSexe());
                 resultDto.setProfession(patient.getProfession());
                 resultDto.setTelephone(patient.getTelephone());
+                resultDto.setStatutMatrimoniale(patient.getStatutMatrimoniale());
+                if (patient.getUtilisateur() != null) {
+                    resultDto.setNationalite(patient.getUtilisateur().getNationalite());
+                }
                 // nationalite not available in Patient entity; leave null if unknown
             });
         } catch (Exception e) {

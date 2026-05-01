@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Edit, Trash2, CheckCircle, Clock, AlertCircle, User, FileText, Hospital, Calendar, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Edit, Trash2, CheckCircle, Clock, AlertCircle, User, FileText, Hospital, Calendar, MessageSquare, Activity, FlaskConical } from 'lucide-react';
 import referenceDossierService from '../services/referenceDossierService';
 import { getTranslation } from '../utils/translations';
 
@@ -22,7 +22,6 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
       const data = await referenceDossierService.getReferenceByCode(codeReference);
       setReference(data);
       setError(null);
-
       const [acceptPermission, editPermission] = await Promise.all([
         referenceDossierService.canAcceptReference(codeReference),
         referenceDossierService.canEditReference(codeReference)
@@ -50,23 +49,14 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
   };
 
   const handleAccept = async () => {
-    if (window.confirm(getTranslation('confirmAcceptReference', language) || 'Êtes-vous sûr de vouloir accepter cette référence ?')) {
+    if (window.confirm('Êtes-vous sûr de vouloir accepter cette référence ?')) {
       try {
         await referenceDossierService.acceptReference(codeReference);
         fetchReference();
       } catch (error) {
-        console.error("Erreur lors de l'acceptation de la référence:", error);
-        alert(getTranslation('errorAcceptingReference', language) || "Erreur lors de l'acceptation de la référence");
+        console.error("Erreur lors de l'acceptation:", error);
+        alert("Erreur lors de l'acceptation de la référence");
       }
-    }
-  };
-
-  const getStatusIcon = (statut) => {
-    switch (statut) {
-      case 'RECUE': return <CheckCircle className="w-5 h-5 text-green-600" />;
-      case 'ENVOYEE': return <FileText className="w-5 h-5 text-blue-600" />;
-      case 'EN_ATTENTE': return <Clock className="w-5 h-5 text-yellow-600" />;
-      default: return <AlertCircle className="w-5 h-5 text-gray-600" />;
     }
   };
 
@@ -76,6 +66,15 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
       case 'ENVOYEE': return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'EN_ATTENTE': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getStatusIcon = (statut) => {
+    switch (statut) {
+      case 'RECUE': return <CheckCircle className="w-4 h-4 text-green-600" />;
+      case 'ENVOYEE': return <FileText className="w-4 h-4 text-blue-600" />;
+      case 'EN_ATTENTE': return <Clock className="w-4 h-4 text-yellow-600" />;
+      default: return <AlertCircle className="w-4 h-4 text-gray-600" />;
     }
   };
 
@@ -98,20 +97,33 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
     } catch { return '-'; }
   };
 
-  // Helper pour afficher un champ info
-  const InfoField = ({ label, value }) => (
+  const Field = ({ label, value }) => (
     <div>
-      <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide">{label}</label>
-      <p className="mt-1 text-sm text-gray-900">{value || '-'}</p>
+      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{label}</p>
+      <p className="mt-0.5 text-sm text-gray-900">{value || '-'}</p>
     </div>
   );
+
+  const SectionTitle = ({ icon, title, color = 'blue' }) => {
+    const colors = {
+      blue: 'text-blue-600', green: 'text-green-600', purple: 'text-purple-600',
+      orange: 'text-orange-600', indigo: 'text-indigo-600', red: 'text-red-600',
+      teal: 'text-teal-600', gray: 'text-gray-600'
+    };
+    return (
+      <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2 border-b pb-2">
+        <span className={colors[color]}>{icon}</span>
+        {title}
+      </h2>
+    );
+  };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">⏳ Chargement des détails...</p>
+          <p className="mt-4 text-gray-600">Chargement des détails...</p>
         </div>
       </div>
     );
@@ -140,154 +152,123 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-6 bg-gray-50 min-h-screen">
+    <div className="max-w-5xl mx-auto p-4 bg-gray-50 min-h-screen space-y-4">
 
       {/* En-tête */}
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold text-gray-900">📋 Détails de la Référence</h1>
-          <button onClick={onBack} className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 flex items-center">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Retour
+      <div className="bg-white rounded-lg shadow p-5">
+        <div className="flex items-center justify-between mb-3">
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <FileText className="w-6 h-6 text-blue-600" />
+            Détails de la Référence
+          </h1>
+          <button onClick={onBack} className="px-3 py-1.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 flex items-center gap-1 text-sm">
+            <ArrowLeft className="w-4 h-4" /> Retour
           </button>
         </div>
 
-        <div className="flex items-center gap-4 mb-4">
-          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusBadgeClass(reference.statut)}`}>
+        <div className="flex items-center gap-3 mb-4">
+          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium border ${getStatusBadgeClass(reference.statut)}`}>
             {getStatusIcon(reference.statut)}
-            <span className="ml-2">
-              {reference.statut === 'RECUE' ? 'Reçue' :
-               reference.statut === 'ENVOYEE' ? 'Envoyée' :
-               reference.statut === 'EN_ATTENTE' ? 'En attente' : reference.statut}
-            </span>
+            {reference.statut === 'RECUE' ? 'Reçue' : reference.statut === 'ENVOYEE' ? 'Envoyée' : reference.statut === 'EN_ATTENTE' ? 'En attente' : reference.statut}
           </span>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap gap-2">
           {canEdit && (
-            <button onClick={() => onEdit && onEdit(reference)} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center">
-              <Edit className="w-4 h-4 mr-2" /> Modifier
+            <button onClick={() => onEdit && onEdit(reference)} className="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-1 text-sm">
+              <Edit className="w-4 h-4" /> Modifier
             </button>
           )}
           {canAccept && reference.statut !== 'RECUE' && (
-            <button onClick={handleAccept} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center">
-              <CheckCircle className="w-4 h-4 mr-2" /> Accepter
+            <button onClick={handleAccept} className="px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-1 text-sm">
+              <CheckCircle className="w-4 h-4" /> Accepter
             </button>
           )}
-          <button onClick={handleDelete} className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center">
-            <Trash2 className="w-4 h-4 mr-2" /> Supprimer
+          <button onClick={handleDelete} className="px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-1 text-sm">
+            <Trash2 className="w-4 h-4" /> Supprimer
           </button>
         </div>
       </div>
 
-      {/* Informations de la référence + Patient */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-
-        {/* Informations de la référence */}
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <FileText className="w-5 h-5 mr-2 text-blue-600" />
-            Informations de la Référence
-          </h2>
-          <div className="space-y-3">
-            <InfoField label="Code Référence" value={reference.codeReference} />
-            <InfoField label="Date de Référence" value={formatDate(reference.dateReference)} />
-            <InfoField label="Type de Référence" value={reference.typeReference} />
-            <InfoField label="Motif" value={reference.motifReference} />
-            <InfoField label="Date de Prise en Charge" value={formatDate(reference.datePriseEnCharge)} />
-          </div>
+      {/* Informations de la référence */}
+      <div className="bg-white rounded-lg shadow p-5">
+        <SectionTitle icon={<FileText className="w-5 h-5" />} title="Informations de la Référence" color="blue" />
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <Field label="Code Référence" value={reference.codeReference} />
+          <Field label="Date de Référence" value={formatDate(reference.dateReference)} />
+          <Field label="Type de Référence" value={reference.typeReference} />
+          <Field label="Motif" value={reference.motifReference} />
+          <Field label="Date de Prise en Charge" value={formatDate(reference.datePriseEnCharge)} />
         </div>
+      </div>
 
-        {/* Informations du patient */}
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <User className="w-5 h-5 mr-2 text-green-600" />
-            Informations du Patient
-          </h2>
-          <div className="grid grid-cols-2 gap-3">
-            <InfoField label="Code Patient" value={reference.codePatient} />
-            <InfoField label="Nom" value={reference.nomPatient} />
-            <InfoField label="Prénom" value={reference.prenomPatient} />
-            <InfoField label="Date de Naissance" value={reference.dateNaissance ? formatDateOnly(reference.dateNaissance) : null} />
-            <InfoField label="Âge" value={reference.age ? `${reference.age} ans` : null} />
-            <InfoField label="Sexe" value={reference.sexe} />
-            <InfoField label="Profession" value={reference.profession} />
-            <InfoField label="Téléphone" value={reference.telephone} />
-            <InfoField label="Nationalité" value={reference.nationalite} />
-          </div>
+      {/* Informations du patient */}
+      <div className="bg-white rounded-lg shadow p-5">
+        <SectionTitle icon={<User className="w-5 h-5" />} title="Informations du Patient" color="green" />
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <Field label="Code Patient" value={reference.codePatient} />
+          <Field label="Nom" value={reference.nomPatient} />
+          <Field label="Prénom" value={reference.prenomPatient} />
+          <Field label="Date de Naissance" value={reference.dateNaissance ? formatDateOnly(reference.dateNaissance) : '-'} />
+          <Field label="Âge" value={reference.age ? `${reference.age} ans` : '-'} />
+          <Field label="Sexe" value={reference.sexe} />
+          <Field label="Profession" value={reference.profession} />
+          <Field label="Téléphone" value={reference.telephone} />
+          <Field label="Nationalité" value={reference.nationalite} />
+          <Field label="Statut Matrimonial" value={reference.statutMatrimoniale} />
         </div>
       </div>
 
       {/* Hôpital de destination + Médecin destinataire */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <Hospital className="w-5 h-5 mr-2 text-purple-600" />
-            Hôpital de Destination
-          </h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-white rounded-lg shadow p-5">
+          <SectionTitle icon={<Hospital className="w-5 h-5" />} title="Hôpital de Destination" color="purple" />
           <div className="space-y-3">
-            <InfoField label="Code Hôpital" value={reference.codeHopital} />
-            <InfoField label="Nom Hôpital" value={reference.nomHopital} />
+            <Field label="Code Hôpital" value={reference.codeHopital} />
+            <Field label="Nom Hôpital" value={reference.nomHopital} />
           </div>
         </div>
-
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <User className="w-5 h-5 mr-2 text-orange-600" />
-            Médecin Destinataire
-          </h2>
+        <div className="bg-white rounded-lg shadow p-5">
+          <SectionTitle icon={<User className="w-5 h-5" />} title="Médecin Destinataire" color="orange" />
           <div className="space-y-3">
-            <InfoField label="Code Médecin" value={reference.codeDocteur} />
-            <InfoField label="Nom Médecin" value={reference.nomDocteur} />
+            <Field label="Code Médecin" value={reference.codeDocteur} />
+            <Field label="Nom Médecin" value={reference.nomDocteur} />
           </div>
         </div>
       </div>
 
       {/* Informations du référenceur */}
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-          <MessageSquare className="w-5 h-5 mr-2 text-indigo-600" />
-          Informations du Référenceur
-        </h2>
+      <div className="bg-white rounded-lg shadow p-5">
+        <SectionTitle icon={<MessageSquare className="w-5 h-5" />} title="Informations du Référenceur" color="indigo" />
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <InfoField label="Code Référenceur" value={reference.codeReferenceur} />
-          <InfoField label="Nom Référenceur" value={reference.nomReferenceur} />
-          <InfoField label="Fonction" value={reference.fonctionReferenceur} />
-          <InfoField label="Nationalité" value={reference.nationaliteReferenceur} />
-          <InfoField label="Hôpital d'origine" value={reference.nomHopitalReferenceur || reference.codeHopitalReferenceur} />
-          <InfoField label="Téléphone" value={reference.telephoneReferenceur} />
-          <div className="md:col-span-3">
-            <InfoField label="Email" value={reference.emailReferenceur} />
-          </div>
+          <Field label="Code Référenceur" value={reference.codeReferenceur} />
+          <Field label="Nom Référenceur" value={reference.nomReferenceur} />
+          <Field label="Fonction" value={reference.fonctionReferenceur} />
+          <Field label="Nationalité" value={reference.nationaliteReferenceur} />
+          <Field label="Hôpital d'origine" value={reference.nomHopitalReferenceur || reference.codeHopitalReferenceur} />
+          <Field label="Téléphone" value={reference.telephoneReferenceur} />
+          <Field label="Email" value={reference.emailReferenceur} />
         </div>
       </div>
 
       {/* Motif Détaillé */}
       {(reference.changementAdresse || reference.autresAPreciser || (reference.motifs && reference.motifs.length > 0)) && (
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <FileText className="w-5 h-5 mr-2 text-blue-600" />
-            Motif Détaillé
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-white rounded-lg shadow p-5">
+          <SectionTitle icon={<FileText className="w-5 h-5" />} title="Motif Détaillé" color="blue" />
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {reference.changementAdresse && (
-              <InfoField
-                label="Changement d'adresse"
-                value={reference.changementAdressePermanent ? 'Permanent' : reference.changementAdresseTemporaire ? 'Temporaire' : 'Oui'}
-              />
+              <Field label="Changement d'adresse"
+                value={reference.changementAdressePermanent ? 'Permanent' : reference.changementAdresseTemporaire ? 'Temporaire' : 'Oui'} />
             )}
             {reference.autresAPreciser && (
-              <InfoField label="Autre motif" value={reference.autresMotif} />
+              <Field label="Autre motif" value={reference.autresMotif} />
             )}
             {reference.motifs && reference.motifs.length > 0 && (
-              <div className="md:col-span-2">
-                <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Motifs médicaux</label>
+              <div className="md:col-span-3">
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Motifs médicaux</p>
                 <div className="flex flex-wrap gap-2">
-                  {reference.motifs.map((motif, index) => (
-                    <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                      {motif.nomMotif}
-                    </span>
+                  {reference.motifs.map((motif, i) => (
+                    <span key={i} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">{motif.nomMotif}</span>
                   ))}
                 </div>
               </div>
@@ -296,13 +277,10 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
         </div>
       )}
 
-      {/* Services Demandés */}
+      {/* Services demandés */}
       {(reference.serviceArv || reference.serviceLaboratoire || reference.servicePtme || reference.serviceCrc || reference.servicePvvih) && (
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <Hospital className="w-5 h-5 mr-2 text-green-600" />
-            Services Demandés
-          </h2>
+        <div className="bg-white rounded-lg shadow p-5">
+          <SectionTitle icon={<Hospital className="w-5 h-5" />} title="Services Demandés" color="green" />
           <div className="flex flex-wrap gap-2">
             {reference.serviceArv && <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">ARV</span>}
             {reference.serviceLaboratoire && <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">Laboratoire</span>}
@@ -314,122 +292,102 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
       )}
 
       {/* Informations Cliniques */}
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-          <User className="w-5 h-5 mr-2 text-purple-600" />
-          Informations Cliniques
-        </h2>
+      <div className="bg-white rounded-lg shadow p-5">
+        <SectionTitle icon={<Activity className="w-5 h-5" />} title="Informations Cliniques" color="purple" />
 
         {/* Poids & Stades OMS */}
         <div className="mb-5">
-          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 border-b pb-1">Poids & Stades OMS</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <InfoField label="Poids" value={reference.poidsKg ? `${reference.poidsKg} kg` : null} />
-            {reference.stades && reference.stades.length > 0 && (
-              <div className="md:col-span-3">
-                <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Stade OMS</label>
-                <div className="flex flex-wrap gap-2">
-                  {reference.stades[0]?.stade1 && <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">Stade 1</span>}
-                  {reference.stades[0]?.stade2 && <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">Stade 2</span>}
-                  {reference.stades[0]?.stade3 && <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">Stade 3</span>}
-                  {reference.stades[0]?.stade4 && <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">Stade 4</span>}
-                </div>
+          <h3 className="text-sm font-semibold text-gray-700 mb-3 bg-gray-100 px-3 py-1.5 rounded">Poids &amp; Stades OMS</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Field label="Poids" value={reference.poidsKg ? `${reference.poidsKg} kg` : null} />
+            <div>
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Stade OMS</p>
+              <div className="flex flex-wrap gap-1">
+                {reference.stades && reference.stades.length > 0 ? (
+                  ['stade1','stade2','stade3','stade4'].map(s => reference.stades[0]?.[s] && (
+                    <span key={s} className="px-2 py-0.5 bg-purple-100 text-purple-800 text-xs rounded">{s.replace('stade','Stade ')}</span>
+                  ))
+                ) : <span className="text-sm text-gray-900">-</span>}
               </div>
-            )}
-            {reference.profils && reference.profils.length > 0 && (
-              <div className="md:col-span-4">
-                <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Profil VIH</label>
-                <div className="flex flex-wrap gap-2">
-                  {reference.profils[0]?.profil1 && <span className="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs rounded">Profil 1</span>}
-                  {reference.profils[0]?.profil2 && <span className="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs rounded">Profil 2</span>}
-                  {reference.profils[0]?.profil12 && <span className="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs rounded">Profil 1+2</span>}
-                  {reference.profils[0]?.indetermine && <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded">Indéterminé</span>}
-                  {reference.profils[0]?.dateConfirmation && (
-                    <span className="text-xs text-gray-500 self-center">Confirmé le {formatDateOnly(reference.profils[0].dateConfirmation)}</span>
-                  )}
-                </div>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Profil VIH</p>
+              <div className="flex flex-wrap gap-1">
+                {reference.profils && reference.profils.length > 0 ? (
+                  ['profil1','profil2','profil12','indetermine'].map(p => reference.profils[0]?.[p] && (
+                    <span key={p} className="px-2 py-0.5 bg-indigo-100 text-indigo-800 text-xs rounded">{p}</span>
+                  ))
+                ) : <span className="text-sm text-gray-900">-</span>}
               </div>
+            </div>
+            {reference.profils?.[0]?.dateConfirmation && (
+              <Field label="Date confirmation VIH" value={formatDateOnly(reference.profils[0].dateConfirmation)} />
             )}
           </div>
         </div>
 
         {/* Traitement ARV */}
         <div className="mb-5">
-          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 border-b pb-1">Traitement ARV</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            <InfoField label="Sous ARV" value={reference.traitementARV !== undefined && reference.traitementARV !== null ? (reference.traitementARV ? 'Oui' : 'Non') : null} />
-            {reference.protocoles1s && reference.protocoles1s.length > 0 && reference.protocoles1s[0]?.protocole1ereLigne && (
-              <div className="md:col-span-2">
-                <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Protocoles 1ère ligne</label>
-                {reference.protocoles1s.map((p, i) => p.protocole1ereLigne && (
-                  <div key={i} className="text-sm text-gray-900">
-                    {p.protocole1ereLigne}{p.dateProtocole1 ? ` (${formatDateOnly(p.dateProtocole1)})` : ''}
-                  </div>
-                ))}
-              </div>
-            )}
-            {reference.protocoles2s && reference.protocoles2s.length > 0 && reference.protocoles2s[0]?.protocole2emeLigne && (
-              <div className="md:col-span-2">
-                <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Protocoles 2ème ligne</label>
-                {reference.protocoles2s.map((p, i) => p.protocole2emeLigne && (
-                  <div key={i} className="text-sm text-gray-900">
-                    {p.protocole2emeLigne}{p.dateProtocole2 ? ` (${formatDateOnly(p.dateProtocole2)})` : ''}
-                  </div>
-                ))}
-              </div>
+          <h3 className="text-sm font-semibold text-gray-700 mb-3 bg-gray-100 px-3 py-1.5 rounded">Traitement ARV</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <Field label="Sous ARV" value={reference.traitementARV ? 'Oui' : 'Non'} />
+            {reference.traitementARV && (
+              <>
+                {reference.protocoles1s && reference.protocoles1s.length > 0 && reference.protocoles1s[0]?.protocole1ereLigne && (
+                  <Field label="Protocole 1ère ligne" value={`${reference.protocoles1s[0].protocole1ereLigne}${reference.protocoles1s[0].dateProtocole1 ? ' — ' + formatDateOnly(reference.protocoles1s[0].dateProtocole1) : ''}`} />
+                )}
+                {reference.protocoles2s && reference.protocoles2s.length > 0 && reference.protocoles2s[0]?.protocole2emeLigne && (
+                  <Field label="Protocole 2ème ligne" value={`${reference.protocoles2s[0].protocole2emeLigne}${reference.protocoles2s[0].dateProtocole2 ? ' — ' + formatDateOnly(reference.protocoles2s[0].dateProtocole2) : ''}`} />
+                )}
+              </>
             )}
           </div>
         </div>
 
         {/* CD4 */}
         <div className="mb-5">
-          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 border-b pb-1">CD4</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            <InfoField label="CD4 Dernier" value={reference.cd4Dernier ? `${reference.cd4Dernier}${reference.dateCd4Dernier ? ` (${formatDateOnly(reference.dateCd4Dernier)})` : ''}` : null} />
-            <InfoField label="CD4 Début traitement" value={reference.cd4DebutTraitement ? `${reference.cd4DebutTraitement}${reference.dateCd4DebutTraitement ? ` (${formatDateOnly(reference.dateCd4DebutTraitement)})` : ''}` : null} />
-            <InfoField label="CD4 Inclusion" value={reference.cd4Inclusion ? `${reference.cd4Inclusion}${reference.dateCd4Inclusion ? ` (${formatDateOnly(reference.dateCd4Inclusion)})` : ''}` : null} />
+          <h3 className="text-sm font-semibold text-gray-700 mb-3 bg-gray-100 px-3 py-1.5 rounded">CD4</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <Field label="CD4 Dernier" value={reference.cd4Dernier ? `${reference.cd4Dernier}${reference.dateCd4Dernier ? ' — ' + formatDateOnly(reference.dateCd4Dernier) : ''}` : null} />
+            <Field label="CD4 Début traitement" value={reference.cd4DebutTraitement ? `${reference.cd4DebutTraitement}${reference.dateCd4DebutTraitement ? ' — ' + formatDateOnly(reference.dateCd4DebutTraitement) : ''}` : null} />
+            <Field label="CD4 Inclusion" value={reference.cd4Inclusion ? `${reference.cd4Inclusion}${reference.dateCd4Inclusion ? ' — ' + formatDateOnly(reference.dateCd4Inclusion) : ''}` : null} />
           </div>
         </div>
 
         {/* Analyses biologiques */}
         <div className="mb-5">
-          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 border-b pb-1">Analyses biologiques</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            <InfoField label="Charge Virale" value={reference.chargeViraleNiveau ? `${reference.chargeViraleNiveau}${reference.dateDebutChargeVirale ? ` (${formatDateOnly(reference.dateDebutChargeVirale)})` : ''}` : null} />
-            <InfoField label="Hémoglobine (Hb)" value={reference.hbNiveau ? `${reference.hbNiveau}${reference.dateHb ? ` (${formatDateOnly(reference.dateHb)})` : ''}` : null} />
-            <InfoField label="Lymphocytes totaux" value={reference.lymphocytesTotaux ? `${reference.lymphocytesTotaux}${reference.dateLymphocytes ? ` (${formatDateOnly(reference.dateLymphocytes)})` : ''}` : null} />
+          <h3 className="text-sm font-semibold text-gray-700 mb-3 bg-gray-100 px-3 py-1.5 rounded">Analyses biologiques</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <Field label="Charge Virale" value={reference.chargeViraleNiveau ? `${reference.chargeViraleNiveau}${reference.dateDebutChargeVirale ? ' — ' + formatDateOnly(reference.dateDebutChargeVirale) : ''}` : null} />
+            <Field label="Hémoglobine (Hb)" value={reference.hbNiveau ? `${reference.hbNiveau}${reference.dateHb ? ' — ' + formatDateOnly(reference.dateHb) : ''}` : null} />
+            <Field label="Lymphocytes totaux" value={reference.lymphocytesTotaux ? `${reference.lymphocytesTotaux}${reference.dateLymphocytes ? ' — ' + formatDateOnly(reference.dateLymphocytes) : ''}` : null} />
+            <Field label="Allergie" value={reference.allergie ? `${reference.allergie}${reference.dateAllergie ? ' — ' + formatDateOnly(reference.dateAllergie) : ''}` : null} />
+            <Field label="Créatininémie" value={reference.creatinemie ? `${reference.creatinemie}${reference.dateCreatinemie ? ' — ' + formatDateOnly(reference.dateCreatinemie) : ''}` : null} />
           </div>
         </div>
 
         {/* Analyses microbiologiques */}
         <div className="mb-5">
-          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 border-b pb-1">Analyses microbiologiques</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            <InfoField label="Crachat BAAR" value={reference.cracheBaar ? `${reference.cracheBaar}${reference.dateCracheBaar ? ` (${formatDateOnly(reference.dateCracheBaar)})` : ''}` : null} />
-            <InfoField label="AgHBs" value={reference.aghbs ? `${reference.aghbs}${reference.dateAghbs ? ` (${formatDateOnly(reference.dateAghbs)})` : ''}` : null} />
-            <InfoField label="Transaminases" value={reference.transaminase ? `${reference.transaminase}${reference.dateTransaminase ? ` (${formatDateOnly(reference.dateTransaminase)})` : ''}` : null} />
-            {reference.transaminaseAsat && <InfoField label="ASAT" value={reference.transaminaseAsat} />}
-            {reference.transaminaseAlat && <InfoField label="ALAT" value={reference.transaminaseAlat} />}
+          <h3 className="text-sm font-semibold text-gray-700 mb-3 bg-gray-100 px-3 py-1.5 rounded">Analyses microbiologiques</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <Field label="Crachat BAAR" value={reference.cracheBaar ? `${reference.cracheBaar}${reference.dateCracheBaar ? ' — ' + formatDateOnly(reference.dateCracheBaar) : ''}` : null} />
+            <Field label="AgHBs" value={reference.aghbs ? `${reference.aghbs}${reference.dateAghbs ? ' — ' + formatDateOnly(reference.dateAghbs) : ''}` : null} />
+            <Field label="Transaminases" value={reference.transaminase ? `${reference.transaminase}${reference.dateTransaminase ? ' — ' + formatDateOnly(reference.dateTransaminase) : ''}` : null} />
+            {reference.transaminaseAsat && <Field label="ASAT" value={reference.transaminaseAsat} />}
+            {reference.transaminaseAlat && <Field label="ALAT" value={reference.transaminaseAlat} />}
             {reference.autreAnalyse && (
-              <InfoField label="Autre analyse" value={`Oui${reference.dateAutreAnalyse ? ` (${formatDateOnly(reference.dateAutreAnalyse)})` : ''}`} />
+              <Field label="Autre analyse" value={`Oui${reference.dateAutreAnalyse ? ' — ' + formatDateOnly(reference.dateAutreAnalyse) : ''}`} />
             )}
           </div>
         </div>
 
         {/* Traitement TB */}
         <div className="mb-5">
-          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 border-b pb-1">Traitement TB</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            <InfoField label="Sous traitement TB" value={reference.traitementtb !== undefined && reference.traitementtb !== null ? (reference.traitementtb ? 'Oui' : 'Non') : null} />
-            {reference.protocolesTheraps && reference.protocolesTheraps.length > 0 && reference.protocolesTheraps[0]?.therapie && (
-              <div className="md:col-span-2">
-                <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Protocoles thérapeutiques</label>
-                {reference.protocolesTheraps.map((t, i) => t.therapie && (
-                  <div key={i} className="text-sm text-gray-900">
-                    {t.therapie}{t.dateTherapie ? ` (${formatDateOnly(t.dateTherapie)})` : ''}
-                  </div>
-                ))}
-              </div>
+          <h3 className="text-sm font-semibold text-gray-700 mb-3 bg-gray-100 px-3 py-1.5 rounded">Traitement TB</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <Field label="Sous traitement TB" value={reference.traitementtb ? 'Oui' : 'Non'} />
+            {reference.traitementtb && reference.protocolesTheraps && reference.protocolesTheraps.length > 0 && reference.protocolesTheraps[0]?.therapie && (
+              <Field label="Protocole thérapeutique" value={`${reference.protocolesTheraps[0].therapie}${reference.protocolesTheraps[0].dateTherapie ? ' — ' + formatDateOnly(reference.protocolesTheraps[0].dateTherapie) : ''}`} />
             )}
           </div>
         </div>
@@ -437,32 +395,26 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
         {/* Autre traitement */}
         {reference.autreTraitement && (
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 border-b pb-1">Autre traitement</h3>
-            <InfoField label="Autre traitement" value="Oui" />
+            <h3 className="text-sm font-semibold text-gray-700 mb-3 bg-gray-100 px-3 py-1.5 rounded">Autre traitement</h3>
+            <Field label="Autre traitement" value="Oui" />
           </div>
         )}
       </div>
 
       {/* Observations */}
       {reference.observations && (
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <MessageSquare className="w-5 h-5 mr-2 text-gray-600" />
-            Observations
-          </h2>
+        <div className="bg-white rounded-lg shadow p-5">
+          <SectionTitle icon={<MessageSquare className="w-5 h-5" />} title="Observations" color="gray" />
           <p className="text-sm text-gray-900 whitespace-pre-wrap">{reference.observations}</p>
         </div>
       )}
 
       {/* Informations Temporelles */}
-      <div className="bg-white rounded-lg shadow-lg p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-          <Calendar className="w-5 h-5 mr-2 text-orange-600" />
-          Informations Temporelles
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <InfoField label="Date de Création" value={formatDate(reference.dateCreation)} />
-          <InfoField label="Dernière Modification" value={formatDate(reference.dateModification)} />
+      <div className="bg-white rounded-lg shadow p-5">
+        <SectionTitle icon={<Calendar className="w-5 h-5" />} title="Informations Temporelles" color="orange" />
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Date de Création" value={formatDate(reference.dateCreation)} />
+          <Field label="Dernière Modification" value={formatDate(reference.dateModification)} />
         </div>
       </div>
 
