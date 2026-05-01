@@ -160,4 +160,11 @@ public class ReferenceServiceHelper {
     public Doctor syncDoctorWithHospital(String username) {
         return dataSyncService.getDoctorByUsername(username);
     }
+
+    /**
+     * Récupère l'hôpital du médecin actuellement authentifié via UserIntegrationService
+     */
+    public sn.uasz.referencement_PVVIH.dtos.HopitalDto getCurrentDoctorHopital() {
+        return userIntegrationService.getCurrentDoctorHopital();
+    }
 }

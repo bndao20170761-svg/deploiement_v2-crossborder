@@ -136,7 +136,7 @@ public class ReferenceDossierService {
             // Remplir les informations du référenceur si c'est un doctor
             try {
                 // Récupérer l'hôpital du médecin actuel directement depuis gestion_user
-                sn.uasz.referencement_PVVIH.dtos.HopitalDto hopitalDto = referenceServiceHelper.userIntegrationService.getCurrentDoctorHopital();
+                sn.uasz.referencement_PVVIH.dtos.HopitalDto hopitalDto = referenceServiceHelper.getCurrentDoctorHopital();
                 
                 // Récupérer le doctor local pour les autres informations
                 Doctor doctorWithHopital = referenceServiceHelper.findDoctorByUsername(username)
