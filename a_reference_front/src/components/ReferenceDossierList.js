@@ -10,9 +10,16 @@ const ReferenceDossierList = ({ language = "fr", filterStatus = "all", onReferen
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
+  const [countAssistant, setCountAssistant] = useState(0);
 
   useEffect(() => {
     fetchReferences();
+    // Charger le compteur de références assistant si on est sur l'onglet envoyées
+    if (filterStatus === 'envoyees' || filterStatus === 'all') {
+      referenceDossierService.countReferencesDossierAssistant()
+        .then(count => setCountAssistant(Number(count) || 0))
+        .catch(() => setCountAssistant(0));
+    }
   }, [filterStatus]);
 
   const fetchReferences = async () => {
@@ -161,8 +168,18 @@ const ReferenceDossierList = ({ language = "fr", filterStatus = "all", onReferen
           <h1 className="text-3xl font-bold text-gray-900">
             {getTranslation("referencesDossiers", language) || "Références de Dossiers"}
           </h1>
-          <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-            {getTranslation('filterLabel', language)}: {filterStatus} | {references.length} {getTranslation('results', language)}
+          <div className="flex items-center gap-3">
+            {(filterStatus === 'envoyees' || filterStatus === 'all') && countAssistant > 0 && (
+              <span
+                className="inline-flex items-center justify-center px-3 py-1 rounded-full text-sm font-bold bg-yellow-400 text-yellow-900"
+                title={getTranslation('referencesAssistantPending', language)}
+              >
+                ⏳ {countAssistant} {getTranslation('aValider', language)}
+              </span>
+            )}
+            <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+              {getTranslation('filterLabel', language)}: {filterStatus} | {references.length} {getTranslation('results', language)}
+            </div>
           </div>
         </div>
 

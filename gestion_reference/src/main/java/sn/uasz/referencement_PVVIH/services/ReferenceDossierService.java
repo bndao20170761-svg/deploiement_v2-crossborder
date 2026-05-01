@@ -152,16 +152,43 @@ public class ReferenceDossierService {
             return List.of();
         }
         Doctor doctor = currentDoctor.get();
-        
-        // Références envoyées : celles où le médecin est l'auteur (code_referenceur)
-        List<ReferenceDossier> references = referenceDossierRepository.findByCodeReferenceur(doctor.getCodeDoctor());
-        
-        // Filtrer seulement celles validées
-        return references.stream()
+
+        // 1. Références envoyées directement par le médecin (validées, non encore reçues)
+        List<ReferenceDossier> envoyees = referenceDossierRepository.findByCodeReferenceur(doctor.getCodeDoctor())
+                .stream()
                 .filter(ref -> Boolean.TRUE.equals(ref.getValidation()))
                 .filter(ref -> Boolean.FALSE.equals(ref.getEtat()))
+                .collect(java.util.stream.Collectors.toList());
+
+        // 2. Références initiées par un assistant pour les patients du médecin (validation=false)
+        //    Le médecin doit les voir pour pouvoir les valider
+        List<ReferenceDossier> aValider = referenceDossierRepository
+                .findByValidationFalseAndCodePatientIn(
+                        getPatientCodesForDoctor(doctor.getCodeDoctor()));
+
+        // Fusionner les deux listes sans doublons
+        List<ReferenceDossier> all = new ArrayList<>(envoyees);
+        for (ReferenceDossier ref : aValider) {
+            if (all.stream().noneMatch(r -> r.getCodeReference().equals(ref.getCodeReference()))) {
+                all.add(ref);
+            }
+        }
+
+        return all.stream()
                 .map(referenceDossierMapper::entityToDto)
                 .toList();
+    }
+
+    /**
+     * Récupère les codes patients associés au médecin connecté
+     */
+    private List<String> getPatientCodesForDoctor(String codeDoctor) {
+        try {
+            return referenceDossierRepository.findDistinctCodePatientByCodeReferenceur(codeDoctor);
+        } catch (Exception e) {
+            log.warn("Impossible de récupérer les codes patients du médecin {}: {}", codeDoctor, e.getMessage());
+            return List.of();
+        }
     }
     
     public List<ReferenceDossierDto> getReferencesEnAttente() {
@@ -283,7 +310,24 @@ public class ReferenceDossierService {
         referenceDossierDto.setStatut("EN_ATTENTE");
         referenceDossierDto.setDateCreation(LocalDateTime.now());
         referenceDossierDto.setEtat(false);
-        referenceDossierDto.setValidation(true);
+
+        // Si l'initiateur est un ASSISTANT, la référence n'est pas encore validée
+        // Elle sera validée par le médecin référenceur
+        boolean isAssistant = false;
+        try {
+            String username = getAuthenticatedUsername();
+            if (username != null) {
+                Optional<sn.uasz.referencement_PVVIH.entities.User> userOpt =
+                        referenceServiceHelper.findUserByUsername(username);
+                if (userOpt.isPresent()) {
+                    String profil = userOpt.get().getProfil();
+                    isAssistant = "ASSISTANT".equalsIgnoreCase(profil);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Impossible de déterminer le profil de l'utilisateur: {}", e.getMessage());
+        }
+        referenceDossierDto.setValidation(!isAssistant);
         
         // Créer l'entité principale
         ReferenceDossier referenceDossier = referenceDossierMapper.dtoToEntity(referenceDossierDto);
@@ -469,6 +513,97 @@ public class ReferenceDossierService {
     
     private String generateCodeReference() {
         return "REF-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    }
+
+    /**
+     * Vérifie si le médecin connecté peut valider une référence initiée par un assistant.
+     * Condition : la référence a validation=false ET le codePatient figure parmi les patients du médecin.
+     */
+    public boolean canValidateReference(String codeReference) {
+        Optional<Doctor> currentDoctor = getAuthenticatedDoctor();
+        if (currentDoctor.isEmpty()) return false;
+
+        Optional<ReferenceDossier> refOpt = referenceDossierRepository.findByCodeReference(codeReference);
+        if (refOpt.isEmpty()) return false;
+
+        ReferenceDossier ref = refOpt.get();
+        if (Boolean.TRUE.equals(ref.getValidation())) return false;
+
+        String codeDoctor = currentDoctor.get().getCodeDoctor();
+        List<String> patientCodes = referenceDossierRepository.findDistinctCodePatientByCodeReferenceur(codeDoctor);
+        return patientCodes.contains(ref.getCodePatient());
+    }
+
+    /**
+     * Valide une référence initiée par un assistant.
+     * Le médecin connecté devient le référenceur officiel et son hôpital est inséré.
+     */
+    public ReferenceDossierDto validerReference(String codeReference) {
+        Optional<Doctor> currentDoctor = getAuthenticatedDoctor();
+        if (currentDoctor.isEmpty()) {
+            throw new RuntimeException("Médecin non authentifié");
+        }
+
+        Optional<ReferenceDossier> refOpt = referenceDossierRepository.findByCodeReference(codeReference);
+        if (refOpt.isEmpty()) {
+            throw new RuntimeException("Référence non trouvée: " + codeReference);
+        }
+
+        ReferenceDossier reference = refOpt.get();
+        if (Boolean.TRUE.equals(reference.getValidation())) {
+            throw new RuntimeException("Cette référence est déjà validée");
+        }
+
+        Doctor doctor = currentDoctor.get();
+
+        List<String> patientCodes = referenceDossierRepository.findDistinctCodePatientByCodeReferenceur(doctor.getCodeDoctor());
+        if (!patientCodes.contains(reference.getCodePatient())) {
+            throw new RuntimeException("Vous n'êtes pas autorisé à valider cette référence");
+        }
+
+        // Insérer les infos du médecin comme référenceur
+        reference.setCodeReferenceur(doctor.getCodeDoctor());
+        if (doctor.getUtilisateur() != null) {
+            String nom = doctor.getUtilisateur().getNom() != null ? doctor.getUtilisateur().getNom().trim() : "";
+            String prenom = doctor.getUtilisateur().getPrenom() != null ? doctor.getUtilisateur().getPrenom().trim() : "";
+            reference.setNomReferenceur((nom + " " + prenom).trim());
+            reference.setNationaliteReferenceur(doctor.getUtilisateur().getNationalite());
+        }
+        reference.setTelephoneReferenceur(doctor.getTelephone());
+        reference.setEmailReferenceur(doctor.getEmail());
+        reference.setFonctionReferenceur(doctor.getFonction());
+
+        // Insérer l'hôpital d'origine du médecin
+        try {
+            sn.uasz.referencement_PVVIH.dtos.HopitalDto hopitalDto = referenceServiceHelper.getCurrentDoctorHopital();
+            if (hopitalDto != null) {
+                reference.setCodeHopitalReferenceur(String.valueOf(hopitalDto.getId()));
+                reference.setNomHopitalReferenceur(hopitalDto.getNom());
+            }
+        } catch (Exception e) {
+            log.warn("Impossible de récupérer l'hôpital du médecin lors de la validation: {}", e.getMessage());
+        }
+
+        reference.setValidation(true);
+        reference.setDateModification(LocalDateTime.now());
+
+        ReferenceDossier saved = referenceDossierRepository.save(reference);
+        return referenceDossierMapper.entityToDto(saved);
+    }
+
+    /**
+     * Compte les références initiées par un assistant pour les patients du médecin connecté
+     * (validation=false) — badge jaune dans l'onglet "Envoyées"
+     */
+    public long countReferencesDossierAssistant() {
+        Optional<Doctor> currentDoctor = getAuthenticatedDoctor();
+        if (currentDoctor.isEmpty()) return 0;
+
+        List<String> patientCodes = referenceDossierRepository
+                .findDistinctCodePatientByCodeReferenceur(currentDoctor.get().getCodeDoctor());
+        if (patientCodes.isEmpty()) return 0;
+
+        return referenceDossierRepository.findByValidationFalseAndCodePatientIn(patientCodes).size();
     }
     
     // Méthodes pour importer les informations du dossier depuis gestion-patient

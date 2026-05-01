@@ -3169,6 +3169,11 @@ sectionYBilans: { fr: "Section Y : Bilans biologiques", en: "Section Y: Biologic
   errorCreatingReference: { fr: 'Erreur lors de la création de la référence', en: 'Error creating reference', pt: 'Erro ao criar referência' },
   sortByDate: { fr: 'Trier par date', en: 'Sort by date', pt: 'Ordenar por data' },
   mostRecent: { fr: 'Plus récent', en: 'Most recent', pt: 'Mais recente' },
+  validerReference: { fr: 'Valider la référence', en: 'Validate reference', pt: 'Validar referência' },
+  confirmValidateReference: { fr: 'Êtes-vous sûr de vouloir valider cette référence ?', en: 'Are you sure you want to validate this reference?', pt: 'Tem certeza de que deseja validar esta referência?' },
+  errorValidateReference: { fr: 'Erreur lors de la validation de la référence', en: 'Error validating reference', pt: 'Erro ao validar referência' },
+  referencesAssistantPending: { fr: 'Références initiées par un assistant à valider', en: 'References initiated by an assistant pending validation', pt: 'Referências iniciadas por assistente pendentes de validação' },
+  aValider: { fr: 'à valider', en: 'to validate', pt: 'a validar' },
   }
 };
 

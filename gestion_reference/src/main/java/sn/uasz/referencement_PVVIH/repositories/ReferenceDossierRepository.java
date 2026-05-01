@@ -47,4 +47,11 @@ public interface ReferenceDossierRepository extends JpaRepository<ReferenceDossi
     List<ReferenceDossier> findByMedecin_CodeDoctor(String codeDoctor);
     
     List<ReferenceDossier> findByMedecinAuteur_CodeDoctor(String codeDoctor);
+
+    // Références initiées par un assistant (validation=false) pour une liste de patients
+    List<ReferenceDossier> findByValidationFalseAndCodePatientIn(List<String> codePatients);
+
+    // Codes patients distincts pour lesquels un médecin a déjà créé une référence
+    @Query("SELECT DISTINCT r.codePatient FROM ReferenceDossier r WHERE r.codeReferenceur = :codeDoctor")
+    List<String> findDistinctCodePatientByCodeReferenceur(@Param("codeDoctor") String codeDoctor);
 }

@@ -236,6 +236,36 @@ const referenceDossierService = {
       throw error;
     }
   },
+
+  // Vérifier si le médecin peut valider la référence (initiée par un assistant)
+  canValidateReference: async (codeReference) => {
+    try {
+      return await authRequest('get', `/api/references-dossiers/can-validate/${codeReference}`);
+    } catch (error) {
+      console.error('Erreur lors de la vérification des permissions de validation:', error);
+      return false;
+    }
+  },
+
+  // Valider une référence initiée par un assistant
+  validerReference: async (codeReference) => {
+    try {
+      return await authRequest('post', `/api/references-dossiers/valider/${codeReference}`);
+    } catch (error) {
+      console.error('Erreur lors de la validation de la référence:', error);
+      throw error;
+    }
+  },
+
+  // Compter les références initiées par un assistant pour les patients du médecin (badge jaune)
+  countReferencesDossierAssistant: async () => {
+    try {
+      return await authRequest('get', '/api/references-dossiers/count/assistant');
+    } catch (error) {
+      console.error('Erreur lors du comptage des références assistant:', error);
+      return 0;
+    }
+  },
 };
 
 export default referenceDossierService;

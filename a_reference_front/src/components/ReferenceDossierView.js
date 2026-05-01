@@ -9,6 +9,7 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
   const [error, setError] = useState(null);
   const [canAccept, setCanAccept] = useState(false);
   const [canEdit, setCanEdit] = useState(false);
+  const [canValidate, setCanValidate] = useState(false);
 
   useEffect(() => {
     if (codeReference) fetchReference();
@@ -20,12 +21,14 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
       const data = await referenceDossierService.getReferenceByCode(codeReference);
       setReference(data);
       setError(null);
-      const [acceptPerm, editPerm] = await Promise.all([
+      const [acceptPerm, editPerm, validatePerm] = await Promise.all([
         referenceDossierService.canAcceptReference(codeReference),
-        referenceDossierService.canEditReference(codeReference)
+        referenceDossierService.canEditReference(codeReference),
+        referenceDossierService.canValidateReference(codeReference)
       ]);
       setCanAccept(acceptPerm);
       setCanEdit(editPerm);
+      setCanValidate(validatePerm);
     } catch (err) {
       console.error('Erreur chargement référence:', err);
       setError(getTranslation('errorLoadingReference', language));
@@ -54,6 +57,18 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
       } catch (err) {
         console.error("Erreur acceptation:", err);
         alert(getTranslation('errorAcceptReference', language));
+      }
+    }
+  };
+
+  const handleValidate = async () => {
+    if (window.confirm(getTranslation('confirmValidateReference', language))) {
+      try {
+        await referenceDossierService.validerReference(codeReference);
+        fetchReference();
+      } catch (err) {
+        console.error("Erreur validation:", err);
+        alert(getTranslation('errorValidateReference', language));
       }
     }
   };
@@ -187,6 +202,11 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
           {canAccept && reference.statut !== 'RECUE' && (
             <button onClick={handleAccept} className="px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-1 text-sm">
               <CheckCircle className="w-4 h-4" /> {getTranslation('accept', language)}
+            </button>
+          )}
+          {canValidate && !reference.validation && (
+            <button onClick={handleValidate} className="px-3 py-1.5 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 flex items-center gap-1 text-sm">
+              <CheckCircle className="w-4 h-4" /> {getTranslation('validerReference', language)}
             </button>
           )}
           <button onClick={handleDelete} className="px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-1 text-sm">

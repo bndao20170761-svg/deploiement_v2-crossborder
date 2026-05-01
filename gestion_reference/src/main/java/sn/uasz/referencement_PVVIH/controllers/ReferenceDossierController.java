@@ -158,6 +158,31 @@ public class ReferenceDossierController {
         boolean canEdit = referenceDossierService.canEditReference(codeReference);
         return ResponseEntity.ok(canEdit);
     }
+
+    @GetMapping("/can-validate/{codeReference}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Boolean> canValidateReference(@PathVariable String codeReference) {
+        boolean canValidate = referenceDossierService.canValidateReference(codeReference);
+        return ResponseEntity.ok(canValidate);
+    }
+
+    @PostMapping("/valider/{codeReference}")
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
+    public ResponseEntity<ReferenceDossierDto> validerReference(@PathVariable String codeReference) {
+        try {
+            ReferenceDossierDto validated = referenceDossierService.validerReference(codeReference);
+            return ResponseEntity.ok(validated);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/count/assistant")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Long> countReferencesDossierAssistant() {
+        long count = referenceDossierService.countReferencesDossierAssistant();
+        return ResponseEntity.ok(count);
+    }
     
     @PostMapping("/accept/{codeReference}")
     @PreAuthorize("isAuthenticated()")
