@@ -36,7 +36,7 @@ private final AdminMapper adminMapper;
         }
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
+    @PreAuthorize("hasAnyRole('ADMIN','ASSISTANT, 'DOCTOR')")
     @GetMapping("/{codeDoctor}")
     public ResponseEntity<DoctorDto> getDoctorByCode(@PathVariable String codeDoctor) {
         try {
