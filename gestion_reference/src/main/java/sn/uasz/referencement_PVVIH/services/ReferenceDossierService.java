@@ -59,7 +59,41 @@ public class ReferenceDossierService {
     
     public Optional<ReferenceDossierDto> getReferenceByCode(String codeReference) {
         return referenceDossierRepository.findByCodeReference(codeReference)
-                .map(referenceDossierMapper::entityToDto);
+                .map(entity -> {
+                    ReferenceDossierDto dto = referenceDossierMapper.entityToDto(entity);
+                    // Enrichir avec les infos patient
+                    try {
+                        referenceServiceHelper.findPatientByCode(entity.getCodePatient()).ifPresent(patient -> {
+                            if (patient.getDateNaissance() != null) {
+                                dto.setDateNaissance(patient.getDateNaissance().toInstant().toString());
+                            }
+                            dto.setAge(patient.getAge());
+                            dto.setSexe(patient.getSexe());
+                            dto.setProfession(patient.getProfession());
+                            dto.setTelephone(patient.getTelephone());
+                        });
+                    } catch (Exception e) {
+                        log.warn("Enrichissement patient échoué pour {}: {}", entity.getCodePatient(), e.getMessage());
+                    }
+                    // Enrichir avec les infos du référenceur (fonction, nationalité)
+                    if (entity.getCodeReferenceur() != null && !entity.getCodeReferenceur().isBlank()) {
+                        try {
+                            referenceServiceHelper.findDoctorByCode(entity.getCodeReferenceur()).ifPresent(doctor -> {
+                                if (dto.getFonctionReferenceur() == null || dto.getFonctionReferenceur().isBlank()) {
+                                    dto.setFonctionReferenceur(doctor.getFonction());
+                                }
+                                if (dto.getNationaliteReferenceur() == null || dto.getNationaliteReferenceur().isBlank()) {
+                                    if (doctor.getUtilisateur() != null) {
+                                        dto.setNationaliteReferenceur(doctor.getUtilisateur().getNationalite());
+                                    }
+                                }
+                            });
+                        } catch (Exception e) {
+                            log.warn("Enrichissement référenceur échoué pour {}: {}", entity.getCodeReferenceur(), e.getMessage());
+                        }
+                    }
+                    return dto;
+                });
     }
     
     public List<ReferenceDossierDto> getReferencesByPatient(String codePatient) {
@@ -170,6 +204,15 @@ public class ReferenceDossierService {
                 }
                 if ((referenceDossierDto.getEmailReferenceur() == null || referenceDossierDto.getEmailReferenceur().isBlank()) && doctorWithHopital.getEmail() != null) {
                     referenceDossierDto.setEmailReferenceur(doctorWithHopital.getEmail());
+                }
+                // Remplir la fonction et nationalité du référenceur
+                if ((referenceDossierDto.getFonctionReferenceur() == null || referenceDossierDto.getFonctionReferenceur().isBlank()) && doctorWithHopital.getFonction() != null) {
+                    referenceDossierDto.setFonctionReferenceur(doctorWithHopital.getFonction());
+                }
+                if ((referenceDossierDto.getNationaliteReferenceur() == null || referenceDossierDto.getNationaliteReferenceur().isBlank())
+                        && doctorWithHopital.getUtilisateur() != null
+                        && doctorWithHopital.getUtilisateur().getNationalite() != null) {
+                    referenceDossierDto.setNationaliteReferenceur(doctorWithHopital.getUtilisateur().getNationalite());
                 }
                 // Remplir l'hôpital d'origine (référenceur) si disponible
                 if (hopitalDto != null) {

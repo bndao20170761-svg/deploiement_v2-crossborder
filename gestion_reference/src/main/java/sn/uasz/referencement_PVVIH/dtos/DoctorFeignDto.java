@@ -37,6 +37,7 @@ public class DoctorFeignDto {
     private String username;
     private String pseudo;
     private String lieuExercice;
+    private String nationalite;
 }
 
 
