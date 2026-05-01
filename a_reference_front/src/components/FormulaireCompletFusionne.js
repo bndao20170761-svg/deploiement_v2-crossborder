@@ -1,4 +1,4 @@
-// FormulaireCompletFusionne.jsx
+﻿// FormulaireCompletFusionne.jsx
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import DossierView from "./DossierView";
@@ -952,40 +952,40 @@ const handleSubmit = async () => {
   // Render rÃ©sumÃ© simple (Ã©tape finale)
   const Review = () => (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold">VÃ©rification avant envoi</h3>
+      <h3 className="text-lg font-semibold">{getTranslation("verificationEnvoi", language)}</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
-          <strong>PÃ¨re:</strong> {formData.pereNomPrenoms} â€” {formData.pereTelephone}
+          <strong>{getTranslation("pere", language)}:</strong> {formData.pereNomPrenoms} â€” {formData.pereTelephone}
         </div>
         <div>
-          <strong>MÃ¨re:</strong> {formData.mereNomPrenoms} â€” {formData.mereTelephone}
+          <strong>{getTranslation("mere", language)}:</strong> {formData.mereNomPrenoms} â€” {formData.mereTelephone}
         </div>
         <div>
-          <strong>Naissance Structure:</strong> {formData.naissanceStructure}
+          <strong>{getTranslation("naissanceStructureLabel", language)}:</strong> {formData.naissanceStructure}
         </div>
         <div>
-          <strong>Porte(s) d'entrÃ©e:</strong> {formData.portesEntree.join(", ")}
+          <strong>{getTranslation("portesEntreeLabel", language)}:</strong> {formData.portesEntree.join(", ")}
         </div>
         <div>
-          <strong>Date test:</strong> {formData.dateTest || formData.dateConfirmation}
+          <strong>{getTranslation("dateTestLabel", language)}:</strong> {formData.dateTest || formData.dateConfirmation}
         </div>
         <div>
-          <strong>RÃ©sultat VIH:</strong> {formData.resultat}
+          <strong>{getTranslation("resultatVIH", language)}:</strong> {formData.resultat}
         </div>
         <div>
-          <strong>Vaccins:</strong> {formData.vaccins.join(", ")}
+          <strong>{getTranslation("vaccinsLabel", language)}:</strong> {formData.vaccins.join(", ")}
         </div>
         <div>
-          <strong>Enfant - Prophylaxie ARV :</strong> {formData.enfantProphylaxieArvNaissance}
+          <strong>{getTranslation("prophylaxieARVEnfant", language)} :</strong> {formData.enfantProphylaxieArvNaissance}
         </div>
         <div>
-          <strong>MÃ¨re - TrithÃ©rapie :</strong> {formData.mereTritherapieGrossesse}
+          <strong>{getTranslation("tritherapieMere", language)} :</strong> {formData.mereTritherapieGrossesse}
         </div>
         <div>
-          <strong>ARV Stade OMS initial:</strong> {formData.arvStadeOmsInitial}
+          <strong>{getTranslation("arvStadeOmsInitialLabel", language)}:</strong> {formData.arvStadeOmsInitial}
         </div>
         <div>
-          <strong>Stades OMS:</strong> {formData.stadeOmsInitial.join(", ")}
+          <strong>{getTranslation("stadesOMSLabel", language)}:</strong> {formData.stadeOmsInitial.join(", ")}
         </div>
       </div>
       <div className="mt-4">
@@ -993,7 +993,7 @@ const handleSubmit = async () => {
           onClick={handleSubmit}
           className="px-4 py-2 bg-green-600 text-white rounded"
         >
-          âœ… Confirmer et soumettre
+          {getTranslation("confirmerSoumettre", language)}
         </button>
       </div>
     </div>
@@ -1002,9 +1002,9 @@ const handleSubmit = async () => {
   return (
     <div className="max-w-5xl mx-auto p-6 bg-white rounded-2xl shadow-lg">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Formulaire mÃ©dical (multi-Ã©tapes)</h1>
+        <h1 className="text-2xl font-bold">{getTranslation("formulaireMedical", language)}</h1>
         <div className="text-sm text-gray-600">
-          Ã‰tape {step} / {totalSteps}
+          {getTranslation("etapeLabel", language)} {step} / {totalSteps}
         </div>
       </div>
 
@@ -2809,7 +2809,7 @@ const handleSubmit = async () => {
           disabled={step === 1}
           className={`px-4 py-2 rounded ${step === 1 ? "bg-gray-200" : "bg-gray-300"}`}
         >
-          â¬… PrÃ©cÃ©dent
+          {getTranslation("precedent", language)}
         </button>
 
         {step < totalSteps ? (
@@ -2817,7 +2817,7 @@ const handleSubmit = async () => {
             onClick={nextStep}
             className="px-4 py-2 bg-blue-600 text-white rounded"
           >
-            Suivant âž¡
+            {getTranslation("suivant", language)}
           </button>
         ) : (
           <button
@@ -2831,6 +2831,7 @@ const handleSubmit = async () => {
     </div>
   );
 }
+
 
 
 

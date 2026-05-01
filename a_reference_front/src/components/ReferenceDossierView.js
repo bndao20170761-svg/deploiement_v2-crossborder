@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Edit, Trash2, CheckCircle, Clock, AlertCircle, User, FileText, Hospital, Calendar, MessageSquare, Activity, FlaskConical } from 'lucide-react';
+import { ArrowLeft, Edit, Trash2, CheckCircle, Clock, AlertCircle, User, FileText, Hospital, Calendar, MessageSquare, Activity } from 'lucide-react';
 import referenceDossierService from '../services/referenceDossierService';
 import { getTranslation } from '../utils/translations';
 
@@ -11,9 +11,7 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
   const [canEdit, setCanEdit] = useState(false);
 
   useEffect(() => {
-    if (codeReference) {
-      fetchReference();
-    }
+    if (codeReference) fetchReference();
   }, [codeReference]);
 
   const fetchReference = async () => {
@@ -22,40 +20,40 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
       const data = await referenceDossierService.getReferenceByCode(codeReference);
       setReference(data);
       setError(null);
-      const [acceptPermission, editPermission] = await Promise.all([
+      const [acceptPerm, editPerm] = await Promise.all([
         referenceDossierService.canAcceptReference(codeReference),
         referenceDossierService.canEditReference(codeReference)
       ]);
-      setCanAccept(acceptPermission);
-      setCanEdit(editPermission);
+      setCanAccept(acceptPerm);
+      setCanEdit(editPerm);
     } catch (err) {
-      console.error('Erreur lors du chargement de la référence:', err);
-      setError('Impossible de charger les détails de la référence');
+      console.error('Erreur chargement référence:', err);
+      setError(getTranslation('errorLoadingReference', language));
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async () => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette référence ?')) {
+    if (window.confirm(getTranslation('confirmDeleteReference', language))) {
       try {
         await referenceDossierService.deleteReference(codeReference);
         onBack && onBack();
       } catch (err) {
-        console.error('Erreur lors de la suppression:', err);
-        alert('Erreur lors de la suppression de la référence');
+        console.error('Erreur suppression:', err);
+        alert(getTranslation('errorDeleteReference', language));
       }
     }
   };
 
   const handleAccept = async () => {
-    if (window.confirm('Êtes-vous sûr de vouloir accepter cette référence ?')) {
+    if (window.confirm(getTranslation('confirmAcceptReference', language))) {
       try {
         await referenceDossierService.acceptReference(codeReference);
         fetchReference();
-      } catch (error) {
-        console.error("Erreur lors de l'acceptation:", error);
-        alert("Erreur lors de l'acceptation de la référence");
+      } catch (err) {
+        console.error("Erreur acceptation:", err);
+        alert(getTranslation('errorAcceptReference', language));
       }
     }
   };
@@ -78,25 +76,38 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
     }
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return '-';
+  const getStatusLabel = (statut) => {
+    switch (statut) {
+      case 'RECUE': return getTranslation('statusRecue', language);
+      case 'ENVOYEE': return getTranslation('statusEnvoyee', language);
+      case 'EN_ATTENTE': return getTranslation('statusEnAttente', language);
+      default: return statut;
+    }
+  };
+
+  const formatDate = (d) => {
+    if (!d) return '-';
     try {
-      return new Date(dateString).toLocaleDateString('fr-FR', {
-        day: '2-digit', month: '2-digit', year: 'numeric',
-        hour: '2-digit', minute: '2-digit'
-      });
+      return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     } catch { return '-'; }
   };
 
-  const formatDateOnly = (dateString) => {
-    if (!dateString) return '-';
+  const formatDateOnly = (d) => {
+    if (!d) return null;
     try {
-      return new Date(dateString).toLocaleDateString('fr-FR', {
-        day: '2-digit', month: '2-digit', year: 'numeric'
-      });
-    } catch { return '-'; }
+      return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    } catch { return null; }
   };
 
+  // Affiche valeur + date optionnelle
+  const withDate = (value, date) => {
+    const d = formatDateOnly(date);
+    if (!value && !d) return null;
+    if (value && d) return `${value}  (${d})`;
+    return value || d;
+  };
+
+  // Composant champ simple
   const Field = ({ label, value }) => (
     <div>
       <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{label}</p>
@@ -104,52 +115,48 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
     </div>
   );
 
+  // Titre de section
   const SectionTitle = ({ icon, title, color = 'blue' }) => {
-    const colors = {
-      blue: 'text-blue-600', green: 'text-green-600', purple: 'text-purple-600',
-      orange: 'text-orange-600', indigo: 'text-indigo-600', red: 'text-red-600',
-      teal: 'text-teal-600', gray: 'text-gray-600'
-    };
+    const colors = { blue: 'text-blue-600', green: 'text-green-600', purple: 'text-purple-600', orange: 'text-orange-600', indigo: 'text-indigo-600', teal: 'text-teal-600', gray: 'text-gray-600', red: 'text-red-600' };
     return (
       <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2 border-b pb-2">
-        <span className={colors[color]}>{icon}</span>
+        <span className={colors[color] || 'text-blue-600'}>{icon}</span>
         {title}
       </h2>
     );
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Chargement des détails...</p>
-        </div>
-      </div>
-    );
-  }
+  // Sous-titre de section clinique
+  const SubSection = ({ title }) => (
+    <h3 className="text-sm font-semibold text-gray-700 mb-3 bg-gray-100 px-3 py-1.5 rounded">{title}</h3>
+  );
 
-  if (error) {
-    return (
-      <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
-        <p className="text-red-700">❌ {error}</p>
-        <button onClick={fetchReference} className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
-          🔄 Réessayer
-        </button>
+  if (loading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+        <p className="mt-4 text-gray-600">{getTranslation('loadingDetails', language)}</p>
       </div>
-    );
-  }
+    </div>
+  );
 
-  if (!reference) {
-    return (
-      <div className="p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
-        <p className="text-yellow-700">⚠️ Référence non trouvée</p>
-        <button onClick={onBack} className="mt-4 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700">
-          🔙 Retour
-        </button>
-      </div>
-    );
-  }
+  if (error) return (
+    <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
+      <p className="text-red-700">❌ {error}</p>
+      <button onClick={fetchReference} className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+        🔄 {getTranslation('retry', language)}
+      </button>
+    </div>
+  );
+
+  if (!reference) return (
+    <div className="p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
+      <p className="text-yellow-700">⚠️ {getTranslation('referenceNotFound', language)}</p>
+      <button onClick={onBack} className="mt-4 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700">
+        🔙 {getTranslation('retour', language)}
+      </button>
+    </div>
+  );
 
   return (
     <div className="max-w-5xl mx-auto p-4 bg-gray-50 min-h-screen space-y-4">
@@ -159,116 +166,114 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
         <div className="flex items-center justify-between mb-3">
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <FileText className="w-6 h-6 text-blue-600" />
-            Détails de la Référence
+            {getTranslation('referenceDetails', language)}
           </h1>
           <button onClick={onBack} className="px-3 py-1.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 flex items-center gap-1 text-sm">
-            <ArrowLeft className="w-4 h-4" /> Retour
+            <ArrowLeft className="w-4 h-4" /> {getTranslation('retour', language)}
           </button>
         </div>
-
         <div className="flex items-center gap-3 mb-4">
           <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium border ${getStatusBadgeClass(reference.statut)}`}>
             {getStatusIcon(reference.statut)}
-            {reference.statut === 'RECUE' ? 'Reçue' : reference.statut === 'ENVOYEE' ? 'Envoyée' : reference.statut === 'EN_ATTENTE' ? 'En attente' : reference.statut}
+            {getStatusLabel(reference.statut)}
           </span>
         </div>
-
         <div className="flex flex-wrap gap-2">
           {canEdit && (
             <button onClick={() => onEdit && onEdit(reference)} className="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-1 text-sm">
-              <Edit className="w-4 h-4" /> Modifier
+              <Edit className="w-4 h-4" /> {getTranslation('edit', language)}
             </button>
           )}
           {canAccept && reference.statut !== 'RECUE' && (
             <button onClick={handleAccept} className="px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-1 text-sm">
-              <CheckCircle className="w-4 h-4" /> Accepter
+              <CheckCircle className="w-4 h-4" /> {getTranslation('accept', language)}
             </button>
           )}
           <button onClick={handleDelete} className="px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-1 text-sm">
-            <Trash2 className="w-4 h-4" /> Supprimer
+            <Trash2 className="w-4 h-4" /> {getTranslation('delete', language)}
           </button>
         </div>
       </div>
 
       {/* Informations de la référence */}
       <div className="bg-white rounded-lg shadow p-5">
-        <SectionTitle icon={<FileText className="w-5 h-5" />} title="Informations de la Référence" color="blue" />
+        <SectionTitle icon={<FileText className="w-5 h-5" />} title={getTranslation('referenceInformation', language)} color="blue" />
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <Field label="Code Référence" value={reference.codeReference} />
-          <Field label="Date de Référence" value={formatDate(reference.dateReference)} />
-          <Field label="Type de Référence" value={reference.typeReference} />
-          <Field label="Motif" value={reference.motifReference} />
-          <Field label="Date de Prise en Charge" value={formatDate(reference.datePriseEnCharge)} />
+          <Field label={getTranslation('codeReference', language)} value={reference.codeReference} />
+          <Field label={getTranslation('referenceDate', language)} value={formatDate(reference.dateReference)} />
+          <Field label={getTranslation('referenceType', language)} value={reference.typeReference} />
+          <Field label={getTranslation('motif', language)} value={reference.motifReference} />
+          <Field label={getTranslation('priseEnChargeDate', language)} value={formatDate(reference.datePriseEnCharge)} />
         </div>
       </div>
 
       {/* Informations du patient */}
       <div className="bg-white rounded-lg shadow p-5">
-        <SectionTitle icon={<User className="w-5 h-5" />} title="Informations du Patient" color="green" />
+        <SectionTitle icon={<User className="w-5 h-5" />} title={getTranslation('patientInformation', language)} color="green" />
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <Field label="Code Patient" value={reference.codePatient} />
-          <Field label="Nom" value={reference.nomPatient} />
-          <Field label="Prénom" value={reference.prenomPatient} />
-          <Field label="Date de Naissance" value={reference.dateNaissance ? formatDateOnly(reference.dateNaissance) : '-'} />
-          <Field label="Âge" value={reference.age ? `${reference.age} ans` : '-'} />
-          <Field label="Sexe" value={reference.sexe} />
-          <Field label="Profession" value={reference.profession} />
-          <Field label="Téléphone" value={reference.telephone} />
-          <Field label="Nationalité" value={reference.nationalite} />
-          <Field label="Statut Matrimonial" value={reference.statutMatrimoniale} />
+          <Field label={getTranslation('codePatient', language)} value={reference.codePatient} />
+          <Field label={getTranslation('nomLabel', language)} value={reference.nomPatient} />
+          <Field label={getTranslation('prenomLabel', language)} value={reference.prenomPatient} />
+          <Field label={getTranslation('dateNaissanceLabel', language)} value={reference.dateNaissance ? formatDateOnly(reference.dateNaissance) : null} />
+          <Field label={getTranslation('ageLabel', language)} value={reference.age ? `${reference.age} ${getTranslation('ans', language)}` : null} />
+          <Field label={getTranslation('sexeLabel', language)} value={reference.sexe} />
+          <Field label={getTranslation('professionLabel', language)} value={reference.profession} />
+          <Field label={getTranslation('telephoneLabel', language)} value={reference.telephone} />
+          <Field label={getTranslation('nationalite', language)} value={reference.nationalite} />
+          <Field label={getTranslation('statutMatrimonial', language)} value={reference.statutMatrimoniale} />
         </div>
       </div>
 
-      {/* Hôpital de destination + Médecin destinataire */}
+      {/* Hôpital destination + Médecin destinataire */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-white rounded-lg shadow p-5">
-          <SectionTitle icon={<Hospital className="w-5 h-5" />} title="Hôpital de Destination" color="purple" />
+          <SectionTitle icon={<Hospital className="w-5 h-5" />} title={getTranslation('hopitalDestination', language)} color="purple" />
           <div className="space-y-3">
-            <Field label="Code Hôpital" value={reference.codeHopital} />
-            <Field label="Nom Hôpital" value={reference.nomHopital} />
+            <Field label={getTranslation('codeHopital', language)} value={reference.codeHopital} />
+            <Field label={getTranslation('nomHopital', language)} value={reference.nomHopital} />
           </div>
         </div>
         <div className="bg-white rounded-lg shadow p-5">
-          <SectionTitle icon={<User className="w-5 h-5" />} title="Médecin Destinataire" color="orange" />
+          <SectionTitle icon={<User className="w-5 h-5" />} title={getTranslation('medecinDestinataire', language)} color="orange" />
           <div className="space-y-3">
-            <Field label="Code Médecin" value={reference.codeDocteur} />
-            <Field label="Nom Médecin" value={reference.nomDocteur} />
+            <Field label={getTranslation('codeDocteur', language)} value={reference.codeDocteur} />
+            <Field label={getTranslation('nomDocteur', language)} value={reference.nomDocteur} />
           </div>
         </div>
       </div>
 
       {/* Informations du référenceur */}
       <div className="bg-white rounded-lg shadow p-5">
-        <SectionTitle icon={<MessageSquare className="w-5 h-5" />} title="Informations du Référenceur" color="indigo" />
+        <SectionTitle icon={<MessageSquare className="w-5 h-5" />} title={getTranslation('referenceurInformation', language)} color="indigo" />
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <Field label="Code Référenceur" value={reference.codeReferenceur} />
-          <Field label="Nom Référenceur" value={reference.nomReferenceur} />
-          <Field label="Fonction" value={reference.fonctionReferenceur} />
-          <Field label="Nationalité" value={reference.nationaliteReferenceur} />
-          <Field label="Hôpital d'origine" value={reference.nomHopitalReferenceur || reference.codeHopitalReferenceur} />
-          <Field label="Téléphone" value={reference.telephoneReferenceur} />
-          <Field label="Email" value={reference.emailReferenceur} />
+          <Field label={getTranslation('codeReferenceur', language)} value={reference.codeReferenceur} />
+          <Field label={getTranslation('nomReferenceur', language)} value={reference.nomReferenceur} />
+          <Field label={getTranslation('fonctionReferenceur', language)} value={reference.fonctionReferenceur} />
+          <Field label={getTranslation('nationaliteReferenceur', language)} value={reference.nationaliteReferenceur} />
+          <Field label={getTranslation('hopitalOrigine', language)} value={reference.nomHopitalReferenceur || reference.codeHopitalReferenceur} />
+          <Field label={getTranslation('telephoneReferenceur', language)} value={reference.telephoneReferenceur} />
+          <Field label={getTranslation('emailReferenceur', language)} value={reference.emailReferenceur} />
         </div>
       </div>
 
       {/* Motif Détaillé */}
       {(reference.changementAdresse || reference.autresAPreciser || (reference.motifs && reference.motifs.length > 0)) && (
         <div className="bg-white rounded-lg shadow p-5">
-          <SectionTitle icon={<FileText className="w-5 h-5" />} title="Motif Détaillé" color="blue" />
+          <SectionTitle icon={<FileText className="w-5 h-5" />} title={getTranslation('motifDetaille', language)} color="blue" />
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {reference.changementAdresse && (
-              <Field label="Changement d'adresse"
-                value={reference.changementAdressePermanent ? 'Permanent' : reference.changementAdresseTemporaire ? 'Temporaire' : 'Oui'} />
+              <Field label={getTranslation('changementAdresse', language)}
+                value={reference.changementAdressePermanent ? getTranslation('permanent', language) : reference.changementAdresseTemporaire ? getTranslation('temporaire', language) : getTranslation('oui', language)} />
             )}
             {reference.autresAPreciser && (
-              <Field label="Autre motif" value={reference.autresMotif} />
+              <Field label={getTranslation('autresPreciser', language)} value={reference.autresMotif} />
             )}
             {reference.motifs && reference.motifs.length > 0 && (
               <div className="md:col-span-3">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Motifs médicaux</p>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">{getTranslation('motifsMedicaux', language)}</p>
                 <div className="flex flex-wrap gap-2">
-                  {reference.motifs.map((motif, i) => (
-                    <span key={i} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">{motif.nomMotif}</span>
+                  {reference.motifs.map((m, i) => (
+                    <span key={i} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">{m.nomMotif}</span>
                   ))}
                 </div>
               </div>
@@ -280,10 +285,10 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
       {/* Services demandés */}
       {(reference.serviceArv || reference.serviceLaboratoire || reference.servicePtme || reference.serviceCrc || reference.servicePvvih) && (
         <div className="bg-white rounded-lg shadow p-5">
-          <SectionTitle icon={<Hospital className="w-5 h-5" />} title="Services Demandés" color="green" />
+          <SectionTitle icon={<Hospital className="w-5 h-5" />} title={getTranslation('servicesDemandes', language)} color="green" />
           <div className="flex flex-wrap gap-2">
             {reference.serviceArv && <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">ARV</span>}
-            {reference.serviceLaboratoire && <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">Laboratoire</span>}
+            {reference.serviceLaboratoire && <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">{getTranslation('laboratoire', language)}</span>}
             {reference.servicePtme && <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">PTME</span>}
             {reference.serviceCrc && <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">CRC</span>}
             {reference.servicePvvih && <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">PVVIH</span>}
@@ -293,101 +298,119 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
 
       {/* Informations Cliniques */}
       <div className="bg-white rounded-lg shadow p-5">
-        <SectionTitle icon={<Activity className="w-5 h-5" />} title="Informations Cliniques" color="purple" />
+        <SectionTitle icon={<Activity className="w-5 h-5" />} title={getTranslation('clinicalInformation', language)} color="purple" />
 
         {/* Poids & Stades OMS */}
         <div className="mb-5">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3 bg-gray-100 px-3 py-1.5 rounded">Poids &amp; Stades OMS</h3>
+          <SubSection title={getTranslation('poidsStadesOMS', language)} />
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Field label="Poids" value={reference.poidsKg ? `${reference.poidsKg} kg` : null} />
+            <Field label={getTranslation('poids', language)} value={reference.poidsKg ? `${reference.poidsKg} kg` : null} />
             <div>
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Stade OMS</p>
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">{getTranslation('stadeOMS', language)}</p>
               <div className="flex flex-wrap gap-1">
-                {reference.stades && reference.stades.length > 0 ? (
-                  ['stade1','stade2','stade3','stade4'].map(s => reference.stades[0]?.[s] && (
-                    <span key={s} className="px-2 py-0.5 bg-purple-100 text-purple-800 text-xs rounded">{s.replace('stade','Stade ')}</span>
-                  ))
-                ) : <span className="text-sm text-gray-900">-</span>}
+                {reference.stades && reference.stades.length > 0
+                  ? ['stade1','stade2','stade3','stade4'].map(s => reference.stades[0]?.[s] && (
+                      <span key={s} className="px-2 py-0.5 bg-purple-100 text-purple-800 text-xs rounded">{s.replace('stade','Stade ')}</span>
+                    ))
+                  : <span className="text-sm text-gray-900">-</span>}
               </div>
             </div>
             <div>
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Profil VIH</p>
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">{getTranslation('profilVIH', language)}</p>
               <div className="flex flex-wrap gap-1">
-                {reference.profils && reference.profils.length > 0 ? (
-                  ['profil1','profil2','profil12','indetermine'].map(p => reference.profils[0]?.[p] && (
-                    <span key={p} className="px-2 py-0.5 bg-indigo-100 text-indigo-800 text-xs rounded">{p}</span>
-                  ))
-                ) : <span className="text-sm text-gray-900">-</span>}
+                {reference.profils && reference.profils.length > 0
+                  ? ['profil1','profil2','profil12','indetermine'].map(p => reference.profils[0]?.[p] && (
+                      <span key={p} className="px-2 py-0.5 bg-indigo-100 text-indigo-800 text-xs rounded">{p}</span>
+                    ))
+                  : <span className="text-sm text-gray-900">-</span>}
               </div>
             </div>
             {reference.profils?.[0]?.dateConfirmation && (
-              <Field label="Date confirmation VIH" value={formatDateOnly(reference.profils[0].dateConfirmation)} />
+              <Field label={getTranslation('dateConfirmation', language)} value={formatDateOnly(reference.profils[0].dateConfirmation)} />
             )}
           </div>
         </div>
 
         {/* Traitement ARV */}
         <div className="mb-5">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3 bg-gray-100 px-3 py-1.5 rounded">Traitement ARV</h3>
+          <SubSection title={getTranslation('traitementARVSection', language)} />
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <Field label="Sous ARV" value={reference.traitementARV ? 'Oui' : 'Non'} />
-            {reference.traitementARV && (
-              <>
-                {reference.protocoles1s && reference.protocoles1s.length > 0 && reference.protocoles1s[0]?.protocole1ereLigne && (
-                  <Field label="Protocole 1ère ligne" value={`${reference.protocoles1s[0].protocole1ereLigne}${reference.protocoles1s[0].dateProtocole1 ? ' — ' + formatDateOnly(reference.protocoles1s[0].dateProtocole1) : ''}`} />
-                )}
-                {reference.protocoles2s && reference.protocoles2s.length > 0 && reference.protocoles2s[0]?.protocole2emeLigne && (
-                  <Field label="Protocole 2ème ligne" value={`${reference.protocoles2s[0].protocole2emeLigne}${reference.protocoles2s[0].dateProtocole2 ? ' — ' + formatDateOnly(reference.protocoles2s[0].dateProtocole2) : ''}`} />
-                )}
-              </>
+            <Field label={getTranslation('sousARV', language)} value={reference.traitementARV ? getTranslation('oui', language) : getTranslation('non', language)} />
+            {reference.dateDebutARV && (
+              <Field label={getTranslation('dateDebutARV', language)} value={formatDateOnly(reference.dateDebutARV)} />
+            )}
+            {reference.traitementARV && reference.protocoles1s && reference.protocoles1s.length > 0 && (
+              reference.protocoles1s.map((p, i) => p.protocole1ereLigne && (
+                <div key={`p1-${i}`}>
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{getTranslation('protocole1ereLigne', language)}</p>
+                  <p className="mt-0.5 text-sm text-gray-900">{p.protocole1ereLigne}</p>
+                  {p.dateProtocole1 && <p className="text-xs text-gray-500">{formatDateOnly(p.dateProtocole1)}</p>}
+                </div>
+              ))
+            )}
+            {reference.traitementARV && reference.protocoles2s && reference.protocoles2s.length > 0 && (
+              reference.protocoles2s.map((p, i) => p.protocole2emeLigne && (
+                <div key={`p2-${i}`}>
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{getTranslation('protocole2emeLigne', language)}</p>
+                  <p className="mt-0.5 text-sm text-gray-900">{p.protocole2emeLigne}</p>
+                  {p.dateProtocole2 && <p className="text-xs text-gray-500">{formatDateOnly(p.dateProtocole2)}</p>}
+                </div>
+              ))
             )}
           </div>
         </div>
 
         {/* CD4 */}
         <div className="mb-5">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3 bg-gray-100 px-3 py-1.5 rounded">CD4</h3>
+          <SubSection title="CD4" />
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <Field label="CD4 Dernier" value={reference.cd4Dernier ? `${reference.cd4Dernier}${reference.dateCd4Dernier ? ' — ' + formatDateOnly(reference.dateCd4Dernier) : ''}` : null} />
-            <Field label="CD4 Début traitement" value={reference.cd4DebutTraitement ? `${reference.cd4DebutTraitement}${reference.dateCd4DebutTraitement ? ' — ' + formatDateOnly(reference.dateCd4DebutTraitement) : ''}` : null} />
-            <Field label="CD4 Inclusion" value={reference.cd4Inclusion ? `${reference.cd4Inclusion}${reference.dateCd4Inclusion ? ' — ' + formatDateOnly(reference.dateCd4Inclusion) : ''}` : null} />
+            <Field label={getTranslation('cd4Dernier', language)} value={withDate(reference.cd4Dernier, reference.dateCd4Dernier)} />
+            <Field label={getTranslation('cd4DebutTraitement', language)} value={withDate(reference.cd4DebutTraitement, reference.dateCd4DebutTraitement)} />
+            <Field label={getTranslation('cd4Inclusion', language)} value={withDate(reference.cd4Inclusion, reference.dateCd4Inclusion)} />
           </div>
         </div>
 
         {/* Analyses biologiques */}
         <div className="mb-5">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3 bg-gray-100 px-3 py-1.5 rounded">Analyses biologiques</h3>
+          <SubSection title={getTranslation('analysesBiologiques', language)} />
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <Field label="Charge Virale" value={reference.chargeViraleNiveau ? `${reference.chargeViraleNiveau}${reference.dateDebutChargeVirale ? ' — ' + formatDateOnly(reference.dateDebutChargeVirale) : ''}` : null} />
-            <Field label="Hémoglobine (Hb)" value={reference.hbNiveau ? `${reference.hbNiveau}${reference.dateHb ? ' — ' + formatDateOnly(reference.dateHb) : ''}` : null} />
-            <Field label="Lymphocytes totaux" value={reference.lymphocytesTotaux ? `${reference.lymphocytesTotaux}${reference.dateLymphocytes ? ' — ' + formatDateOnly(reference.dateLymphocytes) : ''}` : null} />
-            <Field label="Allergie" value={reference.allergie ? `${reference.allergie}${reference.dateAllergie ? ' — ' + formatDateOnly(reference.dateAllergie) : ''}` : null} />
-            <Field label="Créatininémie" value={reference.creatinemie ? `${reference.creatinemie}${reference.dateCreatinemie ? ' — ' + formatDateOnly(reference.dateCreatinemie) : ''}` : null} />
+            <Field label={getTranslation('chargeVirale', language)} value={withDate(reference.chargeViraleNiveau, reference.dateDebutChargeVirale)} />
+            <Field label={getTranslation('hbNiveau', language)} value={withDate(reference.hbNiveau, reference.dateHb)} />
+            <Field label={getTranslation('lymphocytesTotaux', language)} value={withDate(reference.lymphocytesTotaux, reference.dateLymphocytes)} />
+            <Field label={getTranslation('allergie', language)} value={withDate(reference.allergie, reference.dateAllergie)} />
+            <Field label={getTranslation('creatinemie', language)} value={withDate(reference.creatinemie, reference.dateCreatinemie)} />
           </div>
         </div>
 
         {/* Analyses microbiologiques */}
         <div className="mb-5">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3 bg-gray-100 px-3 py-1.5 rounded">Analyses microbiologiques</h3>
+          <SubSection title={getTranslation('analysesMicrobiologiques', language)} />
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <Field label="Crachat BAAR" value={reference.cracheBaar ? `${reference.cracheBaar}${reference.dateCracheBaar ? ' — ' + formatDateOnly(reference.dateCracheBaar) : ''}` : null} />
-            <Field label="AgHBs" value={reference.aghbs ? `${reference.aghbs}${reference.dateAghbs ? ' — ' + formatDateOnly(reference.dateAghbs) : ''}` : null} />
-            <Field label="Transaminases" value={reference.transaminase ? `${reference.transaminase}${reference.dateTransaminase ? ' — ' + formatDateOnly(reference.dateTransaminase) : ''}` : null} />
+            <Field label={getTranslation('cracheBaar', language)} value={withDate(reference.cracheBaar, reference.dateCracheBaar)} />
+            <Field label="AgHBs" value={withDate(reference.aghbs, reference.dateAghbs)} />
+            <Field label={getTranslation('transaminase', language)} value={withDate(reference.transaminase, reference.dateTransaminase)} />
             {reference.transaminaseAsat && <Field label="ASAT" value={reference.transaminaseAsat} />}
             {reference.transaminaseAlat && <Field label="ALAT" value={reference.transaminaseAlat} />}
+            {reference.resultatTrans && <Field label={getTranslation('resultatTrans', language)} value={reference.resultatTrans} />}
             {reference.autreAnalyse && (
-              <Field label="Autre analyse" value={`Oui${reference.dateAutreAnalyse ? ' — ' + formatDateOnly(reference.dateAutreAnalyse) : ''}`} />
+              <Field label={getTranslation('autreAnalyse', language)} value={withDate(getTranslation('oui', language), reference.dateAutreAnalyse)} />
             )}
           </div>
         </div>
 
         {/* Traitement TB */}
         <div className="mb-5">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3 bg-gray-100 px-3 py-1.5 rounded">Traitement TB</h3>
+          <SubSection title={getTranslation('traitementTBSection', language)} />
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <Field label="Sous traitement TB" value={reference.traitementtb ? 'Oui' : 'Non'} />
-            {reference.traitementtb && reference.protocolesTheraps && reference.protocolesTheraps.length > 0 && reference.protocolesTheraps[0]?.therapie && (
-              <Field label="Protocole thérapeutique" value={`${reference.protocolesTheraps[0].therapie}${reference.protocolesTheraps[0].dateTherapie ? ' — ' + formatDateOnly(reference.protocolesTheraps[0].dateTherapie) : ''}`} />
+            <Field label={getTranslation('sousTraitementTB', language)} value={reference.traitementtb ? getTranslation('oui', language) : getTranslation('non', language)} />
+            {reference.traitementtb && reference.protocolesTheraps && reference.protocolesTheraps.length > 0 && (
+              reference.protocolesTheraps.map((t, i) => t.therapie && (
+                <div key={`tb-${i}`}>
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{getTranslation('protocoleTherapeutique', language)}</p>
+                  <p className="mt-0.5 text-sm text-gray-900">{t.therapie}</p>
+                  {t.dateTherapie && <p className="text-xs text-gray-500">{formatDateOnly(t.dateTherapie)}</p>}
+                </div>
+              ))
             )}
           </div>
         </div>
@@ -395,8 +418,8 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
         {/* Autre traitement */}
         {reference.autreTraitement && (
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 bg-gray-100 px-3 py-1.5 rounded">Autre traitement</h3>
-            <Field label="Autre traitement" value="Oui" />
+            <SubSection title={getTranslation('autreTraitement', language)} />
+            <Field label={getTranslation('autreTraitement', language)} value={getTranslation('oui', language)} />
           </div>
         )}
       </div>
@@ -404,17 +427,17 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
       {/* Observations */}
       {reference.observations && (
         <div className="bg-white rounded-lg shadow p-5">
-          <SectionTitle icon={<MessageSquare className="w-5 h-5" />} title="Observations" color="gray" />
+          <SectionTitle icon={<MessageSquare className="w-5 h-5" />} title={getTranslation('observations', language)} color="gray" />
           <p className="text-sm text-gray-900 whitespace-pre-wrap">{reference.observations}</p>
         </div>
       )}
 
       {/* Informations Temporelles */}
       <div className="bg-white rounded-lg shadow p-5">
-        <SectionTitle icon={<Calendar className="w-5 h-5" />} title="Informations Temporelles" color="orange" />
+        <SectionTitle icon={<Calendar className="w-5 h-5" />} title={getTranslation('temporalInformation', language)} color="orange" />
         <div className="grid grid-cols-2 gap-4">
-          <Field label="Date de Création" value={formatDate(reference.dateCreation)} />
-          <Field label="Dernière Modification" value={formatDate(reference.dateModification)} />
+          <Field label={getTranslation('dateCreation', language)} value={formatDate(reference.dateCreation)} />
+          <Field label={getTranslation('dateModification', language)} value={formatDate(reference.dateModification)} />
         </div>
       </div>
 

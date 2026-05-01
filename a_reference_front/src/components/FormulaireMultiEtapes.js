@@ -1,4 +1,4 @@
-import DossierView from "./DossierView";
+﻿import DossierView from "./DossierView";
 
 import React, { useState, useEffect, useRef } from "react";
 
@@ -364,7 +364,7 @@ const detectBlinkAndIris = () => {
       const estimatedDistance = Math.max(0, 100 - (eyeArea / 100));
       setDistanceFromCamera(estimatedDistance);
 
-      // Calculer la qualité du scan basée sur la netteté
+      // Calculer la {getTranslation("qualiteScan", language)} basée sur la netteté
       const quality = calculateScanQuality(equalized, eye);
       setScanQuality(quality);
 
@@ -405,7 +405,7 @@ const detectBlinkAndIris = () => {
   }
 };
 
-// 🆕 Fonction pour calculer la qualité du scan
+// 🆕 Fonction pour calculer la {getTranslation("qualiteScan", language)}
 const calculateScanQuality = (image, eyeRect) => {
   try {
     // Extraire la région de l'œil
@@ -707,7 +707,7 @@ const drawAdvancedInterface = (ctx, eye, quality, distance, irisDetected) => {
   ctx.fillText(`Clignements: ${blinkCount}`, 10, 90);
   ctx.fillText(`Iris: ${irisDetected ? '✅ Détecté' : '❌ Non détecté'}`, 10, 120);
   
-  // Barre de progression du scan
+  // Barre de {getTranslation("progressionScan", language)}
   const progressWidth = 200;
   const progressHeight = 20;
   const progressX = (ctx.canvas.width - progressWidth) / 2;
@@ -1628,7 +1628,7 @@ const sections = [
           {/* Ajouter cet indicateur de statut */}
           <div className="mb-4 p-3 rounded-lg bg-blue-50 border border-blue-200">
             <p className="text-blue-800 font-semibold">
-              Statut Biométrique:
+              {getTranslation("statutBiometrique", language)}:
               <span className={`ml-2 ${
                 biometrieIris.biometricStatus === "CAPTURED" ? "text-green-600" :
                 biometrieIris.biometricStatus === "FAILED" ? "text-red-600" :
@@ -1712,34 +1712,34 @@ const sections = [
           {/* Interface de scan avancée */}
           {biometrieIris.isCameraActive && (
             <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-lg">
-              <h3 className="text-lg font-semibold text-blue-800 mb-3">🔬 Scan d'Iris Avancé</h3>
+              <h3 className="text-lg font-semibold text-blue-800 mb-3">🔬 {getTranslation("scanIrisAvance", language)}</h3>
               
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div className="bg-white p-3 rounded-lg shadow-sm">
-                  <p className="text-sm font-medium text-gray-600">Distance de la caméra</p>
+                  <p className="text-sm font-medium text-gray-600">{getTranslation("distanceCamera", language)}</p>
                   <p className="text-xl font-bold text-blue-600">{Math.round(distanceFromCamera)}cm</p>
                 </div>
                 
                 <div className="bg-white p-3 rounded-lg shadow-sm">
-                  <p className="text-sm font-medium text-gray-600">Qualité du scan</p>
+                  <p className="text-sm font-medium text-gray-600">{getTranslation("qualiteScan", language)}</p>
                   <p className="text-xl font-bold text-green-600">{scanQuality}%</p>
                 </div>
                 
                 <div className="bg-white p-3 rounded-lg shadow-sm">
-                  <p className="text-sm font-medium text-gray-600">Clignements détectés</p>
+                  <p className="text-sm font-medium text-gray-600">{getTranslation("clignementsDétectés", language)}</p>
                   <p className="text-xl font-bold text-purple-600">{blinkCount}</p>
                 </div>
                 
                 <div className="bg-white p-3 rounded-lg shadow-sm">
-                  <p className="text-sm font-medium text-gray-600">Iris détecté</p>
+                  <p className="text-sm font-medium text-gray-600">{getTranslation("irisDetecte", language)}</p>
                   <p className="text-xl font-bold text-orange-600">{irisDetected ? '✅' : '❌'}</p>
                 </div>
               </div>
               
-              {/* Barre de progression du scan */}
+              {/* Barre de {getTranslation("progressionScan", language)} */}
               <div className="mb-4">
                 <div className="flex justify-between text-sm text-gray-600 mb-1">
-                  <span>Progression du scan</span>
+                  <span>{getTranslation("progressionScan", language)}</span>
                   <span>{scanProgress}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-3">
@@ -3157,7 +3157,7 @@ const sections = [
  }
 ,
        {
-         titre: "Section X : Suivi thérapeutique ARV",
+         titre: getTranslation("sectionXIVSuiviArv", language),
          contenu: (
            <div className="p-4 border rounded-lg">
              <div className="overflow-x-auto">
@@ -3214,10 +3214,10 @@ const sections = [
                            className="w-full border rounded p-1"
                          >
                            <option value="">--</option>
-                           <option value="0">0 = Pas sous ARV</option>
-                           <option value="1">1 = Sous ARV</option>
-                           <option value="2">2 = Changement de ligne</option>
-                           <option value="3">3 = Substitution de molécule</option>
+                           <option value="0">0 = {getTranslation("pasSousArv", language)}</option>
+                           <option value="1">1 = {getTranslation("sousArv", language)}</option>
+                           <option value="2">2 = {getTranslation("changementLigne", language)}</option>
+                           <option value="3">3 = {getTranslation("substitutionMolecule", language)}</option>
                          </select>
                        </td>
 
@@ -3231,8 +3231,8 @@ const sections = [
                            disabled={row.situationArv !== "2"}
                          >
                            <option value="">--</option>
-                           <option value="1">1 = Ligne 2</option>
-                           <option value="2">2 = Ligne 3</option>
+                           <option value="1">1 = {getTranslation("ligne2", language)}</option>
+                           <option value="2">2 = {getTranslation("ligne3", language)}</option>
                          </select>
                        </td>
 
@@ -3255,9 +3255,9 @@ const sections = [
                            disabled={row.situationArv !== "3"}
                          >
                            <option value="">--</option>
-                           <option value="1">1 = Toxicité / effets secondaires</option>
-                           <option value="2">2 = Rupture de stock de médicaments</option>
-                           <option value="3">3 = Autres</option>
+                           <option value="1">1 = {getTranslation("toxicite", language)}</option>
+                           <option value="2">2 = {getTranslation("ruptureStock", language)}</option>
+                           <option value="3">3 = {getTranslation("autres", language)}</option>
                          </select>
                        </td>
 
@@ -3269,7 +3269,7 @@ const sections = [
                              modifierSuiviArv(i, "substitutionPrecision", e.target.value)
                            }
                            className="w-full border rounded p-1"
-                           placeholder="Préciser si motif = 3"
+                           placeholder={getTranslation("preciserSiMotif3", language)}
                            disabled={row.situationArv !== "3" || row.substitutionMotif !== "3"}
                          />
                        </td>
@@ -3311,10 +3311,10 @@ const sections = [
                            className="w-full border rounded p-1"
                          >
                            <option value="">--</option>
-                           <option value="1">1 = Maigreur</option>
-                           <option value="2">2 = Bon état nutritionnel</option>
-                           <option value="3">3 = Surpoids</option>
-                           <option value="4">4 = Obésité</option>
+                           <option value="1">1 = {getTranslation("maigreur", language)}</option>
+                           <option value="2">2 = {getTranslation("bonEtat", language)}</option>
+                           <option value="3">3 = {getTranslation("surpoids", language)}</option>
+                           <option value="4">4 = {getTranslation("obesite", language)}</option>
                          </select>
                        </td>
 
@@ -3329,8 +3329,8 @@ const sections = [
                            <option value="">--</option>
                            <option value="1">1 = Bien portant (à l’enrôlement)</option>
                            <option value="2">2 = MVA (à l’enrôlement)</option>
-                           <option value="3">3 = Stable (après 6 mois de TAR)</option>
-                           <option value="4">4 = Non stable (après 6 mois de TAR)</option>
+                           <option value="3">3 = {getTranslation("stable", language)}</option>
+                           <option value="4">4 = {getTranslation("nonStable", language)}</option>
                          </select>
                        </td>
 
@@ -3342,7 +3342,7 @@ const sections = [
                              modifierSuiviArv(i, "modeleSoinsNumero", e.target.value)
                            }
                            className="w-full border rounded p-1"
-                           placeholder="N° modèle"
+                           placeholder={getTranslation("numeroModele", language)}
                          />
                        </td>
 
@@ -3373,7 +3373,7 @@ const sections = [
                onClick={ajouterSuiviArv}
                className="mt-3 px-4 py-2 bg-blue-500 text-white rounded"
              >
-               + Ajouter une ligne
+               + {getTranslation("ajouterLigne", language)}
              </button>
            </div>
          ),
@@ -3392,7 +3392,7 @@ const sections = [
   };
 
    const annuler = () => {
-     if (window.confirm("Voulez-vous annuler et réinitialiser le formulaire ?")) {
+     if (window.confirm(getTranslation("annulerReinitialiser", language))) {
        setDonneesFormulaire({
          profession: "",
          statutFamilial: "",
@@ -3458,7 +3458,7 @@ const sections = [
          disabled={etape === 0}
          className="flex items-center px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
        >
-         <ArrowLeft className="mr-2" /> Précédent
+         <ArrowLeft className="mr-2" /> {getTranslation("precedent", language)}
        </button>
 
        {/* Bouton suivant ou soumettre à droite */}
@@ -3467,7 +3467,7 @@ const sections = [
            onClick={etapeSuivante}
            className="flex items-center px-4 py-2 bg-blue-500 text-white rounded"
          >
-           Suivant <ArrowRight className="ml-2" />
+           {getTranslation("suivant", language)} <ArrowRight className="ml-2" />
          </button>
        ) : (
          <button
@@ -3480,8 +3480,8 @@ const sections = [
            }`}
          >
            {biometrieIris.biometricStatus === "CAPTURED"
-             ? "Soumettre avec identification iris"
-             : "Capturez l'iris d'abord"}
+             ? getTranslation("soumettreAvecIris", language)
+             : getTranslation("capturezIrisDabord", language)}
          </button>
        )}
      </div>
@@ -3493,3 +3493,4 @@ const sections = [
 
    );
  }
+

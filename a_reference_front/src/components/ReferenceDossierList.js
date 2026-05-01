@@ -40,7 +40,13 @@ const ReferenceDossierList = ({ language = "fr", filterStatus = "all", onReferen
           console.log('Données reçues pour all:', data);
       }
       
-      setReferences(data || []);
+      // Trier par date de création décroissante (plus récent en premier)
+      const sorted = (data || []).sort((a, b) => {
+        const dateA = new Date(a.dateCreation || a.dateReference || 0);
+        const dateB = new Date(b.dateCreation || b.dateReference || 0);
+        return dateB - dateA;
+      });
+      setReferences(sorted);
       setError(null);
     } catch (err) {
       console.error('Erreur lors du chargement des références:', err);
