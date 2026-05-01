@@ -43,3 +43,14 @@ export const getCurrentDoctor = async () => {
     throw error;
   }
 };
+
+// Récupérer l'hôpital du médecin actuellement authentifié
+export const getCurrentDoctorHopital = async () => {
+  try {
+    const response = await api.get('/doctors/current-hopital');
+    return response.data;
+  } catch (error) {
+    console.error("Erreur lors de la récupération de l'hôpital du médecin connecté:", error);
+    return null; // Ne pas bloquer si l'hôpital n'est pas trouvé
+  }
+};

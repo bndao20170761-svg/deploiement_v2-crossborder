@@ -75,6 +75,12 @@ public class ReferenceDossier {
     @Column(name = "email_referenceur")
     private String emailReferenceur;
     
+    @Column(name = "code_hopital_referenceur")
+    private String codeHopitalReferenceur;
+    
+    @Column(name = "nom_hopital_referenceur")
+    private String nomHopitalReferenceur;
+    
     @Column(name = "date_creation")
     private LocalDateTime dateCreation;
     

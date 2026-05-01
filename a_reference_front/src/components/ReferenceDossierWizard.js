@@ -3,7 +3,7 @@ import { ArrowLeft, Search, User, FileText, Hospital, Calendar, MessageSquare, C
 import referenceDossierService from '../services/referenceDossierService';
 import * as patientService from '../services/patientService';
 import { getHopitauxActifs, getPrestatairesByHopital } from '../services/hopitalService';
-import { getCurrentDoctor, getDoctorsByHospital, getDoctorById } from '../services/doctorService';
+import { getCurrentDoctor, getDoctorsByHospital, getDoctorById, getCurrentDoctorHopital } from '../services/doctorService';
 import { getTranslation } from '../utils/translations';
 import { normalizeDoctorsList } from '../utils/doctorMapper';
 import PatientView from './PatientView';
@@ -33,6 +33,8 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
     nomReferenceur: '',
     telephoneReferenceur: '',
     emailReferenceur: '',
+    codeHopitalReferenceur: '',
+    nomHopitalReferenceur: '',
     // Champs pour le motif de référence (modèle ReferenceWizard.js)
     changementAdresse: null,
     motifs: {},
@@ -134,7 +136,10 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
 
   const loadCurrentDoctor = async () => {
     try {
-      const doctor = await getCurrentDoctor();
+      const [doctor, hopital] = await Promise.all([
+        getCurrentDoctor(),
+        getCurrentDoctorHopital().catch(() => null)
+      ]);
       setCurrentDoctor(doctor);
       // Pré-remplir le formulaire avec le docteur connecté
       // Robust fallbacks for different doctor object shapes
@@ -150,7 +155,9 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
   codeReferenceur: docCode,
   nomReferenceur: docFull,
   telephoneReferenceur: doctor?.telephone || doctor?.phone || '',
-  emailReferenceur: doctor?.email || ''
+  emailReferenceur: doctor?.email || '',
+  codeHopitalReferenceur: hopital?.id ? String(hopital.id) : '',
+  nomHopitalReferenceur: hopital?.nom || ''
       }));
     } catch (err) {
       console.error('Erreur lors du chargement du docteur connecté:', err);
@@ -320,6 +327,8 @@ const ReferenceDossierWizard = ({ language = "fr", onBack, onComplete, initialDa
         nomReferenceur: formData.nomReferenceur || '',
         telephoneReferenceur: formData.telephoneReferenceur || '',
         emailReferenceur: formData.emailReferenceur || '',
+        codeHopitalReferenceur: formData.codeHopitalReferenceur || '',
+        nomHopitalReferenceur: formData.nomHopitalReferenceur || '',
         
         // Transformer changementAdresse d'objet vers booléens séparés
         changementAdresse: formData.changementAdresse !== null,
