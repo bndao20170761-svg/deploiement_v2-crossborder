@@ -9,10 +9,12 @@ import sn.uasz.User_API_PVVIH.dtos.DoctorDto;
 import sn.uasz.User_API_PVVIH.entities.Doctor;
 import sn.uasz.User_API_PVVIH.entities.Hopital;
 import sn.uasz.User_API_PVVIH.entities.User;
+import sn.uasz.User_API_PVVIH.entities.AssistantSocial;
 import sn.uasz.User_API_PVVIH.mappers.AdminMapper;
 import sn.uasz.User_API_PVVIH.repositories.DoctorRepository;
 import sn.uasz.User_API_PVVIH.repositories.HopitalRepository;
 import sn.uasz.User_API_PVVIH.repositories.UserRepository;
+import sn.uasz.User_API_PVVIH.repositories.AssistantSocialRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,15 +30,17 @@ public class DoctorService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final HopitalRepository hopitalRepository;
+    private final AssistantSocialRepository assistantSocialRepository;
 
     public DoctorService(DoctorRepository doctorRepository, AdminMapper adminMapper,
                          UserRepository userRepository, PasswordEncoder passwordEncoder,
-                         HopitalRepository hopitalRepository) {
+                         HopitalRepository hopitalRepository, AssistantSocialRepository assistantSocialRepository) {
         this.doctorRepository = doctorRepository;
         this.adminMapper = adminMapper;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.hopitalRepository = hopitalRepository;
+        this.assistantSocialRepository = assistantSocialRepository;
     }
 
     private String generateAlphaNumericCode(int length) {
@@ -266,12 +270,29 @@ public class DoctorService {
 
         String username = authentication.getName();
 
+        // Cas 1: L'utilisateur est un médecin
         Optional<Doctor> doctorOpt = doctorRepository.findByUtilisateur_Username(username);
-        if (doctorOpt.isEmpty()) {
-            return null;
+        if (doctorOpt.isPresent()) {
+            Doctor doctor = doctorOpt.get();
+            return doctor.getHopital();
         }
 
-        Doctor doctor = doctorOpt.get();
-        return doctor.getHopital();
+        // Cas 2: L'utilisateur est un assistant
+        try {
+            // Récupérer l'assistant via le service approprié
+            // Note: Vous devrez peut-être injecter AssistantSocialService ici
+            // Pour l'instant, je vais utiliser une approche directe
+            Optional<AssistantSocial> assistantOpt = assistantSocialRepository.findByUtilisateur_Username(username);
+            if (assistantOpt.isPresent()) {
+                AssistantSocial assistant = assistantOpt.get();
+                // Retourner l'hôpital de l'assistant
+                return assistant.getHopital();
+            }
+        } catch (Exception e) {
+            // Si la recherche d'assistant échoue, logger l'erreur mais ne pas bloquer
+            System.err.println("Erreur lors de la recherche de l'assistant: " + e.getMessage());
+        }
+
+        return null;
     }
 }
