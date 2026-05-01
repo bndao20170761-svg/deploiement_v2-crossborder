@@ -135,7 +135,7 @@ private final AdminMapper adminMapper;
 
     // Endpoint pour récupérer l'hôpital du médecin actuellement authentifié
     @GetMapping("/current-hopital")
-    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('DOCTOR','ASSISTANT', 'ADMIN')")
     public ResponseEntity<HopitalDto> getCurrentDoctorHopital() {
         try {
             Hopital hopital = doctorService.getHopitalCurrentDoctor();
