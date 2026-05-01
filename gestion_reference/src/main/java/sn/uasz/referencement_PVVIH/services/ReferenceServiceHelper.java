@@ -26,7 +26,7 @@ public class ReferenceServiceHelper {
     private final UserRepository userRepository;
     private final AssistantSocialRepository assistantSocialRepository;
     private final DataSyncService dataSyncService;
-    private final UserIntegrationService userIntegrationService;
+    public final UserIntegrationService userIntegrationService;
 
     /**
      * Trouve un doctor avec fallback vers FeignClient

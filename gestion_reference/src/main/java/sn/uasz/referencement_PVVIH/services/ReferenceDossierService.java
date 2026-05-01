@@ -1,6 +1,7 @@
 package sn.uasz.referencement_PVVIH.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -10,11 +11,11 @@ import sn.uasz.referencement_PVVIH.dtos.DossierViewDto;
 import sn.uasz.referencement_PVVIH.entities.Doctor;
 import sn.uasz.referencement_PVVIH.entities.ReferenceDossier;
 import sn.uasz.referencement_PVVIH.entities.User;
+import sn.uasz.referencement_PVVIH.entities.Patient;
 import sn.uasz.referencement_PVVIH.mappers.ReferenceDossierMapper;
 import sn.uasz.referencement_PVVIH.repositories.ReferenceDossierRepository;
 import sn.uasz.referencement_PVVIH.services.ReferenceServiceHelper;
 import sn.uasz.referencement_PVVIH.feign.DossierClient;
-import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,10 +23,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Service
-@RequiredArgsConstructor
-@Transactional
 @Slf4j
+@Service
+@Transactional
+@RequiredArgsConstructor
 public class ReferenceDossierService {
     
     private final ReferenceDossierRepository referenceDossierRepository;
@@ -47,7 +48,26 @@ public class ReferenceDossierService {
         if (username == null) {
             return Optional.empty();
         }
-        return referenceServiceHelper.findDoctorByUsername(username);
+        try {
+            return referenceServiceHelper.findDoctorByUsername(username);
+        } catch (Exception e) {
+            // Si l'utilisateur n'est pas un médecin (ex: ASSISTANT), retourner empty
+            return Optional.empty();
+        }
+    }
+
+    private Optional<sn.uasz.referencement_PVVIH.dtos.AssistantSocialDto> getAuthenticatedAssistant() {
+        String username = getAuthenticatedUsername();
+        if (username == null) {
+            return Optional.empty();
+        }
+        try {
+            sn.uasz.referencement_PVVIH.dtos.AssistantSocialDto assistant = referenceServiceHelper.userIntegrationService.getAssistantByUsername(username);
+            return Optional.ofNullable(assistant);
+        } catch (Exception e) {
+            // Si l'utilisateur n'est pas un assistant, retourner empty
+            return Optional.empty();
+        }
     }
     
     public List<ReferenceDossierDto> getAllReferences() {
@@ -130,53 +150,136 @@ public class ReferenceDossierService {
     }
     
     public List<ReferenceDossierDto> getReferencesRecues() {
+        // Cas 1: L'utilisateur est un médecin
         Optional<Doctor> currentDoctor = getAuthenticatedDoctor();
-        if (currentDoctor.isEmpty()) {
-            return List.of();
+        if (currentDoctor.isPresent()) {
+            Doctor doctor = currentDoctor.get();
+            
+            // Références reçues : celles où le médecin est le destinataire (code_docteur)
+            List<ReferenceDossier> references = referenceDossierRepository.findByCodeDocteur(doctor.getCodeDoctor());
+            
+            // Filtrer seulement celles validées
+            return references.stream()
+                    .filter(ref -> Boolean.TRUE.equals(ref.getValidation()))
+                    .map(referenceDossierMapper::entityToDto)
+                    .toList();
         }
-        Doctor doctor = currentDoctor.get();
         
-        // Références reçues : celles où le médecin est le destinataire (code_docteur)
-        List<ReferenceDossier> references = referenceDossierRepository.findByCodeDocteur(doctor.getCodeDoctor());
+        // Cas 2: L'utilisateur est un assistant
+        Optional<sn.uasz.referencement_PVVIH.dtos.AssistantSocialDto> currentAssistant = getAuthenticatedAssistant();
+        if (currentAssistant.isPresent()) {
+            sn.uasz.referencement_PVVIH.dtos.AssistantSocialDto assistant = currentAssistant.get();
+            
+            // Récupérer toutes les références validées
+            List<ReferenceDossier> allReferences = referenceDossierRepository.findAll();
+            
+            return allReferences.stream()
+                    .filter(ref -> Boolean.TRUE.equals(ref.getValidation()))
+                    .filter(ref -> {
+                        try {
+                            // Récupérer le patient de la référence
+                            Optional<sn.uasz.referencement_PVVIH.entities.Patient> patientOpt = referenceServiceHelper.findPatientByCode(ref.getCodePatient());
+                            if (patientOpt.isEmpty()) {
+                                return false;
+                            }
+                            
+                            sn.uasz.referencement_PVVIH.entities.Patient patient = patientOpt.get();
+                            Doctor patientDoctor = patient.getDoctorCreate();
+                            
+                            if (patientDoctor == null) {
+                                return false;
+                            }
+                            
+                            // Vérifier si le médecin et l'assistant sont dans le même hôpital
+                            return patientDoctor.getHopital() != null && 
+                                   assistant.getHopitalId() != null && 
+                                   patientDoctor.getHopital().getId().equals(assistant.getHopitalId());
+                        } catch (Exception e) {
+                            log.warn("Erreur lors de la vérification de la référence {} pour l'assistant: {}", ref.getCodeReference(), e.getMessage());
+                            return false;
+                        }
+                    })
+                    .map(referenceDossierMapper::entityToDto)
+                    .toList();
+        }
         
-        // Filtrer seulement celles validées
-        return references.stream()
-                .filter(ref -> Boolean.TRUE.equals(ref.getValidation()))
-                .map(referenceDossierMapper::entityToDto)
-                .toList();
+        // Cas 3: L'utilisateur n'est ni médecin ni assistant
+        return List.of();
     }
     
     public List<ReferenceDossierDto> getReferencesEnvoyees() {
+        // Cas 1: L'utilisateur est un médecin
         Optional<Doctor> currentDoctor = getAuthenticatedDoctor();
-        if (currentDoctor.isEmpty()) {
-            return List.of();
-        }
-        Doctor doctor = currentDoctor.get();
+        if (currentDoctor.isPresent()) {
+            Doctor doctor = currentDoctor.get();
 
-        // 1. Références envoyées directement par le médecin (validées, non encore reçues)
-        List<ReferenceDossier> envoyees = referenceDossierRepository.findByCodeReferenceur(doctor.getCodeDoctor())
-                .stream()
-                .filter(ref -> Boolean.TRUE.equals(ref.getValidation()))
-                .filter(ref -> Boolean.FALSE.equals(ref.getEtat()))
-                .collect(java.util.stream.Collectors.toList());
+            // 1. Références envoyées directement par le médecin (validées, non encore reçues)
+            List<ReferenceDossier> envoyees = referenceDossierRepository.findByCodeReferenceur(doctor.getCodeDoctor())
+                    .stream()
+                    .filter(ref -> Boolean.TRUE.equals(ref.getValidation()))
+                    .filter(ref -> Boolean.FALSE.equals(ref.getEtat()))
+                    .collect(java.util.stream.Collectors.toList());
 
-        // 2. Références initiées par un assistant pour les patients du médecin (validation=false)
-        //    Le médecin doit les voir pour pouvoir les valider
-        List<ReferenceDossier> aValider = referenceDossierRepository
-                .findByValidationFalseAndCodePatientIn(
-                        getPatientCodesForDoctor(doctor.getCodeDoctor()));
+            // 2. Références initiées par un assistant pour les patients du médecin (validation=false)
+            //    Le médecin doit les voir pour pouvoir les valider
+            List<ReferenceDossier> aValider = referenceDossierRepository
+                    .findByValidationFalseAndCodePatientIn(
+                            getPatientCodesForDoctor(doctor.getCodeDoctor()));
 
-        // Fusionner les deux listes sans doublons
-        List<ReferenceDossier> all = new ArrayList<>(envoyees);
-        for (ReferenceDossier ref : aValider) {
-            if (all.stream().noneMatch(r -> r.getCodeReference().equals(ref.getCodeReference()))) {
-                all.add(ref);
+            // Fusionner les deux listes sans doublons
+            List<ReferenceDossier> all = new ArrayList<>(envoyees);
+            for (ReferenceDossier ref : aValider) {
+                if (all.stream().noneMatch(r -> r.getCodeReference().equals(ref.getCodeReference()))) {
+                    all.add(ref);
+                }
             }
-        }
 
-        return all.stream()
-                .map(referenceDossierMapper::entityToDto)
-                .toList();
+            return all.stream()
+                    .map(referenceDossierMapper::entityToDto)
+                    .toList();
+        }
+        
+        // Cas 2: L'utilisateur est un assistant
+        Optional<sn.uasz.referencement_PVVIH.dtos.AssistantSocialDto> currentAssistant = getAuthenticatedAssistant();
+        if (currentAssistant.isPresent()) {
+            sn.uasz.referencement_PVVIH.dtos.AssistantSocialDto assistant = currentAssistant.get();
+            
+            // Récupérer toutes les références validées
+            List<ReferenceDossier> allReferences = referenceDossierRepository.findAll();
+            
+            return allReferences.stream()
+                    .filter(ref -> Boolean.TRUE.equals(ref.getValidation()))
+                    .filter(ref -> Boolean.FALSE.equals(ref.getEtat()))
+                    .filter(ref -> {
+                        try {
+                            // Récupérer le patient de la référence
+                            Optional<sn.uasz.referencement_PVVIH.entities.Patient> patientOpt = referenceServiceHelper.findPatientByCode(ref.getCodePatient());
+                            if (patientOpt.isEmpty()) {
+                                return false;
+                            }
+                            
+                            sn.uasz.referencement_PVVIH.entities.Patient patient = patientOpt.get();
+                            Doctor patientDoctor = patient.getDoctorCreate();
+                            
+                            if (patientDoctor == null) {
+                                return false;
+                            }
+                            
+                            // Vérifier si le médecin et l'assistant sont dans le même hôpital
+                            return patientDoctor.getHopital() != null && 
+                                   assistant.getHopitalId() != null && 
+                                   patientDoctor.getHopital().getId().equals(assistant.getHopitalId());
+                        } catch (Exception e) {
+                            log.warn("Erreur lors de la vérification de la référence {} pour l'assistant: {}", ref.getCodeReference(), e.getMessage());
+                            return false;
+                        }
+                    })
+                    .map(referenceDossierMapper::entityToDto)
+                    .toList();
+        }
+        
+        // Cas 3: L'utilisateur n'est ni médecin ni assistant
+        return List.of();
     }
 
     /**
@@ -199,14 +302,15 @@ public class ReferenceDossierService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             String username = authentication.getName();
-            // Remplir les informations du référenceur si c'est un doctor
+            
+            // Cas 1: L'utilisateur est un médecin
             try {
-                // Récupérer l'hôpital du médecin actuel directement depuis gestion_user
-                sn.uasz.referencement_PVVIH.dtos.HopitalDto hopitalDto = referenceServiceHelper.getCurrentDoctorHopital();
-                
-                // Récupérer le doctor local pour les autres informations
                 Doctor doctorWithHopital = referenceServiceHelper.findDoctorByUsername(username)
-                        .orElseThrow(() -> new RuntimeException("Doctor non trouvé: " + username));
+                        .orElse(null);
+                
+                if (doctorWithHopital != null) {
+                    // C'est un médecin, utiliser sa logique normale
+                    sn.uasz.referencement_PVVIH.dtos.HopitalDto hopitalDto = referenceServiceHelper.getCurrentDoctorHopital();
                 
                 // Code de référenceur
                 if (referenceDossierDto.getCodeReferenceur() == null || referenceDossierDto.getCodeReferenceur().isBlank()) {
@@ -257,30 +361,56 @@ public class ReferenceDossierService {
                         referenceDossierDto.setNomHopitalReferenceur(hopitalDto.getNom());
                     }
                 }
+                } else {
+                    // Cas 2: L'utilisateur est un assistant, utiliser sa logique
+                    log.info("🔍 Création de référence par l'assistant: {}", username);
+                    
+                    // Pour un assistant, on utilise le User directement
+                    referenceServiceHelper.findUserByUsername(username).ifPresent(user -> {
+                        if ((referenceDossierDto.getCodeReferenceur() == null || referenceDossierDto.getCodeReferenceur().isBlank()) && user.getUsername() != null) {
+                            referenceDossierDto.setCodeReferenceur(user.getUsername());
+                        }
+                        if (isBlankOrUndefined(referenceDossierDto.getNomReferenceur())) {
+                            String nom = user.getNom() != null ? user.getNom().trim() : "";
+                            String prenom = user.getPrenom() != null ? user.getPrenom().trim() : "";
+                            String full = (nom + " " + prenom).trim();
+                            if (!isBlankOrUndefined(full)) {
+                                referenceDossierDto.setNomReferenceur(full);
+                            }
+                        }
+                        // La classe User n'a pas les champs telephone et email, on utilise username comme fallback
+                        if ((referenceDossierDto.getTelephoneReferenceur() == null || referenceDossierDto.getTelephoneReferenceur().isBlank()) && user.getUsername() != null) {
+                            referenceDossierDto.setTelephoneReferenceur(user.getUsername());
+                        }
+                        if ((referenceDossierDto.getEmailReferenceur() == null || referenceDossierDto.getEmailReferenceur().isBlank()) && user.getUsername() != null) {
+                            referenceDossierDto.setEmailReferenceur(user.getUsername());
+                        }
+                    });
+                }
             } catch (Exception e) {
                 log.error("❌ Erreur lors de la synchronisation du doctor référenceur {}: {}", username, e.getMessage());
-                // Continuer avec le doctor local même si la synchronisation échoue
-            }
-            referenceServiceHelper.findUserByUsername(username).ifPresent(user -> {
-                if ((referenceDossierDto.getCodeReferenceur() == null || referenceDossierDto.getCodeReferenceur().isBlank()) && user.getUsername() != null) {
-                    referenceDossierDto.setCodeReferenceur(user.getUsername());
-                }
-                if (isBlankOrUndefined(referenceDossierDto.getNomReferenceur())) {
-                    String nom = user.getNom() != null ? user.getNom().trim() : "";
-                    String prenom = user.getPrenom() != null ? user.getPrenom().trim() : "";
-                    String full = (nom + " " + prenom).trim();
-                    if (!isBlankOrUndefined(full)) {
-                        referenceDossierDto.setNomReferenceur(full);
+                // Continuer avec le user local même si la synchronisation échoue
+                referenceServiceHelper.findUserByUsername(username).ifPresent(user -> {
+                    if ((referenceDossierDto.getCodeReferenceur() == null || referenceDossierDto.getCodeReferenceur().isBlank()) && user.getUsername() != null) {
+                        referenceDossierDto.setCodeReferenceur(user.getUsername());
                     }
-                }
-                // La classe User n'a pas les champs telephone et email, on utilise username comme fallback
-                if ((referenceDossierDto.getTelephoneReferenceur() == null || referenceDossierDto.getTelephoneReferenceur().isBlank()) && user.getUsername() != null) {
-                    referenceDossierDto.setTelephoneReferenceur(user.getUsername());
-                }
-                if ((referenceDossierDto.getEmailReferenceur() == null || referenceDossierDto.getEmailReferenceur().isBlank()) && user.getUsername() != null) {
-                    referenceDossierDto.setEmailReferenceur(user.getUsername());
-                }
-            });
+                    if (isBlankOrUndefined(referenceDossierDto.getNomReferenceur())) {
+                        String nom = user.getNom() != null ? user.getNom().trim() : "";
+                        String prenom = user.getPrenom() != null ? user.getPrenom().trim() : "";
+                        String full = (nom + " " + prenom).trim();
+                        if (!isBlankOrUndefined(full)) {
+                            referenceDossierDto.setNomReferenceur(full);
+                        }
+                    }
+                    // La classe User n'a pas les champs telephone et email, on utilise username comme fallback
+                    if ((referenceDossierDto.getTelephoneReferenceur() == null || referenceDossierDto.getTelephoneReferenceur().isBlank()) && user.getUsername() != null) {
+                        referenceDossierDto.setTelephoneReferenceur(user.getUsername());
+                    }
+                    if ((referenceDossierDto.getEmailReferenceur() == null || referenceDossierDto.getEmailReferenceur().isBlank()) && user.getUsername() != null) {
+                        referenceDossierDto.setEmailReferenceur(user.getUsername());
+                    }
+                });
+            }
         }
 
         if (isBlankOrUndefined(referenceDossierDto.getNomDocteur()) && referenceDossierDto.getCodeDocteur() != null) {
@@ -626,19 +756,60 @@ public class ReferenceDossierService {
     }
 
         public long countReferencesDossierEnvoyees() {
+        // Cas 1: L'utilisateur est un médecin
         Optional<Doctor> currentDoctor = getAuthenticatedDoctor();
-        if (currentDoctor.isEmpty()) {
-            return 0;
+        if (currentDoctor.isPresent()) {
+            Doctor doctor = currentDoctor.get();
+            
+            // Références envoyées : celles où le médecin est l'auteur (code_referenceur)
+            List<ReferenceDossier> references = referenceDossierRepository.findByCodeReferenceur(doctor.getCodeDoctor());
+            
+            return references.stream()
+                    .filter(ref -> Boolean.TRUE.equals(ref.getValidation()))
+                    .filter(ref -> Boolean.FALSE.equals(ref.getEtat()))
+                    .count();
         }
-        Doctor doctor = currentDoctor.get();
         
-        // Références envoyées : celles où le médecin est l'auteur (code_referenceur)
-        List<ReferenceDossier> references = referenceDossierRepository.findByCodeReferenceur(doctor.getCodeDoctor());
+        // Cas 2: L'utilisateur est un assistant
+        Optional<sn.uasz.referencement_PVVIH.dtos.AssistantSocialDto> currentAssistant = getAuthenticatedAssistant();
+        if (currentAssistant.isPresent()) {
+            sn.uasz.referencement_PVVIH.dtos.AssistantSocialDto assistant = currentAssistant.get();
+            
+            // Récupérer toutes les références validées
+            List<ReferenceDossier> allReferences = referenceDossierRepository.findAll();
+            
+            return allReferences.stream()
+                    .filter(ref -> Boolean.TRUE.equals(ref.getValidation()))
+                    .filter(ref -> Boolean.FALSE.equals(ref.getEtat()))
+                    .filter(ref -> {
+                        try {
+                            // Récupérer le patient de la référence
+                            Optional<sn.uasz.referencement_PVVIH.entities.Patient> patientOpt = referenceServiceHelper.findPatientByCode(ref.getCodePatient());
+                            if (patientOpt.isEmpty()) {
+                                return false;
+                            }
+                            
+                            sn.uasz.referencement_PVVIH.entities.Patient patient = patientOpt.get();
+                            Doctor patientDoctor = patient.getDoctorCreate();
+                            
+                            if (patientDoctor == null) {
+                                return false;
+                            }
+                            
+                            // Vérifier si le médecin et l'assistant sont dans le même hôpital
+                            return patientDoctor.getHopital() != null && 
+                                   assistant.getHopitalId() != null && 
+                                   patientDoctor.getHopital().getId().equals(assistant.getHopitalId());
+                        } catch (Exception e) {
+                            log.warn("Erreur lors de la vérification de la référence {} pour l'assistant: {}", ref.getCodeReference(), e.getMessage());
+                            return false;
+                        }
+                    })
+                    .count();
+        }
         
-        return references.stream()
-                .filter(ref -> Boolean.TRUE.equals(ref.getValidation()))
-                .filter(ref -> Boolean.FALSE.equals(ref.getEtat()))
-                .count();
+        // Cas 3: L'utilisateur n'est ni médecin ni assistant
+        return 0;
     }
 
    public long countReferencesDossierRecuesNonLues() {
