@@ -106,4 +106,8 @@ public interface UserServiceClient {
 
     @GetMapping("/api/assistants/by-username/{username}")
     sn.uasz.referencement_PVVIH.dtos.AssistantSocialDto getAssistantByUsername(@PathVariable("username") String username);
+
+    // ========== CURRENT DOCTOR HOSPITAL ==========
+    @GetMapping("/api/doctors/current-hopital")
+    sn.uasz.referencement_PVVIH.dtos.HopitalDto getCurrentDoctorHopital();
 }

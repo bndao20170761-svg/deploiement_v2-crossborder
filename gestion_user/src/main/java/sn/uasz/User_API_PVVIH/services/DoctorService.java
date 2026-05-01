@@ -39,27 +39,6 @@ public class DoctorService {
         this.hopitalRepository = hopitalRepository;
     }
 
-
-    public List<DoctorDto> getAllDoctors() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-
-        // Récupérer l'utilisateur authentifié
-        User currentUser = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Utilisateur authentifié introuvable"));
-
-        // Autoriser ADMIN et DOCTOR
-        String profil = currentUser.getProfil(); // adapter le nom du getter si nécessaire
-        if (!"ADMIN".equalsIgnoreCase(profil) && !"DOCTOR".equalsIgnoreCase(profil) && !"ASSISTANT".equalsIgnoreCase(profil)) {
-            throw new RuntimeException("Seuls les administrateurs et les médecins peuvent consulter la liste des médecins");
-        }
-
-        return doctorRepository.findAll().stream()
-                .map(adminMapper::doctorToDto)
-                .collect(Collectors.toList());
-    }
-
-
     private String generateAlphaNumericCode(int length) {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         StringBuilder code = new StringBuilder();
@@ -70,6 +49,23 @@ public class DoctorService {
         return code.toString();
     }
 
+    public List<DoctorDto> getAllDoctors() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Utilisateur authentifié introuvable"));
+
+        String profil = currentUser.getProfil();
+        if (!"ADMIN".equalsIgnoreCase(profil) && !"DOCTOR".equalsIgnoreCase(profil) && !"ASSISTANT".equalsIgnoreCase(profil)) {
+            throw new RuntimeException("Seuls les administrateurs et les médecins peuvent consulter la liste des médecins");
+        }
+
+        return doctorRepository.findAll().stream()
+                .map(adminMapper::doctorToDto)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public DoctorDto creerDoctor(DoctorDto dto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -78,36 +74,30 @@ public class DoctorService {
         User currentUser = userRepository.findByUsername(currentUsername)
                 .orElseThrow(() -> new RuntimeException("Utilisateur authentifié introuvable"));
 
-        // Vérifier le privilège ADMIN
         if (!"ADMIN".equalsIgnoreCase(currentUser.getProfil())) {
             throw new RuntimeException("Seuls les administrateurs peuvent créer des médecins");
         }
 
-        // Vérifier que l'hôpital est fourni
         if (dto.getHopitalId() == null) {
             throw new RuntimeException("L'hôpital est obligatoire pour créer un médecin");
         }
 
         Doctor doctor = adminMapper.dtoToDoctor(dto);
 
-        // Gestion de l'hôpital
         Hopital hopital = hopitalRepository.findById(dto.getHopitalId())
                 .orElseThrow(() -> new RuntimeException("Hôpital non trouvé avec ID: " + dto.getHopitalId()));
         doctor.setHopital(hopital);
 
-        // Gestion de l'utilisateur - recherche par ID ou création
         User doctorUser;
         if (dto.getUtilisateurId() != null) {
-            // Utiliser l'utilisateur existant
             doctorUser = userRepository.findById(dto.getUtilisateurId())
                     .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec ID: " + dto.getUtilisateurId()));
         } else {
-            // Créer un nouvel utilisateur
             String username = dto.getEmail();
             if (username == null || username.trim().isEmpty()) {
                 throw new RuntimeException("L'email est obligatoire pour créer un compte doctor");
             }
-            
+
             if (userRepository.existsByUsername(username)) {
                 throw new RuntimeException("Un utilisateur avec cet email existe déjà: " + username);
             }
@@ -127,14 +117,12 @@ public class DoctorService {
 
         doctor.setUtilisateur(doctorUser);
 
-        // Génération automatique du code doctor
         String codeDoctor;
         do {
             codeDoctor = "DOC" + generateAlphaNumericCode(6);
-        } while (doctorRepository.existsByCodeDoctor(codeDoctor));
+        } while (existsByCodeDoctor(codeDoctor));
         doctor.setCodeDoctor(codeDoctor);
 
-        // Génération automatique du pseudo
         String pseudo;
         do {
             pseudo = "DR" + generateAlphaNumericCode(6);
@@ -154,7 +142,6 @@ public class DoctorService {
         User currentUser = userRepository.findByUsername(currentUsername)
                 .orElseThrow(() -> new RuntimeException("Utilisateur authentifié introuvable"));
 
-        // Vérifier le privilège ADMIN
         if (!"ADMIN".equalsIgnoreCase(currentUser.getProfil())) {
             throw new RuntimeException("Seuls les administrateurs peuvent modifier des médecins");
         }
@@ -162,27 +149,23 @@ public class DoctorService {
         Doctor existingDoctor = doctorRepository.findByCodeDoctor(codeDoctor)
                 .orElseThrow(() -> new RuntimeException("Médecin non trouvé avec code: " + codeDoctor));
 
-        // Mettre à jour les champs du doctor
         existingDoctor.setEmail(dto.getEmail());
         existingDoctor.setFonction(dto.getFonction());
         existingDoctor.setLieuExercice(dto.getLieuExercice());
         existingDoctor.setTelephone(dto.getTelephone());
 
-        // Mettre à jour l'hôpital si fourni
         if (dto.getHopitalId() != null) {
             Hopital hopital = hopitalRepository.findById(dto.getHopitalId())
                     .orElseThrow(() -> new RuntimeException("Hôpital non trouvé avec ID: " + dto.getHopitalId()));
             existingDoctor.setHopital(hopital);
         }
 
-        // Mettre à jour l'utilisateur associé
         User doctorUser = existingDoctor.getUtilisateur();
         if (doctorUser != null) {
             doctorUser.setNom(dto.getNomUtilisateur());
             doctorUser.setPrenom(dto.getPrenomUtilisateur());
             doctorUser.setNationalite(dto.getNationaliteUtilisateur());
 
-            // Mettre à jour le mot de passe si fourni
             if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
                 doctorUser.setPassword(passwordEncoder.encode(dto.getPassword()));
             }
@@ -202,7 +185,6 @@ public class DoctorService {
         User currentUser = userRepository.findByUsername(currentUsername)
                 .orElseThrow(() -> new RuntimeException("Utilisateur authentifié introuvable"));
 
-        // Vérifier le privilège ADMIN
         if (!"ADMIN".equalsIgnoreCase(currentUser.getProfil())) {
             throw new RuntimeException("Seuls les administrateurs peuvent supprimer des médecins");
         }
@@ -212,18 +194,14 @@ public class DoctorService {
 
         User user = doctor.getUtilisateur();
 
-        // Vérifier si le médecin a des patients associés
         boolean hasPatients = doctorRepository.countPatientsByDoctor(codeDoctor) > 0;
         if (hasPatients) {
             throw new RuntimeException("Impossible de supprimer le médecin : des patients lui sont associés");
         }
 
-        // Supprimer le médecin
         doctorRepository.delete(doctor);
 
-        // Supprimer l'utilisateur associé s'il n'est pas utilisé ailleurs
         if (user != null) {
-            // Vérifier si l'utilisateur est référencé ailleurs
             boolean isReferencedElsewhere = doctorRepository.existsByUtilisateurAndCodeDoctorNot(user, codeDoctor);
             if (!isReferencedElsewhere) {
                 userRepository.delete(user);
@@ -256,7 +234,6 @@ public class DoctorService {
         return doctorRepository.count();
     }
 
-    // Méthode pour trouver les médecins par hôpital
     public List<DoctorDto> getDoctorsByHospital(Long hospitalId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
@@ -273,8 +250,28 @@ public class DoctorService {
                 .collect(Collectors.toList());
     }
 
-    // Méthode pour récupérer tous les hôpitaux actifs
     public List<Hopital> getHopitauxActifs() {
         return hopitalRepository.findByActiveTrue();
+    }
+
+    /**
+     * Récupère l'hôpital du médecin actuellement authentifié
+     * @return l'hôpital du médecin ou null si non trouvé
+     */
+    public Hopital getHopitalCurrentDoctor() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+
+        String username = authentication.getName();
+
+        Optional<Doctor> doctorOpt = doctorRepository.findByUtilisateur_Username(username);
+        if (doctorOpt.isEmpty()) {
+            return null;
+        }
+
+        Doctor doctor = doctorOpt.get();
+        return doctor.getHopital();
     }
 }

@@ -490,4 +490,17 @@ public class UserIntegrationService {
             throw new RuntimeException("Erreur lors de la recherche de l'assistant", e);
         }
     }
+
+    /**
+     * Récupère l'hôpital du médecin actuellement authentifié via FeignClient
+     */
+    public sn.uasz.referencement_PVVIH.dtos.HopitalDto getCurrentDoctorHopital() {
+        try {
+            log.info("🔍 Récupération de l'hôpital du médecin actuel via Feign Client");
+            return userServiceClient.getCurrentDoctorHopital();
+        } catch (Exception e) {
+            log.error("❌ Erreur lors de la récupération de l'hôpital du médecin actuel: {}", e.getMessage());
+            throw new RuntimeException("Erreur lors de la récupération de l'hôpital du médecin", e);
+        }
+    }
 }

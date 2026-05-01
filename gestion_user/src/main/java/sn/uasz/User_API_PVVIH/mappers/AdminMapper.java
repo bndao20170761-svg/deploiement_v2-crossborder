@@ -35,8 +35,6 @@ public interface AdminMapper {
     // ========== DOCTOR ==========
     @Mapping(target = "hopitalId", source = "hopital.id")
     @Mapping(target = "utilisateurId", source = "utilisateur.id")
-    @Mapping(target = "nom", source = "utilisateur.nom")
-    @Mapping(target = "prenom", source = "utilisateur.prenom")
     @Mapping(target = "nomUtilisateur", source = "utilisateur.nom")
     @Mapping(target = "prenomUtilisateur", source = "utilisateur.prenom")
     @Mapping(target = "nationaliteUtilisateur", source = "utilisateur.nationalite")

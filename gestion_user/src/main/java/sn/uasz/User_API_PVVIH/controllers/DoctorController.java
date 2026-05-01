@@ -6,6 +6,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import sn.uasz.User_API_PVVIH.dtos.DoctorDto;
 import sn.uasz.User_API_PVVIH.dtos.HopitalDto;
+import sn.uasz.User_API_PVVIH.entities.Hopital;
 import sn.uasz.User_API_PVVIH.mappers.AdminMapper;
 import sn.uasz.User_API_PVVIH.services.DoctorService;
 
@@ -130,6 +131,22 @@ private final AdminMapper adminMapper;
         return doctorService.getHopitauxActifs().stream()
                 .map(adminMapper::hopitalToDto)
                 .collect(Collectors.toList());
+    }
+
+    // Endpoint pour récupérer l'hôpital du médecin actuellement authentifié
+    @GetMapping("/current-hopital")
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
+    public ResponseEntity<HopitalDto> getCurrentDoctorHopital() {
+        try {
+            Hopital hopital = doctorService.getHopitalCurrentDoctor();
+            if (hopital == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+            HopitalDto hopitalDto = adminMapper.hopitalToDto(hopital);
+            return ResponseEntity.ok(hopitalDto);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
 }
