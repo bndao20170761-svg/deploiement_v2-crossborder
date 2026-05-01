@@ -83,7 +83,7 @@ public class ReferenceDossierController {
     }
     
     @PostMapping
-    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN') or hasRole('ASSISTANT')")
     public ResponseEntity<ReferenceDossierDto> createReference(@Valid @RequestBody ReferenceDossierDto referenceDossierDto) {
         try {
             ReferenceDossierDto createdReference = referenceDossierService.createReference(referenceDossierDto);
@@ -94,7 +94,7 @@ public class ReferenceDossierController {
     }
     
     @PutMapping("/{codeReference}")
-    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN') or hasRole('ASSISTANT')")
     public ResponseEntity<ReferenceDossierDto> updateReference(
             @PathVariable String codeReference,
             @Valid @RequestBody ReferenceDossierDto referenceDossierDto) {
