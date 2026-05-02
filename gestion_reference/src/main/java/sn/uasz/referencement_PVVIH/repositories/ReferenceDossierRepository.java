@@ -54,4 +54,7 @@ public interface ReferenceDossierRepository extends JpaRepository<ReferenceDossi
     // Codes patients distincts pour lesquels un médecin a déjà créé une référence
     @Query("SELECT DISTINCT r.codePatient FROM ReferenceDossier r WHERE r.codeReferenceur = :codeDoctor")
     List<String> findDistinctCodePatientByCodeReferenceur(@Param("codeDoctor") String codeDoctor);
+
+    // Références validées adressées à un médecin destinataire (évite le filtrage en mémoire)
+    List<ReferenceDossier> findByCodeDocteurAndValidationTrue(String codeDocteur);
 }

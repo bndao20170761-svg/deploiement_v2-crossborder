@@ -32,6 +32,8 @@ const ReferenceDossierList = ({ language = "fr", filterStatus = "all", onReferen
       switch (filterStatus) {
         case 'recues':
           data = await referenceDossierService.getReferencesRecues();
+          // Guard : ne jamais afficher une référence non validée dans "recues"
+          data = (data || []).filter(ref => ref.validation === true);
           console.log('Données reçues pour recues:', data);
           break;
         case 'envoyees':
@@ -286,11 +288,11 @@ const ReferenceDossierList = ({ language = "fr", filterStatus = "all", onReferen
                   <tr
                     key={reference.codeReference}
                     className={`hover:bg-gray-50 ${
-                        reference.validation === false 
+                        reference.validation !== true
                         ? "bg-yellow-100"
-                        : filterStatus === "envoyees" && !reference.etat && reference.validation === true
+                        : filterStatus === "envoyees" && reference.etat !== true
                         ? "bg-blue-100"
-                        : filterStatus === "recues" && !reference.etat
+                        : filterStatus === "recues" && reference.etat !== true
                         ? "bg-red-100"
                         : ""
                     }`}

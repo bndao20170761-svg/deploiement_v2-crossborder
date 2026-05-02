@@ -156,12 +156,11 @@ public class ReferenceDossierService {
         if (currentDoctor.isPresent()) {
             Doctor doctor = currentDoctor.get();
             
-            // Références reçues : celles où le médecin est le destinataire (code_docteur)
-            List<ReferenceDossier> references = referenceDossierRepository.findByCodeDocteur(doctor.getCodeDoctor());
+            // Références reçues : celles où le médecin est le destinataire (code_docteur), validées uniquement
+            List<ReferenceDossier> references = referenceDossierRepository
+                    .findByCodeDocteurAndValidationTrue(doctor.getCodeDoctor());
             
-            // Filtrer seulement celles validées
             return references.stream()
-                    .filter(ref -> Boolean.TRUE.equals(ref.getValidation()))
                     .map(referenceDossierMapper::entityToDto)
                     .toList();
         }
@@ -378,12 +377,20 @@ public class ReferenceDossierService {
                                 if (patientDoctor != null) {
                                     // Référenceur = doctor du patient
                                     referenceDossierDto.setCodeReferenceur(patientDoctor.getCodeDoctor());
+                                    // Construire le nom avec fallback robuste : utilisateur → pseudo → codeDoctor
+                                    String nomRef = "";
                                     if (patientDoctor.getUtilisateur() != null) {
                                         String nom = patientDoctor.getUtilisateur().getNom() != null ? patientDoctor.getUtilisateur().getNom().trim() : "";
                                         String prenom = patientDoctor.getUtilisateur().getPrenom() != null ? patientDoctor.getUtilisateur().getPrenom().trim() : "";
-                                        referenceDossierDto.setNomReferenceur((nom + " " + prenom).trim());
+                                        nomRef = (nom + " " + prenom).trim();
                                         referenceDossierDto.setNationaliteReferenceur(patientDoctor.getUtilisateur().getNationalite());
                                     }
+                                    if (isBlankOrUndefined(nomRef)) {
+                                        nomRef = (patientDoctor.getPseudo() != null && !patientDoctor.getPseudo().isBlank())
+                                                ? patientDoctor.getPseudo()
+                                                : patientDoctor.getCodeDoctor();
+                                    }
+                                    referenceDossierDto.setNomReferenceur(nomRef);
                                     referenceDossierDto.setTelephoneReferenceur(patientDoctor.getTelephone());
                                     referenceDossierDto.setEmailReferenceur(patientDoctor.getEmail());
                                     referenceDossierDto.setFonctionReferenceur(patientDoctor.getFonction());
