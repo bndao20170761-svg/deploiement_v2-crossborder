@@ -107,9 +107,9 @@ public class DataSyncService {
     }
 
     /**
-     * Récupère ou synchronise un doctor depuis gestion_user
+     * Récupère ou synchronise un doctor
      */
-    @Transactional
+    @Transactional(noRollbackFor = RuntimeException.class)
     public Doctor getDoctorByCode(String codeDoctor) {
         // 1. Chercher d'abord en local
         Optional<Doctor> localDoctor = doctorRepository.findByCodeDoctor(codeDoctor);
@@ -170,7 +170,7 @@ public class DataSyncService {
     /**
      * Récupère ou synchronise un patient depuis gestion_user
      */
-    @Transactional
+    @Transactional(noRollbackFor = RuntimeException.class)
     public Patient getPatientByCode(String codePatient) {
         // 1. Chercher d'abord en local
         Optional<Patient> localPatient = patientRepository.findByCodePatient(codePatient);
@@ -281,7 +281,7 @@ public class DataSyncService {
     /**
      * Récupère ou synchronise un doctor par username
      */
-    @Transactional
+    @Transactional(noRollbackFor = RuntimeException.class)
     public Doctor getDoctorByUsername(String username) {
         try {
             // 1. Chercher d'abord en local
