@@ -149,6 +149,7 @@ public class ReferenceDossierService {
                 .toList();
     }
     
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     public List<ReferenceDossierDto> getReferencesRecues() {
         // Cas 1: L'utilisateur est un médecin
         Optional<Doctor> currentDoctor = getAuthenticatedDoctor();
@@ -207,6 +208,7 @@ public class ReferenceDossierService {
         return List.of();
     }
     
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
     public List<ReferenceDossierDto> getReferencesEnvoyees() {
         // Cas 1: L'utilisateur est un médecin
         Optional<Doctor> currentDoctor = getAuthenticatedDoctor();
@@ -755,7 +757,8 @@ public class ReferenceDossierService {
         }
     }
 
-        public long countReferencesDossierEnvoyees() {
+    @Transactional(readOnly = true, noRollbackFor = Exception.class)
+    public long countReferencesDossierEnvoyees() {
         // Cas 1: L'utilisateur est un médecin
         Optional<Doctor> currentDoctor = getAuthenticatedDoctor();
         if (currentDoctor.isPresent()) {
@@ -812,17 +815,43 @@ public class ReferenceDossierService {
         return 0;
     }
 
+   @Transactional(readOnly = true, noRollbackFor = Exception.class)
    public long countReferencesDossierRecuesNonLues() {
+        // Cas 1: médecin
         Optional<Doctor> currentDoctor = getAuthenticatedDoctor();
-        if (currentDoctor.isEmpty()) {
-            return 0;
+        if (currentDoctor.isPresent()) {
+            Doctor doctor = currentDoctor.get();
+            return referenceDossierRepository.findByCodeDocteur(doctor.getCodeDoctor())
+                    .stream()
+                    .filter(ref -> Boolean.TRUE.equals(ref.getValidation()))
+                    .filter(ref -> ref.getEtat() != null && !ref.getEtat())
+                    .count();
         }
-        Doctor doctor = currentDoctor.get();
-        
-        return referenceDossierRepository.findByCodeDocteur(doctor.getCodeDoctor())
-                .stream()
-                .filter(ref -> Boolean.TRUE.equals(ref.getValidation()))
-                .filter(ref -> ref.getEtat() != null && !ref.getEtat()) // etat = false => non lue
-                .count();
+
+        // Cas 2: assistant — même logique de filtrage par hôpital que getReferencesRecues()
+        Optional<sn.uasz.referencement_PVVIH.dtos.AssistantSocialDto> currentAssistant = getAuthenticatedAssistant();
+        if (currentAssistant.isPresent()) {
+            sn.uasz.referencement_PVVIH.dtos.AssistantSocialDto assistant = currentAssistant.get();
+            return referenceDossierRepository.findAll().stream()
+                    .filter(ref -> Boolean.TRUE.equals(ref.getValidation()))
+                    .filter(ref -> ref.getEtat() != null && !ref.getEtat())
+                    .filter(ref -> {
+                        try {
+                            Optional<Patient> patientOpt = referenceServiceHelper.findPatientByCode(ref.getCodePatient());
+                            if (patientOpt.isEmpty()) return false;
+                            Doctor patientDoctor = patientOpt.get().getDoctorCreate();
+                            if (patientDoctor == null) return false;
+                            return patientDoctor.getHopital() != null &&
+                                   assistant.getHopitalId() != null &&
+                                   patientDoctor.getHopital().getId().equals(assistant.getHopitalId());
+                        } catch (Exception e) {
+                            log.warn("Erreur filtrage référence {} pour assistant: {}", ref.getCodeReference(), e.getMessage());
+                            return false;
+                        }
+                    })
+                    .count();
+        }
+
+        return 0;
     }
 }
