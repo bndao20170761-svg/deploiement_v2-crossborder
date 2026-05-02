@@ -288,9 +288,9 @@ const ReferenceDossierList = ({ language = "fr", filterStatus = "all", onReferen
                   <tr
                     key={reference.codeReference}
                     className={`hover:bg-gray-50 ${
-                         filterStatus === "envoyees" && reference.validation === true 
+                         filterStatus === "envoyees" && reference.validation === false
                         ? "bg-yellow-100"
-                        : filterStatus === "envoyees" && reference.etat !== true && reference.validation === true
+                        : filterStatus === "envoyees" && reference.etat === false && reference.validation === true
                         ? "bg-blue-100"
                         : filterStatus === "recues" && reference.etat !== true
                         ? "bg-red-100"
