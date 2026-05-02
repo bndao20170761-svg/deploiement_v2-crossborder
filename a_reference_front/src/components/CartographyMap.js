@@ -220,11 +220,33 @@ const CartographyMap = ({ hospitals, onHospitalUpdate,  onHospitalAdd, language 
     }, [map]);
 
   const locateUser = useCallback(() => {
-    if (!map || !navigator.geolocation) return;
+    if (!map) return;
+
+    // Sur HTTP (non-HTTPS), navigator.geolocation est bloqué par Chrome.
+    // On détecte ça en amont et on bascule directement sur le fallback.
+    const isSecureOrigin = window.location.protocol === 'https:' ||
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1';
+
+    const fallbackToUASZ = (reason) => {
+      console.warn(`⚠️ Géolocalisation non disponible (${reason}). Centrage sur UASZ Ziguinchor.`);
+      const uaszZiguinchor = { lat: 12.5833, lng: -16.2719 };
+      setUserLocation(uaszZiguinchor);
+      setShowUserInfo(true);
+      setLoadingLocation(false);
+      if (map) {
+        map.panTo(uaszZiguinchor);
+        map.setZoom(12);
+      }
+    };
+
+    if (!isSecureOrigin || !navigator.geolocation) {
+      fallbackToUASZ(isSecureOrigin ? 'API non disponible' : 'origine non sécurisée (HTTP)');
+      return;
+    }
 
     setLoadingLocation(true);
 
-    // Utiliser watchPosition pour une géolocalisation continue et précise
     const watchId = navigator.geolocation.watchPosition(
       (position) => {
         const { latitude, longitude, accuracy } = position.coords;
@@ -232,7 +254,6 @@ const CartographyMap = ({ hospitals, onHospitalUpdate,  onHospitalAdd, language 
 
         console.log('📍 Position détectée:', latitude, longitude, `Précision: ${accuracy}m`);
 
-        // Arrêter le watch après avoir obtenu une position précise
         if (accuracy <= 20) {
           navigator.geolocation.clearWatch(watchId);
         }
@@ -241,75 +262,42 @@ const CartographyMap = ({ hospitals, onHospitalUpdate,  onHospitalAdd, language 
         setShowUserInfo(false);
 
         if (map) {
-          // Centrer d'abord sur la position
           map.panTo(userLoc);
-
-          // Zoom progressif après un court délai
           setTimeout(() => {
-            // Zoom adaptatif selon la précision
-            const zoomLevel = accuracy < 10 ? 19 : accuracy < 20 ? 18 : accuracy < 50 ? 17 : accuracy < 100 ? 16 : 15;
-            map.setZoom(zoomLevel);
+            const zoom = accuracy < 10 ? 19 : accuracy < 20 ? 18 : accuracy < 50 ? 17 : accuracy < 100 ? 16 : 15;
+            map.setZoom(zoom);
             setLoadingLocation(false);
           }, 1000);
         }
       },
       (error) => {
-        console.error('Erreur géolocalisation:', error);
+        console.error('❌ Erreur watchPosition:', error);
         navigator.geolocation.clearWatch(watchId);
-        setLoadingLocation(false);
 
-        // Fallback vers getCurrentPosition si watchPosition échoue
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          const userLoc = { lat: latitude, lng: longitude };
-
-          setUserLocation(userLoc);
-          setShowUserInfo(false);
-
-          if (map) {
-            map.panTo(userLoc);
-            setTimeout(() => {
-              map.setZoom(15);
-              setLoadingLocation(false);
-            }, 1000);
-          }
-        },
-        (fallbackError) => {
-          console.error('Erreur fallback géolocalisation:', fallbackError);
-          setLoadingLocation(false);
-
-          // Fallback vers Université Assane Seck de Ziguinchor si la géolocalisation échoue
-          const uaszZiguinchor = { lat: 12.5833, lng: -16.2719 };
-          setUserLocation(uaszZiguinchor);
-          setShowUserInfo(true);
-
-          if (map) {
-            map.panTo(uaszZiguinchor);
-            map.setZoom(12);
-          }
-
-          // Message d'information pour l'utilisateur
-          let message = "Géolocalisation non disponible. La carte est centrée sur l'Université Assane Seck de Ziguinchor.";
-          if (fallbackError.code === fallbackError.PERMISSION_DENIED) {
-            message = "Géolocalisation refusée. La carte est centrée sur l'Université Assane Seck de Ziguinchor.";
-          }
-          alert(message);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 15000, // Réduire de 30s à 15s
-          maximumAge: 0
-        }
-      );
+        // Fallback vers getCurrentPosition
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            const userLoc = { lat: latitude, lng: longitude };
+            setUserLocation(userLoc);
+            setShowUserInfo(false);
+            if (map) {
+              map.panTo(userLoc);
+              setTimeout(() => { map.setZoom(15); setLoadingLocation(false); }, 1000);
+            }
+          },
+          (fallbackError) => {
+            console.error('❌ Erreur getCurrentPosition:', fallbackError);
+            const reason = fallbackError.code === 1 ? 'permission refusée' :
+                           fallbackError.code === 2 ? 'position indisponible' : 'timeout';
+            fallbackToUASZ(reason);
+          },
+          { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+        );
       },
-      {
-        enableHighAccuracy: true,
-        timeout: 15000, // Réduire de 30s à 15s
-          maximumAge: 0
-        }
-      );
-    }, [map]);
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  }, [map]);
 
     useEffect(() => {
       if (map) locateUser();
