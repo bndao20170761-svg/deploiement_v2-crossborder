@@ -300,6 +300,7 @@ public class ReferenceDossierService {
         return getReferencesByStatut("EN_ATTENTE");
     }
     
+    @Transactional(noRollbackFor = Exception.class)
     public ReferenceDossierDto createReference(ReferenceDossierDto referenceDossierDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
