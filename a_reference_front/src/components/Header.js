@@ -206,35 +206,12 @@ const [currentLang, setCurrentLang] = useState(language);
                 <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-md shadow-lg z-50 border border-gray-200">
                   <div className="py-1">
                     <button
-                      onClick={() => handleMenuItemClick('add')}
+                      onClick={() => handleMenuItemClick('dossier-add')}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-800"
                       type="button"
                     >
-                      ➕{getTranslation('addReference', language)}
+                      ➕ {getTranslation('addReference', language)}
                     </button>
-                    <button
-                      onClick={() => handleMenuItemClick('sent')}
-                      className="flex items-center justify-between w-full px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-800"
-                      type="button"
-                    >
-                      <span>{getTranslation('sentReference', language)}</span>
-                      <div className="flex space-x-1">
-                        <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-0.5">{sentCount}</span>
-                        <span className="bg-yellow-500 text-white text-xs rounded-full px-2 py-0.5">{sentCountAssist}</span>
-                      </div>
-                    </button>
-                    <button
-                      onClick={() => handleMenuItemClick('received')}
-                      className="flex items-center justify-between w-full px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-800"
-                      type="button"
-                    >
-                      <span>{getTranslation('receivedReference', language)}</span>
-                      <span className="bg-red-500 text-white text-xs rounded-full px-2 py-0.5">{receivedCount}</span>
-                    </button>
-                    <div className="border-t border-gray-100 my-1"></div>
-                    <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      📋 {getTranslation('referenceFolder', language)}
-                    </div>
                     <button
                       onClick={() => handleMenuItemClick('dossier-received')}
                       className="flex items-center justify-between w-full px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-800"
@@ -251,9 +228,14 @@ const [currentLang, setCurrentLang] = useState(language);
                       type="button"
                     >
                       <span>{getTranslation('dossierSentReference', language)}</span>
-                      <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-0.5">
-                        {sentCountDossier}
-                      </span>
+                      <div className="flex items-center gap-1">
+                        <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-0.5">
+                          {sentCountDossier}
+                        </span>
+                        <span className="bg-yellow-500 text-white text-xs rounded-full px-2 py-0.5">
+                          {sentCountAssist}
+                        </span>
+                      </div>
                     </button>
                   </div>
                 </div>
@@ -496,64 +478,38 @@ const [currentLang, setCurrentLang] = useState(language);
                  <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-md shadow-lg z-50 border border-gray-200">
                    <div className="py-1">
                      <button
-                       onClick={() => handleMenuItemClick('add')}
+                       onClick={() => handleMenuItemClick('dossier-add')}
                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-800"
                        type="button"
                      >
                        ➕ {getTranslation('addReference', language)}
                      </button>
-
-                     <button
-                       onClick={() => handleMenuItemClick('sent')}
-                       className="flex items-center justify-between w-full px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-800"
-                       type="button"
-                     >
-                       <span>{getTranslation('sentReference', language)}</span>
-                       <div className="flex space-x-1">
-                         <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-0.5">
-                           {sentCount}
-                         </span>
-                         <span className="bg-yellow-500 text-white text-xs rounded-full px-2 py-0.5">
-                           {sentCountAssist}
-                         </span>
-                       </div>
-                     </button>
-
-                     <button
-                       onClick={() => handleMenuItemClick('received')}
-                       className="flex items-center justify-between w-full px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-800"
-                       type="button"
-                     >
-                       <span>{getTranslation('receivedReference', language)}</span>
-                       <span className="bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
-                         {receivedCount}
-                       </span>
-                     </button>
-                     <div className="border-t border-gray-100 my-1"></div>
-                     <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                       {getTranslation('referenceFolder', language)}
-                     </div>
                      <button
                        onClick={() => handleMenuItemClick('dossier-received')}
                        className="flex items-center justify-between w-full px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-800"
                        type="button"
                      >
                        <span>{getTranslation('dossierReceivedReference', language)}</span>
-                      <span className="bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
-                        {receivedCountDossier}
-                      </span>
-                     </button>
-                      <button
-                        onClick={() => handleMenuItemClick('dossier-sent')}
-                        className="flex items-center justify-between w-full px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-800"
-                        type="button"
-                      >
-                         <span>{getTranslation('dossierSentReference', language)}</span>
-                       <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-0.5">
-                         {sentCountDossier}
+                       <span className="bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
+                         {receivedCountDossier}
                        </span>
-                      </button>
-                    </div>
+                     </button>
+                     <button
+                       onClick={() => handleMenuItemClick('dossier-sent')}
+                       className="flex items-center justify-between w-full px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-800"
+                       type="button"
+                     >
+                       <span>{getTranslation('dossierSentReference', language)}</span>
+                       <div className="flex items-center gap-1">
+                         <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-0.5">
+                           {sentCountDossier}
+                         </span>
+                         <span className="bg-yellow-500 text-white text-xs rounded-full px-2 py-0.5">
+                           {sentCountAssist}
+                         </span>
+                       </div>
+                     </button>
+                   </div>
                   </div>
                 )}
               </div>
