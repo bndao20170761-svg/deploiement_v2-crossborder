@@ -1,6 +1,6 @@
 package sn.uasz.referencement_PVVIH.dtos;
 
-import com.fasterxml.jackson.annotationxv.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
