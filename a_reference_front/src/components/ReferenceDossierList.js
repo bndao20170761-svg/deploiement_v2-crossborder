@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Plus, Eye, Edit, Trash2, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { Search, Filter, Plus, Eye, Edit, Trash2, CheckCircle, Clock, AlertCircle, Flag } from 'lucide-react';
 import referenceDossierService from '../services/referenceDossierService';
 import { getTranslation } from '../utils/translations';
 

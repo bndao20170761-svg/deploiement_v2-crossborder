@@ -462,21 +462,11 @@ public class ReferenceDossierService {
         referenceDossierDto.setEtat(false);
 
         // Si l'initiateur est un ASSISTANT, la référence n'est pas encore validée
-        // Elle sera validée par le médecin référenceur
-        boolean isAssistant = false;
-        try {
-            String username = getAuthenticatedUsername();
-            if (username != null) {
-                Optional<sn.uasz.referencement_PVVIH.entities.User> userOpt =
-                        referenceServiceHelper.findUserByUsername(username);
-                if (userOpt.isPresent()) {
-                    String profil = userOpt.get().getProfil();
-                    isAssistant = "ASSISTANT".equalsIgnoreCase(profil);
-                }
-            }
-        } catch (Exception e) {
-            log.warn("Impossible de déterminer le profil de l'utilisateur: {}", e.getMessage());
-        }
+        // Elle sera validée par le médecin référenceur.
+        // On utilise getAuthenticatedAssistant() qui appelle directement le FeignClient
+        // pour éviter le bug de DataSyncService qui crée un User avec profil="USER" par défaut.
+        boolean isAssistant = getAuthenticatedAssistant().isPresent();
+        log.info("🔐 Création référence - isAssistant: {} → validation: {}", isAssistant, !isAssistant);
         referenceDossierDto.setValidation(!isAssistant);
         
         // Créer l'entité principale

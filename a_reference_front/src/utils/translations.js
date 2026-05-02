@@ -3174,6 +3174,9 @@ sectionYBilans: { fr: "Section Y : Bilans biologiques", en: "Section Y: Biologic
   errorValidateReference: { fr: 'Erreur lors de la validation de la référence', en: 'Error validating reference', pt: 'Erro ao validar referência' },
   referencesAssistantPending: { fr: 'Références initiées par un assistant à valider', en: 'References initiated by an assistant pending validation', pt: 'Referências iniciadas por assistente pendentes de validação' },
   aValider: { fr: 'à valider', en: 'to validate', pt: 'a validar' },
+  terminerReference: { fr: 'Terminer la référence', en: 'Complete reference', pt: 'Concluir referência' },
+  confirmTerminerReference: { fr: 'Confirmer la prise en charge de cette référence ? Le statut passera à "Reçue".', en: 'Confirm taking charge of this reference? Status will change to "Received".', pt: 'Confirmar o atendimento desta referência? O status mudará para "Recebida".' },
+  errorTerminerReference: { fr: 'Erreur lors de la clôture de la référence', en: 'Error completing reference', pt: 'Erro ao concluir referência' },
   }
 };
 
