@@ -69,6 +69,22 @@ public class ReferenceDossierService {
             return Optional.empty();
         }
     }
+
+    /**
+     * Vérifie si l'utilisateur authentifié a le rôle ASSISTANT
+     * en lisant directement les authorities du SecurityContext (sans appel réseau).
+     */
+    private boolean isCurrentUserAssistant() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return false;
+        }
+        return authentication.getAuthorities().stream()
+                .anyMatch(a -> {
+                    String auth = a.getAuthority();
+                    return "ROLE_ASSISTANT".equalsIgnoreCase(auth) || "ASSISTANT".equalsIgnoreCase(auth);
+                });
+    }
     
     public List<ReferenceDossierDto> getAllReferences() {
         List<ReferenceDossier> references = referenceDossierRepository.findAll();
@@ -461,12 +477,20 @@ public class ReferenceDossierService {
         referenceDossierDto.setDateCreation(LocalDateTime.now());
         referenceDossierDto.setEtat(false);
 
-        // Si l'initiateur est un ASSISTANT, la référence n'est pas encore validée
-        // Elle sera validée par le médecin référenceur.
-        // On utilise getAuthenticatedAssistant() qui appelle directement le FeignClient
-        // pour éviter le bug de DataSyncService qui crée un User avec profil="USER" par défaut.
-        boolean isAssistant = getAuthenticatedAssistant().isPresent();
-        log.info("🔐 Création référence - isAssistant: {} → validation: {}", isAssistant, !isAssistant);
+        // Si l'initiateur est un ASSISTANT, la référence n'est pas encore validée.
+        // On lit directement les GrantedAuthority du SecurityContext (chargées depuis le JWT)
+        // pour éviter tout appel Feign qui pourrait échouer silencieusement.
+        boolean isAssistant = SecurityContextHolder.getContext().getAuthentication() != null &&
+                SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+                        .anyMatch(a -> {
+                            String role = a.getAuthority();
+                            return "ROLE_ASSISTANT".equalsIgnoreCase(role) || "ASSISTANT".equalsIgnoreCase(role);
+                        });
+        log.info("🔐 Création référence - authorities: {} - isAssistant: {} → validation: {}",
+                SecurityContextHolder.getContext().getAuthentication() != null
+                        ? SecurityContextHolder.getContext().getAuthentication().getAuthorities()
+                        : "null",
+                isAssistant, !isAssistant);
         referenceDossierDto.setValidation(!isAssistant);
         
         // Créer l'entité principale
