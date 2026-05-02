@@ -274,7 +274,7 @@ const [currentLang, setCurrentLang] = useState(language);
                     >
                       <span>{getTranslation("sentAutoReference", language)}</span>
                       <span className="bg-blue-500 text-white text-xs font-semibold rounded-full px-2 py-0.5">
-                        {sentCount}
+                        {sentCountDossier}
                       </span>
                     </button>
                     <button
@@ -284,7 +284,7 @@ const [currentLang, setCurrentLang] = useState(language);
                     >
                       <span>{getTranslation("receivedAutoReference", language)}</span>
                       <span className="bg-red-500 text-white text-xs font-semibold rounded-full px-2 py-0.5">
-                        {receivedCount}
+                        {receivedCountDossier}
                       </span>
                     </button>
                   </div>
@@ -458,7 +458,7 @@ const [currentLang, setCurrentLang] = useState(language);
                >
                  {/* Badge total */}
                  <span className="bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 mr-2">
-                   {receivedCount + receivedCountDossier}
+                   {receivedCountDossier}
                  </span>
 
                  {/* Label */}
@@ -522,7 +522,7 @@ const [currentLang, setCurrentLang] = useState(language);
               >
                 {/* Badge total */}
                 <span className="bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 mr-2">
-                  {sentCount + receivedCount}
+                  {receivedCountDossier}
                 </span>
 
                 {/* Label */}
@@ -556,7 +556,7 @@ const [currentLang, setCurrentLang] = useState(language);
                     >
                       <span>{getTranslation("sentAutoReference", language)}</span>
                       <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-0.5">
-                        {sentCount}
+                        {sentCountDossier}
                       </span>
                     </button>
 
@@ -567,7 +567,7 @@ const [currentLang, setCurrentLang] = useState(language);
                     >
                       <span>{getTranslation("receivedAutoReference", language)}</span>
                       <span className="bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
-                        {receivedCount}
+                        {receivedCountDossier}
                       </span>
                     </button>
                   </div>
