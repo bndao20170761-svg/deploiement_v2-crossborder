@@ -33,6 +33,7 @@ const authRequest = async (method, path, data = null, extraConfig = {}) => {
     return response.data;
   } catch (error) {
     if (error.response?.status === 401) {
+      // Seulement sur 401 (token expiré) — pas sur 403 (accès refusé)
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/';

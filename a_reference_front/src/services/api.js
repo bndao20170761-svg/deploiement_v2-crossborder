@@ -52,8 +52,9 @@ api.interceptors.response.use(
         data: error.response.data
       });
 
-      // 403 « Invalid CORS request » = origine non autorisée sur la gateway, pas un JWT expiré
-      if (!isCorsRejection) {
+      // Supprimer le token UNIQUEMENT sur 401 (token expiré/invalide)
+      // Ne pas supprimer sur 403 (accès refusé pour raison métier)
+      if (status === 401) {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
       }
