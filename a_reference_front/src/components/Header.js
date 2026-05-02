@@ -196,7 +196,7 @@ const [currentLang, setCurrentLang] = useState(language);
                 type="button"
               >
                 <span className="bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 mr-2">
-                  {receivedCount + receivedCountDossier}
+                  {receivedCountDossier}
                 </span>
                 <span className="hidden xl:inline">{getTranslation('reference', language)}</span>
                 <span className="xl:hidden">{getTranslation('refShort', language)}</span>
