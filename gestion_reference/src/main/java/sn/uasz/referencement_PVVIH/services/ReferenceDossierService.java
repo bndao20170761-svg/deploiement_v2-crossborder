@@ -477,21 +477,26 @@ public class ReferenceDossierService {
         referenceDossierDto.setDateCreation(LocalDateTime.now());
         referenceDossierDto.setEtat(false);
 
-        // Si l'initiateur est un ASSISTANT, la référence n'est pas encore validée.
-        // On lit directement les GrantedAuthority du SecurityContext (chargées depuis le JWT)
-        // pour éviter tout appel Feign qui pourrait échouer silencieusement.
-        boolean isAssistant = SecurityContextHolder.getContext().getAuthentication() != null &&
-                SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-                        .anyMatch(a -> {
-                            String role = a.getAuthority();
-                            return "ROLE_ASSISTANT".equalsIgnoreCase(role) || "ASSISTANT".equalsIgnoreCase(role);
-                        });
-        log.info("🔐 Création référence - authorities: {} - isAssistant: {} → validation: {}",
-                SecurityContextHolder.getContext().getAuthentication() != null
-                        ? SecurityContextHolder.getContext().getAuthentication().getAuthorities()
-                        : "null",
-                isAssistant, !isAssistant);
-        referenceDossierDto.setValidation(!isAssistant);
+        // Règle : validation = true SEULEMENT si c'est un DOCTOR ou ADMIN.
+        // Pour tout autre profil (ASSISTANT, inconnu, null), validation = false.
+        // Approche défensive : on vérifie si c'est un médecin, sinon false par défaut.
+        org.springframework.security.core.Authentication auth =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        boolean isDoctor = auth != null && auth.getAuthorities().stream()
+                .anyMatch(a -> {
+                    String r = a.getAuthority();
+                    return "ROLE_DOCTOR".equalsIgnoreCase(r) || "DOCTOR".equalsIgnoreCase(r)
+                            || "ROLE_ADMIN".equalsIgnoreCase(r) || "ADMIN".equalsIgnoreCase(r);
+                });
+
+        log.info("🔐 Création référence - username: {} - authorities: {} - isDoctor: {} → validation: {}",
+                auth != null ? auth.getName() : "null",
+                auth != null ? auth.getAuthorities() : "null",
+                isDoctor, isDoctor);
+
+        // validation = true uniquement pour un médecin/admin, false pour assistant et tout autre profil
+        referenceDossierDto.setValidation(isDoctor);
         
         // Créer l'entité principale
         ReferenceDossier referenceDossier = referenceDossierMapper.dtoToEntity(referenceDossierDto);
