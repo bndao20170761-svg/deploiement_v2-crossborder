@@ -158,51 +158,6 @@ const [dossierCree, setDossierCree] = useState(null);
    // manquait ici
      fiches: [],   // manquait ici
        suiviArvs: [],// déjà présent
-         <h2 className="text-lg font-semibold mb-3">
-           {getTranslation("infosParents", language)}
-         </h2>
-         <h2 className="text-lg font-semibold mb-3">
-           {getTranslation("naissance_portes_entree", language)}
-         </h2>
-         <h2 className="text-lg font-semibold mb-3">
-           {getTranslation("test_vih_etp", language)}
-         </h2>
-         <h2 className="text-lg font-semibold mb-3">
-           {getTranslation("statut_vaccinal", language)}
-         </h2>
-     <h2 className="text-lg font-semibold mb-3">
-       {getTranslation("enfant_expose", language)}
-     </h2>
-       <h2 className="text-lg font-semibold mb-3">
-         {getTranslation("infos_mere_renseignement_clinique", language)}
-       </h2>
-         <h2 className="text-lg font-semibold mb-3">
-           {getTranslation("repondants_legaux", language)}
-         </h2>
-         <h2 className="text-lg font-semibold mb-3">
-           {getTranslation("antecedents_stade_oms", language)}
-         </h2>
-         <h2 className="text-lg font-semibold mb-3">
-           {getTranslation("index_testing", language)}
-         </h2>
-     <h2 className="text-lg font-semibold mb-3">
-       {getTranslation("section_ptme", language)}
-     </h2>
-    <h2 className="text-lg font-semibold mb-3">
-      {getTranslation("section_bilans", language)}
-    </h2>
-    <h2 className="text-lg font-semibold mb-3">
-      {getTranslation("section_tb", language)}
-    </h2>
-    <h2 className="text-lg font-semibold mb-3">
-      {getTranslation("section_immuno", language)}
-    </h2>
-    <h2 className="text-lg font-semibold mb-3">
-      {getTranslation("section_fiche_suivi", language)}
-    </h2>
-    <h2 className="text-lg font-semibold mb-3">
-      {getTranslation("sectionXIV", language)} : {getTranslation("suiviTherapeutiqueArv", language)}
-    </h2>
    // Renseignement clinique
    renseignementClinique: {
      poidsKg: "",
