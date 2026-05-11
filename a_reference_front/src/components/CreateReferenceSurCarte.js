@@ -326,27 +326,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
       {/* Patient sélectionné */}
       {selectedPatient && !showNewPatientForm && (
         <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-          <h4 className="font-medium text-blue-900 mb-3">👤 Patient sélectionné</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <strong>Nom:</strong> {selectedPatient.nomUtilisateur} {selectedPatient.prenomUtilisateur}
-            </div>
-            <div>
-              <strong>Code:</strong> {selectedPatient.codePatient}
-            </div>
-            <div>
-              <strong>Âge:</strong> {selectedPatient.age} ans
-            </div>
-            <div>
-              <strong>Sexe:</strong> {selectedPatient.sexe}
-            </div>
-            <div>
-              <strong>Téléphone:</strong> {selectedPatient.telephone}
-            </div>
-            <div>
-              <strong>Email:</strong> {selectedPatient.email || '-'}
-            </div>
-          </div>
+          
           
           {/* Actions */}
           <div className="flex justify-end">
