@@ -175,6 +175,17 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
     }));
   };
 
+  // Deselect the currently selected patient and clear related form fields
+  const handlePatientDeselect = () => {
+    setSelectedPatient(null);
+    setFormData(prev => ({
+      ...prev,
+      codePatient: '',
+      nomPatient: '',
+      prenomPatient: ''
+    }));
+  };
+
   const handlePatientCreated = async (newPatient) => {
     setPatients((prev) => [...prev, newPatient]);
     handlePatientSelect(newPatient);
@@ -329,7 +340,13 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
           
           
           {/* Actions */}
-          <div className="flex justify-end">
+          <div className="flex justify-end space-x-2">
+            <button
+              onClick={handlePatientDeselect}
+              className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+            >
+              ✖ Enlever
+            </button>
             <button
               onClick={() => setCurrentStep(2)}
               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
