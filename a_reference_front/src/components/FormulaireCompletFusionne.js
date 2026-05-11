@@ -155,9 +155,54 @@ const [dossierCree, setDossierCree] = useState(null);
    enfantSevrageAgeMois: "",
    enfantNumeroSeropositif: "",
 
-   // manquait ici
-     fiches: [],   // manquait ici
-       suiviArvs: [],// déjà présent
+   // Infos mère
+   mereTritherapieGrossesse: "",
+   dateDebutARV: "",
+   protocoleInitialArv: "",
+   protocoleActuelArv: "",
+
+   // Répondants légaux
+   repondant1Nom: "",
+   repondant1Lien: "",
+   repondant1Niveau: "",
+   repondant1Profession: "",
+   repondant1Tel: "",
+   repondant2Nom: "",
+   repondant2Lien: "",
+   repondant2Niveau: "",
+   repondant2Profession: "",
+   repondant2Tel: "",
+
+   // Antécédents & OMS
+   arvStadeOmsInitial: "",
+   protocole: "",
+   stadeOmsInitial: [],
+   tuberculose: "",
+   autresAnt: "",
+   
+   // Informations personnelles
+   profession: "",
+   statutFamilial: "",
+   personneContact: "",
+   telephoneContact: "",
+   soutienNom: "",
+   soutienPrenoms: "",
+   soutienLien: "",
+   soutienTelephone: "",
+   soutienAdresse: "",
+   
+   // TAR
+   stadeOms: "",
+   dateDebutTar: "",
+   protocoleInitialTar: "",
+   
+   // Autres infos
+   nbGrossessesPtme: "",
+   contraception: "",
+   prep: "",
+   maladiesChroniques: "",
+   autresMaladiesChroniques: "",
+
    // Renseignement clinique
    renseignementClinique: {
      poidsKg: "",
@@ -181,7 +226,18 @@ const [dossierCree, setDossierCree] = useState(null);
      },
    },
 
-   // ðŸ”¥ manquait ici
+   // Collections
+   contacts: [],
+   grossesses: [],
+   bilans: [],
+   suivis: [],
+   fiches: [],
+   tbFiches: [],
+   suiviArvs: []
+
+ });
+
+  // ðŸ”¥ manquait ici
     contacts: [],
      grossesses: [],
      bilans: [],
