@@ -48,7 +48,7 @@ export const countRecuesNonLues = async () => {
 
 //assistant send
 export const getCountReferencesEnvoyeesParAssistant = async () => {
-  const response = await api.get('/references-dossiers/count/envoyees');
+  const response = await api.get('/references-dossiers/count/assistant');
   return response.data; // renvoie un nombre
 };
 
