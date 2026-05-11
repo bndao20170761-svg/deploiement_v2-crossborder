@@ -237,18 +237,6 @@ const [dossierCree, setDossierCree] = useState(null);
 
  });
 
-  // ðŸ”¥ manquait ici
-    contacts: [],
-     grossesses: [],
-     bilans: [],
-     suivis: [],
-     fiches: [],   // ðŸ”¥ manquait ici
-     tbFiches: [],
-
-       suiviArvs: [],// ðŸ”¥ dÃ©jÃ  prÃ©sent
-
-
- });
 
   const resetForm = () => {
     setFormData(JSON.parse(JSON.stringify(initialFormData)));
