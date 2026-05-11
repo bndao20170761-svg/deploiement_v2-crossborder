@@ -155,54 +155,54 @@ const [dossierCree, setDossierCree] = useState(null);
    enfantSevrageAgeMois: "",
    enfantNumeroSeropositif: "",
 
-   // Infos mÃ¨re
-   mereTritherapieGrossesse: "",
-   dateDebutARV: "",
-   protocoleInitialArv: "",
-   protocoleActuelArv: "",
-
-   // RÃ©pondants lÃ©gaux
-   repondant1Nom: "",
-   repondant1Lien: "",
-   repondant1Niveau: "",
-   repondant1Profession: "",
-   repondant1Tel: "",
-   repondant2Nom: "",
-   repondant2Lien: "",
-   repondant2Niveau: "",
-   repondant2Profession: "",
-   repondant2Tel: "",
-
-   // AntÃ©cÃ©dents & OMS
-   arvStadeOmsInitial: "",
-   protocole: "",
-   stadeOmsInitial: [],
-   tuberculose: "",
-   autresAnt: "",
-   
-   // âœ… CHAMPS MANQUANTS : Informations personnelles
-   profession: "",
-   statutFamilial: "",
-   personneContact: "",
-   telephoneContact: "",
-   soutienNom: "",
-   soutienPrenoms: "",
-   soutienLien: "",
-   soutienTelephone: "",
-   soutienAdresse: "",
-   
-   // âœ… CHAMPS MANQUANTS : TAR
-   stadeOms: "",
-   dateDebutTar: "",
-   protocoleInitialTar: "",
-   
-   // âœ… CHAMPS MANQUANTS : Autres infos
-   nbGrossessesPtme: "",
-   contraception: "",
-   prep: "",
-   maladiesChroniques: "",
-   autresMaladiesChroniques: "",
-
+   // manquait ici
+     fiches: [],   // manquait ici
+       suiviArvs: [],// déjà présent
+         <h2 className="text-lg font-semibold mb-3">
+           {getTranslation("infosParents", language)}
+         </h2>
+         <h2 className="text-lg font-semibold mb-3">
+           {getTranslation("naissance_portes_entree", language)}
+         </h2>
+         <h2 className="text-lg font-semibold mb-3">
+           {getTranslation("test_vih_etp", language)}
+         </h2>
+         <h2 className="text-lg font-semibold mb-3">
+           {getTranslation("statut_vaccinal", language)}
+         </h2>
+     <h2 className="text-lg font-semibold mb-3">
+       {getTranslation("enfant_expose", language)}
+     </h2>
+       <h2 className="text-lg font-semibold mb-3">
+         {getTranslation("infos_mere_renseignement_clinique", language)}
+       </h2>
+         <h2 className="text-lg font-semibold mb-3">
+           {getTranslation("repondants_legaux", language)}
+         </h2>
+         <h2 className="text-lg font-semibold mb-3">
+           {getTranslation("antecedents_stade_oms", language)}
+         </h2>
+         <h2 className="text-lg font-semibold mb-3">
+           {getTranslation("index_testing", language)}
+         </h2>
+     <h2 className="text-lg font-semibold mb-3">
+       {getTranslation("section_ptme", language)}
+     </h2>
+    <h2 className="text-lg font-semibold mb-3">
+      {getTranslation("section_bilans", language)}
+    </h2>
+    <h2 className="text-lg font-semibold mb-3">
+      {getTranslation("section_tb", language)}
+    </h2>
+    <h2 className="text-lg font-semibold mb-3">
+      {getTranslation("section_immuno", language)}
+    </h2>
+    <h2 className="text-lg font-semibold mb-3">
+      {getTranslation("section_fiche_suivi", language)}
+    </h2>
+    <h2 className="text-lg font-semibold mb-3">
+      {getTranslation("sectionXIV", language)} : {getTranslation("suiviTherapeutiqueArv", language)}
+    </h2>
    // Renseignement clinique
    renseignementClinique: {
      poidsKg: "",
@@ -1012,7 +1012,7 @@ const handleSubmit = async () => {
      {step === 1 && (
        <div>
          <h2 className="text-lg font-semibold mb-3">
-           ðŸ‘¨â€ðŸ‘©â€ðŸ‘§ {getTranslation("infosParents", language)}
+           {getTranslation("infosParents", language)}
          </h2>
 
          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1160,7 +1160,7 @@ const handleSubmit = async () => {
     {step === 2 && (
       <div>
         <h2 className="text-lg font-semibold mb-3">
-          ðŸ¥ {getTranslation("naissance_portes_entree", language)}
+          {getTranslation("naissance_portes_entree", language)}
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1286,7 +1286,7 @@ const handleSubmit = async () => {
      {step === 3 && (
        <div>
          <h2 className="text-lg font-semibold mb-3">
-           ðŸ§ª {getTranslation("test_vih_etp", language)}
+           {getTranslation("test_vih_etp", language)}
          </h2>
 
          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1384,7 +1384,7 @@ const handleSubmit = async () => {
      {step === 4 && (
        <div>
          <h2 className="text-lg font-semibold mb-3">
-           ðŸ’‰ {getTranslation("statut_vaccinal", language)}
+           {getTranslation("statut_vaccinal", language)}
          </h2>
          <div className="grid grid-cols-2 gap-2 mb-3">
            {[
@@ -1433,7 +1433,7 @@ const handleSubmit = async () => {
  {step === 5 && (
    <div>
      <h2 className="text-lg font-semibold mb-3">
-       ðŸ‘¶ {getTranslation("enfant_expose", language)}
+       {getTranslation("enfant_expose", language)}
      </h2>
 
      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1519,7 +1519,7 @@ const handleSubmit = async () => {
    {step === 6 && (
      <div>
        <h2 className="text-lg font-semibold mb-3">
-         ðŸ¤° {getTranslation("infos_mere_renseignement_clinique", language)}
+         {getTranslation("infos_mere_renseignement_clinique", language)}
        </h2>
 
        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1686,7 +1686,7 @@ const handleSubmit = async () => {
      {step === 7 && (
        <div>
          <h2 className="text-lg font-semibold mb-3">
-           ðŸ‘¥ {getTranslation("repondants_legaux", language)}
+           {getTranslation("repondants_legaux", language)}
          </h2>
 
          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1771,7 +1771,7 @@ const handleSubmit = async () => {
      {step === 8 && (
        <div>
          <h2 className="text-lg font-semibold mb-3">
-           ðŸ’Š {getTranslation("antecedents_stade_oms", language)}
+           {getTranslation("antecedents_stade_oms", language)}
          </h2>
 
          <div className="p-4 border rounded mb-4">
@@ -1844,7 +1844,7 @@ const handleSubmit = async () => {
      {step === 9 && (
        <div>
          <h2 className="text-lg font-semibold mb-3">
-           ðŸ“Œ {getTranslation("index_testing", language)}
+           {getTranslation("index_testing", language)}
          </h2>
          <div className="p-4 border rounded-lg">
            <table className="w-full border-collapse">
@@ -1974,7 +1974,7 @@ const handleSubmit = async () => {
    {step === 10 && (
      <div>
        <h2 className="text-lg font-semibold mb-3">
-         ðŸ‘©â€ðŸ¼ {getTranslation("section_ptme", language)}
+         {getTranslation("section_ptme", language)}
        </h2>
        <div className="p-4 border rounded-lg">
          <div className="overflow-x-auto">
@@ -2158,7 +2158,7 @@ const handleSubmit = async () => {
 {step === 11 && (
   <div>
     <h2 className="text-lg font-semibold mb-3">
-      ðŸ§ª {getTranslation("section_bilans", language)}
+      {getTranslation("section_bilans", language)}
     </h2>
     <div className="p-4 border rounded-lg">
       <div className="overflow-x-auto">
@@ -2246,7 +2246,7 @@ const handleSubmit = async () => {
 {step === 12 && (
   <div>
     <h2 className="text-lg font-semibold mb-3">
-      ðŸ« {getTranslation("section_tb", language)}
+      {getTranslation("section_tb", language)}
     </h2>
     <div className="p-4 border rounded-lg">
       <div className="overflow-x-auto">
@@ -2322,7 +2322,7 @@ const handleSubmit = async () => {
 {step === 13 && (
   <div>
     <h2 className="text-lg font-semibold mb-3">
-      ðŸ§¬ {getTranslation("section_immuno", language)}
+      {getTranslation("section_immuno", language)}
     </h2>
     <div className="p-4 border rounded-lg">
       <div className="overflow-x-auto">
@@ -2410,7 +2410,7 @@ const handleSubmit = async () => {
 {step === 14 && (
   <div>
     <h2 className="text-lg font-semibold mb-3">
-      ðŸ“‹ {getTranslation("section_fiche_suivi", language)}
+      {getTranslation("section_fiche_suivi", language)}
     </h2>
     <div className="p-4 border rounded-lg">
       <div className="overflow-x-auto">
@@ -2584,7 +2584,7 @@ const handleSubmit = async () => {
 {step === 15 && (
   <div>
     <h2 className="text-lg font-semibold mb-3">
-      ðŸ’Š {getTranslation("sectionXIV", language)} : {getTranslation("suiviTherapeutiqueArv", language)}
+      {getTranslation("sectionXIV", language)} : {getTranslation("suiviTherapeutiqueArv", language)}
     </h2>
     <div className="p-4 border rounded-lg">
       <div className="overflow-x-auto">
