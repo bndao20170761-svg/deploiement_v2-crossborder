@@ -32,6 +32,11 @@ const ReferenceDossierForm = ({ language = "fr", onBack, onComplete, initialData
     nomReferenceur: '',
     telephoneReferenceur: '',
     emailReferenceur: ''
+    ,
+    // Autre traitement
+    autreTraitement: false,
+    autreTraitementDescription: '',
+    dateAutreTraitement: ''
   });
 
   // États pour la recherche
@@ -88,18 +93,14 @@ const ReferenceDossierForm = ({ language = "fr", onBack, onComplete, initialData
       const doctor = await getCurrentDoctor();
       setCurrentDoctor(doctor);
       // Pré-remplir le formulaire avec le docteur connecté
-      const docCode = doctor?.codeDocteur || doctor?.codeDoctor || doctor?.codePrestataire || doctor?.code || doctor?.id || '';
-      const docFirst = doctor?.prenomUtilisateur || doctor?.prenom || doctor?.firstName || '';
-      const docLast = doctor?.nomUtilisateur || doctor?.nom || doctor?.lastName || '';
-      const docFull = doctor?.nomComplet || doctor?.displayName || `${docFirst} ${docLast}`.trim() || doctor?.username || doctor?.email || '';
       setFormData(prev => ({
         ...prev,
-        codeDocteur: docCode,
-        nomDocteur: docFull,
-        codeReferenceur: docCode,
-        nomReferenceur: docFull,
-        telephoneReferenceur: doctor?.telephone || doctor?.phone || '',
-        emailReferenceur: doctor?.email || ''
+        codeDocteur: doctor.codeDocteur || doctor.codePrestataire,
+        nomDocteur: doctor.nomDocteur || doctor.nomPrestataire || `${doctor.prenomUtilisateur} ${doctor.nomUtilisateur}`,
+        codeReferenceur: doctor.codeDocteur || doctor.codePrestataire,
+        nomReferenceur: doctor.nomDocteur || doctor.nomPrestataire || `${doctor.prenomUtilisateur} ${doctor.nomUtilisateur}`,
+        telephoneReferenceur: doctor.telephone,
+        emailReferenceur: doctor.email
       }));
     } catch (err) {
       console.error('Erreur lors du chargement du docteur connecté:', err);
@@ -722,6 +723,35 @@ const ReferenceDossierForm = ({ language = "fr", onBack, onComplete, initialData
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder={getTranslation('ajouterObservations', language) || 'Ajoutez des observations supplémentaires...'}
               />
+            </div>
+
+            {/* Autre traitement */}
+            <div className="mt-4 p-4 border rounded-lg bg-gray-50">
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={formData.autreTraitement || false}
+                  onChange={(e) => setFormData(prev => ({ ...prev, autreTraitement: e.target.checked }))}
+                />
+                <span>{getTranslation('otherTreatment', language) || 'Autre traitement'}</span>
+              </label>
+              {formData.autreTraitement && (
+                <div className="mt-3 space-y-2">
+                  <textarea
+                    value={formData.autreTraitementDescription || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, autreTraitementDescription: e.target.value }))}
+                    className="w-full border p-2 rounded"
+                    rows={3}
+                    placeholder={getTranslation('describeOtherTreatment', language) || 'Précisez l\'autre traitement...'}
+                  />
+                  <input
+                    type="date"
+                    value={formData.dateAutreTraitement || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, dateAutreTraitement: e.target.value }))}
+                    className="w-full border p-2 rounded"
+                  />
+                </div>
+              )}
             </div>
           </div>
         );

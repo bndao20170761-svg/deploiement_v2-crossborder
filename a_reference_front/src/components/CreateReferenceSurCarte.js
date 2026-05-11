@@ -78,6 +78,9 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
     dateCracheBaar: '',
     dateAghbs: '',
     dateAutreAnalyse: '',
+    // Autre traitement: description + date
+    autreTraitementDescription: '',
+    dateAutreTraitement: '',
     dateDebutARV: '',
     // Listes imbriquées
     protocoles1s: [{ protocole1ereLigne: "", dateProtocole1: "" }],
@@ -535,7 +538,6 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
                   changementAdresse: e.target.checked ? null : prev.changementAdresse,
                 }))
               }
-              disabled={formData.changementAdresse !== null}
             />
             <label>{getTranslation("autre_a_preciser", language)}</label>
           </div>
@@ -1312,12 +1314,23 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
               />
               <span>{getTranslation("otherTreatment", language) || "Autre traitement"}</span>
             </label>
-            <input
-              type="date"
-              value={formData.dateAutreAnalyse || ""}
-              onChange={(e) => setFormData(prev => ({ ...prev, dateAutreAnalyse: e.target.value }))}
-              className="border p-2 rounded w-full mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            {formData.autreTraitement && (
+              <div className="mt-2 space-y-2">
+                <textarea
+                  value={formData.autreTraitementDescription || ""}
+                  onChange={(e) => setFormData(prev => ({ ...prev, autreTraitementDescription: e.target.value }))}
+                  className="w-full border p-2 rounded"
+                  rows={3}
+                  placeholder={getTranslation('describeOtherTreatment', language) || 'Précisez l\'autre traitement...'}
+                />
+                <input
+                  type="date"
+                  value={formData.dateAutreTraitement || ""}
+                  onChange={(e) => setFormData(prev => ({ ...prev, dateAutreTraitement: e.target.value }))}
+                  className="border p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -115,7 +115,8 @@ const SearchPatient = ({ patients, onSelect, selectedPatient }) => {
             {searchResults.map((patient) => (
               <div
                 key={patient.codePatient}
-                className="w-full px-4 py-3 text-left hover:bg-green-50 flex items-center justify-between border-b border-gray-100 last:border-b-0"
+                onClick={() => handlePatientSelect(patient)}
+                className="w-full px-4 py-3 text-left hover:bg-green-50 flex items-center justify-between border-b border-gray-100 last:border-b-0 cursor-pointer"
               >
                 <div className="flex items-center space-x-3">
                   <User className="h-5 w-5 text-gray-400" />
@@ -129,7 +130,7 @@ const SearchPatient = ({ patients, onSelect, selectedPatient }) => {
                   </div>
                 </div>
                 <button
-                  onClick={() => handlePatientSelect(patient)}
+                  onClick={(e) => { e.stopPropagation(); handlePatientSelect(patient); }}
                   className="text-green-600 hover:underline font-medium"
                 >
                   Sélectionner
