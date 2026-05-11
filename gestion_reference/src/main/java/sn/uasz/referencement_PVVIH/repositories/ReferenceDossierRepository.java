@@ -48,6 +48,9 @@ public interface ReferenceDossierRepository extends JpaRepository<ReferenceDossi
     
     List<ReferenceDossier> findByMedecinAuteur_CodeDoctor(String codeDoctor);
 
+    // Compte les références d'un référenceur avec validation=false
+    long countByCodeReferenceurAndValidationFalse(String codeReferenceur);
+
     // Références initiées par un assistant (validation=false) pour une liste de patients
     List<ReferenceDossier> findByValidationFalseAndCodePatientIn(List<String> codePatients);
 

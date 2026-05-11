@@ -398,7 +398,7 @@ public class ReferenceDossierService {
                                     if (patientDoctor.getUtilisateur() != null) {
                                         String nom = patientDoctor.getUtilisateur().getNom() != null ? patientDoctor.getUtilisateur().getNom().trim() : "";
                                         String prenom = patientDoctor.getUtilisateur().getPrenom() != null ? patientDoctor.getUtilisateur().getPrenom().trim() : "";
-                                        nomRef = (nom + " " + prenom).trim();
+                                        nomRef = (nom + " \t" + prenom).trim();
                                         referenceDossierDto.setNationaliteReferenceur(patientDoctor.getUtilisateur().getNationalite());
                                     }
                                     if (isBlankOrUndefined(nomRef)) {
@@ -789,18 +789,14 @@ public class ReferenceDossierService {
     }
 
     /**
-     * Compte les références initiées par un assistant pour les patients du médecin connecté
-     * (validation=false) — badge jaune dans l'onglet "Envoyées"
+     * Compte les références dont le médecin connecté est le référenceur
+     * et dont la validation est encore false.
      */
     public long countReferencesDossierAssistant() {
         Optional<Doctor> currentDoctor = getAuthenticatedDoctor();
         if (currentDoctor.isEmpty()) return 0;
 
-        List<String> patientCodes = referenceDossierRepository
-                .findDistinctCodePatientByCodeReferenceur(currentDoctor.get().getCodeDoctor());
-        if (patientCodes.isEmpty()) return 0;
-
-        return referenceDossierRepository.findByValidationFalseAndCodePatientIn(patientCodes).size();
+        return referenceDossierRepository.countByCodeReferenceurAndValidationFalse(currentDoctor.get().getCodeDoctor());
     }
     
     // Méthodes pour importer les informations du dossier depuis gestion-patient
