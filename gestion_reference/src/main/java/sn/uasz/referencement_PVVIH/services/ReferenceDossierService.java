@@ -230,12 +230,8 @@ public class ReferenceDossierService {
         if (currentDoctor.isPresent()) {
             Doctor doctor = currentDoctor.get();
 
-            // 1. Références envoyées directement par le médecin (validées, non encore reçues)
-            List<ReferenceDossier> envoyees = referenceDossierRepository.findByCodeReferenceur(doctor.getCodeDoctor())
-                    .stream()
-                    .filter(ref -> Boolean.TRUE.equals(ref.getValidation()))
-                    .filter(ref -> Boolean.FALSE.equals(ref.getEtat()))
-                    .collect(java.util.stream.Collectors.toList());
+            // 1. Références envoyées directement par le médecin (toutes celles où il est référenceur)
+            List<ReferenceDossier> envoyees = referenceDossierRepository.findByCodeReferenceur(doctor.getCodeDoctor());
 
             // 2. Références initiées par un assistant pour les patients du médecin (validation=false)
             //    Le médecin doit les voir pour pouvoir les valider
