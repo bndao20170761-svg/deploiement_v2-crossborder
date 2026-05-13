@@ -3203,6 +3203,139 @@ sectionYBilans: { fr: "Section Y : Bilans biologiques", en: "Section Y: Biologic
   ageSuffix: { fr: 'ans', en: 'years', pt: 'anos' },
   nationaliteLabel: { fr: 'Nationalité', en: 'Nationality', pt: 'Nacionalidade' },
 
+  // ── CartographyMap – InfoWindow & Dialog hôpital ────────────────────────
+  // InfoWindow – statut
+  hospitalActive: { fr: 'Actif', en: 'Active', pt: 'Ativo' },
+  hospitalPending: { fr: 'En attente', en: 'Pending', pt: 'Pendente' },
+
+  // InfoWindow – sections
+  infoServices: { fr: 'Services', en: 'Services', pt: 'Serviços' },
+  infoProviders: { fr: 'Prestataires', en: 'Providers', pt: 'Prestadores' },
+
+  // InfoWindow – boutons
+  referPatient: { fr: 'Référencer un patient', en: 'Refer a patient', pt: 'Referenciar um paciente' },
+  editHospital: { fr: 'Modifier', en: 'Edit', pt: 'Editar' },
+
+  // Dialog titre
+  addHealthFacility: { fr: 'Ajouter un établissement de santé', en: 'Add a health facility', pt: 'Adicionar uma unidade de saúde' },
+  editFacility: { fr: 'Modifier', en: 'Edit', pt: 'Editar' },
+
+  // Stepper labels
+  stepInfoEtablissement: { fr: 'Informations établissement', en: 'Facility information', pt: 'Informações do estabelecimento' },
+  stepServicesDisponibles: { fr: 'Services disponibles', en: 'Available services', pt: 'Serviços disponíveis' },
+  stepPrestataires: { fr: 'Prestataires', en: 'Providers', pt: 'Prestadores' },
+
+  // Dialog actions
+  dialogCancel: { fr: 'Annuler', en: 'Cancel', pt: 'Cancelar' },
+  dialogBack: { fr: 'Retour', en: 'Back', pt: 'Voltar' },
+  dialogNext: { fr: 'Suivant', en: 'Next', pt: 'Próximo' },
+  dialogSave: { fr: 'Enregistrer', en: 'Save', pt: 'Salvar' },
+  dialogUpdate: { fr: 'Mettre à jour', en: 'Update', pt: 'Atualizar' },
+
+  // Étape 0 – Informations établissement
+  stepInfoTitle: { fr: "Informations de l'établissement", en: 'Facility information', pt: 'Informações do estabelecimento' },
+  stepInfoSubtitle: { fr: 'Renseignez les informations générales de l\'établissement', en: 'Fill in the general information about the facility', pt: 'Preencha as informações gerais do estabelecimento' },
+  fieldCountry: { fr: 'Pays *', en: 'Country *', pt: 'País *' },
+  fieldCountryPlaceholder: { fr: 'Ex: Sénégal', en: 'Ex: Senegal', pt: 'Ex: Senegal' },
+  fieldCity: { fr: 'Ville *', en: 'City *', pt: 'Cidade *' },
+  fieldCityPlaceholder: { fr: 'Ex: Dakar', en: 'Ex: Dakar', pt: 'Ex: Dakar' },
+  fieldFacilityName: { fr: "Nom de l'établissement *", en: 'Facility name *', pt: 'Nome do estabelecimento *' },
+  fieldFacilityNamePlaceholder: { fr: 'Ex: Hôpital Principal de Ziguinchor', en: 'Ex: Main Hospital of Ziguinchor', pt: 'Ex: Hospital Principal de Ziguinchor' },
+  fieldFacilityType: { fr: "Type d'établissement", en: 'Facility type', pt: 'Tipo de estabelecimento' },
+  fieldPhone: { fr: 'Téléphone fixe', en: 'Landline phone', pt: 'Telefone fixo' },
+  fieldPhonePlaceholder: { fr: 'Ex: +221 33 XXX XX XX', en: 'Ex: +221 33 XXX XX XX', pt: 'Ex: +221 33 XXX XX XX' },
+
+  // Types d'établissement
+  typeHopitalRegional: { fr: 'Hôpital régional', en: 'Regional hospital', pt: 'Hospital regional' },
+  typeDistrictSanitaire: { fr: 'District Sanitaire', en: 'Health district', pt: 'Distrito sanitário' },
+  typeCentreSante: { fr: 'Centre de Santé (CS)', en: 'Health center (HC)', pt: 'Centro de saúde (CS)' },
+  typePosteSante: { fr: 'Poste de Santé (PS)', en: 'Health post (HP)', pt: 'Posto de saúde (PS)' },
+  typeChr: { fr: 'Centre Hospitalier Régional (CHR)', en: 'Regional Hospital Center (RHC)', pt: 'Centro Hospitalar Regional (CHR)' },
+  typeHopital: { fr: 'Hôpital', en: 'Hospital', pt: 'Hospital' },
+  typeCmia: { fr: 'CMIA (Centre Médical Inter-Armées)', en: 'CMIA (Inter-Army Medical Center)', pt: 'CMIA (Centro Médico Inter-Forças)' },
+  typeDpc: { fr: 'DPC (Dispensaire Public Communautaire)', en: 'DPC (Community Public Dispensary)', pt: 'DPC (Dispensário Público Comunitário)' },
+
+  // Étape 1 – Services
+  stepServicesTitle: { fr: 'Services disponibles', en: 'Available services', pt: 'Serviços disponíveis' },
+  stepServicesSubtitle: { fr: 'Sélectionnez les services proposés par cet établissement', en: 'Select the services offered by this facility', pt: 'Selecione os serviços oferecidos por este estabelecimento' },
+
+  // Étape 2 – Prestataires
+  stepProvidersTitle: { fr: 'Prestataires', en: 'Providers', pt: 'Prestadores' },
+  stepProvidersSubtitle: { fr: 'Ajoutez les prestataires qui travaillent dans cet établissement', en: 'Add the providers who work in this facility', pt: 'Adicione os prestadores que trabalham neste estabelecimento' },
+  addProviderTitle: { fr: 'Ajouter un prestataire', en: 'Add a provider', pt: 'Adicionar um prestador' },
+  editProviderTitle: { fr: 'Modifier le prestataire', en: 'Edit provider', pt: 'Editar prestador' },
+  providerType: { fr: 'Type de prestataire', en: 'Provider type', pt: 'Tipo de prestador' },
+  providerLastName: { fr: 'Nom du prestataire', en: 'Provider last name', pt: 'Sobrenome do prestador' },
+  providerLastNamePlaceholder: { fr: 'Ex: Diop', en: 'Ex: Diop', pt: 'Ex: Diop' },
+  providerFirstName: { fr: 'Prénom du prestataire', en: 'Provider first name', pt: 'Nome do prestador' },
+  providerFirstNamePlaceholder: { fr: 'Ex: Marie', en: 'Ex: Marie', pt: 'Ex: Marie' },
+  providerPhone: { fr: 'Téléphone (optionnel)', en: 'Phone (optional)', pt: 'Telefone (opcional)' },
+  providerPhonePlaceholder: { fr: 'Ex: +221 XX XXX XX XX', en: 'Ex: +221 XX XXX XX XX', pt: 'Ex: +221 XX XXX XX XX' },
+  addProviderBtn: { fr: 'Ajouter le prestataire', en: 'Add provider', pt: 'Adicionar prestador' },
+  updateProviderBtn: { fr: 'Mettre à jour le prestataire', en: 'Update provider', pt: 'Atualizar prestador' },
+  cancelEditProvider: { fr: 'Annuler', en: 'Cancel', pt: 'Cancelar' },
+  autoGeneratedSummary: { fr: 'Récapitulatif des valeurs générées automatiquement :', en: 'Summary of auto-generated values:', pt: 'Resumo dos valores gerados automaticamente:' },
+  editingInProgress: { fr: 'Modification en cours - ', en: 'Editing in progress - ', pt: 'Edição em andamento - ' },
+  reloadBtn: { fr: '🔄 Recharger', en: '🔄 Reload', pt: '🔄 Recarregar' },
+  fullName: { fr: 'Nom complet :', en: 'Full name:', pt: 'Nome completo:' },
+  specialtyLabel: { fr: 'Spécialité :', en: 'Specialty:', pt: 'Especialidade:' },
+  emailLabel: { fr: 'Email :', en: 'Email:', pt: 'Email:' },
+  providersSummaryTitle: { fr: 'Récapitulatif des prestataires', en: 'Providers summary', pt: 'Resumo dos prestadores' },
+  noProviderWarning: { fr: '⚠️ Aucun prestataire ajouté. Veuillez ajouter au moins un prestataire pour continuer.', en: '⚠️ No provider added. Please add at least one provider to continue.', pt: '⚠️ Nenhum prestador adicionado. Adicione pelo menos um prestador para continuar.' },
+  specialtyField: { fr: 'Spécialité', en: 'Specialty', pt: 'Especialidade' },
+  finalSummaryTitle: { fr: 'Récapitulatif complet', en: 'Complete summary', pt: 'Resumo completo' },
+  selectedServicesCount: { fr: 'Services sélectionnés:', en: 'Selected services:', pt: 'Serviços selecionados:' },
+  addedProvidersCount: { fr: 'Prestataires ajoutés:', en: 'Added providers:', pt: 'Prestadores adicionados:' },
+  facilityName: { fr: 'Établissement:', en: 'Facility:', pt: 'Estabelecimento:' },
+  notDefined: { fr: 'Non défini', en: 'Not defined', pt: 'Não definido' },
+
+  // Contrôles carte
+  mapNavigation: { fr: 'Navigation', en: 'Navigation', pt: 'Navegação' },
+  mapView: { fr: 'Vue', en: 'View', pt: 'Vista' },
+  clickToAdd: { fr: '🎯 Cliquez sur la carte pour ajouter un établissement', en: '🎯 Click on the map to add a facility', pt: '🎯 Clique no mapa para adicionar um estabelecimento' },
+  loadingMap: { fr: 'Chargement de la carte...', en: 'Loading map...', pt: 'Carregando mapa...' },
+  detectingPosition: { fr: '📡 Détection de votre position...', en: '📡 Detecting your position...', pt: '📡 Detectando sua posição...' },
+
+  // Dialog référence patient
+  referPatientFor: { fr: 'Référencer un patient pour', en: 'Refer a patient to', pt: 'Referenciar um paciente para' },
+
+  // Validation messages (formulaire hôpital)
+  validationFacilityName: { fr: "Veuillez remplir le nom de l'établissement", en: 'Please fill in the facility name', pt: 'Por favor, preencha o nome do estabelecimento' },
+  validationSelectService: { fr: 'Veuillez sélectionner au moins un service', en: 'Please select at least one service', pt: 'Por favor, selecione pelo menos um serviço' },
+  validationAddProvider: { fr: 'Veuillez ajouter au moins un prestataire', en: 'Please add at least one provider', pt: 'Por favor, adicione pelo menos um prestador' },
+
+  // ── AddHospitalForm ──────────────────────────────────────────────────────
+  addHospitalTitle: { fr: 'Ajouter une nouvelle structure de santé', en: 'Add a new health facility', pt: 'Adicionar uma nova unidade de saúde' },
+  addHospitalSubtitle: { fr: 'Remplissez le formulaire ci-dessous pour ajouter une nouvelle structure à la cartographie.', en: 'Fill in the form below to add a new facility to the map.', pt: 'Preencha o formulário abaixo para adicionar uma nova unidade ao mapa.' },
+  addHospitalSuccess: { fr: 'Structure ajoutée avec succès ! Elle est maintenant en attente de confirmation.', en: 'Facility added successfully! It is now pending confirmation.', pt: 'Unidade adicionada com sucesso! Está agora aguardando confirmação.' },
+  fieldFacilityNameRequired: { fr: 'Nom de la structure *', en: 'Facility name *', pt: 'Nome da unidade *' },
+  fieldFacilityNamePlaceholderForm: { fr: 'Ex: Hôpital Central de Dakar', en: 'Ex: Central Hospital of Dakar', pt: 'Ex: Hospital Central de Dakar' },
+  fieldCityForm: { fr: 'Ville', en: 'City', pt: 'Cidade' },
+  fieldCityPlaceholderForm: { fr: 'Ex: Dakar', en: 'Ex: Dakar', pt: 'Ex: Dakar' },
+  fieldDescription: { fr: 'Description', en: 'Description', pt: 'Descrição' },
+  fieldDescriptionPlaceholder: { fr: 'Description des services offerts...', en: 'Description of services offered...', pt: 'Descrição dos serviços oferecidos...' },
+  fieldDescriptionHelper: { fr: 'Décrivez les services VIH disponibles dans cette structure', en: 'Describe the HIV services available in this facility', pt: 'Descreva os serviços de HIV disponíveis nesta unidade' },
+  fieldPhoneForm: { fr: 'Téléphone', en: 'Phone', pt: 'Telefone' },
+  fieldPhonePlaceholderForm: { fr: 'Ex: +221 33 123 45 67', en: 'Ex: +221 33 123 45 67', pt: 'Ex: +221 33 123 45 67' },
+  fieldEmail: { fr: 'Email', en: 'Email', pt: 'Email' },
+  fieldEmailPlaceholder: { fr: 'Ex: contact@hopital.sn', en: 'Ex: contact@hospital.sn', pt: 'Ex: contato@hospital.sn' },
+  fieldLatitude: { fr: 'Latitude *', en: 'Latitude *', pt: 'Latitude *' },
+  fieldLatitudePlaceholder: { fr: 'Ex: 14.6928', en: 'Ex: 14.6928', pt: 'Ex: 14.6928' },
+  fieldLatitudeHelper: { fr: 'Coordonnée latitude (-90 à 90)', en: 'Latitude coordinate (-90 to 90)', pt: 'Coordenada de latitude (-90 a 90)' },
+  fieldLongitude: { fr: 'Longitude *', en: 'Longitude *', pt: 'Longitude *' },
+  fieldLongitudePlaceholder: { fr: 'Ex: -17.4467', en: 'Ex: -17.4467', pt: 'Ex: -17.4467' },
+  fieldLongitudeHelper: { fr: 'Coordonnée longitude (-180 à 180)', en: 'Longitude coordinate (-180 to 180)', pt: 'Coordenada de longitude (-180 a 180)' },
+  fieldCountryForm: { fr: 'Pays', en: 'Country', pt: 'País' },
+  fieldCountryHelper: { fr: 'Pays par défaut : Sénégal', en: 'Default country: Senegal', pt: 'País padrão: Senegal' },
+  btnAddFacility: { fr: 'Ajouter la structure', en: 'Add facility', pt: 'Adicionar unidade' },
+  btnClearForm: { fr: 'Effacer le formulaire', en: 'Clear form', pt: 'Limpar formulário' },
+  formTip: { fr: '💡 <strong>Astuce :</strong> Vous pouvez également ajouter des structures directement en cliquant sur la carte dans l\'onglet "Vue Carte".', en: '💡 <strong>Tip:</strong> You can also add facilities directly by clicking on the map in the "Map View" tab.', pt: '💡 <strong>Dica:</strong> Você também pode adicionar unidades diretamente clicando no mapa na aba "Vista do Mapa".' },
+  errorNameRequired: { fr: 'Le nom est requis', en: 'Name is required', pt: 'O nome é obrigatório' },
+  errorLatRequired: { fr: 'La latitude est requise', en: 'Latitude is required', pt: 'A latitude é obrigatória' },
+  errorLatInvalid: { fr: 'Latitude invalide (-90 à 90)', en: 'Invalid latitude (-90 to 90)', pt: 'Latitude inválida (-90 a 90)' },
+  errorLngRequired: { fr: 'La longitude est requise', en: 'Longitude is required', pt: 'A longitude é obrigatória' },
+  errorLngInvalid: { fr: 'Longitude invalide (-180 à 180)', en: 'Invalid longitude (-180 to 180)', pt: 'Longitude inválida (-180 a 180)' },
+
   // ── CreateReferenceSurCarte ──────────────────────────────────────────────
   // Étape 1 – Patient
   selectPatient: { fr: 'Sélectionner un patient', en: 'Select a patient', pt: 'Selecionar um paciente' },

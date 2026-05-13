@@ -4,6 +4,7 @@ import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/ap
 import { toggleHospitalStatus } from '../services/hospitalService';
 import { createHopital, updateHopital, getHopitalAvecPrestataires, getPrestatairesByHopitalId } from '../services/hopitalService';
 import CreateReferenceSurCarte from './CreateReferenceSurCarte';
+import { getTranslation } from '../utils/translations';
 
 import {
   Box,
@@ -183,7 +184,11 @@ const CartographyMap = ({ hospitals, onHospitalUpdate,  onHospitalAdd, language 
   const [isEditMode, setIsEditMode] = useState(false);
 
   // Steps pour le stepper
-  const steps = ['Informations établissement', 'Services disponibles', 'Prestataires'];
+  const steps = [
+    getTranslation('stepInfoEtablissement', language),
+    getTranslation('stepServicesDisponibles', language),
+    getTranslation('stepPrestataires', language)
+  ];
 
   // Fonction pour gérer la référence de patient
   const handleReferencePatient = (hospital) => {
@@ -560,19 +565,19 @@ const onMapLoad = useCallback((mapInstance) => {
     if (activeStep === 0) {
       // Étape 0: Informations établissement - nom doit être rempli
       if (!hospitalForm.nom.trim()) {
-        alert("Veuillez remplir le nom de l'établissement");
+        alert(getTranslation('validationFacilityName', language));
         return;
       }
     } else if (activeStep === 1) {
       // Étape 1: Services - au moins un service doit être sélectionné
       if (selectedServices.length === 0) {
-        alert("Veuillez sélectionner au moins un service");
+        alert(getTranslation('validationSelectService', language));
         return;
       }
     } else if (activeStep === 2) {
       // Étape 2: Prestataires - au moins un prestataire doit être ajouté
       if (providers.length === 0) {
-        alert("Veuillez ajouter au moins un prestataire");
+        alert(getTranslation('validationAddProvider', language));
         return;
       }
     }
@@ -985,63 +990,63 @@ const saveNewHospital = async () => {
         return (
           <Box>
             <Typography variant="h6" gutterBottom>
-              Informations de l'établissement
+              {getTranslation('stepInfoTitle', language)}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              Renseignez les informations générales de l'établissement
+              {getTranslation('stepInfoSubtitle', language)}
             </Typography>
 
             {/* Informations de l'établissement */}
             <Box display="flex" gap={2} sx={{ mb: 2 }}>
               <TextField
-                label="Pays *"
+                label={getTranslation('fieldCountry', language)}
                 value={hospitalForm.pays}
                 onChange={(e) => handleFormChange('pays', e.target.value)}
                 sx={{ flex: 1 }}
-                placeholder="Ex: Sénégal"
+                placeholder={getTranslation('fieldCountryPlaceholder', language)}
               />
               <TextField
-                label="Ville *"
+                label={getTranslation('fieldCity', language)}
                 value={hospitalForm.ville}
                 onChange={(e) => handleFormChange('ville', e.target.value)}
                 sx={{ flex: 1 }}
-                placeholder="Ex: Dakar"
+                placeholder={getTranslation('fieldCityPlaceholder', language)}
               />
             </Box>
 
             <TextField
               fullWidth
-              label="Nom de l'établissement *"
+              label={getTranslation('fieldFacilityName', language)}
               value={hospitalForm.nom}
               onChange={(e) => handleFormChange('nom', e.target.value)}
               sx={{ mb: 2 }}
-              placeholder="Ex: Hôpital Principal de Ziguinchor"
+              placeholder={getTranslation('fieldFacilityNamePlaceholder', language)}
             />
 
             <Box display="flex" gap={2} sx={{ mb: 2 }}>
               <FormControl sx={{ flex: 1 }}>
-                <InputLabel>Type d'établissement</InputLabel>
+                <InputLabel>{getTranslation('fieldFacilityType', language)}</InputLabel>
                 <Select
                   value={hospitalForm.type}
                   onChange={(e) => handleFormChange('type', e.target.value)}
-                  label="Type d'établissement"
+                  label={getTranslation('fieldFacilityType', language)}
                 >
-                  <MenuItem value="hopital-regional">Hôpital régional</MenuItem>
-                  <MenuItem value="district-sanitaire">District Sanitaire</MenuItem>
-                  <MenuItem value="centre-sante">Centre de Santé (CS)</MenuItem>
-                  <MenuItem value="poste-sante">Poste de Santé (PS)</MenuItem>
-                  <MenuItem value="chr">Centre Hospitalier Régional (CHR)</MenuItem>
-                  <MenuItem value="hopital">Hôpital</MenuItem>
-                  <MenuItem value="cmia">CMIA (Centre Médical Inter-Armées)</MenuItem>
-                  <MenuItem value="dpc">DPC (Dispensaire Public Communautaire)</MenuItem>
+                  <MenuItem value="hopital-regional">{getTranslation('typeHopitalRegional', language)}</MenuItem>
+                  <MenuItem value="district-sanitaire">{getTranslation('typeDistrictSanitaire', language)}</MenuItem>
+                  <MenuItem value="centre-sante">{getTranslation('typeCentreSante', language)}</MenuItem>
+                  <MenuItem value="poste-sante">{getTranslation('typePosteSante', language)}</MenuItem>
+                  <MenuItem value="chr">{getTranslation('typeChr', language)}</MenuItem>
+                  <MenuItem value="hopital">{getTranslation('typeHopital', language)}</MenuItem>
+                  <MenuItem value="cmia">{getTranslation('typeCmia', language)}</MenuItem>
+                  <MenuItem value="dpc">{getTranslation('typeDpc', language)}</MenuItem>
                 </Select>
               </FormControl>
               <TextField
-                label="Téléphone fixe"
+                label={getTranslation('fieldPhone', language)}
                 value={hospitalForm.telephoneFixe}
                 onChange={(e) => handleFormChange('telephoneFixe', e.target.value)}
                 sx={{ flex: 1 }}
-                placeholder="Ex: +221 33 XXX XX XX"
+                placeholder={getTranslation('fieldPhonePlaceholder', language)}
               />
             </Box>
           </Box>
@@ -1051,10 +1056,10 @@ const saveNewHospital = async () => {
         return (
           <Box>
             <Typography variant="h6" gutterBottom>
-              Services disponibles
+              {getTranslation('stepServicesTitle', language)}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              Sélectionnez les services proposés par cet établissement
+              {getTranslation('stepServicesSubtitle', language)}
             </Typography>
 
             <List>
@@ -1084,17 +1089,17 @@ const saveNewHospital = async () => {
         return (
           <Box>
             <Typography variant="h6" gutterBottom>
-              Prestataires
+              {getTranslation('stepProvidersTitle', language)}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              Ajoutez les prestataires qui travaillent dans cet établissement
+              {getTranslation('stepProvidersSubtitle', language)}
             </Typography>
 
             {/* Formulaire d'ajout/modification d'un prestataire */}
             <Box sx={{ mb: 3, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                 <Typography variant="subtitle1" gutterBottom sx={{ mb: 0 }}>
-                  {isEditingProvider ? 'Modifier le prestataire' : 'Ajouter un prestataire'}
+                  {isEditingProvider ? getTranslation('editProviderTitle', language) : getTranslation('addProviderTitle', language)}
                 </Typography>
                 {isEditingProvider && (
                   <Button
@@ -1104,16 +1109,16 @@ const saveNewHospital = async () => {
                     onClick={handleCancelEditProvider}
                     sx={{ minWidth: 'auto', px: 2 }}
                   >
-                    Annuler
+                    {getTranslation('cancelEditProvider', language)}
                   </Button>
                 )}
               </Box>
 
               <FormControl fullWidth sx={{ mb: 2 }}>
-                <InputLabel>Type de prestataire</InputLabel>
+                <InputLabel>{getTranslation('providerType', language)}</InputLabel>
                 <Select
                   value={currentProvider.type}
-                  label="Type de prestataire"
+                  label={getTranslation('providerType', language)}
                   onChange={(e) => handleProviderChange('type', e.target.value)}
                 >
                   {PROVIDER_TYPES.map((provider) => (
@@ -1130,21 +1135,21 @@ const saveNewHospital = async () => {
               {/* Champ nom_prestataire visible */}
               <TextField
                 fullWidth
-                label="Nom du prestataire"
+                label={getTranslation('providerLastName', language)}
                 value={currentProvider.nom_prestataire || ''}
                 onChange={(e) => handleProviderChange('nom_prestataire', e.target.value)}
                 sx={{ mb: 2 }}
-                placeholder="Ex: Diop"
+                placeholder={getTranslation('providerLastNamePlaceholder', language)}
               />
 
               {/* Champ prénom visible */}
               <TextField
                 fullWidth
-                label="Prénom du prestataire"
+                label={getTranslation('providerFirstName', language)}
                 value={currentProvider.prenom || ''}
                 onChange={(e) => handleProviderChange('prenom', e.target.value)}
                 sx={{ mb: 2 }}
-                placeholder="Ex: Marie"
+                placeholder={getTranslation('providerFirstNamePlaceholder', language)}
               />
 
               {/* Champs cachés - générés automatiquement */}
@@ -1155,11 +1160,11 @@ const saveNewHospital = async () => {
               {/* Champs visibles */}
               <TextField
                 fullWidth
-                label="Téléphone (optionnel)"
+                label={getTranslation('providerPhone', language)}
                 value={currentProvider.telephone || ''}
                 onChange={(e) => handleProviderChange('telephone', e.target.value)}
                 sx={{ mb: 2 }}
-                placeholder="Ex: +221 XX XXX XX XX"
+                placeholder={getTranslation('providerPhonePlaceholder', language)}
               />
 
               <Button
@@ -1169,7 +1174,7 @@ const saveNewHospital = async () => {
                 sx={{ mt: 2 }}
                 color={isEditingProvider ? 'primary' : 'default'}
               >
-                {isEditingProvider ? 'Mettre à jour le prestataire' : 'Ajouter le prestataire'}
+                {isEditingProvider ? getTranslation('updateProviderBtn', language) : getTranslation('addProviderBtn', language)}
               </Button>
 
               {/* Récapitulatif des valeurs générées automatiquement */}
@@ -1177,7 +1182,7 @@ const saveNewHospital = async () => {
                 <Box sx={{ mt: 2, p: 2, bgcolor: isEditingProvider ? 'primary.50' : 'grey.100', borderRadius: 1, border: isEditingProvider ? '1px solid' : 'none', borderColor: 'primary.main' }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                     <Typography variant="body2" color="text.secondary" fontWeight="bold">
-                      📋 {isEditingProvider ? 'Modification en cours - ' : ''}Récapitulatif des valeurs générées automatiquement :
+                      📋 {isEditingProvider ? getTranslation('editingInProgress', language) : ''}{getTranslation('autoGeneratedSummary', language)}
                     </Typography>
                     {isEditingProvider && (
                       <Button
@@ -1187,18 +1192,18 @@ const saveNewHospital = async () => {
                         onClick={handleReloadProvider}
                         sx={{ minWidth: 'auto', px: 2, py: 0.5 }}
                       >
-                        🔄 Recharger
+                        {getTranslation('reloadBtn', language)}
                       </Button>
                     )}
                   </Box>
                   <Typography variant="body2">
-                    <strong>Nom complet :</strong> {currentProvider.nom}
+                    <strong>{getTranslation('fullName', language)}</strong> {currentProvider.nom}
                   </Typography>
                   <Typography variant="body2">
-                    <strong>Spécialité :</strong> {currentProvider.specialite}
+                    <strong>{getTranslation('specialtyLabel', language)}</strong> {currentProvider.specialite}
                   </Typography>
                   <Typography variant="body2">
-                    <strong>Email :</strong> {currentProvider.email}
+                    <strong>{getTranslation('emailLabel', language)}</strong> {currentProvider.email}
                   </Typography>
                 </Box>
               )}
@@ -1207,7 +1212,7 @@ const saveNewHospital = async () => {
             {/* Récapitulatif des prestataires ajoutés */}
             <Box sx={{ mt: 3, border: 1, borderColor: 'divider', borderRadius: 1, p: 2 }}>
               <Typography variant="h6" gutterBottom>
-                📋 Récapitulatif des prestataires ({providers.length})
+                📋 {getTranslation('providersSummaryTitle', language)} ({providers.length})
               </Typography>
 
               {/* Debug info */}
@@ -1215,7 +1220,7 @@ const saveNewHospital = async () => {
 
               {providers.length === 0 ? (
                 <Alert severity="warning">
-                  ⚠️ Aucun prestataire ajouté. Veuillez ajouter au moins un prestataire pour continuer.
+                  {getTranslation('noProviderWarning', language)}
                 </Alert>
               ) : (
                 <List>
@@ -1231,7 +1236,7 @@ const saveNewHospital = async () => {
                               onClick={() => handleEditProvider(provider)}
                               color="primary"
                               size="small"
-                              title="Modifier ce prestataire"
+                              title={getTranslation('editHospital', language)}
                             >
                               <Edit />
                             </IconButton>
@@ -1240,7 +1245,7 @@ const saveNewHospital = async () => {
                               onClick={() => handleRemoveProvider(provider.id)}
                               color="error"
                               size="small"
-                              title="Supprimer ce prestataire"
+                              title={getTranslation('delete', language)}
                             >
                               <Cancel />
                             </IconButton>
@@ -1271,7 +1276,7 @@ const saveNewHospital = async () => {
                                 {providerType?.label}
                               </Typography>
                               <Typography variant="body2" color="text.secondary">
-                                Spécialité: {provider.specialite}
+                                {getTranslation('specialtyField', language)}: {provider.specialite}
                               </Typography>
                               {provider.telephone && (
                                 <Typography variant="body2" color="text.secondary">
@@ -1295,16 +1300,16 @@ const saveNewHospital = async () => {
             <Card sx={{ mt: 2 }}>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
-                  Récapitulatif complet
+                  {getTranslation('finalSummaryTitle', language)}
                 </Typography>
                 <Typography variant="body2">
-                  <strong>Services sélectionnés:</strong> {selectedServices.length}
+                  <strong>{getTranslation('selectedServicesCount', language)}</strong> {selectedServices.length}
                 </Typography>
                 <Typography variant="body2">
-                  <strong>Prestataires ajoutés:</strong> {providers.length}
+                  <strong>{getTranslation('addedProvidersCount', language)}</strong> {providers.length}
                 </Typography>
                 <Typography variant="body2">
-                  <strong>Établissement:</strong> {hospitalForm.nom || 'Non défini'}
+                  <strong>{getTranslation('facilityName', language)}</strong> {hospitalForm.nom || getTranslation('notDefined', language)}
                 </Typography>
               </CardContent>
             </Card>
@@ -1334,7 +1339,7 @@ const saveNewHospital = async () => {
                 boxShadow: 3
               }}
             >
-              <Typography variant="body2" fontWeight="bold">Navigation</Typography>
+              <Typography variant="body2" fontWeight="bold">{getTranslation('mapNavigation', language)}</Typography>
               <Box display="flex" flexDirection="column" gap={1}>
                 <IconButton onClick={zoomIn} size="small" color="primary" title="Zoomer">
                   <ZoomIn />
@@ -1552,7 +1557,7 @@ const saveNewHospital = async () => {
                     </IconButton>
               </Box>
 
-              <Typography variant="body2" fontWeight="bold" sx={{ mt: 1 }}>Vue</Typography>
+              <Typography variant="body2" fontWeight="bold" sx={{ mt: 1 }}>{getTranslation('mapView', language)}</Typography>
               <Box display="flex" flexDirection="column" gap={0.5}>
                 <IconButton
                   size="small"
@@ -1765,8 +1770,8 @@ const saveNewHospital = async () => {
                             bgcolor: selectedHospital.active ? '#4caf50' : '#f44336'
                           }} />
                           <Typography variant="caption" sx={{ opacity: 0.9 }}>
-                            {selectedHospital.active ? 'Actif' : 'En attente'}
-          </Typography>
+                            {selectedHospital.active ? getTranslation('hospitalActive', language) : getTranslation('hospitalPending', language)}
+                          </Typography>
                         </Box>
                       </Box>
                     </Box>
@@ -1812,7 +1817,7 @@ const saveNewHospital = async () => {
                     {selectedHospital.services && selectedHospital.services.length > 0 && (
                       <Box sx={{ mb: 2 }}>
                         <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1, color: '#333' }}>
-                          🩺 Services ({selectedHospital.services.length})
+                          🩺 {getTranslation('infoServices', language)} ({selectedHospital.services.length})
         </Typography>
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                           {selectedHospital.services.slice(0, 2).map((service, index) => (
@@ -1848,7 +1853,7 @@ const saveNewHospital = async () => {
                     {selectedHospital.services && selectedHospital.services.filter(s => s.nomPrestataire).length > 0 && (
                       <Box sx={{ mb: 2 }}>
                         <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1, color: '#333' }}>
-                          👨‍⚕️ Prestataires ({selectedHospital.services.filter(s => s.nomPrestataire).length})
+                          👨‍⚕️ {getTranslation('infoProviders', language)} ({selectedHospital.services.filter(s => s.nomPrestataire).length})
                         </Typography>
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                           {selectedHospital.services
@@ -1901,7 +1906,7 @@ const saveNewHospital = async () => {
                           background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)'
                         }}
                       >
-                        Référencer un patient
+                        {getTranslation('referPatient', language)}
         </Button>
         <Button
           size="small"
@@ -1915,7 +1920,7 @@ const saveNewHospital = async () => {
                           minWidth: 'auto'
                         }}
                       >
-                        Modifier
+                        {getTranslation('editHospital', language)}
         </Button>
       </Box>
     </Box>
@@ -1933,7 +1938,7 @@ const saveNewHospital = async () => {
               <DialogTitle>
                 <Box display="flex" alignItems="center" gap={1}>
                   <AddLocation color="primary" />
-                  {isEditMode ? `Modifier ${editingHospital?.nom}` : 'Ajouter un établissement de santé'}
+                  {isEditMode ? `${getTranslation('editFacility', language)} ${editingHospital?.nom}` : getTranslation('addHealthFacility', language)}
                   </Box>
                 <Stepper activeStep={activeStep} sx={{ mt: 2 }}>
                   {steps.map((label) => (
@@ -1950,7 +1955,7 @@ const saveNewHospital = async () => {
 
               <DialogActions>
                 <Button onClick={activeStep === 0 ? cancelAdding : handleBack}>
-                  {activeStep === 0 ? 'Annuler' : 'Retour'}
+                  {activeStep === 0 ? getTranslation('dialogCancel', language) : getTranslation('dialogBack', language)}
                 </Button>
                 <Button
                   onClick={activeStep === steps.length - 1 ? saveHospital : handleNext}
@@ -1961,8 +1966,8 @@ const saveNewHospital = async () => {
                   }
                 >
                   {activeStep === steps.length - 1 ?
-                    (isEditMode ? 'Mettre à jour' : 'Enregistrer') :
-                    'Suivant'
+                    (isEditMode ? getTranslation('dialogUpdate', language) : getTranslation('dialogSave', language)) :
+                    getTranslation('dialogNext', language)
                   }
                 </Button>
               </DialogActions>
@@ -1974,7 +1979,7 @@ const saveNewHospital = async () => {
             {loadingLocation && (
               <Snackbar
                 open={loadingLocation}
-                message="📡 Détection de votre position..."
+                message={getTranslation('detectingPosition', language)}
               />
             )}
 
@@ -1991,7 +1996,7 @@ const saveNewHospital = async () => {
               }}
             >
               <Typography variant="body2">
-                🎯 Cliquez sur la carte pour ajouter un établissement
+                {getTranslation('clickToAdd', language)}
               </Typography>
             </Box>
 
@@ -2008,7 +2013,7 @@ const saveNewHospital = async () => {
               >
                 <CircularProgress />
                 <Typography variant="body2" sx={{ mt: 1 }}>
-                  Chargement de la carte...
+                  {getTranslation('loadingMap', language)}
                 </Typography>
               </Box>
             )}
@@ -2023,7 +2028,7 @@ const saveNewHospital = async () => {
               <DialogTitle>
                 <Box display="flex" alignItems="center" gap={1}>
                   <FileText color="primary" />
-                  Référencer un patient pour {selectedHopitalForReference?.nom}
+                  {getTranslation('referPatientFor', language)} {selectedHopitalForReference?.nom}
                 </Box>
               </DialogTitle>
               <DialogContent>

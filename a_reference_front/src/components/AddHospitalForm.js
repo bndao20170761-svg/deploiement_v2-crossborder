@@ -11,6 +11,7 @@ import {
   Alert
 } from '@mui/material';
 import { Save, Cancel, LocalHospital } from '@mui/icons-material';
+import { getTranslation } from '../utils/translations';
 
 const AddHospitalForm = ({ onHospitalAdd, language = 'fr' }) => {
   const [formData, setFormData] = useState({
@@ -31,19 +32,19 @@ const AddHospitalForm = ({ onHospitalAdd, language = 'fr' }) => {
     const newErrors = {};
 
     if (!formData.nom.trim()) {
-      newErrors.nom = 'Le nom est requis';
+      newErrors.nom = getTranslation('errorNameRequired', language);
     }
 
     if (!formData.lat) {
-      newErrors.lat = 'La latitude est requise';
+      newErrors.lat = getTranslation('errorLatRequired', language);
     } else if (isNaN(formData.lat) || formData.lat < -90 || formData.lat > 90) {
-      newErrors.lat = 'Latitude invalide (-90 à 90)';
+      newErrors.lat = getTranslation('errorLatInvalid', language);
     }
 
     if (!formData.lng) {
-      newErrors.lng = 'La longitude est requise';
+      newErrors.lng = getTranslation('errorLngRequired', language);
     } else if (isNaN(formData.lng) || formData.lng < -180 || formData.lng > 180) {
-      newErrors.lng = 'Longitude invalide (-180 à 180)';
+      newErrors.lng = getTranslation('errorLngInvalid', language);
     }
 
     setErrors(newErrors);
@@ -104,7 +105,7 @@ const AddHospitalForm = ({ onHospitalAdd, language = 'fr' }) => {
     <Box>
       {success && (
         <Alert severity="success" sx={{ mb: 2 }}>
-          Structure ajoutée avec succès ! Elle est maintenant en attente de confirmation.
+          {getTranslation('addHospitalSuccess', language)}
         </Alert>
       )}
 
@@ -112,11 +113,11 @@ const AddHospitalForm = ({ onHospitalAdd, language = 'fr' }) => {
         <CardContent>
           <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
             <LocalHospital sx={{ mr: 1, color: 'primary.main' }} />
-            Ajouter une nouvelle structure de santé
+            {getTranslation('addHospitalTitle', language)}
           </Typography>
 
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            Remplissez le formulaire ci-dessous pour ajouter une nouvelle structure à la cartographie.
+            {getTranslation('addHospitalSubtitle', language)}
           </Typography>
 
           <form onSubmit={handleSubmit}>
@@ -125,22 +126,22 @@ const AddHospitalForm = ({ onHospitalAdd, language = 'fr' }) => {
                 <TextField
                   required
                   fullWidth
-                  label="Nom de la structure *"
+                  label={getTranslation('fieldFacilityNameRequired', language)}
                   value={formData.nom}
                   onChange={(e) => handleChange('nom', e.target.value)}
                   error={!!errors.nom}
                   helperText={errors.nom}
-                  placeholder="Ex: Hôpital Central de Dakar"
+                  placeholder={getTranslation('fieldFacilityNamePlaceholderForm', language)}
                 />
               </Grid>
 
               <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
-                  label="Ville"
+                  label={getTranslation('fieldCityForm', language)}
                   value={formData.ville}
                   onChange={(e) => handleChange('ville', e.target.value)}
-                  placeholder="Ex: Dakar"
+                  placeholder={getTranslation('fieldCityPlaceholderForm', language)}
                 />
               </Grid>
 
@@ -149,32 +150,32 @@ const AddHospitalForm = ({ onHospitalAdd, language = 'fr' }) => {
                   fullWidth
                   multiline
                   rows={3}
-                  label="Description"
+                  label={getTranslation('fieldDescription', language)}
                   value={formData.description}
                   onChange={(e) => handleChange('description', e.target.value)}
-                  placeholder="Description des services offerts..."
-                  helperText="Décrivez les services VIH disponibles dans cette structure"
+                  placeholder={getTranslation('fieldDescriptionPlaceholder', language)}
+                  helperText={getTranslation('fieldDescriptionHelper', language)}
                 />
               </Grid>
 
               <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
-                  label="Téléphone"
+                  label={getTranslation('fieldPhoneForm', language)}
                   value={formData.telephoneFixe}
                   onChange={(e) => handleChange('telephoneFixe', e.target.value)}
-                  placeholder="Ex: +221 33 123 45 67"
+                  placeholder={getTranslation('fieldPhonePlaceholderForm', language)}
                 />
               </Grid>
 
               <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
-                  label="Email"
+                  label={getTranslation('fieldEmail', language)}
                   type="email"
                   value={formData.email}
                   onChange={(e) => handleChange('email', e.target.value)}
-                  placeholder="Ex: contact@hopital.sn"
+                  placeholder={getTranslation('fieldEmailPlaceholder', language)}
                 />
               </Grid>
 
@@ -182,13 +183,13 @@ const AddHospitalForm = ({ onHospitalAdd, language = 'fr' }) => {
                 <TextField
                   required
                   fullWidth
-                  label="Latitude *"
+                  label={getTranslation('fieldLatitude', language)}
                   type="number"
                   value={formData.lat}
                   onChange={(e) => handleChange('lat', e.target.value)}
                   error={!!errors.lat}
-                  helperText={errors.lat || "Coordonnée latitude (-90 à 90)"}
-                  placeholder="Ex: 14.6928"
+                  helperText={errors.lat || getTranslation('fieldLatitudeHelper', language)}
+                  placeholder={getTranslation('fieldLatitudePlaceholder', language)}
                   step="0.0001"
                 />
               </Grid>
@@ -197,13 +198,13 @@ const AddHospitalForm = ({ onHospitalAdd, language = 'fr' }) => {
                 <TextField
                   required
                   fullWidth
-                  label="Longitude *"
+                  label={getTranslation('fieldLongitude', language)}
                   type="number"
                   value={formData.lng}
                   onChange={(e) => handleChange('lng', e.target.value)}
                   error={!!errors.lng}
-                  helperText={errors.lng || "Coordonnée longitude (-180 à 180)"}
-                  placeholder="Ex: -17.4467"
+                  helperText={errors.lng || getTranslation('fieldLongitudeHelper', language)}
+                  placeholder={getTranslation('fieldLongitudePlaceholder', language)}
                   step="0.0001"
                 />
               </Grid>
@@ -211,11 +212,11 @@ const AddHospitalForm = ({ onHospitalAdd, language = 'fr' }) => {
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="Pays"
+                  label={getTranslation('fieldCountryForm', language)}
                   value={formData.pays}
                   onChange={(e) => handleChange('pays', e.target.value)}
                   disabled
-                  helperText="Pays par défaut : Sénégal"
+                  helperText={getTranslation('fieldCountryHelper', language)}
                 />
               </Grid>
             </Grid>
@@ -228,7 +229,7 @@ const AddHospitalForm = ({ onHospitalAdd, language = 'fr' }) => {
                 startIcon={<Save />}
                 disabled={!formData.nom.trim() || !formData.lat || !formData.lng}
               >
-                Ajouter la structure
+                {getTranslation('btnAddFacility', language)}
               </Button>
 
               <Button
@@ -237,16 +238,15 @@ const AddHospitalForm = ({ onHospitalAdd, language = 'fr' }) => {
                 startIcon={<Cancel />}
                 onClick={handleReset}
               >
-                Effacer le formulaire
+                {getTranslation('btnClearForm', language)}
               </Button>
             </Box>
           </form>
 
           <Box sx={{ mt: 3, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
-            <Typography variant="body2" color="text.secondary">
-              💡 <strong>Astuce :</strong> Vous pouvez également ajouter des structures directement
-              en cliquant sur la carte dans l'onglet "Vue Carte".
-            </Typography>
+            <Typography variant="body2" color="text.secondary"
+              dangerouslySetInnerHTML={{ __html: getTranslation('formTip', language) }}
+            />
           </Box>
         </CardContent>
       </Card>
