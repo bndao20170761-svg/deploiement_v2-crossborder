@@ -4,8 +4,9 @@ import axios from "axios";
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { Box, Chip, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import 'leaflet/dist/leaflet.css';
+import { getTranslation } from '../utils/translations';
 
-const HopitalMap = () => {
+const HopitalMap = ({ language = 'fr' }) => {
   const [hopitaux, setHopitaux] = useState([]);
   const [services, setServices] = useState([]);
   const [filtres, setFiltres] = useState([]);
@@ -59,7 +60,7 @@ const HopitalMap = () => {
       {/* Barre de filtres */}
       <Box sx={{ p: 2, bgcolor: 'background.paper' }}>
         <FormControl fullWidth>
-          <InputLabel>Filtrer par service</InputLabel>
+          <InputLabel>{getTranslation('filterByService', language)}</InputLabel>
           <Select
             multiple
             value={filtres}
@@ -100,10 +101,10 @@ const HopitalMap = () => {
             <Popup>
               <div>
                 <h3>{hopital.nom}</h3>
-                <p><strong>Ville:</strong> {hopital.ville}</p>
-                <p><strong>Téléphone:</strong> {hopital.telephoneFixe}</p>
+                <p><strong>{getTranslation('popupCity', language)}:</strong> {hopital.ville}</p>
+                <p><strong>{getTranslation('popupPhone', language)}:</strong> {hopital.telephoneFixe}</p>
                 <div>
-                  <strong>Services:</strong>
+                  <strong>{getTranslation('popupServices', language)}:</strong>
                   {hopital.services.map(service => (
                     <Chip
                       key={service.code}
@@ -114,7 +115,7 @@ const HopitalMap = () => {
                   ))}
                 </div>
                 <button onClick={() => window.location.href = `/hopitaux/${hopital.id}`}>
-                  Voir détails
+                  {getTranslation('viewDetails', language)}
                 </button>
               </div>
             </Popup>

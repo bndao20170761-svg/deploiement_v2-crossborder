@@ -147,17 +147,17 @@ useEffect(() => {
         </Alert>
       )}
 
-      {/* 🔥 EN-TÊTE AVEC STATISTIQUES DES HÔPITAUX DU DOCTEUR */}
+      {/* 🔥 STATISTIQUES DES HÔPITAUX - sous le panneau Navigation/Vue */}
       <Box sx={{
         position: 'absolute',
-        top: 10,
-        left: 10,
+        top: 430,
+        right: 10,
         zIndex: 1000,
         backgroundColor: 'background.paper',
         padding: 2,
         borderRadius: 2,
         boxShadow: 3,
-        maxWidth: 300
+        maxWidth: 200
       }}>
                 <Typography variant="h6" gutterBottom>
           🏥 Vos établissements

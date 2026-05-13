@@ -81,24 +81,24 @@ const ICONS = {
   current: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png'
 };
 
-// Services disponibles
-const AVAILABLE_SERVICES = [
-  'Consultation VIH',
-  'Dépistage VIH',
-  'Traitement ARV',
-  'PTME (Prévention Transmission Mère-Enfant)',
-  'Suivi biologique',
-  'Conseil et soutien psychosocial',
-  'Prévention IST',
-  'Distribution préservatifs',
-  'Prise en charge des infections opportunistes'
+// Services disponibles — générés dynamiquement selon la langue
+const getAvailableServices = (language) => [
+  getTranslation('serviceConsultationVIH', language),
+  getTranslation('serviceDepistageVIH', language),
+  getTranslation('serviceTraitementARV', language),
+  getTranslation('servicePTME', language),
+  getTranslation('serviceSuiviBiologique', language),
+  getTranslation('serviceConseilPsychosocial', language),
+  getTranslation('servicePreventionIST', language),
+  getTranslation('serviceDistributionPreservatifs', language),
+  getTranslation('serviceInfectionsOpportunistes', language),
 ];
 
-// Types de prestataires
-const PROVIDER_TYPES = [
-  { value: 'medecin-pec', label: 'Médecin de PEC', icon: <MedicalServices /> },
-  { value: 'assistant-social', label: 'Assistant Social', icon: <Groups /> },
-  { value: 'pediatre', label: 'Pédiatre', icon: <Person /> }
+// Types de prestataires — générés dynamiquement selon la langue
+const getProviderTypes = (language) => [
+  { value: 'medecin-pec', label: getTranslation('providerMedecinPec', language), icon: <MedicalServices /> },
+  { value: 'assistant-social', label: getTranslation('providerAssistantSocial', language), icon: <Groups /> },
+  { value: 'pediatre', label: getTranslation('providerPediatre', language), icon: <Person /> }
 ];
 
 const GOOGLE_MAPS_API_KEY = 'AIzaSyCBwr6styheEc8XB3JyeL9Ky3eebVUy9KU';
@@ -108,6 +108,10 @@ const GOOGLE_MAPS_LIBRARIES = ['places', 'geometry'];
 
 const CartographyMap = ({ hospitals, onHospitalUpdate,  onHospitalAdd, language = 'fr' }) => {
   const [map, setMap] = useState(null);
+
+  // Listes traduites selon la langue courante
+  const AVAILABLE_SERVICES = getAvailableServices(language);
+  const PROVIDER_TYPES = getProviderTypes(language);
    const [selectedHospital, setSelectedHospital] = useState(null);
    const [clickedPosition, setClickedPosition] = useState(null);
    const [userLocation, setUserLocation] = useState(null);
@@ -377,7 +381,7 @@ const onMapLoad = useCallback((mapInstance) => {
         return;
       } else {
         // Demander confirmation pour ajouter un établissement
-        const confirmAdd = window.confirm("Voulez-vous ajouter un établissement de santé à votre position actuelle ?\n\nCliquez sur OK pour ajouter, ou Annuler pour sortir.");
+        const confirmAdd = window.confirm(getTranslation('confirmAddAtCurrentPosition', language));
 
         if (!confirmAdd) {
           console.log("Ajout annulé par l'utilisateur");
@@ -386,7 +390,7 @@ const onMapLoad = useCallback((mapInstance) => {
       }
     } else {
       // Clic ailleurs sur la carte
-     const confirmAdd = window.confirm("Voulez-vous ajouter un établissement à cet emplacement ?\n\nCliquez sur OK pour ajouter, ou Annuler pour sortir.");
+     const confirmAdd = window.confirm(getTranslation('confirmAddAtLocation', language));
 
      if (!confirmAdd) {
        console.log("Ajout annulé par l'utilisateur");
@@ -417,15 +421,17 @@ const onMapLoad = useCallback((mapInstance) => {
        setHospitalForm(prev => ({
          ...prev,
          ville: locationInfo.ville || '',
-         pays: locationInfo.pays || 'Sénégal',
+         pays: locationInfo.pays || getTranslation('defaultCountry', language),
          latitude: lat,
          longitude: lng,
-         nom: locationInfo.ville ? `Nouvelle Structure - ${locationInfo.ville}` : 'Nouvelle Structure'
+         nom: locationInfo.ville
+           ? `${getTranslation('defaultFacilityName', language)} - ${locationInfo.ville}`
+           : getTranslation('defaultFacilityName', language)
        }));
      } else {
        setLocationInfo({
-         ville: 'Ville inconnue',
-         pays: 'Sénégal',
+         ville: getTranslation('defaultCity', language),
+         pays: getTranslation('defaultCountry', language),
          adresseComplete: `Position: ${lat.toFixed(6)}, ${lng.toFixed(6)}`,
          latitude: lat,
          longitude: lng
@@ -435,7 +441,7 @@ const onMapLoad = useCallback((mapInstance) => {
          ...prev,
          latitude: lat,
          longitude: lng,
-         nom: 'Nouvelle Structure'
+         nom: getTranslation('defaultFacilityName', language)
        }));
     }
 
@@ -532,11 +538,11 @@ const onMapLoad = useCallback((mapInstance) => {
         // Générer la spécialité automatiquement
         let specialite = '';
         if (value === 'assistant-social') {
-          specialite = 'Sociologue';
+          specialite = getTranslation('specialiteSociologue', language);
         } else if (value === 'pediatre') {
-          specialite = 'Pédiatre';
+          specialite = getTranslation('providerPediatre', language);
         } else if (value === 'medecin-pec') {
-          specialite = 'Généraliste';
+          specialite = getTranslation('specialiteGeneraliste', language);
         }
         updated.specialite = specialite;
       }
@@ -645,7 +651,7 @@ const onMapLoad = useCallback((mapInstance) => {
   const handleAddAtUserLocation = useCallback(async () => {
     if (!userLocation) return;
 
-    const confirmAdd = window.confirm("Voulez-vous ajouter un établissement à votre position actuelle ?\n\nCliquez sur OK pour ajouter, ou Annuler pour sortir.");
+    const confirmAdd = window.confirm(getTranslation('confirmAddAtCurrentPosition', language));
 
     if (!confirmAdd) {
       console.log("Ajout annulé par l'utilisateur");
@@ -669,16 +675,18 @@ const onMapLoad = useCallback((mapInstance) => {
 
         setHospitalForm(prev => ({
           ...prev,
-          ville: locationInfo.ville || 'Ziguinchor',
-          pays: locationInfo.pays || 'Sénégal',
+          ville: locationInfo.ville || getTranslation('defaultCityZiguinchor', language),
+          pays: locationInfo.pays || getTranslation('defaultCountry', language),
           latitude: userLocation.lat,
           longitude: userLocation.lng,
-          nom: locationInfo.ville ? `Nouvelle Structure - ${locationInfo.ville}` : 'Nouvelle Structure - Ziguinchor'
+          nom: locationInfo.ville
+            ? `${getTranslation('defaultFacilityName', language)} - ${locationInfo.ville}`
+            : getTranslation('defaultFacilityNameZiguinchor', language)
         }));
       } else {
         setLocationInfo({
-          ville: 'Ziguinchor',
-          pays: 'Sénégal',
+          ville: getTranslation('defaultCityZiguinchor', language),
+          pays: getTranslation('defaultCountry', language),
           adresseComplete: `Position actuelle: ${userLocation.lat.toFixed(6)}, ${userLocation.lng.toFixed(6)}`,
           latitude: userLocation.lat,
           longitude: userLocation.lng
@@ -686,11 +694,11 @@ const onMapLoad = useCallback((mapInstance) => {
 
         setHospitalForm(prev => ({
           ...prev,
-          ville: 'Ziguinchor',
-          pays: 'Sénégal',
+          ville: getTranslation('defaultCityZiguinchor', language),
+          pays: getTranslation('defaultCountry', language),
           latitude: userLocation.lat,
           longitude: userLocation.lng,
-          nom: 'Nouvelle Structure - Ziguinchor'
+          nom: getTranslation('defaultFacilityNameZiguinchor', language)
         }));
       }
 
@@ -701,7 +709,7 @@ const onMapLoad = useCallback((mapInstance) => {
     } finally {
       setLoadingLocation(false);
     }
-  }, [userLocation, geocoding]);
+  }, [userLocation, geocoding, language]);
 
   const cancelAdding = () => {
     setClickedPosition(null);
@@ -1341,10 +1349,10 @@ const saveNewHospital = async () => {
             >
               <Typography variant="body2" fontWeight="bold">{getTranslation('mapNavigation', language)}</Typography>
               <Box display="flex" flexDirection="column" gap={1}>
-                <IconButton onClick={zoomIn} size="small" color="primary" title="Zoomer">
+                <IconButton onClick={zoomIn} size="small" color="primary" title={getTranslation('zoomIn', language)}>
                   <ZoomIn />
                 </IconButton>
-                <IconButton onClick={zoomOut} size="small" color="primary" title="Dézoomer">
+                <IconButton onClick={zoomOut} size="small" color="primary" title={getTranslation('zoomOut', language)}>
                   <ZoomOut />
                 </IconButton>
 
@@ -1625,7 +1633,7 @@ const saveNewHospital = async () => {
         <Marker
                position={clickedPosition}
                icon={ICONS.current}
-               title="Emplacement sélectionné pour ajout"
+               title={getTranslation('markerSelectedLocation', language)}
              />
            )}
 
@@ -1679,7 +1687,7 @@ const saveNewHospital = async () => {
                    setSelectedHospital(existingHospital);
             } else {
                    // Demander confirmation pour ajouter un établissement à cette position
-                   const confirmAdd = window.confirm("Voulez-vous ajouter un établissement de santé à votre position actuelle ?\n\nCliquez sur OK pour ajouter, ou Annuler pour sortir.");
+                   const confirmAdd = window.confirm(getTranslation('confirmAddAtCurrentPosition', language));
 
                    if (confirmAdd) {
                      setClickedPosition(userLocation);
@@ -1705,15 +1713,17 @@ const saveNewHospital = async () => {
                          setHospitalForm(prev => ({
                            ...prev,
                            ville: locationInfo.ville || '',
-                           pays: locationInfo.pays || 'Sénégal',
+                           pays: locationInfo.pays || getTranslation('defaultCountry', language),
                            latitude: userLocation.lat,
                            longitude: userLocation.lng,
-                           nom: locationInfo.ville ? `Nouvelle Structure - ${locationInfo.ville}` : 'Nouvelle Structure'
+                           nom: locationInfo.ville
+                             ? `${getTranslation('defaultFacilityName', language)} - ${locationInfo.ville}`
+                             : getTranslation('defaultFacilityName', language)
                          }));
                        } else {
                          setLocationInfo({
-                           ville: 'Ville inconnue',
-                           pays: 'Sénégal',
+                           ville: getTranslation('defaultCity', language),
+                           pays: getTranslation('defaultCountry', language),
                            adresseComplete: `Position: ${userLocation.lat.toFixed(6)}, ${userLocation.lng.toFixed(6)}`,
                            latitude: userLocation.lat,
                            longitude: userLocation.lng
@@ -1723,7 +1733,7 @@ const saveNewHospital = async () => {
                            ...prev,
                            latitude: userLocation.lat,
                            longitude: userLocation.lng,
-                           nom: 'Nouvelle Structure'
+                           nom: getTranslation('defaultFacilityName', language)
                          }));
                        }
 
