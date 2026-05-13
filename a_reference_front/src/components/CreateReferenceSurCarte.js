@@ -162,7 +162,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
       setMedecins(normalizedDoctors);
     } catch (err) {
       console.error('Erreur lors de la récupération des médecins:', err);
-      setError('Impossible de charger les médecins de cet hôpital');
+      setError(getTranslation('cannotLoadDoctors', language));
     } finally {
       setLoading(false);
     }
@@ -211,11 +211,11 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
 
       // Validation: le patient et le médecin doivent être sélectionnés
       if (!formData.codePatient) {
-        setError('Veuillez sélectionner un patient');
+        setError(getTranslation('validationSelectPatient', language));
         return;
       }
       if (!formData.codeDocteur) {
-        setError('Veuillez sélectionner un médecin');
+        setError(getTranslation('validationSelectDoctor', language));
         return;
       }
       // Debug: afficher les données de validation
@@ -230,11 +230,11 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
       console.log("🔍 Debug validation - hasMotif:", hasMotif);
       
       if (!hasMotif) {
-        setError('Veuillez renseigner le motif de la référence');
+        setError(getTranslation('validationSelectReason', language));
         return;
       }
       if (!formData.typeReference) {
-        setError('Veuillez sélectionner le type de référence');
+        setError(getTranslation('validationSelectType', language));
         return;
       }
       // Préparer fallbacks sûrs pour patient / médecin / référenceur
@@ -287,7 +287,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
       const result = await referenceDossierService.createReference(submissionData);
       
       // Afficher un message de succès
-      alert('Référence créée avec succès !');
+      alert(getTranslation('referenceCreatedSuccess', language));
       
       // Rediriger ou appeler le callback
       if (onComplete) {
@@ -296,7 +296,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
 
     } catch (err) {
       console.error('Erreur lors de la création de la référence:', err);
-      setError('Erreur lors de la création de la référence: ' + (err.message || 'Erreur inconnue'));
+      setError(getTranslation('errorCreatingReference', language) + ': ' + (err.message || getTranslation('errorUnknown', language) || 'Erreur inconnue'));
     } finally {
       setLoading(false);
     }
@@ -307,7 +307,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          👤 Sélectionner un patient
+          👤 {getTranslation('selectPatient', language)}
         </h3>
         
         {!showNewPatientForm ? (
@@ -348,13 +348,13 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
               onClick={handlePatientDeselect}
               className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
             >
-              ✖ Enlever
+              ✖ {getTranslation('removePatient', language)}
             </button>
             <button
               onClick={() => setCurrentStep(2)}
               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
             >
-              Suivant → Sélectionner un médecin
+              {getTranslation('nextSelectDoctor', language)}
             </button>
           </div>
         </div>
@@ -373,7 +373,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          🩺 Sélectionner un médecin à {selectedHospital?.nom}
+          🩺 {getTranslation('selectDoctorAt', language)} {selectedHospital?.nom}
         </h3>
         
         {error && (
@@ -384,7 +384,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
 
         {medecins.length > 0 && (
           <div className="space-y-3">
-            <h4 className="font-medium text-gray-900">Médecins disponibles ({medecins.length})</h4>
+            <h4 className="font-medium text-gray-900">{getTranslation('availableDoctors', language)} ({medecins.length})</h4>
             <div className="max-h-96 overflow-y-auto space-y-2">
               {medecins.map((medecin) => (
                 <div
@@ -402,7 +402,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
                         Dr {medecin.prenomUtilisateur} {medecin.nomUtilisateur}
                       </p>
                       <p className="text-sm text-gray-500">
-                        {medecin.specialite || 'Médecin'} | {medecin.telephone || '-'}
+                        {medecin.specialite || getTranslation('medecin', language)} | {medecin.telephone || '-'}
                       </p>
                     </div>
                     {selectedMedecin?.codeDocteur === medecin.codeDocteur && (
@@ -420,7 +420,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
 
         {medecins.length === 0 && !loading && (
           <div className="text-center py-8 text-gray-500">
-            Aucun médecin disponible à cet hôpital
+            {getTranslation('noDoctorAvailable', language)}
           </div>
         )}
 
@@ -431,7 +431,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
               onClick={() => setCurrentStep(3)}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
-              Suivant → Détails de la référence
+              {getTranslation('nextReferenceDetails', language)}
             </button>
           </div>
         )}
@@ -444,7 +444,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          📋 Motif de la Référence
+          📋 {getTranslation('referenceReasonTitle', language)}
         </h3>
 
         <div className="space-y-6">
@@ -623,13 +623,13 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
           className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Précédent
+          {getTranslation('previousButton', language)}
         </button>
         <button
           onClick={() => setCurrentStep(4)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          Suivant → Informations cliniques
+          {getTranslation('nextClinicalInfo', language)}
         </button>
       </div>
     </div>
@@ -640,7 +640,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          📋 Poids et Stades OMS
+          📋 {getTranslation('weightAndWhoStage', language)}
         </h3>
 
         <div className="space-y-6">
@@ -683,8 +683,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
                       setFormData((prev) => ({ ...prev, stades: updated }));
                     }}
                   />
-                  <span>Stade {field.replace('stade', '')}</span>
-                </label>
+                  <span>Stade {field.replace('stade', '')}</span>                </label>
               ))}
             </div>
           </div>
@@ -746,13 +745,13 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
           className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Précédent
+          {getTranslation('previousButton', language)}
         </button>
         <button
           onClick={() => setCurrentStep(5)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          Suivant → Traitement ARV
+          {getTranslation('nextArvTreatment', language)}
         </button>
       </div>
     </div>
@@ -763,7 +762,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          📋 Traitement ARV
+          📋 {getTranslation('arvTreatmentTitle', language)}
         </h3>
 
         <div className="space-y-6">
@@ -854,13 +853,13 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
           className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Précédent
+          {getTranslation('previousButton', language)}
         </button>
         <button
           onClick={() => setCurrentStep(6)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          Suivant → CD4
+          {getTranslation('nextCd4', language)}
         </button>
       </div>
     </div>
@@ -871,7 +870,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          📋 CD4
+          📋 {getTranslation('cd4Title', language)}
         </h3>
 
         <div className="space-y-6">
@@ -916,13 +915,13 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
           className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Précédent
+          {getTranslation('previousButton', language)}
         </button>
         <button
           onClick={() => setCurrentStep(7)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          Suivant → Analyses biologiques
+          {getTranslation('nextBioAnalysis', language)}
         </button>
       </div>
     </div>
@@ -933,7 +932,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          📋 Analyses biologiques
+          📋 {getTranslation('bioAnalysisTitle', language)}
         </h3>
 
         <div className="space-y-6">
@@ -1015,13 +1014,13 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
           className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Précédent
+          {getTranslation('previousButton', language)}
         </button>
         <button
           onClick={() => setCurrentStep(8)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          Suivant → Analyses microbiologiques
+          {getTranslation('nextMicroAnalysis', language)}
         </button>
       </div>
     </div>
@@ -1083,13 +1082,13 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
           className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Précédent
+          {getTranslation('previousButton', language)}
         </button>
         <button
           onClick={() => setCurrentStep(8)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          Suivant → Résumé
+          {getTranslation('nextSummary', language)}
         </button>
       </div>
     </div>
@@ -1100,7 +1099,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          📋 Analyses microbiologiques
+          📋 {getTranslation('microAnalysisTitle', language)}
         </h3>
 
         <div className="space-y-6">
@@ -1206,13 +1205,13 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
           className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Précédent
+          {getTranslation('previousButton', language)}
         </button>
         <button
           onClick={() => setCurrentStep(9)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          Suivant → Traitement TB
+          {getTranslation('nextTbTreatment', language)}
         </button>
       </div>
     </div>
@@ -1223,7 +1222,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          📋 Traitement TB
+          📋 {getTranslation('tbTreatmentTitle', language)}
         </h3>
 
         <div className="space-y-6">
@@ -1284,13 +1283,13 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
           className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Précédent
+          {getTranslation('previousButton', language)}
         </button>
         <button
           onClick={() => setCurrentStep(10)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          Suivant → Autre traitement
+          {getTranslation('nextOtherTreatment', language)}
         </button>
       </div>
     </div>
@@ -1301,7 +1300,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          📋 Autre traitement
+          📋 {getTranslation('otherTreatmentTitle', language)}
         </h3>
 
         <div className="space-y-6">
@@ -1348,13 +1347,13 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
           className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Précédent
+          {getTranslation('previousButton', language)}
         </button>
         <button
           onClick={() => setCurrentStep(11)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          Suivant → Résumé
+          {getTranslation('nextSummary', language)}
         </button>
       </div>
     </div>
@@ -1365,20 +1364,20 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          📋 Confirmation de la référence
+          📋 {getTranslation('confirmationTitle', language)}
         </h3>
         
         {/* Récapitulatif */}
         <div className="mb-6 p-4 bg-gray-50 rounded-lg space-y-2">
-          <p><strong>Patient:</strong> {selectedPatient?.nomUtilisateur} {selectedPatient?.prenomUtilisateur}</p>
-          <p><strong>Hôpital de destination:</strong> {selectedHospital?.nom}</p>
-          <p><strong>Médecin destinataire:</strong> Dr {selectedMedecin?.nomComplet || selectedMedecin?.nomAffichage || `${selectedMedecin?.prenomUtilisateur || ''} ${selectedMedecin?.nomUtilisateur || ''}`.trim() || selectedMedecin?.codeDoctor}</p>
+          <p><strong>{getTranslation('summaryPatient', language)}:</strong> {selectedPatient?.nomUtilisateur} {selectedPatient?.prenomUtilisateur}</p>
+          <p><strong>{getTranslation('destinationHospital', language)}:</strong> {selectedHospital?.nom}</p>
+          <p><strong>{getTranslation('recipientDoctor', language)}:</strong> Dr {selectedMedecin?.nomComplet || selectedMedecin?.nomAffichage || `${selectedMedecin?.prenomUtilisateur || ''} ${selectedMedecin?.nomUtilisateur || ''}`.trim() || selectedMedecin?.codeDoctor}</p>
         </div>
 
         {/* Date de référence */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Date de la référence <span className="text-red-500">*</span>
+            {getTranslation('referenceDate', language)} <span className="text-red-500">*</span>
           </label>
           <input
             type="date"
@@ -1391,14 +1390,14 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
         {/* Type de référence */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Type de référence <span className="text-red-500">*</span>
+            {getTranslation('referenceTypeLabel', language)} <span className="text-red-500">*</span>
           </label>
           <select
             value={formData.typeReference}
             onChange={(e) => setFormData(prev => ({ ...prev, typeReference: e.target.value }))}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
-            <option value="">Sélectionner un type</option>
+            <option value="">{getTranslation('selectType', language)}</option>
             {typesReference.map(type => (
               <option key={type.value} value={type.value}>
                 {type.label}
@@ -1410,12 +1409,12 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
         {/* Observations */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Observations
+            {getTranslation('observationsLabel', language)}
           </label>
           <textarea
             value={formData.observations}
             onChange={(e) => setFormData(prev => ({ ...prev, observations: e.target.value }))}
-            placeholder="Ajoutez des observations supplémentaires..."
+            placeholder={getTranslation('observationsPlaceholder', language)}
             rows={3}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
@@ -1436,7 +1435,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
           className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
         >
           {loading && <Loader className="h-4 w-4 animate-spin" />}
-          <span>📋 Créer la référence</span>
+          <span>📋 {getTranslation('createReference', language)}</span>
         </button>
       </div>
     </div>
@@ -1472,22 +1471,22 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
       <div className="space-y-6">
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            📋 Résumé des Informations
+            📋 {getTranslation('summaryTitle', language)}
           </h3>
 
           <div className="space-y-6">
             {/* Patient */}
             <div className="p-4 border rounded-lg shadow-sm bg-gray-50">
-              <h3 className="font-semibold text-lg mb-2">Patient</h3>
-              <p><span className="font-medium">Nom :</span> {formData.nomPatient || selectedPatient?.nomUtilisateur || "-"}</p>
-              <p><span className="font-medium">Prénom :</span> {formData.prenomPatient || selectedPatient?.prenomUtilisateur || "-"}</p>
-              <p><span className="font-medium">Code Patient :</span> {formData.codePatient || selectedPatient?.codePatient || "-"}</p>
+              <h3 className="font-semibold text-lg mb-2">{getTranslation('summaryPatient', language)}</h3>
+              <p><span className="font-medium">{getTranslation('nom', language)} :</span> {formData.nomPatient || selectedPatient?.nomUtilisateur || "-"}</p>
+              <p><span className="font-medium">{getTranslation('prenom', language)} :</span> {formData.prenomPatient || selectedPatient?.prenomUtilisateur || "-"}</p>
+              <p><span className="font-medium">{getTranslation('codePatient', language)} :</span> {formData.codePatient || selectedPatient?.codePatient || "-"}</p>
             </div>
 
             {/* Médecin */}
             <div className="p-4 border rounded-lg shadow-sm bg-gray-50">
-              <h3 className="font-semibold text-lg mb-2">Médecin</h3>
-              <p><span className="font-medium">Nom :</span> {
+              <h3 className="font-semibold text-lg mb-2">{getTranslation('summaryDoctor', language)}</h3>
+              <p><span className="font-medium">{getTranslation('nom', language)} :</span> {
                 (() => {
                   const nomComplet = formData.nomDocteur || selectedMedecin?.nomComplet || selectedMedecin?.nomAffichage || selectedMedecin?.nomUtilisateur || selectedMedecin?.nom || "";
                   if (nomComplet && nomComplet.includes(" ")) {
@@ -1497,7 +1496,7 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
                   return nomComplet;
                 })()
               }</p>
-              <p><span className="font-medium">Prénom :</span> {
+              <p><span className="font-medium">{getTranslation('prenom', language)} :</span> {
                 (() => {
                   const nomComplet = formData.nomDocteur || selectedMedecin?.nomComplet || selectedMedecin?.nomAffichage || selectedMedecin?.nomUtilisateur || selectedMedecin?.nom || "";
                   if (nomComplet && nomComplet.includes(" ")) {
@@ -1507,38 +1506,38 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
                   return selectedMedecin?.prenomUtilisateur || selectedMedecin?.prenomDocteur || selectedMedecin?.prenom || "-";
                 })()
               }</p>
-              <p><span className="font-medium">Code Médecin :</span> {formData.codeDocteur || selectedMedecin?.codeDoctor || selectedMedecin?.codeDocteur || "-"}</p>
+              <p><span className="font-medium">{getTranslation('codeDocteur', language)} :</span> {formData.codeDocteur || selectedMedecin?.codeDoctor || selectedMedecin?.codeDocteur || "-"}</p>
             </div>
 
             {/* Motif */}
             <div className="p-4 border rounded-lg shadow-sm bg-gray-50">
-              <h3 className="font-semibold text-lg mb-2">Motif de Référence</h3>
-              <p><span className="font-medium">Changement adresse :</span>
-                {formData.changementAdresse?.temporaire ? "Temporaire" :
-                 formData.changementAdresse?.permanent ? "Permanent" : "Non"}
+              <h3 className="font-semibold text-lg mb-2">{getTranslation('summaryReferenceReason', language)}</h3>
+              <p><span className="font-medium">{getTranslation('summaryAddressChange', language)} :</span>
+                {formData.changementAdresse?.temporaire ? getTranslation('temporaire', language) :
+                 formData.changementAdresse?.permanent ? getTranslation('permanent', language) : getTranslation('non', language)}
               </p>
-              <p><span className="font-medium">Autres :</span> {formData.autresMotif || "-"}</p>
-              <p><span className="font-medium">Services :</span> {Object.entries(formData.services || {})
+              <p><span className="font-medium">{getTranslation('summaryOther', language)} :</span> {formData.autresMotif || "-"}</p>
+              <p><span className="font-medium">{getTranslation('summaryServices', language)} :</span> {Object.entries(formData.services || {})
                 .filter(([k,v]) => v).map(([k]) => k.toUpperCase()).join(", ") || "-"}
               </p>
             </div>
 
             {/* Renseignements Cliniques */}
             <div className="p-4 border rounded-lg shadow-sm bg-gray-50">
-              <h3 className="font-semibold text-lg mb-2">Renseignements Cliniques</h3>
+              <h3 className="font-semibold text-lg mb-2">{getTranslation('summaryClinical', language)}</h3>
               <div className="grid grid-cols-2 gap-4">
-                <p><span className="font-medium">Poids :</span> {rc.poidsKg || "-"}</p>
-                <p><span className="font-medium">Traitement ARV :</span> {rc.traitementARV ? "Oui" : "Non"}</p>
-                <p><span className="font-medium">CD4 Début :</span> {rc.cd4DebutTraitement || "-"}</p>
-                <p><span className="font-medium">CD4 Dernier :</span> {rc.cd4Dernier || "-"}</p>
-                <p><span className="font-medium">Charge Virale :</span> {rc.chargeViraleNiveau || "-"}</p>
-                <p><span className="font-medium">Hb :</span> {rc.hbNiveau || "-"}</p>
-                <p><span className="font-medium">Lymphocytes :</span> {rc.lymphocytesTotaux || "-"}</p>
-                <p><span className="font-medium">Crache BAAR :</span> {rc.cracheBaar || "-"}</p>
-                <p><span className="font-medium">Ag HBs :</span> {rc.aghbs || "-"}</p>
-                <p><span className="font-medium">Transaminases :</span> {rc.transaminase || "-"}</p>
-                <p><span className="font-medium">Autre Analyse :</span> {rc.autreAnalyse ? "Oui" : "Non"}</p>
-                <p><span className="font-medium">Autre Traitement :</span> {rc.autreTraitement ? "Oui" : "Non"}</p>
+                <p><span className="font-medium">{getTranslation('summaryWeight', language)} :</span> {rc.poidsKg || "-"}</p>
+                <p><span className="font-medium">{getTranslation('summaryArvTreatment', language)} :</span> {rc.traitementARV ? getTranslation('oui', language) : getTranslation('non', language)}</p>
+                <p><span className="font-medium">{getTranslation('summaryCd4Start', language)} :</span> {rc.cd4DebutTraitement || "-"}</p>
+                <p><span className="font-medium">{getTranslation('summaryCd4Last', language)} :</span> {rc.cd4Dernier || "-"}</p>
+                <p><span className="font-medium">{getTranslation('summaryViralLoad', language)} :</span> {rc.chargeViraleNiveau || "-"}</p>
+                <p><span className="font-medium">{getTranslation('summaryHb', language)} :</span> {rc.hbNiveau || "-"}</p>
+                <p><span className="font-medium">{getTranslation('summaryLymphocytes', language)} :</span> {rc.lymphocytesTotaux || "-"}</p>
+                <p><span className="font-medium">{getTranslation('summarySputum', language)} :</span> {rc.cracheBaar || "-"}</p>
+                <p><span className="font-medium">{getTranslation('summaryAgHbs', language)} :</span> {rc.aghbs || "-"}</p>
+                <p><span className="font-medium">{getTranslation('summaryTransaminases', language)} :</span> {rc.transaminase || "-"}</p>
+                <p><span className="font-medium">{getTranslation('summaryOtherAnalysis', language)} :</span> {rc.autreAnalyse ? getTranslation('oui', language) : getTranslation('non', language)}</p>
+                <p><span className="font-medium">{getTranslation('summaryOtherTreatment', language)} :</span> {rc.autreTraitement ? getTranslation('oui', language) : getTranslation('non', language)}</p>
               </div>
             </div>
           </div>
@@ -1557,13 +1556,13 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
             className="flex items-center px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Précédent
+            {getTranslation('previousButton', language)}
           </button>
           <button
             onClick={() => setCurrentStep(12)}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
-            Suivant → Confirmation
+            {getTranslation('nextConfirmation', language)}
           </button>
         </div>
       </div>
@@ -1612,11 +1611,11 @@ const CreateReferenceSurCarte = ({ language = "fr", onBack, onComplete, selected
               className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
             >
               <ArrowLeft className="h-5 w-5" />
-              <span>← Retour</span>
+              <span>{getTranslation('backButton', language)}</span>
             </button>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                Référencer un patient pour {selectedHospital?.nom}
+                {getTranslation('referencePatientFor', language)} {selectedHospital?.nom}
               </h1>
               <p className="text-gray-600">
                 {selectedHospital?.adresse}, {selectedHospital?.region}

@@ -3186,6 +3186,145 @@ sectionYBilans: { fr: "Section Y : Bilans biologiques", en: "Section Y: Biologic
   terminerReference: { fr: 'Terminer la référence', en: 'Complete reference', pt: 'Concluir referência' },
   confirmTerminerReference: { fr: 'Confirmer la prise en charge de cette référence ? Le statut passera à "Reçue".', en: 'Confirm taking charge of this reference? Status will change to "Received".', pt: 'Confirmar o atendimento desta referência? O status mudará para "Recebida".' },
   errorTerminerReference: { fr: 'Erreur lors de la clôture de la référence', en: 'Error completing reference', pt: 'Erro ao concluir referência' },
+
+  // Additional ReferenceDossierView translations
+  referenceDetails: { fr: 'Détails de la Référence', en: 'Reference Details', pt: 'Detalhes da Referência' },
+  hopitalDestination: { fr: 'Hôpital de Destination', en: 'Destination Hospital', pt: 'Hospital de Destino' },
+  medecinDestinataire: { fr: 'Médecin Destinataire', en: 'Recipient Doctor', pt: 'Médico Destinatário' },
+  hopitalOrigine: { fr: "Hôpital d'origine", en: 'Origin Hospital', pt: 'Hospital de Origem' },
+  temporalInformation: { fr: 'Informations Temporelles', en: 'Temporal Information', pt: 'Informações Temporais' },
+  dateCreation: { fr: 'Date de Création', en: 'Creation Date', pt: 'Data de Criação' },
+  dateModification: { fr: 'Dernière Modification', en: 'Last Modification', pt: 'Última Modificação' },
+  dossierMedicalComplet: { fr: 'Dossier Médical Complet', en: 'Complete Medical File', pt: 'Ficha Médica Completa' },
+  loadDossier: { fr: 'Charger le dossier', en: 'Load file', pt: 'Carregar ficha' },
+  loading: { fr: 'Chargement...', en: 'Loading...', pt: 'Carregando...' },
+  collapse: { fr: 'Replier', en: 'Collapse', pt: 'Recolher' },
+  load: { fr: 'Charger', en: 'Load', pt: 'Carregar' },
+  ageSuffix: { fr: 'ans', en: 'years', pt: 'anos' },
+  nationaliteLabel: { fr: 'Nationalité', en: 'Nationality', pt: 'Nacionalidade' },
+
+  // ── CreateReferenceSurCarte ──────────────────────────────────────────────
+  // Étape 1 – Patient
+  selectPatient: { fr: 'Sélectionner un patient', en: 'Select a patient', pt: 'Selecionar um paciente' },
+  removePatient: { fr: 'Enlever', en: 'Remove', pt: 'Remover' },
+  nextSelectDoctor: { fr: 'Suivant → Sélectionner un médecin', en: 'Next → Select a doctor', pt: 'Próximo → Selecionar um médico' },
+
+  // Étape 2 – Médecin
+  selectDoctorAt: { fr: 'Sélectionner un médecin à', en: 'Select a doctor at', pt: 'Selecionar um médico em' },
+  availableDoctors: { fr: 'Médecins disponibles', en: 'Available doctors', pt: 'Médicos disponíveis' },
+  noDoctorAvailable: { fr: 'Aucun médecin disponible à cet hôpital', en: 'No doctor available at this hospital', pt: 'Nenhum médico disponível neste hospital' },
+  nextReferenceDetails: { fr: 'Suivant → Détails de la référence', en: 'Next → Reference details', pt: 'Próximo → Detalhes da referência' },
+
+  // Étape 3 – Motif
+  referenceReasonTitle: { fr: 'Motif de la Référence', en: 'Reference Reason', pt: 'Motivo da Referência' },
+  changement_adresse: { fr: "Changement d'adresse", en: 'Change of address', pt: 'Mudança de endereço' },
+  temporaire: { fr: 'Temporaire', en: 'Temporary', pt: 'Temporário' },
+  permanent: { fr: 'Permanent', en: 'Permanent', pt: 'Permanente' },
+  motif_reference: { fr: 'Motif de référence', en: 'Reference reason', pt: 'Motivo de referência' },
+  rupture_arv: { fr: 'Rupture ARV', en: 'ARV shortage', pt: 'Falta de ARV' },
+  effet_indesirable: { fr: 'Effet indésirable', en: 'Adverse effect', pt: 'Efeito indesejável' },
+  echec_therapeutique: { fr: 'Échec thérapeutique', en: 'Therapeutic failure', pt: 'Falha terapêutica' },
+  toxicite_medicamenteuse: { fr: 'Toxicité médicamenteuse', en: 'Drug toxicity', pt: 'Toxicidade medicamentosa' },
+  autre_a_preciser: { fr: 'Autre à préciser', en: 'Other (specify)', pt: 'Outro (especificar)' },
+  services: { fr: 'Services', en: 'Services', pt: 'Serviços' },
+  nextClinicalInfo: { fr: 'Suivant → Informations cliniques', en: 'Next → Clinical information', pt: 'Próximo → Informações clínicas' },
+
+  // Étape 4 – Poids & Stades OMS
+  weightAndWhoStage: { fr: 'Poids et Stades OMS', en: 'Weight and WHO Stages', pt: 'Peso e Estágios OMS' },
+  weight: { fr: 'Poids (kg)', en: 'Weight (kg)', pt: 'Peso (kg)' },
+  whoStage: { fr: 'Stade OMS', en: 'WHO Stage', pt: 'Estágio OMS' },
+  hivProfile: { fr: 'Profil VIH', en: 'HIV Profile', pt: 'Perfil HIV' },
+  confirmationDate: { fr: 'Date de confirmation', en: 'Confirmation date', pt: 'Data de confirmação' },
+  nextArvTreatment: { fr: 'Suivant → Traitement ARV', en: 'Next → ARV Treatment', pt: 'Próximo → Tratamento ARV' },
+
+  // Étape 5 – Traitement ARV
+  arvTreatmentTitle: { fr: 'Traitement ARV', en: 'ARV Treatment', pt: 'Tratamento ARV' },
+  treatmentARV: { fr: 'Sous ARV', en: 'On ARV', pt: 'Sob ARV' },
+  firstLineProtocol: { fr: 'Protocole 1ère ligne', en: '1st line protocol', pt: 'Protocolo de 1ª linha' },
+  secondLineProtocol: { fr: 'Protocole 2ème ligne', en: '2nd line protocol', pt: 'Protocolo de 2ª linha' },
+  nextCd4: { fr: 'Suivant → CD4', en: 'Next → CD4', pt: 'Próximo → CD4' },
+
+  // Étape 6 – CD4
+  cd4Title: { fr: 'CD4', en: 'CD4', pt: 'CD4' },
+  cd4DebutTraitement: { fr: 'CD4 Début de traitement', en: 'CD4 at treatment start', pt: 'CD4 no início do tratamento' },
+  cd4Dernier: { fr: 'CD4 Dernier', en: 'Last CD4', pt: 'Último CD4' },
+  cd4Inclusion: { fr: 'CD4 Inclusion', en: 'CD4 at inclusion', pt: 'CD4 na inclusão' },
+  nextBioAnalysis: { fr: 'Suivant → Analyses biologiques', en: 'Next → Biological analyses', pt: 'Próximo → Análises biológicas' },
+
+  // Étape 7 – Analyses biologiques
+  bioAnalysisTitle: { fr: 'Analyses biologiques', en: 'Biological analyses', pt: 'Análises biológicas' },
+  viralLoad: { fr: 'Charge virale', en: 'Viral load', pt: 'Carga viral' },
+  lymphocytesTotaux: { fr: 'Lymphocytes totaux', en: 'Total lymphocytes', pt: 'Linfócitos totais' },
+  hbNiveau: { fr: 'Hémoglobine (Hb)', en: 'Haemoglobin (Hb)', pt: 'Hemoglobina (Hb)' },
+  nextMicroAnalysis: { fr: 'Suivant → Analyses microbiologiques', en: 'Next → Microbiological analyses', pt: 'Próximo → Análises microbiológicas' },
+
+  // Étape 8 – Analyses microbiologiques
+  microAnalysisTitle: { fr: 'Analyses microbiologiques', en: 'Microbiological analyses', pt: 'Análises microbiológicas' },
+  cracheBaar: { fr: 'Crachat BAAR', en: 'BAAR sputum', pt: 'Escarro BAAR' },
+  transaminase: { fr: 'Transaminases', en: 'Transaminases', pt: 'Transaminases' },
+  otherAnalysis: { fr: 'Autre analyse', en: 'Other analysis', pt: 'Outra análise' },
+  nextTbTreatment: { fr: 'Suivant → Traitement TB', en: 'Next → TB Treatment', pt: 'Próximo → Tratamento TB' },
+
+  // Étape 9 – Traitement TB
+  tbTreatmentTitle: { fr: 'Traitement TB', en: 'TB Treatment', pt: 'Tratamento TB' },
+  tbTreatment: { fr: 'Traitement TB', en: 'TB Treatment', pt: 'Tratamento TB' },
+  therapyProtocol: { fr: 'Protocole thérapeutique', en: 'Therapeutic protocol', pt: 'Protocolo terapêutico' },
+  nextOtherTreatment: { fr: 'Suivant → Autre traitement', en: 'Next → Other treatment', pt: 'Próximo → Outro tratamento' },
+
+  // Étape 10 – Autre traitement
+  otherTreatmentTitle: { fr: 'Autre traitement', en: 'Other treatment', pt: 'Outro tratamento' },
+  otherTreatment: { fr: 'Autre traitement', en: 'Other treatment', pt: 'Outro tratamento' },
+  describeOtherTreatment: { fr: "Précisez l'autre traitement...", en: 'Describe the other treatment...', pt: 'Descreva o outro tratamento...' },
+  nextSummary: { fr: 'Suivant → Résumé', en: 'Next → Summary', pt: 'Próximo → Resumo' },
+
+  // Étape 11 – Résumé
+  summaryTitle: { fr: 'Résumé des Informations', en: 'Information Summary', pt: 'Resumo das Informações' },
+  summaryPatient: { fr: 'Patient', en: 'Patient', pt: 'Paciente' },
+  summaryDoctor: { fr: 'Médecin', en: 'Doctor', pt: 'Médico' },
+  summaryReferenceReason: { fr: 'Motif de Référence', en: 'Reference Reason', pt: 'Motivo de Referência' },
+  summaryAddressChange: { fr: 'Changement adresse', en: 'Address change', pt: 'Mudança de endereço' },
+  summaryOther: { fr: 'Autres', en: 'Others', pt: 'Outros' },
+  summaryServices: { fr: 'Services', en: 'Services', pt: 'Serviços' },
+  summaryClinical: { fr: 'Renseignements Cliniques', en: 'Clinical Information', pt: 'Informações Clínicas' },
+  summaryWeight: { fr: 'Poids', en: 'Weight', pt: 'Peso' },
+  summaryArvTreatment: { fr: 'Traitement ARV', en: 'ARV Treatment', pt: 'Tratamento ARV' },
+  summaryCd4Start: { fr: 'CD4 Début', en: 'CD4 Start', pt: 'CD4 Início' },
+  summaryCd4Last: { fr: 'CD4 Dernier', en: 'Last CD4', pt: 'Último CD4' },
+  summaryViralLoad: { fr: 'Charge Virale', en: 'Viral Load', pt: 'Carga Viral' },
+  summaryHb: { fr: 'Hb', en: 'Hb', pt: 'Hb' },
+  summaryLymphocytes: { fr: 'Lymphocytes', en: 'Lymphocytes', pt: 'Linfócitos' },
+  summarySputum: { fr: 'Crache BAAR', en: 'BAAR Sputum', pt: 'Escarro BAAR' },
+  summaryAgHbs: { fr: 'Ag HBs', en: 'Ag HBs', pt: 'Ag HBs' },
+  summaryTransaminases: { fr: 'Transaminases', en: 'Transaminases', pt: 'Transaminases' },
+  summaryOtherAnalysis: { fr: 'Autre Analyse', en: 'Other Analysis', pt: 'Outra Análise' },
+  summaryOtherTreatment: { fr: 'Autre Traitement', en: 'Other Treatment', pt: 'Outro Tratamento' },
+  nextConfirmation: { fr: 'Suivant → Confirmation', en: 'Next → Confirmation', pt: 'Próximo → Confirmação' },
+
+  // Étape 12 – Confirmation
+  confirmationTitle: { fr: 'Confirmation de la référence', en: 'Reference confirmation', pt: 'Confirmação da referência' },
+  destinationHospital: { fr: 'Hôpital de destination', en: 'Destination hospital', pt: 'Hospital de destino' },
+  recipientDoctor: { fr: 'Médecin destinataire', en: 'Recipient doctor', pt: 'Médico destinatário' },
+  referenceDate: { fr: 'Date de la référence', en: 'Reference date', pt: 'Data da referência' },
+  referenceTypeLabel: { fr: 'Type de référence', en: 'Reference type', pt: 'Tipo de referência' },
+  selectType: { fr: 'Sélectionner un type', en: 'Select a type', pt: 'Selecionar um tipo' },
+  observationsLabel: { fr: 'Observations', en: 'Observations', pt: 'Observações' },
+  observationsPlaceholder: { fr: 'Ajoutez des observations supplémentaires...', en: 'Add additional observations...', pt: 'Adicione observações adicionais...' },
+  createReference: { fr: 'Créer la référence', en: 'Create reference', pt: 'Criar referência' },
+  referenceCreatedSuccess: { fr: 'Référence créée avec succès !', en: 'Reference created successfully!', pt: 'Referência criada com sucesso!' },
+
+  // Header & navigation
+  referencePatientFor: { fr: 'Référencer un patient pour', en: 'Refer a patient to', pt: 'Referenciar um paciente para' },
+  backButton: { fr: '← Retour', en: '← Back', pt: '← Voltar' },
+  previousButton: { fr: 'Précédent', en: 'Previous', pt: 'Anterior' },
+
+  // Validation messages
+  validationSelectPatient: { fr: 'Veuillez sélectionner un patient', en: 'Please select a patient', pt: 'Por favor, selecione um paciente' },
+  validationSelectDoctor: { fr: 'Veuillez sélectionner un médecin', en: 'Please select a doctor', pt: 'Por favor, selecione um médico' },
+  validationSelectReason: { fr: 'Veuillez renseigner le motif de la référence', en: 'Please fill in the reference reason', pt: 'Por favor, preencha o motivo da referência' },
+  validationSelectType: { fr: 'Veuillez sélectionner le type de référence', en: 'Please select the reference type', pt: 'Por favor, selecione o tipo de referência' },
+  errorCreatingReference: { fr: 'Erreur lors de la création de la référence', en: 'Error creating reference', pt: 'Erro ao criar referência' },
+  cannotLoadDoctors: { fr: 'Impossible de charger les médecins de cet hôpital', en: 'Unable to load doctors for this hospital', pt: 'Não foi possível carregar os médicos deste hospital' },
+
   }
 };
 
