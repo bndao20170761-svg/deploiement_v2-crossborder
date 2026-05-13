@@ -3258,7 +3258,29 @@ sectionYBilans: { fr: "Section Y : Bilans biologiques", en: "Section Y: Biologic
   // Étape 1 – Services
   stepServicesTitle: { fr: 'Services disponibles', en: 'Available services', pt: 'Serviços disponíveis' },
   stepServicesSubtitle: { fr: 'Sélectionnez les services proposés par cet établissement', en: 'Select the services offered by this facility', pt: 'Selecione os serviços oferecidos por este estabelecimento' },
+arv: {
+  fr: 'ARV',
+  en: 'ARV',
+  pt: 'ARV'
+},
 
+ptme: {
+  fr: 'PTME',
+  en: 'PMTCT',
+  pt: 'PTV'
+},
+
+crc: {
+  fr: 'CRC',
+  en: 'CRC',
+  pt: 'CRC'
+},
+
+pvvih: {
+  fr: 'PVVIH',
+  en: 'PLHIV',
+  pt: 'PVHIV'
+},
   // Étape 2 – Prestataires
   stepProvidersTitle: { fr: 'Prestataires', en: 'Providers', pt: 'Prestadores' },
   stepProvidersSubtitle: { fr: 'Ajoutez les prestataires qui travaillent dans cet établissement', en: 'Add the providers who work in this facility', pt: 'Adicione os prestadores que trabalham neste estabelecimento' },

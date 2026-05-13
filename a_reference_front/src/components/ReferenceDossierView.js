@@ -306,13 +306,37 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
       {(reference.serviceArv || reference.serviceLaboratoire || reference.servicePtme || reference.serviceCrc || reference.servicePvvih) && (
         <div className="bg-white rounded-lg shadow p-5">
           <SectionTitle icon={<Hospital className="w-5 h-5" />} title={getTranslation('servicesDemandes', language)} color="green" />
-          <div className="flex flex-wrap gap-2">
-            {reference.serviceArv && <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">ARV</span>}
-            {reference.serviceLaboratoire && <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">{getTranslation('laboratoire', language)}</span>}
-            {reference.servicePtme && <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">PTME</span>}
-            {reference.serviceCrc && <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">CRC</span>}
-            {reference.servicePvvih && <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">PVVIH</span>}
-          </div>
+         <div className="flex flex-wrap gap-2">
+  {reference.serviceArv && (
+    <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">
+      {getTranslation('arv', language)}
+    </span>
+  )}
+
+  {reference.serviceLaboratoire && (
+    <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">
+      {getTranslation('laboratoire', language)}
+    </span>
+  )}
+
+  {reference.servicePtme && (
+    <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">
+      {getTranslation('ptme', language)}
+    </span>
+  )}
+
+  {reference.serviceCrc && (
+    <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">
+      {getTranslation('crc', language)}
+    </span>
+  )}
+
+  {reference.servicePvvih && (
+    <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">
+      {getTranslation('pvvih', language)}
+    </span>
+  )}
+</div>
         </div>
       )}
 
