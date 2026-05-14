@@ -222,11 +222,9 @@ const CartographyMap = ({ hospitals, onHospitalUpdate,  onHospitalAdd, language 
     }
   }, [hospitals]);
 
-   useEffect(() => {
-      if (map) {
-        locateUser();
-      }
-    }, [map]);
+useEffect(() => {
+     if (map) locateUser();
+   }, [map, locateUser]);
 
   const locateUser = useCallback(() => {
     if (!map) return;
@@ -307,10 +305,6 @@ const CartographyMap = ({ hospitals, onHospitalUpdate,  onHospitalAdd, language 
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   }, [map]);
-
-    useEffect(() => {
-      if (map) locateUser();
-    }, [map, locateUser]);
 
 const onMapLoad = useCallback((mapInstance) => {
     setMap(mapInstance);
@@ -1358,28 +1352,29 @@ const saveNewHospital = async () => {
 
                  <IconButton
                       onClick={() => {
-              if (!navigator.geolocation) {
-                alert("❌ Votre navigateur ne supporte pas la géolocalisation");
-                return;
-              }
+if (!navigator.geolocation) {
+                 alert(`❌ ${getTranslation('browserNoGeolocation', language)}`);
+                 return;
+               }
 
-              setLoadingLocation(true);
+               setLoadingLocation(true);
+               showNotification(getTranslation('searchingPosition', language), 'info');
 
-              let bestPosition = null;
-              let bestAccuracy = Infinity;
-              let watchId = null;
-              let timeoutId = null;
+               let bestPosition = null;
+               let bestAccuracy = Infinity;
+               let watchId = null;
+               let timeoutId = null;
 
-              // Fonction pour traiter la position avec précision maximale
-              const processPosition = (position) => {
-                const { latitude, longitude, accuracy } = position.coords;
-                
-                // Enregistrer la meilleure position trouvée
-                if (accuracy < bestAccuracy) {
-                  bestAccuracy = accuracy;
-                  bestPosition = { lat: latitude, lng: longitude, accuracy };
-                  console.log(`📍 Position améliorée: ${latitude}, ${longitude}, Précision: ${accuracy}m`);
-                }
+               // Fonction pour traiter la position avec précision maximale
+               const processPosition = (position) => {
+                 const { latitude, longitude, accuracy } = position.coords;
+
+                 // Enregistrer la meilleure position trouvée
+                 if (accuracy < bestAccuracy) {
+                   bestAccuracy = accuracy;
+                   bestPosition = { lat: latitude, lng: longitude, accuracy };
+                   console.log(`📍 ${getTranslation('positionDetected', language)}: ${latitude}, ${longitude}, ${getTranslation('precision', language)}: ${accuracy}m`);
+                 }
 
                 // Si la précision est excellente (≤ 20m), utiliser immédiatement
                 if (accuracy <= 20) {
@@ -1396,91 +1391,91 @@ const saveNewHospital = async () => {
                   console.log('✅ Position exacte trouvée:', {
                     latitude,
                     longitude,
-                    accuracy: `${accuracy}m de précision`
-                  });
+accuracy: `${accuracy}m ${getTranslation('precision', language)}`
+                   });
 
-                  setUserLocation(userLoc);
-                  setShowUserInfo(false);
+                   setUserLocation(userLoc);
+                   setShowUserInfo(false);
 
-                  if (map) {
-                    map.panTo(userLoc);
-                    const zoomLevel = accuracy < 10 ? 19 : accuracy < 20 ? 18 : 17;
-                    map.setZoom(zoomLevel);
-                  }
+                   if (map) {
+                     map.panTo(userLoc);
+                     const zoomLevel = accuracy < 10 ? 19 : accuracy < 20 ? 18 : 17;
+                     map.setZoom(zoomLevel);
+                   }
 
-                  setLoadingLocation(false);
-                }
-              };
+                   setLoadingLocation(false);
+                 }
+               };
 
-              // Utiliser watchPosition pour obtenir plusieurs mises à jour
-              watchId = navigator.geolocation.watchPosition(
-                (position) => {
-                  processPosition(position);
-                },
-                (error) => {
-                  console.error('❌ Erreur watchPosition:', error);
-                  
-                  if (watchId !== null) {
-                    navigator.geolocation.clearWatch(watchId);
-                    watchId = null;
-                  }
-                  if (timeoutId !== null) {
-                    clearTimeout(timeoutId);
-                    timeoutId = null;
-                  }
+               // Utiliser watchPosition pour obtenir plusieurs mises à jour
+               watchId = navigator.geolocation.watchPosition(
+                 (position) => {
+                   processPosition(position);
+                 },
+                 (error) => {
+                   console.error('❌ Erreur watchPosition:', error);
 
-                  // Si on a une position acceptable, l'utiliser même en cas d'erreur
-                  if (bestPosition && bestPosition.accuracy <= 100) {
-                    console.log(`✅ Utilisation de la meilleure position trouvée: ${bestPosition.accuracy}m`);
-                    setUserLocation({ lat: bestPosition.lat, lng: bestPosition.lng });
-                    setShowUserInfo(false);
-                    
-                    if (map) {
-                      map.panTo({ lat: bestPosition.lat, lng: bestPosition.lng });
-                      const zoomLevel = bestPosition.accuracy < 20 ? 18 : bestPosition.accuracy < 50 ? 17 : 16;
-                      map.setZoom(zoomLevel);
-                    }
-                    
-                    setLoadingLocation(false);
-                    return;
-                  }
+                   if (watchId !== null) {
+                     navigator.geolocation.clearWatch(watchId);
+                     watchId = null;
+                   }
+                   if (timeoutId !== null) {
+                     clearTimeout(timeoutId);
+                     timeoutId = null;
+                   }
 
-                  // Sinon, essayer getCurrentPosition en fallback
-                  navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                      processPosition(position);
-                    },
-                    (fallbackError) => {
-                      console.error('❌ Erreur getCurrentPosition:', fallbackError);
-                      setLoadingLocation(false);
+                   // Si on a une position acceptable, l'utiliser même en cas d'erreur
+                   if (bestPosition && bestPosition.accuracy <= 100) {
+                     console.log(`✅ ${getTranslation('usingBestPosition', language)}: ${bestPosition.accuracy}m`);
+                     setUserLocation({ lat: bestPosition.lat, lng: bestPosition.lng });
+                     setShowUserInfo(false);
 
-                      let errorMessage = "Géolocalisation non disponible. Utilisation de l'Université Assane Seck de Ziguinchor par défaut.";
-                      switch (fallbackError.code) {
-                        case fallbackError.PERMISSION_DENIED:
-                          errorMessage = "Géolocalisation refusée. Utilisation de l'Université Assane Seck de Ziguinchor par défaut.";
-                          break;
-                        case fallbackError.POSITION_UNAVAILABLE:
-                          errorMessage = "Information de localisation indisponible. Utilisation de l'Université Assane Seck de Ziguinchor par défaut.";
-                          break;
-                        case fallbackError.TIMEOUT:
-                          errorMessage = "Délai de localisation dépassé. Utilisation de l'Université Assane Seck de Ziguinchor par défaut.";
-                          break;
-                      }
+                     if (map) {
+                       map.panTo({ lat: bestPosition.lat, lng: bestPosition.lng });
+                       const zoomLevel = bestPosition.accuracy < 20 ? 18 : bestPosition.accuracy < 50 ? 17 : 16;
+                       map.setZoom(zoomLevel);
+                     }
 
-                      // Si on a une position acceptable même après timeout, l'utiliser
-                      if (bestPosition && bestPosition.accuracy <= 100) {
-                        console.log(`✅ Utilisation de la meilleure position après timeout: ${bestPosition.accuracy}m`);
-                        setUserLocation({ lat: bestPosition.lat, lng: bestPosition.lng });
-                        setShowUserInfo(false);
-                        
-                        if (map) {
-                          map.panTo({ lat: bestPosition.lat, lng: bestPosition.lng });
-                          const zoomLevel = bestPosition.accuracy < 20 ? 18 : bestPosition.accuracy < 50 ? 17 : 16;
-                          map.setZoom(zoomLevel);
-                        }
-                        
-                        alert(`Position trouvée avec une précision de ${Math.round(bestPosition.accuracy)}m. ${errorMessage}`);
-                      } else if (!userLocation) {
+                     setLoadingLocation(false);
+                     return;
+                   }
+
+                   // Sinon, essayer getCurrentPosition en fallback
+                   navigator.geolocation.getCurrentPosition(
+                     (position) => {
+                       processPosition(position);
+                     },
+                     (fallbackError) => {
+                       console.error('❌ Erreur getCurrentPosition:', fallbackError);
+                       setLoadingLocation(false);
+
+                       let errorMessage = getTranslation('locationUnavailUseDefault', language);
+                       switch (fallbackError.code) {
+                         case fallbackError.PERMISSION_DENIED:
+                           errorMessage = getTranslation('errorGeolocationPermission', language);
+                           break;
+                         case fallbackError.POSITION_UNAVAILABLE:
+                           errorMessage = getTranslation('locationInfoUnavailable', language);
+                           break;
+                         case fallbackError.TIMEOUT:
+                           errorMessage = getTranslation('locationTimeoutDefault', language);
+                           break;
+                       }
+
+                       // Si on a une position acceptable même après timeout, l'utiliser
+                       if (bestPosition && bestPosition.accuracy <= 100) {
+                         console.log(`✅ ${getTranslation('usingBestPosition', language)}: ${bestPosition.accuracy}m`);
+                         setUserLocation({ lat: bestPosition.lat, lng: bestPosition.lng });
+                         setShowUserInfo(false);
+
+                         if (map) {
+                           map.panTo({ lat: bestPosition.lat, lng: bestPosition.lng });
+                           const zoomLevel = bestPosition.accuracy < 20 ? 18 : bestPosition.accuracy < 50 ? 17 : 16;
+                           map.setZoom(zoomLevel);
+                         }
+
+                         alert(`${getTranslation('precision', language)}: ${Math.round(bestPosition.accuracy)}m. ${errorMessage}`);
+                       } else if (!userLocation) {
                         // Fallback vers Université Assane Seck de Ziguinchor si aucune position n'est connue
                         const uaszZiguinchor = { lat: 12.5833, lng: -16.2719 };
                         setUserLocation(uaszZiguinchor);
@@ -1491,7 +1486,7 @@ const saveNewHospital = async () => {
                           map.setZoom(12);
                         }
                         
-                        alert(errorMessage + "\n\nLa carte est centrée sur l'Université Assane Seck de Ziguinchor.");
+                        alert(errorMessage + "\n\n" + getTranslation('mapCenteredOn', language) + " Universidade Assane Seck de Ziguinchor.");
                       } else {
                         alert(errorMessage);
                       }
@@ -1533,13 +1528,13 @@ const saveNewHospital = async () => {
                   alert(`Position trouvée avec une précision de ${Math.round(bestPosition.accuracy)}m.`);
                 } else {
                   setLoadingLocation(false);
-                  alert("📍 Délai de localisation dépassé. Impossible d'obtenir une position précise. Réessayez.");
-                }
-              }, 30000);
+alert(getTranslation('locationTimeoutDefault', language));
+                 }
+               }, 30000);
                       }}
                       size="small"
             color="primary"
-            title={loadingLocation ? "Recherche de votre position..." : "Me localiser sur ma position exacte"}
+            title={loadingLocation ? getTranslation('searchingPosition', language) : getTranslation('useMyPosition', language)}
             disabled={loadingLocation}
           >
             <Box sx={{ position: 'relative', display: 'inline-flex' }}>
