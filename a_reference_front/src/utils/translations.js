@@ -1207,314 +1207,299 @@
                      enAttente: {
                        fr: "En attente",
                        en: "Pending",
-        pt: "Pendente",
-      },
-      lue: {
-        fr: "Lue",
-        en: "Read",
-        pt: "Lida",
-      },
-      nonLue: {
-        fr: "Non lue",
-        en: "Unread",
-        pt: "Não lida",
-      },
-      voir: {
-        fr: "Voir",
-        en: "View",
-        pt: "Ver",
-      },
-
-  otif_reference: {
-    fr: "Motif de la Référence",
-    en: "Reference Reason",
-    pt: "Motivo da Referência"
-  },
-
-  undetectable: {
-    fr: "Indétectable",
-    en: "Undetectable",
-    pt: "Indetetável",
-  },
-  low: {
-    fr: "Faible",
-    en: "Low",
-    pt: "Baixa",
-  },
-  medium: {
-    fr: "Moyenne",
-    en: "Medium",
-    pt: "Média",
-  },
-  veryHigh: {
-    fr: "Très élevée",
-    en: "Very high",
-    pt: "Muito alta",
-  },
-  viralLoadStartDate: {
-    fr: "Date de début – Charge virale",
-    en: "Start date – Viral Load",
-    pt: "Data de início – Carga viral",
-  },
-
-  // Lymphocytes
-  normal: {
-    fr: "Normale",
-    en: "Normal",
-    pt: "Normal",
-  },
-  lymphopenia: {
-    fr: "Lymphopénie",
-    en: "Lymphopenia",
-    pt: "Linfopenia",
-  },
-  lymphocytosis: {
-    fr: "Lymphocytose",
-    en: "Lymphocytosis",
-    pt: "Linfocitose",
-  },
-  lymphocytesDate: {
-    fr: "Date – Lymphocytes",
-    en: "Date – Lymphocytes",
-    pt: "Data – Linfócitos",
-  },
-
-  // Hémoglobine (HB)
-  anemia: {
-    fr: "Anémie",
-    en: "Anemia",
-    pt: "Anemia",
-  },
-  polycythemia: {
-    fr: "Polyglobulie",
-    en: "Polycythemia",
-    pt: "Policitemia",
-  },
-  hbDate: {
-    fr: "Date – Traitement HB",
-    en: "Date – HB Treatment",
-    pt: "Data – Tratamento HB",
-  },
-
-  // Crache BAAR
-  sputumBaar: {
-    fr: "Crache BAAR",
-    en: "Sputum BAAR",
-    pt: "Espectro BAAR",
-  },
-  baarPositive: {
-    fr: "BAAR+",
-    en: "BAAR+",
-    pt: "BAAR+",
-  },
-  baarNegative: {
-    fr: "BAAR-",
-    en: "BAAR-",
-    pt: "BAAR-",
-  },
-  sputumBaarDate: {
-    fr: "Date – Traitement Crache BAAR",
-    en: "Date – Sputum BAAR Treatment",
-    pt: "Data – Tratamento BAAR",
-  },
-
-  // Transaminase
-  transaminaseDate: {
-    fr: "Date – Traitement Transaminase",
-    en: "Date – Transaminase Treatment",
-    pt: "Data – Tratamento Transaminase",
-  },
-
-  // AgHBs
-  antiHbs: {
-    fr: "Anti-HBs",
-    en: "Anti-HBs",
-    pt: "Anti-HBs",
-  },
-  antiHbc: {
-    fr: "Anti-HBc",
-    en: "Anti-HBc",
-    pt: "Anti-HBc",
-  },
-  hbeag: {
-    fr: "HBeAg",
-    en: "HBeAg",
-    pt: "HBeAg",
-  },
-  hbvDna: {
-    fr: "ADN VHB",
-    en: "HBV DNA",
-    pt: "DNA VHB",
-  },
-  aghbsDate: {
-    fr: "Date – Traitement AgHBs",
-    en: "Date – AgHBs Treatment",
-    pt: "Data – Tratamento AgHBs",
-  },
-
-  // Traitement TB
-  rifampicin: {
-    fr: "Rifampicine",
-    en: "Rifampicin",
-    pt: "Rifampicina",
-  },
-  isoniazid: {
-    fr: "Isoniazide",
-    en: "Isoniazid",
-    pt: "Isoniazida",
-  },
-  pyrazinamide: {
-    fr: "Pyrazinamide",
-    en: "Pyrazinamide",
-    pt: "Pirazinamida",
-  },
-  ethambutol: {
-    fr: "Ethambutol",
-    en: "Ethambutol",
-    pt: "Etambutol",
-  },
-  tbTreatmentDate: {
-    fr: "Date – Début Traitement TB",
-    en: "Start Date – TB Treatment",
-    pt: "Data de início – Tratamento TB",
-  },
-  hangement_adresse: {
-    fr: "Changement d'adresse",
-    en: "Change of address",
-    pt: "Mudança de endereço"
-  },
-  emporaire: {
-    fr: "Temporaire",
-    en: "Temporary",
-    pt: "Temporário"
-  },
-
-  utre_a_preciser: {
-    fr: "Autre (à préciser)",
-    en: "Other (please specify)",
-    pt: "Outro (especificar)"
-  },
-  ervices: {
-    fr: "Services",
-    en: "Services",
-    pt: "Serviços"
-  },
-  ARV: {
-    fr: "ARV",
-    en: "ARV",
-    pt: "ARV"
-  },
-  IO: {
-    fr: "IO",
-    en: "OI's",
-    pt: "IO"
-  },
-  BILAN: {
-    fr: "Bilan",
-    en: "Lab tests",
-    pt: "Exames"
-  },
-  allergy: {
-    fr: "Allergie",
-    en: "Allergy",
-    pt: "Alergia"
-  },
-  date_allergie: {
-    fr: "Date allergie",
-    en: "Allergy date",
-    pt: "Data da alergia"
-  },
-
-  herapyProtocol: {
-    fr: "Protocole Thérapeutique",
-    en: "Therapy Protocol",
-    pt: "Protocolo Terapêutico"
-  },
-  d4DebutTraitement: {
-    fr: "CD4 début traitement",
-    en: "CD4 at treatment start",
-    pt: "CD4 início do tratamento"
-  },
-  d4Dernier: {
-    fr: "CD4 dernier",
-    en: "Latest CD4",
-    pt: "CD4 mais recente"
-  },
-  chargeViraleNiveau: {
-    fr: "Charge virale",
-    en: "Viral Load",
-    pt: "Carga viral"
-  },
-  bNiveau: {
-    fr: "Hb",
-    en: "Hb",
-    pt: "Hb"
-  },
-  ymphocytesTotaux: {
-    fr: "Lymphocytes totaux",
-    en: "Total Lymphocytes",
-    pt: "Linfócitos totais"
-  },
-  llergie: {
-    fr: "Allergie",
-    en: "Allergy",
-    pt: "Alergia"
-  },
-  reatinemie: {
-    fr: "Créatinémie",
-    en: "Creatinine",
-    pt: "Creatinina"
-  },
-  racheBaar: {
-    fr: "Crache BAAR",
-    en: "Sputum BAAR",
-    pt: "Escarro BAAR"
-  },
-  utreAnalyse: {
-    fr: "Autre Analyse",
-    en: "Other Analysis",
-    pt: "Outra Análise"
-  },
-  utreTraitement: {
-    fr: "Autre Traitement",
-    en: "Other Treatment",
-    pt: "Outro Tratamento"
-  },
-  esultatTrans: {
-    fr: "Résultat Transaminase",
-    en: "Transaminase Result",
-    pt: "Resultado Transaminase"
-  },
-  therAnalysis: {
-    fr: "Autre analyse",
-    en: "Other analysis",
-    pt: "Outra análise"
-  },
-  therTreatment: {
-    fr: "Autre traitement",
-    en: "Other treatment",
-    pt: "Outro tratamento"
-  },
-
-  PTME: {
-    fr: "PTME",
-    en: "PMTCT",
-    pt: "PTME"
-  },
-  SimpleSuivi: {
-    fr: "Suivi simple",
-    en: "Simple follow-up",
-    pt: "Acompanhamento simples"
-  },
-
-
-  //
-    login: { fr: 'Connexion', en: 'Login', pt: 'Conectar' },
-    logout: { fr: 'Déconnexion', en: 'Logout', pt: 'Sair' },
-    register: { fr: 'Inscription', en: 'Register', pt: 'Registrar' },
-
-    password: { fr: 'Mot de passe', en: 'Password', pt: 'Senha' },
-    account: { fr: 'Compte', en: 'Account', pt: 'Conta' },
+                       pt: "Pendente",
+                     },
+                     lue: {
+                       fr: "Lue",
+                       en: "Read",
+                       pt: "Lida",
+                     },
+                     nonLue: {
+                       fr: "Non lue",
+                       en: "Unread",
+                       pt: "Não lida",
+                     },
+                     voir: {
+                       fr: "Voir",
+                       en: "View",
+                       pt: "Ver",
+                     },
+                     notif_reference: {
+                       fr: "Motif de la Référence",
+                       en: "Reference Reason",
+                       pt: "Motivo da Referência"
+                     },
+                     undetectable: {
+                       fr: "Indétectable",
+                       en: "Undetectable",
+                       pt: "Indetetável",
+                     },
+                     low: {
+                       fr: "Faible",
+                       en: "Low",
+                       pt: "Baixa",
+                     },
+                     medium: {
+                       fr: "Moyenne",
+                       en: "Medium",
+                       pt: "Média",
+                     },
+                     veryHigh: {
+                       fr: "Très élevée",
+                       en: "Very high",
+                       pt: "Muito alta",
+                     },
+                     viralLoadStartDate: {
+                       fr: "Date de début – Charge virale",
+                       en: "Start date – Viral Load",
+                       pt: "Data de início – Carga viral",
+                     },
+                     // Lymphocytes
+                     normal: {
+                       fr: "Normale",
+                       en: "Normal",
+                       pt: "Normal",
+                     },
+                     lymphopenia: {
+                       fr: "Lymphopénie",
+                       en: "Lymphopenia",
+                       pt: "Linfopenia",
+                     },
+                     lymphocytosis: {
+                       fr: "Lymphocytose",
+                       en: "Lymphocytosis",
+                       pt: "Linfocitose",
+                     },
+                     lymphocytesDate: {
+                       fr: "Date – Lymphocytes",
+                       en: "Date – Lymphocytes",
+                       pt: "Data – Linfócitos",
+                     },
+                     // Hémoglobine (HB)
+                     anemia: {
+                       fr: "Anémie",
+                       en: "Anemia",
+                       pt: "Anemia",
+                     },
+                     polycythemia: {
+                       fr: "Polyglobulie",
+                       en: "Polycythemia",
+                       pt: "Policitemia",
+                     },
+                     hbDate: {
+                       fr: "Date – Traitement HB",
+                       en: "Date – HB Treatment",
+                       pt: "Data – Tratamento HB",
+                     },
+                     // Crache BAAR
+                     sputumBaar: {
+                       fr: "Crache BAAR",
+                       en: "Sputum BAAR",
+                       pt: "Espectro BAAR",
+                     },
+                     baarPositive: {
+                       fr: "BAAR+",
+                       en: "BAAR+",
+                       pt: "BAAR+",
+                     },
+                     baarNegative: {
+                       fr: "BAAR-",
+                       en: "BAAR-",
+                       pt: "BAAR-",
+                     },
+                     sputumBaarDate: {
+                       fr: "Date – Traitement Crache BAAR",
+                       en: "Date – Sputum BAAR Treatment",
+                       pt: "Data – Tratamento BAAR",
+                     },
+                     // Transaminase
+                     transaminaseDate: {
+                       fr: "Date – Traitement Transaminase",
+                       en: "Date – Transaminase Treatment",
+                       pt: "Data – Tratamento Transaminase",
+                     },
+                     // AgHBs
+                     antiHbs: {
+                       fr: "Anti-HBs",
+                       en: "Anti-HBs",
+                       pt: "Anti-HBs",
+                     },
+                     antiHbc: {
+                       fr: "Anti-HBc",
+                       en: "Anti-HBc",
+                       pt: "Anti-HBc",
+                     },
+                     hbeag: {
+                       fr: "HBeAg",
+                       en: "HBeAg",
+                       pt: "HBeAg",
+                     },
+                     hbvDna: {
+                       fr: "ADN VHB",
+                       en: "HBV DNA",
+                       pt: "DNA VHB",
+                     },
+                     aghbsDate: {
+                       fr: "Date – Traitement AgHBs",
+                       en: "Date – AgHBs Treatment",
+                       pt: "Data – Tratamento AgHBs",
+                     },
+                     // Traitement TB
+                     rifampicin: {
+                       fr: "Rifampicine",
+                       en: "Rifampicin",
+                       pt: "Rifampicina",
+                     },
+                     isoniazid: {
+                       fr: "Isoniazide",
+                       en: "Isoniazid",
+                       pt: "Isoniazida",
+                     },
+                     pyrazinamide: {
+                       fr: "Pyrazinamide",
+                       en: "Pyrazinamide",
+                       pt: "Pirazinamida",
+                     },
+                     ethambutol: {
+                       fr: "Ethambutol",
+                       en: "Ethambutol",
+                       pt: "Etambutol",
+                     },
+                     tbTreatmentDate: {
+                       fr: "Date – Début Traitement TB",
+                       en: "Start Date – TB Treatment",
+                       pt: "Data de início – Tratamento TB",
+                     },
+                     hangement_adresse: {
+                       fr: "Changement d'adresse",
+                       en: "Change of address",
+                       pt: "Mudança de endereço"
+                     },
+                     emporaire: {
+                       fr: "Temporaire",
+                       en: "Temporary",
+                       pt: "Temporário"
+                     },
+                     utre_a_preciser: {
+                       fr: "Autre (à préciser)",
+                       en: "Other (please specify)",
+                       pt: "Outro (especificar)"
+                     },
+                     ervices: {
+                       fr: "Services",
+                       en: "Services",
+                       pt: "Serviços"
+                     },
+                     ARV: {
+                       fr: "ARV",
+                       en: "ARV",
+                       pt: "ARV"
+                     },
+                     IO: {
+                       fr: "IO",
+                       en: "OI's",
+                       pt: "IO"
+                     },
+                     BILAN: {
+                       fr: "Bilan",
+                       en: "Lab tests",
+                       pt: "Exames"
+                     },
+                     allergy: {
+                       fr: "Allergie",
+                       en: "Allergy",
+                       pt: "Alergia"
+                     },
+                     date_allergie: {
+                       fr: "Date allergie",
+                       en: "Allergy date",
+                       pt: "Data da alergia"
+                     },
+                     herapyProtocol: {
+                       fr: "Protocole Thérapeutique",
+                       en: "Therapy Protocol",
+                       pt: "Protocolo Terapêutico"
+                     },
+                     d4DebutTraitement: {
+                       fr: "CD4 début traitement",
+                       en: "CD4 at treatment start",
+                       pt: "CD4 início do tratamento"
+                     },
+                     d4Dernier: {
+                       fr: "CD4 dernier",
+                       en: "Latest CD4",
+                       pt: "CD4 mais recente"
+                     },
+                     chargeViraleNiveau: {
+                       fr: "Charge virale",
+                       en: "Viral Load",
+                       pt: "Carga viral"
+                     },
+                     bNiveau: {
+                       fr: "Hb",
+                       en: "Hb",
+                       pt: "Hb"
+                     },
+                     ymphocytesTotaux: {
+                       fr: "Lymphocytes totaux",
+                       en: "Total Lymphocytes",
+                       pt: "Linfócitos totais"
+                     },
+                     llergie: {
+                       fr: "Allergie",
+                       en: "Allergy",
+                       pt: "Alergia"
+                     },
+                     reatinemie: {
+                       fr: "Créatinémie",
+                       en: "Creatinine",
+                       pt: "Creatinina"
+                     },
+                     racheBaar: {
+                       fr: "Crache BAAR",
+                       en: "Sputum BAAR",
+                       pt: "Escarro BAAR"
+                     },
+                     utreAnalyse: {
+                       fr: "Autre Analyse",
+                       en: "Other Analysis",
+                       pt: "Outra Análise"
+                     },
+                     utreTraitement: {
+                       fr: "Autre Traitement",
+                       en: "Other Treatment",
+                       pt: "Outro Tratamento"
+                     },
+                     esultatTrans: {
+                       fr: "Résultat Transaminase",
+                       en: "Transaminase Result",
+                       pt: "Resultado Transaminase"
+                     },
+                     therAnalysis: {
+                       fr: "Autre analyse",
+                       en: "Other analysis",
+                       pt: "Outra análise"
+                     },
+                     therTreatment: {
+                       fr: "Autre traitement",
+                       en: "Other treatment",
+                       pt: "Outro tratamento"
+                     },
+                     PTME: {
+                       fr: "PTME",
+                       en: "PMTCT",
+                       pt: "PTME"
+                     },
+                     SimpleSuivi: {
+                       fr: "Suivi simple",
+                       en: "Simple follow-up",
+                       pt: "Acompanhamento simples"
+                     },
+                 login: { fr: 'Connexion', en: 'Login', pt: 'Conectar' },
+                 logout: { fr: 'Déconnexion', en: 'Logout', pt: 'Sair' },
+                 register: { fr: 'Inscription', en: 'Register', pt: 'Registrar' },
+                 password: { fr: 'Mot de passe', en: 'Password', pt: 'Senha' },
+                 account: { fr: 'Compte', en: 'Account', pt: 'Conta' },
     french: { fr: 'Français', en: 'French', pt: 'Francês' },
     english: { fr: 'Anglais', en: 'English', pt: 'Inglês' },
     portuguese: { fr: 'Portugais', en: 'Portuguese', pt: 'Português' },
