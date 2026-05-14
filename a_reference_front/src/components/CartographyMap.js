@@ -236,20 +236,40 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
       setMapLoaded(false);
     }, []);
 
-   const locateUser = useCallback(() => {
+   // Fonction pour afficher les notifications
+   const showNotification = (message, type = 'success') => {
+     // Implémentation simple avec alert - vous pouvez adapter avec un système de toast
+     if (type === 'error') {
+       alert(`❌ ${message}`);
+     } else {
+       alert(`✅ ${message}`);
+     }
+   };
+
+    const locateUser = useCallback(() => {
       if (!map) return;
 
       // Sur HTTP (non-HTTPS), navigator.geolocation est bloqué par Chrome.
-      const isSecureOrigin = window.location.protocol === 'https:' ||
-        window.location.hostname === 'localhost' ||
-        window.location.hostname === '127.0.0.1';
+      // On autorise localhost, 127.0.0.1, les IPs locales courantes, et file://
+      const hostname = window.location.hostname;
+      const protocol = window.location.protocol;
+      const isSecureOrigin = protocol === 'https:' ||
+        protocol === 'file:' ||
+        hostname === 'localhost' ||
+        hostname === '127.0.0.1' ||
+        hostname === '0.0.0.0' ||
+        /^192\.168\./.test(hostname) ||
+        /^10\./.test(hostname) ||
+        /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname) ||
+        hostname.endsWith('.local');
 
       if (!isSecureOrigin) {
-        showNotification(getTranslation('errorGeolocationUnavailable', language), 'error');
-        return;
+        // En développement, essayer quand même — certains navigateurs le permettent
+        console.warn('Origine non sécurisée, tentative de géolocalisation quand même...');
       }
 
-      if (!navigator.geolocation) {
+      // navigator.geolocation est undefined si pas de HTTPS sur la plupart des navigateurs
+      if (!navigator.geolocation || (protocol === 'http:' && hostname !== 'localhost')) {
         showNotification(getTranslation('errorGeolocationUnavailable', language), 'error');
         return;
       }
@@ -365,11 +385,16 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
           setLoadingLocation(false);
           alert(getTranslation('locationTimeoutDefault', language));
         }
-      }, 45000);
-}, [map]);
+}, 45000);
+    }, [map]);
 
-   // Géocodage inverse pour obtenir l'adresse depuis les coordonnées
-  const getAddressFromCoords = async (lat, lng) => {
+   // Appeler locateUser quand la carte est chargée
+   useEffect(() => {
+     if (map) locateUser();
+   }, [map, locateUser]);
+
+    // Géocodage inverse pour obtenir l'adresse depuis les coordonnées
+   const getAddressFromCoords = async (lat, lng) => {
     if (!geocoding) return null;
 
     try {
@@ -850,28 +875,17 @@ const convertToEnumType = (type) => {
               email: p.email || ''
             }));
             setProviders(prestatairesMappes);
-          } else {
-            setProviders([]);
-          }
-        }
-      };
+} else {
+              setProviders([]);
+            }
+          };
+        };
 
-      loadPrestataires();
+          loadPrestataires();
 
-      // Afficher le dialog
-      setShowAddDialog(true);
-      setActiveStep(0);
-    };
-
-// Fonction pour afficher les notifications
-const showNotification = (message, type = 'success') => {
-  // Implémentation simple avec alert - vous pouvez adapter avec un système de toast
-  if (type === 'error') {
-    alert(`❌ ${message}`);
-  } else {
-    alert(`✅ ${message}`);
-  }
-};
+         // Afficher le dialog
+         setShowAddDialog(true);
+       };
 
 // Fonction pour sauvegarder un nouvel hôpital
 const saveNewHospital = async () => {
@@ -1922,6 +1936,6 @@ const saveNewHospital = async () => {
             </Dialog>
           </Box>
         );
-      };
+};
 
-      export default CartographyMap;
+export default CartographyMap;
