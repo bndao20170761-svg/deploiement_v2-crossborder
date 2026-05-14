@@ -106,221 +106,269 @@ const GOOGLE_MAPS_API_KEY = 'AIzaSyCBwr6styheEc8XB3JyeL9Ky3eebVUy9KU';
 // Constante pour éviter la recréation du tableau à chaque render
 const GOOGLE_MAPS_LIBRARIES = ['places', 'geometry'];
 
-const CartographyMap = ({ hospitals, onHospitalUpdate,  onHospitalAdd, language = 'fr' }) => {
-  const [map, setMap] = useState(null);
+const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language = 'fr' }) => {
+   const [map, setMap] = useState(null);
 
-  // Listes traduites selon la langue courante
-  const AVAILABLE_SERVICES = getAvailableServices(language);
-  const PROVIDER_TYPES = getProviderTypes(language);
-   const [selectedHospital, setSelectedHospital] = useState(null);
-   const [clickedPosition, setClickedPosition] = useState(null);
-   const [userLocation, setUserLocation] = useState(null);
-   const [mapType, setMapType] = useState('roadmap');
-  const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM);
-   const [geocoding, setGeocoding] = useState(null);
-   const [showAddDialog, setShowAddDialog] = useState(false);
-   const [locationInfo, setLocationInfo] = useState(null);
-   const [loadingLocation, setLoadingLocation] = useState(false);
-   const [mapLoaded, setMapLoaded] = useState(false);
-   const [loadingAction, setLoadingAction] = useState(false);
-   const [showUserInfo, setShowUserInfo] = useState(false);
+   // Listes traduites selon la langue courante
+   const AVAILABLE_SERVICES = getAvailableServices(language);
+   const PROVIDER_TYPES = getProviderTypes(language);
+    const [selectedHospital, setSelectedHospital] = useState(null);
+    const [clickedPosition, setClickedPosition] = useState(null);
+    const [userLocation, setUserLocation] = useState(null);
+    const [mapType, setMapType] = useState('roadmap');
+   const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM);
+    const [geocoding, setGeocoding] = useState(null);
+    const [showAddDialog, setShowAddDialog] = useState(false);
+    const [locationInfo, setLocationInfo] = useState(null);
+    const [loadingLocation, setLoadingLocation] = useState(false);
+    const [mapLoaded, setMapLoaded] = useState(false);
+    const [loadingAction, setLoadingAction] = useState(false);
+    const [showUserInfo, setShowUserInfo] = useState(false);
 
-  // Nouveaux états pour le système d'étapes
-  const [activeStep, setActiveStep] = useState(0);
-  const [selectedServices, setSelectedServices] = useState([]);
-  const [providers, setProviders] = useState([]);
-  const [currentProvider, setCurrentProvider] = useState({
-    type: '',
-    nom: '',
-    nom_prestataire: '',
-    prenom: '',
-    specialite: '',
-    telephone: '',
-    email: ''
-  });
+   // Nouveaux états pour le système d'étapes
+   const [activeStep, setActiveStep] = useState(0);
+   const [selectedServices, setSelectedServices] = useState([]);
+   const [providers, setProviders] = useState([]);
+   const [currentProvider, setCurrentProvider] = useState({
+     type: '',
+     nom: '',
+     nom_prestataire: '',
+     prenom: '',
+     specialite: '',
+     telephone: '',
+     email: ''
+   });
 
-  // État pour gérer la modification d'un prestataire
-  const [editingProvider, setEditingProvider] = useState(null);
-  const [isEditingProvider, setIsEditingProvider] = useState(false);
+   // État pour gérer la modification d'un prestataire
+   const [editingProvider, setEditingProvider] = useState(null);
+   const [isEditingProvider, setIsEditingProvider] = useState(false);
 
-  // État pour gérer la référence de patient
-  const [showReferenceDialog, setShowReferenceDialog] = useState(false);
-  const [selectedHopitalForReference, setSelectedHopitalForReference] = useState(null);
+   // État pour gérer la référence de patient
+   const [showReferenceDialog, setShowReferenceDialog] = useState(false);
+   const [selectedHopitalForReference, setSelectedHopitalForReference] = useState(null);
 
-  // Fonction pour charger les prestataires depuis le backend
-  const loadProvidersFromBackend = async (hospitalId) => {
-    try {
-      console.log(`Chargement des prestataires depuis le backend pour l'hôpital ${hospitalId}`);
-      const prestataires = await getPrestatairesByHopitalId(hospitalId);
-      console.log(`Prestataires chargés depuis le backend:`, prestataires);
-      
-      // Mapper les prestataires pour le frontend
-      const prestatairesMappes = prestataires.map(p => ({
-        id: p.id,
-        nom: p.nom,
-        nom_prestataire: p.nom.split(' ')[0] || '',
-        prenom: p.nom.split(' ').slice(1).join(' ') || '',
-        type: p.type ? p.type.toLowerCase().replace('_', '-') : '',
-        specialite: p.specialite || '',
-        telephone: p.telephone || '',
-        email: p.email || ''
-      }));
-      
-      return prestatairesMappes;
-    } catch (error) {
-      console.error('Erreur chargement prestataires depuis backend:', error);
-      return [];
-    }
-  };
+   // Fonction pour charger les prestataires depuis le backend
+   const loadProvidersFromBackend = async (hospitalId) => {
+     try {
+       console.log(`Chargement des prestataires depuis le backend pour l'hôpital ${hospitalId}`);
+       const prestataires = await getPrestatairesByHopitalId(hospitalId);
+       console.log(`Prestataires chargés depuis le backend:`, prestataires);
 
-  const [hospitalForm, setHospitalForm] = useState({
-    nom: '',
-    ville: '',
-    pays: '',
-    telephoneFixe: '',
-    type: 'hopital',
-    latitude: 0,
-    longitude: 0
-  });
+       // Mapper les prestataires pour le frontend
+       const prestatairesMappes = prestataires.map(p => ({
+         id: p.id,
+         nom: p.nom,
+         nom_prestataire: p.nom.split(' ')[0] || '',
+         prenom: p.nom.split(' ').slice(1).join(' ') || '',
+         type: p.type ? p.type.toLowerCase().replace('_', '-') : '',
+         specialite: p.specialite || '',
+         telephone: p.telephone || '',
+         email: p.email || ''
+       }));
 
-  // 🔥 NOUVEAUX ÉTATS POUR LA MODIFICATION
-  const [editingHospital, setEditingHospital] = useState(null);
-  const [isEditMode, setIsEditMode] = useState(false);
+       return prestatairesMappes;
+     } catch (error) {
+       console.error('Erreur chargement prestataires depuis backend:', error);
+       return [];
+     }
+   };
 
-  // Steps pour le stepper
-  const steps = [
-    getTranslation('stepInfoEtablissement', language),
-    getTranslation('stepServicesDisponibles', language),
-    getTranslation('stepPrestataires', language)
-  ];
+   const [hospitalForm, setHospitalForm] = useState({
+     nom: '',
+     ville: '',
+     pays: '',
+     telephoneFixe: '',
+     type: 'hopital',
+     latitude: 0,
+     longitude: 0
+   });
 
-  // Fonction pour gérer la référence de patient
-  const handleReferencePatient = (hospital) => {
-    console.log('Référencer un patient pour l\'hôpital:', hospital);
-    setSelectedHopitalForReference(hospital);
-    setShowReferenceDialog(true);
-    setSelectedHospital(null); // Fermer la fenêtre d'info
-  };
+   // 🔥 NOUVEAUX ÉTATS POUR LA MODIFICATION
+   const [editingHospital, setEditingHospital] = useState(null);
+   const [isEditMode, setIsEditMode] = useState(false);
 
-  // ✅ AJOUT DU LOG DE DEBUG POUR LES HÔPITAUX REÇUS
-  useEffect(() => {
-    console.log('🔍 Hôpitaux reçus dans CartographyMap:', hospitals);
-    hospitals.forEach((h, index) => {
-      console.log(`🏥 Hôpital ${index + 1}:`, h.nom);
-      console.log(`   Services:`, h.services);
-      console.log(`   Prestataires dans services:`, h.services?.filter(s => s.nomPrestataire));
-    });
-  }, [hospitals]);
+   // Steps pour le stepper
+   const steps = [
+     getTranslation('stepInfoEtablissement', language),
+     getTranslation('stepServicesDisponibles', language),
+     getTranslation('stepPrestataires', language)
+   ];
 
-  // Effet pour initialiser les hôpitaux au démarrage
-  useEffect(() => {
-    if (hospitals.length > 0) {
-      hospitals.forEach(hospital => {
-        // Les prestataires seront chargés à la demande via loadProvidersFromBackend
-        console.log(` Hôpital ${hospital.nom} prêt pour le chargement des prestataires`);
-      });
-    }
-  }, [hospitals]);
+   // Fonction pour gérer la référence de patient
+   const handleReferencePatient = (hospital) => {
+     console.log('Référencer un patient pour l\'hôpital:', hospital);
+     setSelectedHopitalForReference(hospital);
+     setShowReferenceDialog(true);
+     setSelectedHospital(null); // Fermer la fenêtre d'info
+   };
 
-useEffect(() => {
-     if (map) locateUser();
-   }, [map, locateUser]);
+   // ✅ AJOUT DU LOG DE DEBUG POUR LES HÔPITAUX REÇUS
+   useEffect(() => {
+     console.log('🔍 Hôpitaux reçus dans CartographyMap:', hospitals);
+     hospitals.forEach((h, index) => {
+       console.log(`🏥 Hôpital ${index + 1}:`, h.nom);
+       console.log(`   Services:`, h.services);
+       console.log(`   Prestataires dans services:`, h.services?.filter(s => s.nomPrestataire));
+     });
+   }, [hospitals]);
 
-  const locateUser = useCallback(() => {
-    if (!map) return;
+   // Effet pour initialiser les hôpitaux au démarrage
+   useEffect(() => {
+     if (hospitals.length > 0) {
+       hospitals.forEach(hospital => {
+         console.log(` Hôpital ${hospital.nom} prêt pour le chargement des prestataires`);
+       });
+     }
+   }, [hospitals]);
 
-    // Sur HTTP (non-HTTPS), navigator.geolocation est bloqué par Chrome.
-    // On détecte ça en amont et on bascule directement sur le fallback.
-    const isSecureOrigin = window.location.protocol === 'https:' ||
-      window.location.hostname === 'localhost' ||
-      window.location.hostname === '127.0.0.1';
+   // ✅ Rappels définis AVANT les useEffect qui les référencent
+   const onMapLoad = useCallback((mapInstance) => {
+     setMap(mapInstance);
+     setMapLoaded(true);
 
-    const fallbackToUASZ = (reason) => {
-      console.warn(`⚠️ Géolocalisation non disponible (${reason}). Centrage sur UASZ Ziguinchor.`);
-      const uaszZiguinchor = { lat: 12.5833, lng: -16.2719 };
-      setUserLocation(uaszZiguinchor);
-      setShowUserInfo(true);
-      setLoadingLocation(false);
-      if (map) {
-        map.panTo(uaszZiguinchor);
-        map.setZoom(12);
+     if (window.google) {
+       setGeocoding(new window.google.maps.Geocoder());
+     }
+   }, []);
+
+    const onLoadError = useCallback((error) => {
+     console.error('Erreur Google Maps:', error);
+      setMapLoaded(false);
+    }, []);
+
+   const locateUser = useCallback(() => {
+      if (!map) return;
+
+      // Sur HTTP (non-HTTPS), navigator.geolocation est bloqué par Chrome.
+      const isSecureOrigin = window.location.protocol === 'https:' ||
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1';
+
+      if (!isSecureOrigin) {
+        showNotification(getTranslation('errorGeolocationUnavailable', language), 'error');
+        return;
       }
-    };
 
-    if (!isSecureOrigin || !navigator.geolocation) {
-      fallbackToUASZ(isSecureOrigin ? 'API non disponible' : 'origine non sécurisée (HTTP)');
-      return;
-    }
+      if (!navigator.geolocation) {
+        showNotification(getTranslation('errorGeolocationUnavailable', language), 'error');
+        return;
+      }
 
-    setLoadingLocation(true);
+      setLoadingLocation(true);
+      showNotification(getTranslation('searchingPosition', language), 'info');
 
-    const watchId = navigator.geolocation.watchPosition(
-      (position) => {
-        const { latitude, longitude, accuracy } = position.coords;
-        const userLoc = { lat: latitude, lng: longitude };
-
-        console.log('📍 Position détectée:', latitude, longitude, `Précision: ${accuracy}m`);
-
-        if (accuracy <= 20) {
-          navigator.geolocation.clearWatch(watchId);
-        }
-
-        setUserLocation(userLoc);
-        setShowUserInfo(false);
-
+      const fallbackToUASZ = () => {
+        const uaszZiguinchor = { lat: 12.5833, lng: -16.2719 };
+        setUserLocation(uaszZiguinchor);
+        setShowUserInfo(true);
+        setLoadingLocation(false);
         if (map) {
-          map.panTo(userLoc);
-          setTimeout(() => {
-            const zoom = accuracy < 10 ? 19 : accuracy < 20 ? 18 : accuracy < 50 ? 17 : accuracy < 100 ? 16 : 15;
-            map.setZoom(zoom);
-            setLoadingLocation(false);
-          }, 1000);
+          map.panTo(uaszZiguinchor);
+          map.setZoom(12);
         }
-      },
-      (error) => {
-        console.error('❌ Erreur watchPosition:', error);
-        navigator.geolocation.clearWatch(watchId);
+      };
 
-        // Fallback vers getCurrentPosition
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const { latitude, longitude } = position.coords;
+      let bestPosition = null;
+      let bestAccuracy = Infinity;
+      let watchId = null;
+      let timeoutId = null;
+
+      // Utiliser watchPosition pour obtenir plusieurs mises à jour avec une durée plus longue
+      watchId = navigator.geolocation.watchPosition(
+        (position) => {
+          const { latitude, longitude, accuracy } = position.coords;
+
+          if (accuracy < bestAccuracy) {
+            bestAccuracy = accuracy;
+            bestPosition = { lat: latitude, lng: longitude, accuracy };
+            console.log(`📍 ${getTranslation('positionDetected', language)}: ${latitude}, ${longitude}, ${getTranslation('precision', language)}: ${accuracy}m`);
+          }
+
+          // Si la précision est excellente (≤ 20m), utiliser immédiatement
+          if (accuracy <= 20) {
+            if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+            if (timeoutId !== null) clearTimeout(timeoutId);
+
             const userLoc = { lat: latitude, lng: longitude };
             setUserLocation(userLoc);
             setShowUserInfo(false);
+
             if (map) {
               map.panTo(userLoc);
-              setTimeout(() => { map.setZoom(15); setLoadingLocation(false); }, 1000);
+              const zoom = accuracy < 10 ? 19 : accuracy < 20 ? 18 : 17;
+              map.setZoom(zoom);
             }
-          },
-          (fallbackError) => {
-            console.error('❌ Erreur getCurrentPosition:', fallbackError);
-            const reason = fallbackError.code === 1 ? 'permission refusée' :
-                           fallbackError.code === 2 ? 'position indisponible' : 'timeout';
-            fallbackToUASZ(reason);
-          },
-          { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-        );
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-    );
-  }, [map]);
+            setLoadingLocation(false);
+          }
+        },
+        (error) => {
+          console.error('❌ Erreur watchPosition:', error);
+          if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+          if (timeoutId !== null) clearTimeout(timeoutId);
 
-const onMapLoad = useCallback((mapInstance) => {
-    setMap(mapInstance);
-    setMapLoaded(true);
+          // Fallback vers getCurrentPosition
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const { latitude, longitude, accuracy } = position.coords;
+              const userLoc = { lat: latitude, lng: longitude };
+              setUserLocation(userLoc);
+              setShowUserInfo(false);
+              if (map) {
+                map.panTo(userLoc);
+                setTimeout(() => { map.setZoom(15); setLoadingLocation(false); }, 500);
+              }
+            },
+            (fallbackError) => {
+              console.error('❌ Erreur getCurrentPosition:', fallbackError);
+              setLoadingLocation(false);
 
-    if (window.google) {
-      setGeocoding(new window.google.maps.Geocoder());
-    }
-  }, []);
+              if (bestPosition && bestPosition.accuracy <= 100) {
+                setUserLocation({ lat: bestPosition.lat, lng: bestPosition.lng });
+                setShowUserInfo(false);
+                if (map) {
+                  map.panTo({ lat: bestPosition.lat, lng: bestPosition.lng });
+                  const zoomLevel = bestPosition.accuracy < 20 ? 18 : bestPosition.accuracy < 50 ? 17 : 16;
+                  map.setZoom(zoomLevel);
+                }
+                alert(`${getTranslation('precision', language)}: ${Math.round(bestPosition.accuracy)}m`);
+              } else {
+                fallbackToUASZ();
+              }
+            },
+            { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
+          );
+        },
+        { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
+      );
 
-   const onLoadError = useCallback((error) => {
-    console.error('Erreur Google Maps:', error);
-     setMapLoaded(false);
-   }, []);
+      // Timeout de sécurité après 45 secondes
+      timeoutId = setTimeout(() => {
+        if (watchId !== null) {
+          navigator.geolocation.clearWatch(watchId);
+          watchId = null;
+        }
 
-  // Géocodage inverse pour obtenir l'adresse depuis les coordonnées
+        if (bestPosition && bestPosition.accuracy <= 100) {
+          console.log(`✅ Timeout atteint, utilisation de la meilleure position: ${bestPosition.accuracy}m`);
+          setUserLocation({ lat: bestPosition.lat, lng: bestPosition.lng });
+          setShowUserInfo(false);
+
+          if (map) {
+            map.panTo({ lat: bestPosition.lat, lng: bestPosition.lng });
+            const zoomLevel = bestPosition.accuracy < 20 ? 18 : bestPosition.accuracy < 50 ? 17 : 16;
+            map.setZoom(zoomLevel);
+          }
+
+          setLoadingLocation(false);
+          alert(`${getTranslation('precision', language)}: ${Math.round(bestPosition.accuracy)}m.`);
+        } else {
+          setLoadingLocation(false);
+          alert(getTranslation('locationTimeoutDefault', language));
+        }
+      }, 45000);
+}, [map]);
+
+   // Géocodage inverse pour obtenir l'adresse depuis les coordonnées
   const getAddressFromCoords = async (lat, lng) => {
     if (!geocoding) return null;
 
@@ -1350,214 +1398,34 @@ const saveNewHospital = async () => {
                   <ZoomOut />
                 </IconButton>
 
-                 <IconButton
-                      onClick={() => {
-if (!navigator.geolocation) {
-                 alert(`❌ ${getTranslation('browserNoGeolocation', language)}`);
-                 return;
-               }
-
-               setLoadingLocation(true);
-               showNotification(getTranslation('searchingPosition', language), 'info');
-
-               let bestPosition = null;
-               let bestAccuracy = Infinity;
-               let watchId = null;
-               let timeoutId = null;
-
-               // Fonction pour traiter la position avec précision maximale
-               const processPosition = (position) => {
-                 const { latitude, longitude, accuracy } = position.coords;
-
-                 // Enregistrer la meilleure position trouvée
-                 if (accuracy < bestAccuracy) {
-                   bestAccuracy = accuracy;
-                   bestPosition = { lat: latitude, lng: longitude, accuracy };
-                   console.log(`📍 ${getTranslation('positionDetected', language)}: ${latitude}, ${longitude}, ${getTranslation('precision', language)}: ${accuracy}m`);
-                 }
-
-                // Si la précision est excellente (≤ 20m), utiliser immédiatement
-                if (accuracy <= 20) {
-                  if (watchId !== null) {
-                    navigator.geolocation.clearWatch(watchId);
-                    watchId = null;
-                  }
-                  if (timeoutId !== null) {
-                    clearTimeout(timeoutId);
-                    timeoutId = null;
-                  }
-
-                  const userLoc = { lat: latitude, lng: longitude };
-                  console.log('✅ Position exacte trouvée:', {
-                    latitude,
-                    longitude,
-accuracy: `${accuracy}m ${getTranslation('precision', language)}`
-                   });
-
-                   setUserLocation(userLoc);
-                   setShowUserInfo(false);
-
-                   if (map) {
-                     map.panTo(userLoc);
-                     const zoomLevel = accuracy < 10 ? 19 : accuracy < 20 ? 18 : 17;
-                     map.setZoom(zoomLevel);
-                   }
-
-                   setLoadingLocation(false);
-                 }
-               };
-
-               // Utiliser watchPosition pour obtenir plusieurs mises à jour
-               watchId = navigator.geolocation.watchPosition(
-                 (position) => {
-                   processPosition(position);
-                 },
-                 (error) => {
-                   console.error('❌ Erreur watchPosition:', error);
-
-                   if (watchId !== null) {
-                     navigator.geolocation.clearWatch(watchId);
-                     watchId = null;
-                   }
-                   if (timeoutId !== null) {
-                     clearTimeout(timeoutId);
-                     timeoutId = null;
-                   }
-
-                   // Si on a une position acceptable, l'utiliser même en cas d'erreur
-                   if (bestPosition && bestPosition.accuracy <= 100) {
-                     console.log(`✅ ${getTranslation('usingBestPosition', language)}: ${bestPosition.accuracy}m`);
-                     setUserLocation({ lat: bestPosition.lat, lng: bestPosition.lng });
-                     setShowUserInfo(false);
-
-                     if (map) {
-                       map.panTo({ lat: bestPosition.lat, lng: bestPosition.lng });
-                       const zoomLevel = bestPosition.accuracy < 20 ? 18 : bestPosition.accuracy < 50 ? 17 : 16;
-                       map.setZoom(zoomLevel);
-                     }
-
-                     setLoadingLocation(false);
-                     return;
-                   }
-
-                   // Sinon, essayer getCurrentPosition en fallback
-                   navigator.geolocation.getCurrentPosition(
-                     (position) => {
-                       processPosition(position);
-                     },
-                     (fallbackError) => {
-                       console.error('❌ Erreur getCurrentPosition:', fallbackError);
-                       setLoadingLocation(false);
-
-                       let errorMessage = getTranslation('locationUnavailUseDefault', language);
-                       switch (fallbackError.code) {
-                         case fallbackError.PERMISSION_DENIED:
-                           errorMessage = getTranslation('errorGeolocationPermission', language);
-                           break;
-                         case fallbackError.POSITION_UNAVAILABLE:
-                           errorMessage = getTranslation('locationInfoUnavailable', language);
-                           break;
-                         case fallbackError.TIMEOUT:
-                           errorMessage = getTranslation('locationTimeoutDefault', language);
-                           break;
-                       }
-
-                       // Si on a une position acceptable même après timeout, l'utiliser
-                       if (bestPosition && bestPosition.accuracy <= 100) {
-                         console.log(`✅ ${getTranslation('usingBestPosition', language)}: ${bestPosition.accuracy}m`);
-                         setUserLocation({ lat: bestPosition.lat, lng: bestPosition.lng });
-                         setShowUserInfo(false);
-
-                         if (map) {
-                           map.panTo({ lat: bestPosition.lat, lng: bestPosition.lng });
-                           const zoomLevel = bestPosition.accuracy < 20 ? 18 : bestPosition.accuracy < 50 ? 17 : 16;
-                           map.setZoom(zoomLevel);
-                         }
-
-                         alert(`${getTranslation('precision', language)}: ${Math.round(bestPosition.accuracy)}m. ${errorMessage}`);
-                       } else if (!userLocation) {
-                        // Fallback vers Université Assane Seck de Ziguinchor si aucune position n'est connue
-                        const uaszZiguinchor = { lat: 12.5833, lng: -16.2719 };
-                        setUserLocation(uaszZiguinchor);
-                        setShowUserInfo(true);
-
-                        if (map) {
-                          map.panTo(uaszZiguinchor);
-                          map.setZoom(12);
-                        }
-                        
-                        alert(errorMessage + "\n\n" + getTranslation('mapCenteredOn', language) + " Universidade Assane Seck de Ziguinchor.");
-                      } else {
-                        alert(errorMessage);
-                      }
-                    },
-                    {
-                      enableHighAccuracy: true,
-                      timeout: 20000,
-                      maximumAge: 0
-                    }
-                  );
-                },
-                {
-                  enableHighAccuracy: true,
-                  timeout: 30000,
-                  maximumAge: 0
-                }
-              );
-
-              // Timeout de sécurité après 30 secondes
-              timeoutId = setTimeout(() => {
-                if (watchId !== null) {
-                  navigator.geolocation.clearWatch(watchId);
-                  watchId = null;
-                }
-
-                // Si on a une position acceptable, l'utiliser
-                if (bestPosition && bestPosition.accuracy <= 100) {
-                  console.log(`✅ Timeout atteint, utilisation de la meilleure position: ${bestPosition.accuracy}m`);
-                  setUserLocation({ lat: bestPosition.lat, lng: bestPosition.lng });
-                  setShowUserInfo(false);
-                  
-                  if (map) {
-                    map.panTo({ lat: bestPosition.lat, lng: bestPosition.lng });
-                    const zoomLevel = bestPosition.accuracy < 20 ? 18 : bestPosition.accuracy < 50 ? 17 : 16;
-                    map.setZoom(zoomLevel);
-                  }
-                  
-                  setLoadingLocation(false);
-                  alert(`Position trouvée avec une précision de ${Math.round(bestPosition.accuracy)}m.`);
-                } else {
-                  setLoadingLocation(false);
-alert(getTranslation('locationTimeoutDefault', language));
-                 }
-               }, 30000);
-                      }}
-                      size="small"
-            color="primary"
-            title={loadingLocation ? getTranslation('searchingPosition', language) : getTranslation('useMyPosition', language)}
-            disabled={loadingLocation}
-          >
-            <Box sx={{ position: 'relative', display: 'inline-flex' }}>
-              <MyLocation
-                sx={{
-                  fontSize: 20,
-                  color: loadingLocation ? 'action.disabled' : 'primary.main'
-                }}
-              />
-              {loadingLocation && (
-                <CircularProgress
-                  size={24}
-                  sx={{
-                    color: 'primary.main',
-                    position: 'absolute',
-                    top: -2,
-                    left: -2,
-                    zIndex: 1,
-                  }}
-                />
-              )}
-            </Box>
-                    </IconButton>
+<IconButton
+                    onClick={locateUser}
+                    size="small"
+                    color="primary"
+                    title={loadingLocation ? getTranslation('searchingPosition', language) : getTranslation('useMyPosition', language)}
+                    disabled={loadingLocation}
+                  >
+                    <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+                      <MyLocation
+                        sx={{
+                          fontSize: 20,
+                          color: loadingLocation ? 'action.disabled' : 'primary.main'
+                        }}
+                      />
+                      {loadingLocation && (
+                        <CircularProgress
+                          size={24}
+                          sx={{
+                            color: 'primary.main',
+                            position: 'absolute',
+                            top: -2,
+                            left: -2,
+                            zIndex: 1,
+                          }}
+                        />
+                      )}
+                    </Box>
+                  </IconButton>
               </Box>
 
               <Typography variant="body2" fontWeight="bold" sx={{ mt: 1 }}>{getTranslation('mapView', language)}</Typography>
