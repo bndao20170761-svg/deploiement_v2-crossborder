@@ -2174,6 +2174,21 @@ sectionYBilans: { fr: "Section Y : Bilans biologiques", en: "Section Y: Biologic
     en: "Fill in the new patient information",
     pt: "Preencha as informações do novo paciente"
   },
+   select: {
+      fr: "-- Sélectionnez --",
+      en: "-- Select --",
+      pt: "-- Selecionar --"
+    },
+    male: {
+      fr: "Masculin",
+      en: "Male",
+      pt: "Masculino"
+    },
+    female: {
+      fr: "Féminin",
+      en: "Female",
+      pt: "Feminino"
+    },
   ender: {
     select: {
       fr: "-- Sélectionnez --",
@@ -3055,7 +3070,869 @@ zoomIn: { fr: 'Zoomer', en: 'Zoom in', pt: 'Ampliar' },
   temporaire: { fr: 'Temporaire', en: 'Temporary', pt: 'Temporário' },
   hopitalOrigine: { fr: 'Hôpital Origine', en: 'Origin Hospital', pt: 'Hospital de Origem' },
 
-  }
+  },
+    nom: {
+      fr: "Le nom est requis",
+      en: "Name is required",
+      pt: "O nome é obrigatório"
+    },
+    prenom: {
+      fr: "Le prénom est requis",
+      en: "First name is required",
+      pt: "O primeiro nome é obrigatório"
+    },
+    code: {
+      fr: "Le code est requis",
+      en: "Code is required",
+      pt: "O código é obrigatório"
+    },
+    nationalite: {
+      fr: "La nationalité est requise",
+      en: "Nationality is required",
+      pt: "A nacionalidade é obrigatória"
+    },
+    sectionXFicheSuivi: {
+      fr: "Section X : Fiche de Suivi",
+      en: "Section X: Follow-up Sheet",
+      pt: "Seção X: Ficha de Acompanhamento"
+    },
+    date: {
+      fr: "Date",
+      en: "Date",
+      pt: "Data"
+    },
+    taille: {
+      fr: "Taille (cm)",
+      en: "Height (cm)",
+      pt: "Altura (cm)"
+    },
+    poids: {
+      fr: "Poids (kg)",
+      en: "Weight (kg)",
+      pt: "Peso (kg)"
+    },
+    imcZscore: {
+      fr: "IMC / PB / Z-score",
+      en: "BMI / MUAC / Z-score",
+      pt: "IMC / PB / Z-score"
+    },
+    temperature: {
+      fr: "T° (°C)",
+      en: "T° (°C)",
+      pt: "T° (°C)"
+    },
+    ta: {
+      fr: "TA",
+      en: "BP",
+      pt: "PA"
+    },
+    pouls: {
+      fr: "Pouls",
+      en: "Pulse",
+      pt: "Pulso"
+    },
+    rechercheTB: {
+      fr: "Recherche active TB (0=Oui,1=Non)",
+      en: "Active TB screening (0=Yes,1=No)",
+      pt: "Pesquisa ativa de TB (0=Sim,1=Não)"
+    },
+    resultatTB: {
+      fr: "Résultat TB (0=Non présumé,1=Suspect,2=Confirmée)",
+      en: "TB result (0=Not suspected,1=Suspect,2=Confirmed)",
+      pt: "Resultado TB (0=Não presumido,1=Suspeito,2=Confirmado)"
+    },
+    tbNonPresume: {
+      fr: "0 = Non présumé",
+      en: "0 = Not suspected",
+      pt: "0 = Não presumido"
+    },
+    tbSuspect: {
+      fr: "1 = Suspect",
+      en: "1 = Suspect",
+      pt: "1 = Suspeito"
+    },
+    tbConfirme: {
+      fr: "2 = Confirmée",
+      en: "2 = Confirmed",
+      pt: "2 = Confirmado"
+    },
+    tpt: {
+      fr: "Traitement préventif TPT (0=Oui,1=Non)",
+      en: "Preventive treatment TPT (0=Yes,1=No)",
+      pt: "Tratamento preventivo TPT (0=Sim,1=Não)"
+    },
+    etatTpt: {
+      fr: "TPT (0=Non,1=Début,2=En cours,3=Fin)",
+      en: "TPT (0=No,1=Start,2=Ongoing,3=End)",
+      pt: "TPT (0=Não,1=Início,2=Em curso,3=Fim)"
+    },
+    tptDebut: {
+      fr: "1 = Début",
+      en: "1 = Start",
+      pt: "1 = Início"
+    },
+    tptEnCours: {
+      fr: "2 = En cours",
+      en: "2 = Ongoing",
+      pt: "2 = Em curso"
+    },
+    tptFin: {
+      fr: "3 = Fin",
+      en: "3 = End",
+      pt: "3 = Fim"
+    },
+    autresPathologies: {
+      fr: "Autres pathologies",
+      en: "Other pathologies",
+      pt: "Outras patologias"
+    },
+    dateAutrePathologie: {
+      fr: "Date autre pathologie",
+      en: "Date of other pathology",
+      pt: "Data de outra patologia"
+    },
+    cotrimoxazole: {
+      fr: "Cotrimoxazole (0=Oui,1=Non)",
+      en: "Cotrimoxazole (0=Yes,1=No)",
+      pt: "Cotrimoxazol (0=Sim,1=Não)"
+    },
+    ajouterFiche: {
+      fr: "Ajouter une fiche",
+      en: "Add a sheet",
+      pt: "Adicionar uma ficha"
+    },
+    supprimer: {
+      fr: "Supprimer",
+      en: "Delete",
+      pt: "Excluir"
+    },
+    choisir: {
+      fr: "-- Choisir --",
+      en: "-- Select --",
+      pt: "-- Escolher --"
+    },
+    oui: {
+      fr: "0 = Oui",
+      en: "0 = Yes",
+      pt: "0 = Sim"
+    },
+    non: {
+      fr: "1 = Non",
+      en: "1 = No",
+      pt: "1 = Não"
+    },
+    dateNaissance: {
+      fr: "La date de naissance ",
+      en: "Date of birth ",
+      pt: "A data de nascimento "
+    },
+    sexe: {
+      fr: "Le sexe est requis",
+      en: "Gender is required",
+      pt: "O sexo é obrigatório"
+    },
+      gender: {
+          fr: "Sexe ",
+          en: "Gender ",
+          pt: "Sexo "
+        },
+    telephone: {
+      fr: "Numéro de téléphone invalide",
+      en: "Invalid phone number",
+      pt: "Número de telefone inválido"
+    },
+     sectionI: {
+        fr: "Section I : Informations Sociales",
+        en: "Section I: Social Information",
+        pt: "Seção I: Informações Sociais",
+      },
+      profession: {
+        fr: "Profession du patient",
+        en: "Patient's profession",
+        pt: "Profissão do paciente",
+      },
+      statutFamilial: {
+        fr: "Statut familial",
+        en: "Marital status",
+        pt: "Estado civil",
+      },
+      celibataire: {
+        fr: "Célibataire",
+        en: "Single",
+        pt: "Solteiro(a)",
+      },
+      marie: {
+        fr: "Marié(e)",
+        en: "Married",
+        pt: "Casado(a)",
+      },
+      divorce: {
+        fr: "Divorcé(e)",
+        en: "Divorced",
+        pt: "Divorciado(a)",
+      },
+      veuf: {
+        fr: "Veuf/Veuve",
+        en: "Widowed",
+        pt: "Viúvo(a)",
+      },
+      personneContact: {
+        fr: "Personne à contacter",
+        en: "Emergency contact person",
+        pt: "Pessoa de contato",
+      },
+      telephoneContact: {
+        fr: "Téléphone de contact",
+        en: "Contact phone number",
+        pt: "Telefone de contato",
+      },
+
+      sectionII: {
+        fr: "Section II : Test VIH/SIDA",
+        en: "Section II: HIV/AIDS Test",
+        pt: "Seção II: Teste de HIV/SIDA",
+      },
+      dateTest: {
+        fr: "Date du test VIH",
+        en: "HIV test date",
+        pt: "Data do teste de HIV",
+      },
+      ateConfirmation: {
+        fr: "Date de confirmation",
+        en: "Confirmation date",
+        pt: "Data de confirmação",
+      },
+      lieuTest: {
+        fr: "Lieu du test",
+        en: "Test location",
+        pt: "Local do teste",
+      },
+      structureSanitaire: {
+        fr: "Structure sanitaire",
+        en: "Health facility",
+        pt: "Unidade de saúde",
+      },
+      autre: {
+        fr: "Autre",
+        en: "Other",
+        pt: "Outro",
+      },
+      resultat: {
+        fr: "Résultat",
+        en: "Result",
+        pt: "Resultado",
+      },
+      vih1: {
+        fr: "VIH-1",
+        en: "HIV-1",
+        pt: "HIV-1",
+      },
+      vih2: {
+        fr: "VIH-2",
+        en: "HIV-2",
+        pt: "HIV-2",
+      },
+      vih12: {
+        fr: "VIH 1+2",
+        en: "HIV 1+2",
+        pt: "HIV 1+2",
+      },
+
+  // ===== CLÉS POUR FormulaireCompletFusionne & FormulaireMultiEtapes =====
+
+  // Navigation formulaire
+  precedent: { fr: 'Précédent', en: 'Previous', pt: 'Anterior' },
+  suivant: { fr: 'Suivant', en: 'Next', pt: 'Próximo' },
+  relecture: { fr: 'Relecture', en: 'Review', pt: 'Revisão' },
+  confirmerSoumettre: { fr: 'Confirmer et soumettre', en: 'Confirm and submit', pt: 'Confirmar e enviar' },
+  verificationEnvoi: { fr: 'Vérification avant envoi', en: 'Review before submission', pt: 'Verificação antes do envio' },
+  annulerReinitialiser: { fr: 'Voulez-vous annuler et réinitialiser le formulaire ?', en: 'Do you want to cancel and reset the form?', pt: 'Deseja cancelar e redefinir o formulário?' },
+  soumettreAvecIris: { fr: 'Soumettre avec identification iris', en: 'Submit with iris identification', pt: 'Enviar com identificação de íris' },
+  capturezIrisDabord: { fr: "Capturez l'iris d'abord", en: 'Capture iris first', pt: 'Capture a íris primeiro' },
+  biometricIdentification: { fr: 'Identification Biométrique Iris', en: 'Iris Biometric Identification', pt: 'Identificação Biométrica de Íris' },
+  biometricInstructions: { fr: "Positionnez l'œil du patient devant la caméra et capturez l'image de l'iris", en: "Position the patient's eye in front of the camera and capture the iris image", pt: 'Posicione o olho do paciente na frente da câmera e capture a imagem da íris' },
+  noIrisImage: { fr: "Aucune image d'iris capturée", en: 'No iris image captured', pt: 'Nenhuma imagem de íris capturada' },
+  statutBiometrique: { fr: 'Statut Biométrique', en: 'Biometric Status', pt: 'Status Biométrico' },
+  irisCaptureSuccess: { fr: 'Iris capturé avec succès - Prêt pour la soumission', en: 'Iris captured successfully - Ready for submission', pt: 'Íris capturada com sucesso - Pronto para envio' },
+  ouvrirCamera: { fr: 'Ouvrir la caméra', en: 'Open camera', pt: 'Abrir câmera' },
+  arreterCamera: { fr: 'Arrêter la caméra', en: 'Stop camera', pt: 'Parar câmera' },
+  capturer: { fr: 'Capturer', en: 'Capture', pt: 'Capturar' },
+  reprendreCapture: { fr: 'Reprendre la capture', en: 'Retake capture', pt: 'Refazer captura' },
+  simulerCapture: { fr: 'Simuler Capture', en: 'Simulate Capture', pt: 'Simular Captura' },
+  scanIrisAvance: { fr: "Scan d'Iris Avancé", en: 'Advanced Iris Scan', pt: 'Varredura de Íris Avançada' },
+  distanceCamera: { fr: 'Distance de la caméra', en: 'Distance from camera', pt: 'Distância da câmera' },
+  qualiteScan: { fr: 'Qualité du scan', en: 'Scan quality', pt: 'Qualidade da varredura' },
+  clignementsDétectés: { fr: 'Clignements détectés', en: 'Blinks detected', pt: 'Piscadas detectadas' },
+  irisDetecte: { fr: 'Iris détecté', en: 'Iris detected', pt: 'Íris detectada' },
+  progressionScan: { fr: 'Progression du scan', en: 'Scan progress', pt: 'Progresso da varredura' },
+  sectionXIVSuiviArv: { fr: 'Section XIV : Suivi thérapeutique ARV', en: 'Section XIV: ARV Therapeutic Follow-up', pt: 'Seção XIV: Acompanhamento Terapêutico ARV' },
+  dateVisite: { fr: 'Date (visite)', en: 'Visit date', pt: 'Data (visita)' },
+  situationArv: { fr: 'ARV', en: 'ARV', pt: 'ARV' },
+  changementLignePreciser: { fr: 'Si 2 : préciser', en: 'If 2: specify', pt: 'Se 2: especificar' },
+  substitutionMotif: { fr: 'Si substitution : motif', en: 'If substitution: reason', pt: 'Se substituição: motivo' },
+  substitutionPrecision: { fr: 'Si 3 : préciser', en: 'If 3: specify', pt: 'Se 3: especificar' },
+  stadeCliniqueOms: { fr: 'Stade clinique OMS', en: 'WHO clinical stage', pt: 'Estágio clínico OMS' },
+  observanceCorrecte: { fr: 'Observance', en: 'Adherence', pt: 'Adesão' },
+  evaluationNutritionnelle: { fr: 'Éval. nutritionnelle', en: 'Nutritional eval.', pt: 'Avaliação nutricional' },
+  modeleSoinsNumero: { fr: 'Modèle de soins diff. (n°)', en: 'Differentiated care model (no.)', pt: 'Modelo de cuidados dif. (n°)' },
+  prochainRdv: { fr: 'Date prochain RDV', en: 'Next appointment date', pt: 'Data próxima consulta' },
+  ajouterLigne: { fr: 'Ajouter une ligne', en: 'Add a row', pt: 'Adicionar linha' },
+  suppr: { fr: 'Suppr', en: 'Del', pt: 'Excl' },
+  preciserSiMotif3: { fr: 'Préciser si motif = 3', en: 'Specify if reason = 3', pt: 'Especificar se motivo = 3' },
+  numeroModele: { fr: 'N° modèle', en: 'Model no.', pt: 'N° modelo' },
+  pasSousArv: { fr: 'Pas sous ARV', en: 'Not on ARV', pt: 'Não sob ARV' },
+  changementLigne: { fr: 'Changement de ligne', en: 'Line change', pt: 'Mudança de linha' },
+  substitutionMolecule: { fr: 'Substitution de molécule', en: 'Molecule substitution', pt: 'Substituição de molécula' },
+  ligne2: { fr: 'Ligne 2', en: 'Line 2', pt: 'Linha 2' },
+  ligne3: { fr: 'Ligne 3', en: 'Line 3', pt: 'Linha 3' },
+  toxicite: { fr: 'Toxicité / effets secondaires', en: 'Toxicity / side effects', pt: 'Toxicidade / efeitos colaterais' },
+  ruptureStock: { fr: 'Rupture de stock de médicaments', en: 'Drug stock shortage', pt: 'Falta de estoque de medicamentos' },
+  maigreur: { fr: 'Maigreur', en: 'Underweight', pt: 'Magreza' },
+  bonEtat: { fr: 'Bon état nutritionnel', en: 'Good nutritional status', pt: 'Bom estado nutricional' },
+  surpoids: { fr: 'Surpoids', en: 'Overweight', pt: 'Sobrepeso' },
+  obesite: { fr: 'Obésité', en: 'Obesity', pt: 'Obesidade' },
+  bienPortant: { fr: "Bien portant (à l'enrôlement)", en: 'Healthy (at enrollment)', pt: 'Saudável (no enrolamento)' },
+  mva: { fr: "MVA (à l'enrôlement)", en: 'MVA (at enrollment)', pt: 'MVA (no enrolamento)' },
+  nonStable: { fr: 'Non stable (après 6 mois de TAR)', en: 'Unstable (after 6 months of ART)', pt: 'Instável (após 6 meses de TAR)' },
+  verificationAvantEnvoi: { fr: 'Vérification avant envoi', en: 'Review before submission', pt: 'Verificação antes do envio' },
+  formulaireMedical: { fr: 'Formulaire médical (multi-étapes)', en: 'Medical form (multi-step)', pt: 'Formulário médico (multi-etapas)' },
+  etapeLabel: { fr: 'Étape', en: 'Step', pt: 'Etapa' },
+  degreesCelsius: { fr: '°C', en: '°C', pt: '°C' },
+  naissanceStructureLabel: { fr: 'Naissance Structure', en: 'Birth Structure', pt: 'Estrutura de Nascimento' },
+  portesEntreeLabel: { fr: "Porte(s) d'entrée", en: 'Entry point(s)', pt: 'Porta(s) de entrada' },
+  dateTestLabel: { fr: 'Date test', en: 'Test date', pt: 'Data do teste' },
+  resultatVIH: { fr: 'Résultat VIH', en: 'HIV Result', pt: 'Resultado HIV' },
+  vaccinsLabel: { fr: 'Vaccins', en: 'Vaccines', pt: 'Vacinas' },
+  prophylaxieARVEnfant: { fr: 'Enfant - Prophylaxie ARV', en: 'Child - ARV Prophylaxis', pt: 'Criança - Profilaxia ARV' },
+  tritherapieMere: { fr: 'Mère - Trithérapie', en: 'Mother - Triple therapy', pt: 'Mãe - Terapia tripla' },
+  arvStadeOmsInitialLabel: { fr: 'ARV Stade OMS initial', en: 'Initial WHO stage ARV', pt: 'ARV Estágio OMS inicial' },
+  stadesOMSLabel: { fr: 'Stades OMS', en: 'WHO Stages', pt: 'Estágios OMS' },
+  confirmerSoumettreLabel: { fr: 'Confirmer et soumettre', en: 'Confirm and submit', pt: 'Confirmar e enviar' },
+
+  // ===== CLÉS ReferenceDossierView / ReferenceDossierList / ReferenceDossierWizard =====
+  eferenceDetails: { fr: 'Détails de la Référence', en: 'Reference Details', pt: 'Detalhes da Referência' },
+  rrorLoadingReference: { fr: 'Impossible de charger les détails de la référence', en: 'Unable to load reference details', pt: 'Não foi possível carregar os detalhes da referência' },
+  retour: { fr: 'Retour', en: 'Back', pt: 'Voltar' },
+  oadDossier: { fr: 'Charger le dossier', en: 'Load dossier', pt: 'Carregar o registro' },
+  oading: { fr: 'Chargement...', en: 'Loading...', pt: 'Carregando...' },
+  ollapse: { fr: 'Replier', en: 'Collapse', pt: 'Recolher' },
+  oad: { fr: 'Charger', en: 'Load', pt: 'Carregar' },
+  referenceurInformation: { fr: 'Informations du Référenceur', en: 'Referrer Information', pt: 'Informações do Referenciador' },
+  patientInformation: { fr: 'Informations du Patient', en: 'Patient Information', pt: 'Informações do Paciente' },
+  observations: { fr: 'Observations', en: 'Observations', pt: 'Observações' },
+  ossierMedicalComplet: { fr: 'Dossier Médical Complet', en: 'Complete Medical Record', pt: 'Registro Médico Completo' },
+  geSuffix: { fr: 'ans', en: 'years', pt: 'anos' },
+  ationaliteLabel: { fr: 'Nationalité', en: 'Nationality', pt: 'Nacionalidade' },
+  statutMatrimonial: { fr: 'Statut Matrimonial', en: 'Marital Status', pt: 'Estado Civil' },
+  onctionReferenceur: { fr: 'Fonction', en: 'Function', pt: 'Função' },
+  ationaliteReferenceur: { fr: 'Nationalité', en: 'Nationality', pt: 'Nacionalidade' },
+  opitalOrigine: { fr: "Hôpital d'origine", en: 'Origin Hospital', pt: 'Hospital de Origem' },
+  opitalDestination: { fr: 'Hôpital de Destination', en: 'Destination Hospital', pt: 'Hospital de Destino' },
+  edecinDestinataire: { fr: 'Médecin Destinataire', en: 'Recipient Doctor', pt: 'Médico Destinatário' },
+  otifDetaille: { fr: 'Motif Détaillé', en: 'Detailed Reason', pt: 'Motivo Detalhado' },
+  otifsMedicaux: { fr: 'Motifs médicaux', en: 'Medical reasons', pt: 'Motivos médicos' },
+  ermanent: { fr: 'Permanent', en: 'Permanent', pt: 'Permanente' },
+  emporaire: { fr: 'Temporaire', en: 'Temporary', pt: 'Temporário' },
+  ervicesDemandes: { fr: 'Services Demandés', en: 'Requested Services', pt: 'Serviços Solicitados' },
+  aboratoire: { fr: 'Laboratoire', en: 'Laboratory', pt: 'Laboratório' },
+  linicalInformation: { fr: 'Informations Cliniques', en: 'Clinical Information', pt: 'Informações Clínicas' },
+  oidsStadesOMS: { fr: 'Poids & Stades OMS', en: 'Weight & WHO Stages', pt: 'Peso & Estágios OMS' },
+  tadeOMS: { fr: 'Stade OMS', en: 'WHO Stage', pt: 'Estágio OMS' },
+  rofilVIH: { fr: 'Profil VIH', en: 'HIV Profile', pt: 'Perfil HIV' },
+  raitementARVSection: { fr: 'Traitement ARV', en: 'ARV Treatment', pt: 'Tratamento ARV' },
+  ousARV: { fr: 'Sous ARV', en: 'On ARV', pt: 'Sob ARV' },
+  ateDebutARV: { fr: 'Date début ARV', en: 'ARV Start Date', pt: 'Data início ARV' },
+  rotocole1ereLigne: { fr: 'Protocole 1ère ligne', en: '1st Line Protocol', pt: 'Protocolo 1ª linha' },
+  rotocole2emeLigne: { fr: 'Protocole 2ème ligne', en: '2nd Line Protocol', pt: 'Protocolo 2ª linha' },
+  d4Dernier: { fr: 'CD4 Dernier', en: 'Last CD4', pt: 'Último CD4' },
+  d4DebutTraitement: { fr: 'CD4 Début traitement', en: 'CD4 at Treatment Start', pt: 'CD4 Início tratamento' },
+  d4Inclusion: { fr: 'CD4 Inclusion', en: 'CD4 at Inclusion', pt: 'CD4 Inclusão' },
+  nalysesBiologiques: { fr: 'Analyses biologiques', en: 'Biological Tests', pt: 'Análises biológicas' },
+  hargeVirale: { fr: 'Charge Virale', en: 'Viral Load', pt: 'Carga Viral' },
+  bNiveau: { fr: 'Hémoglobine (Hb)', en: 'Haemoglobin (Hb)', pt: 'Hemoglobina (Hb)' },
+  ymphocytesTotaux: { fr: 'Lymphocytes totaux', en: 'Total Lymphocytes', pt: 'Linfócitos totais' },
+  llergie: { fr: 'Allergie', en: 'Allergy', pt: 'Alergia' },
+  reatinemie: { fr: 'Créatininémie', en: 'Creatininaemia', pt: 'Creatininemia' },
+  nalysesMicrobiologiques: { fr: 'Analyses microbiologiques', en: 'Microbiological Tests', pt: 'Análises microbiológicas' },
+  racheBaar: { fr: 'Crachat BAAR', en: 'BAAR Sputum', pt: 'Escarro BAAR' },
+  ransaminase: { fr: 'Transaminases', en: 'Transaminases', pt: 'Transaminases' },
+  esultatTrans: { fr: 'Résultat transaminases', en: 'Transaminase result', pt: 'Resultado transaminases' },
+  utreAnalyse: { fr: 'Autre analyse', en: 'Other analysis', pt: 'Outra analyse' },
+  raitementTBSection: { fr: 'Traitement TB', en: 'TB Treatment', pt: 'Tratamento TB' },
+  ousTraitementTB: { fr: 'Sous traitement TB', en: 'On TB Treatment', pt: 'Sob tratamento TB' },
+  rotocoleTherapeutique: { fr: 'Protocole thérapeutique', en: 'Therapeutic Protocol', pt: 'Protocolo terapêutico' },
+  autreTraitement: { fr: 'Autre traitement', en: 'Other treatment', pt: 'Outro tratamento' },
+  emporalInformation: { fr: 'Informations Temporelles', en: 'Temporal Information', pt: 'Informações Temporais' },
+  ateCreation: { fr: 'Date de Création', en: 'Creation Date', pt: 'Data de Criação' },
+  ateModification: { fr: 'Dernière Modification', en: 'Last Modified', pt: 'Última Modificação' },
+  stepPatient: { fr: 'Sélection du Patient', en: 'Patient Selection', pt: 'Seleção do Paciente' },
+  stepHopital: { fr: "Sélection de l'Hôpital de Destination", en: 'Destination Hospital Selection', pt: 'Seleção do Hospital de Destino' },
+  stepMedecin: { fr: 'Sélection du Médecin', en: 'Doctor Selection', pt: 'Seleção do Médico' },
+  stepMotif: { fr: 'Motif de la Référence', en: 'Reference Reason', pt: 'Motivo da Referência' },
+  eight: { fr: 'Poids (kg)', en: 'Weight (kg)', pt: 'Peso (kg)' },
+  hoStage: { fr: 'Stade OMS', en: 'WHO Stage', pt: 'Estágio OMS' },
+  ivProfile: { fr: 'Profil VIH', en: 'HIV Profile', pt: 'Perfil HIV' },
+  onfirmationDate: { fr: 'Date de confirmation', en: 'Confirmation date', pt: 'Data de confirmação' },
+  reatmentARV: { fr: 'Sous ARV', en: 'On ARV', pt: 'Sob ARV' },
+  irstLineProtocol: { fr: 'Protocole 1ère ligne', en: '1st Line Protocol', pt: 'Protocolo 1ª linha' },
+  econdLineProtocol: { fr: 'Protocole 2ème ligne', en: '2nd Line Protocol', pt: 'Protocolo 2ª linha' },
+  iralLoad: { fr: 'Charge virale', en: 'Viral load', pt: 'Carga viral' },
+  bTreatment: { fr: 'Traitement TB', en: 'TB Treatment', pt: 'Tratamento TB' },
+  herapyProtocol: { fr: 'Protocole thérapeutique', en: 'Therapeutic Protocol', pt: 'Protocolo terapêutico' },
+  therAnalysis: { fr: 'Autre analyse', en: 'Other analysis', pt: 'Outra análise' },
+  therTreatment: { fr: 'Autre traitement', en: 'Other treatment', pt: 'Outro tratamento' },
+  upture_arv: { fr: 'Rupture ARV', en: 'ARV Shortage', pt: 'Falta de ARV' },
+  ffet_indesirable: { fr: 'Effet indésirable', en: 'Side effect', pt: 'Efeito indesejável' },
+  chec_therapeutique: { fr: 'Échec thérapeutique', en: 'Therapeutic failure', pt: 'Falha terapêutica' },
+  oxicite_medicamenteuse: { fr: 'Toxicité médicamenteuse', en: 'Drug toxicity', pt: 'Toxicidade medicamentosa' },
+  utre_a_preciser: { fr: 'Autre à préciser', en: 'Other to specify', pt: 'Outro a especificar' },
+  otif_reference: { fr: 'Motif de référence', en: 'Reference reason', pt: 'Motivo de referência' },
+  submitReference: { fr: 'Soumettre la Référence', en: 'Submit Reference', pt: 'Enviar Referência' },
+  referenceCreated: { fr: 'Référence créée avec succès !', en: 'Reference created successfully!', pt: 'Referência criada com sucesso!' },
+  rrorCreatingReference: { fr: 'Erreur lors de la création de la référence', en: 'Error creating reference', pt: 'Erro ao criar referência' },
+  sortByDate: { fr: 'Trier par date', en: 'Sort by date', pt: 'Ordenar por data' },
+  mostRecent: { fr: 'Plus récent', en: 'Most recent', pt: 'Mais recente' },
+  validerReference: { fr: 'Valider la référence', en: 'Validate reference', pt: 'Validar referência' },
+  confirmValidateReference: { fr: 'Êtes-vous sûr de vouloir valider cette référence ?', en: 'Are you sure you want to validate this reference?', pt: 'Tem certeza de que deseja validar esta referência?' },
+  errorValidateReference: { fr: 'Erreur lors de la validation de la référence', en: 'Error validating reference', pt: 'Erro ao validar referência' },
+  referencesAssistantPending: { fr: 'Références initiées par un assistant à valider', en: 'References initiated by an assistant pending validation', pt: 'Referências iniciadas por assistente pendentes de validação' },
+  aValider: { fr: 'à valider', en: 'to validate', pt: 'a validar' },
+  terminerReference: { fr: 'Terminer la référence', en: 'Complete reference', pt: 'Concluir referência' },
+  confirmTerminerReference: { fr: 'Confirmer la prise en charge de cette référence ? Le statut passera à "Reçue".', en: 'Confirm taking charge of this reference? Status will change to "Received".', pt: 'Confirmar o atendimento desta referência? O status mudará para "Recebida".' },
+  errorTerminerReference: { fr: 'Erreur lors de la clôture de la référence', en: 'Error completing reference', pt: 'Erro ao concluir referência' },
+
+  // Additional ReferenceDossierView translations
+  eferenceDetails: { fr: 'Détails de la Référence', en: 'Reference Details', pt: 'Detalhes da Referência' },
+  opitalDestination: { fr: 'Hôpital de Destination', en: 'Destination Hospital', pt: 'Hospital de Destino' },
+  edecinDestinataire: { fr: 'Médecin Destinataire', en: 'Recipient Doctor', pt: 'Médico Destinatário' },
+  hopitalOrigine: { fr: "Hôpital d'origine", en: 'Origin Hospital', pt: 'Hospital de Origem' },
+  emporalInformation: { fr: 'Informations Temporelles', en: 'Temporal Information', pt: 'Informações Temporais' },
+  ateCreation: { fr: 'Date de Création', en: 'Creation Date', pt: 'Data de Criação' },
+  ateModification: { fr: 'Dernière Modification', en: 'Last Modification', pt: 'Última Modificação' },
+  dossierMedicalComplet: { fr: 'Dossier Médical Complet', en: 'Complete Medical File', pt: 'Ficha Médica Completa' },
+  loadDossier: { fr: 'Charger le dossier', en: 'Load file', pt: 'Carregar ficha' },
+  loading: { fr: 'Chargement...', en: 'Loading...', pt: 'Carregando...' },
+  collapse: { fr: 'Replier', en: 'Collapse', pt: 'Recolher' },
+  load: { fr: 'Charger', en: 'Load', pt: 'Carregar' },
+  ageSuffix: { fr: 'ans', en: 'years', pt: 'anos' },
+  nationaliteLabel: { fr: 'Nationalité', en: 'Nationality', pt: 'Nacionalidade' },
+
+  // ── CartographyMap – InfoWindow & Dialog hôpital ────────────────────────
+  // InfoWindow – statut
+  hospitalActive: { fr: 'Actif', en: 'Active', pt: 'Ativo' },
+  hospitalPending: { fr: 'En attente', en: 'Pending', pt: 'Pendente' },
+
+  // InfoWindow – sections
+  infoServices: { fr: 'Services', en: 'Services', pt: 'Serviços' },
+  infoProviders: { fr: 'Prestataires', en: 'Providers', pt: 'Prestadores' },
+
+  // InfoWindow – boutons
+  referPatient: { fr: 'Référencer un patient', en: 'Refer a patient', pt: 'Referenciar um paciente' },
+  editHospital: { fr: 'Modifier', en: 'Edit', pt: 'Editar' },
+
+  // Dialog titre
+  addHealthFacility: { fr: 'Ajouter un établissement de santé', en: 'Add a health facility', pt: 'Adicionar uma unidade de saúde' },
+  editFacility: { fr: 'Modifier', en: 'Edit', pt: 'Editar' },
+
+  // Stepper labels
+  stepInfoEtablissement: { fr: 'Informations établissement', en: 'Facility information', pt: 'Informações do estabelecimento' },
+  stepServicesDisponibles: { fr: 'Services disponibles', en: 'Available services', pt: 'Serviços disponíveis' },
+  stepPrestataires: { fr: 'Prestataires', en: 'Providers', pt: 'Prestadores' },
+
+  // Dialog actions
+  dialogCancel: { fr: 'Annuler', en: 'Cancel', pt: 'Cancelar' },
+  dialogBack: { fr: 'Retour', en: 'Back', pt: 'Voltar' },
+  dialogNext: { fr: 'Suivant', en: 'Next', pt: 'Próximo' },
+  dialogSave: { fr: 'Enregistrer', en: 'Save', pt: 'Salvar' },
+  dialogUpdate: { fr: 'Mettre à jour', en: 'Update', pt: 'Atualizar' },
+
+  // Étape 0 – Informations établissement
+  stepInfoTitle: { fr: "Informations de l'établissement", en: 'Facility information', pt: 'Informações do estabelecimento' },
+  stepInfoSubtitle: { fr: 'Renseignez les informations générales de l\'établissement', en: 'Fill in the general information about the facility', pt: 'Preencha as informações gerais do estabelecimento' },
+  fieldCountry: { fr: 'Pays *', en: 'Country *', pt: 'País *' },
+  fieldCountryPlaceholder: { fr: 'Ex: Sénégal', en: 'Ex: Senegal', pt: 'Ex: Senegal' },
+  fieldCity: { fr: 'Ville *', en: 'City *', pt: 'Cidade *' },
+  fieldCityPlaceholder: { fr: 'Ex: Dakar', en: 'Ex: Dakar', pt: 'Ex: Dakar' },
+  fieldFacilityName: { fr: "Nom de l'établissement *", en: 'Facility name *', pt: 'Nome do estabelecimento *' },
+  fieldFacilityNamePlaceholder: { fr: 'Ex: Hôpital Principal de Ziguinchor', en: 'Ex: Main Hospital of Ziguinchor', pt: 'Ex: Hospital Principal de Ziguinchor' },
+  fieldFacilityType: { fr: "Type d'établissement", en: 'Facility type', pt: 'Tipo de estabelecimento' },
+  fieldPhone: { fr: 'Téléphone fixe', en: 'Landline phone', pt: 'Telefone fixo' },
+  fieldPhonePlaceholder: { fr: 'Ex: +221 33 XXX XX XX', en: 'Ex: +221 33 XXX XX XX', pt: 'Ex: +221 33 XXX XX XX' },
+
+  // Types d'établissement
+  typeHopitalRegional: { fr: 'Hôpital régional', en: 'Regional hospital', pt: 'Hospital regional' },
+  typeDistrictSanitaire: { fr: 'District Sanitaire', en: 'Health district', pt: 'Distrito sanitário' },
+  typeCentreSante: { fr: 'Centre de Santé (CS)', en: 'Health center (HC)', pt: 'Centro de saúde (CS)' },
+  typePosteSante: { fr: 'Poste de Santé (PS)', en: 'Health post (HP)', pt: 'Posto de saúde (PS)' },
+  typeChr: { fr: 'Centre Hospitalier Régional (CHR)', en: 'Regional Hospital Center (RHC)', pt: 'Centro Hospitalar Regional (CHR)' },
+  typeHopital: { fr: 'Hôpital', en: 'Hospital', pt: 'Hospital' },
+  typeCmia: { fr: 'CMIA (Centre Médical Inter-Armées)', en: 'CMIA (Inter-Army Medical Center)', pt: 'CMIA (Centro Médico Inter-Forças)' },
+  typeDpc: { fr: 'DPC (Dispensaire Public Communautaire)', en: 'DPC (Community Public Dispensary)', pt: 'DPC (Dispensário Público Comunitário)' },
+
+  // Étape 1 – Services
+  stepServicesTitle: { fr: 'Services disponibles', en: 'Available services', pt: 'Serviços disponíveis' },
+  stepServicesSubtitle: { fr: 'Sélectionnez les services proposés par cet établissement', en: 'Select the services offered by this facility', pt: 'Selecione os serviços oferecidos por este estabelecimento' },
+arv: {
+  fr: 'ARV',
+  en: 'ARV',
+  pt: 'ARV'
+},
+
+ptme: {
+  fr: 'PTME',
+  en: 'PMTCT',
+  pt: 'PTV'
+},
+
+crc: {
+  fr: 'CRC',
+  en: 'CRC',
+  pt: 'CRC'
+},
+
+pvvih: {
+  fr: 'PVVIH',
+  en: 'PLHIV',
+  pt: 'PVHIV'
+},
+  // Étape 2 – Prestataires
+  stepProvidersTitle: { fr: 'Prestataires', en: 'Providers', pt: 'Prestadores' },
+  stepProvidersSubtitle: { fr: 'Ajoutez les prestataires qui travaillent dans cet établissement', en: 'Add the providers who work in this facility', pt: 'Adicione os prestadores que trabalham neste estabelecimento' },
+  addProviderTitle: { fr: 'Ajouter un prestataire', en: 'Add a provider', pt: 'Adicionar um prestador' },
+  editProviderTitle: { fr: 'Modifier le prestataire', en: 'Edit provider', pt: 'Editar prestador' },
+  providerType: { fr: 'Type de prestataire', en: 'Provider type', pt: 'Tipo de prestador' },
+  providerLastName: { fr: 'Nom du prestataire', en: 'Provider last name', pt: 'Sobrenome do prestador' },
+  providerLastNamePlaceholder: { fr: 'Ex: Diop', en: 'Ex: Diop', pt: 'Ex: Diop' },
+  providerFirstName: { fr: 'Prénom du prestataire', en: 'Provider first name', pt: 'Nome do prestador' },
+  providerFirstNamePlaceholder: { fr: 'Ex: Marie', en: 'Ex: Marie', pt: 'Ex: Marie' },
+  providerPhone: { fr: 'Téléphone (optionnel)', en: 'Phone (optional)', pt: 'Telefone (opcional)' },
+  providerPhonePlaceholder: { fr: 'Ex: +221 XX XXX XX XX', en: 'Ex: +221 XX XXX XX XX', pt: 'Ex: +221 XX XXX XX XX' },
+  addProviderBtn: { fr: 'Ajouter le prestataire', en: 'Add provider', pt: 'Adicionar prestador' },
+  updateProviderBtn: { fr: 'Mettre à jour le prestataire', en: 'Update provider', pt: 'Atualizar prestador' },
+  cancelEditProvider: { fr: 'Annuler', en: 'Cancel', pt: 'Cancelar' },
+  autoGeneratedSummary: { fr: 'Récapitulatif des valeurs générées automatiquement :', en: 'Summary of auto-generated values:', pt: 'Resumo dos valores gerados automaticamente:' },
+  editingInProgress: { fr: 'Modification en cours - ', en: 'Editing in progress - ', pt: 'Edição em andamento - ' },
+  reloadBtn: { fr: '🔄 Recharger', en: '🔄 Reload', pt: '🔄 Recarregar' },
+  fullName: { fr: 'Nom complet :', en: 'Full name:', pt: 'Nome completo:' },
+  specialtyLabel: { fr: 'Spécialité :', en: 'Specialty:', pt: 'Especialidade:' },
+  emailLabel: { fr: 'Email :', en: 'Email:', pt: 'Email:' },
+  providersSummaryTitle: { fr: 'Récapitulatif des prestataires', en: 'Providers summary', pt: 'Resumo dos prestadores' },
+  noProviderWarning: { fr: '⚠️ Aucun prestataire ajouté. Veuillez ajouter au moins un prestataire pour continuer.', en: '⚠️ No provider added. Please add at least one provider to continue.', pt: '⚠️ Nenhum prestador adicionado. Adicione pelo menos um prestador para continuar.' },
+  specialtyField: { fr: 'Spécialité', en: 'Specialty', pt: 'Especialidade' },
+  finalSummaryTitle: { fr: 'Récapitulatif complet', en: 'Complete summary', pt: 'Resumo completo' },
+  selectedServicesCount: { fr: 'Services sélectionnés:', en: 'Selected services:', pt: 'Serviços selecionados:' },
+  addedProvidersCount: { fr: 'Prestataires ajoutés:', en: 'Added providers:', pt: 'Prestadores adicionados:' },
+  facilityName: { fr: 'Établissement:', en: 'Facility:', pt: 'Estabelecimento:' },
+  notDefined: { fr: 'Non défini', en: 'Not defined', pt: 'Não definido' },
+
+  // Contrôles carte
+  mapNavigation: { fr: 'Navigation', en: 'Navigation', pt: 'Navegação' },
+  mapView: { fr: 'Vue', en: 'View', pt: 'Vista' },
+  clickToAdd: { fr: '🎯 Cliquez sur la carte pour ajouter un établissement', en: '🎯 Click on the map to add a facility', pt: '🎯 Clique no mapa para adicionar um estabelecimento' },
+  loadingMap: { fr: 'Chargement de la carte...', en: 'Loading map...', pt: 'Carregando mapa...' },
+  detectingPosition: { fr: '📡 Détection de votre position...', en: '📡 Detecting your position...', pt: '📡 Detectando sua posição...' },
+
+  // Dialog référence patient
+  referPatientFor: { fr: 'Référencer un patient pour', en: 'Refer a patient to', pt: 'Referenciar um paciente para' },
+
+  // Validation messages (formulaire hôpital)
+  validationFacilityName: { fr: "Veuillez remplir le nom de l'établissement", en: 'Please fill in the facility name', pt: 'Por favor, preencha o nome do estabelecimento' },
+  validationSelectService: { fr: 'Veuillez sélectionner au moins un service', en: 'Please select at least one service', pt: 'Por favor, selecione pelo menos um serviço' },
+  validationAddProvider: { fr: 'Veuillez ajouter au moins un prestataire', en: 'Please add at least one provider', pt: 'Por favor, adicione pelo menos um prestador' },
+
+  // ── AddHospitalForm ──────────────────────────────────────────────────────
+  addHospitalTitle: { fr: 'Ajouter une nouvelle structure de santé', en: 'Add a new health facility', pt: 'Adicionar uma nova unidade de saúde' },
+  addHospitalSubtitle: { fr: 'Remplissez le formulaire ci-dessous pour ajouter une nouvelle structure à la cartographie.', en: 'Fill in the form below to add a new facility to the map.', pt: 'Preencha o formulário abaixo para adicionar uma nova unidade ao mapa.' },
+  addHospitalSuccess: { fr: 'Structure ajoutée avec succès ! Elle est maintenant en attente de confirmation.', en: 'Facility added successfully! It is now pending confirmation.', pt: 'Unidade adicionada com sucesso! Está agora aguardando confirmação.' },
+  fieldFacilityNameRequired: { fr: 'Nom de la structure *', en: 'Facility name *', pt: 'Nome da unidade *' },
+  fieldFacilityNamePlaceholderForm: { fr: 'Ex: Hôpital Central de Dakar', en: 'Ex: Central Hospital of Dakar', pt: 'Ex: Hospital Central de Dakar' },
+  fieldCityForm: { fr: 'Ville', en: 'City', pt: 'Cidade' },
+  fieldCityPlaceholderForm: { fr: 'Ex: Dakar', en: 'Ex: Dakar', pt: 'Ex: Dakar' },
+  fieldDescription: { fr: 'Description', en: 'Description', pt: 'Descrição' },
+  fieldDescriptionPlaceholder: { fr: 'Description des services offerts...', en: 'Description of services offered...', pt: 'Descrição dos serviços oferecidos...' },
+  fieldDescriptionHelper: { fr: 'Décrivez les services VIH disponibles dans cette structure', en: 'Describe the HIV services available in this facility', pt: 'Descreva os serviços de HIV disponíveis nesta unidade' },
+  fieldPhoneForm: { fr: 'Téléphone', en: 'Phone', pt: 'Telefone' },
+  fieldPhonePlaceholderForm: { fr: 'Ex: +221 33 123 45 67', en: 'Ex: +221 33 123 45 67', pt: 'Ex: +221 33 123 45 67' },
+  fieldEmail: { fr: 'Email', en: 'Email', pt: 'Email' },
+  fieldEmailPlaceholder: { fr: 'Ex: contact@hopital.sn', en: 'Ex: contact@hospital.sn', pt: 'Ex: contato@hospital.sn' },
+  fieldLatitude: { fr: 'Latitude *', en: 'Latitude *', pt: 'Latitude *' },
+  fieldLatitudePlaceholder: { fr: 'Ex: 14.6928', en: 'Ex: 14.6928', pt: 'Ex: 14.6928' },
+  fieldLatitudeHelper: { fr: 'Coordonnée latitude (-90 à 90)', en: 'Latitude coordinate (-90 to 90)', pt: 'Coordenada de latitude (-90 a 90)' },
+  fieldLongitude: { fr: 'Longitude *', en: 'Longitude *', pt: 'Longitude *' },
+  fieldLongitudePlaceholder: { fr: 'Ex: -17.4467', en: 'Ex: -17.4467', pt: 'Ex: -17.4467' },
+  fieldLongitudeHelper: { fr: 'Coordonnée longitude (-180 à 180)', en: 'Longitude coordinate (-180 to 180)', pt: 'Coordenada de longitude (-180 a 180)' },
+  fieldCountryForm: { fr: 'Pays', en: 'Country', pt: 'País' },
+  fieldCountryHelper: { fr: 'Pays par défaut : Sénégal', en: 'Default country: Senegal', pt: 'País padrão: Senegal' },
+  btnAddFacility: { fr: 'Ajouter la structure', en: 'Add facility', pt: 'Adicionar unidade' },
+  btnClearForm: { fr: 'Effacer le formulaire', en: 'Clear form', pt: 'Limpar formulário' },
+  formTip: { fr: '💡 <strong>Astuce :</strong> Vous pouvez également ajouter des structures directement en cliquant sur la carte dans l\'onglet "Vue Carte".', en: '💡 <strong>Tip:</strong> You can also add facilities directly by clicking on the map in the "Map View" tab.', pt: '💡 <strong>Dica:</strong> Você também pode adicionar unidades diretamente clicando no mapa na aba "Vista do Mapa".' },
+  errorNameRequired: { fr: 'Le nom est requis', en: 'Name is required', pt: 'O nome é obrigatório' },
+  errorLatRequired: { fr: 'La latitude est requise', en: 'Latitude is required', pt: 'A latitude é obrigatória' },
+  errorLatInvalid: { fr: 'Latitude invalide (-90 à 90)', en: 'Invalid latitude (-90 to 90)', pt: 'Latitude inválida (-90 a 90)' },
+  errorLngRequired: { fr: 'La longitude est requise', en: 'Longitude is required', pt: 'A longitude é obrigatória' },
+  errorLngInvalid: { fr: 'Longitude invalide (-180 à 180)', en: 'Invalid longitude (-180 to 180)', pt: 'Longitude inválida (-180 a 180)' },
+
+  // ── CreateReferenceSurCarte ──────────────────────────────────────────────
+  // Étape 1 – Patient
+  selectPatient: { fr: 'Sélectionner un patient', en: 'Select a patient', pt: 'Selecionar um paciente' },
+  removePatient: { fr: 'Enlever', en: 'Remove', pt: 'Remover' },
+  nextSelectDoctor: { fr: 'Suivant → Sélectionner un médecin', en: 'Next → Select a doctor', pt: 'Próximo → Selecionar um médico' },
+
+  // Étape 2 – Médecin
+  selectDoctorAt: { fr: 'Sélectionner un médecin à', en: 'Select a doctor at', pt: 'Selecionar um médico em' },
+  availableDoctors: { fr: 'Médecins disponibles', en: 'Available doctors', pt: 'Médicos disponíveis' },
+  noDoctorAvailable: { fr: 'Aucun médecin disponible à cet hôpital', en: 'No doctor available at this hospital', pt: 'Nenhum médico disponível neste hospital' },
+  nextReferenceDetails: { fr: 'Suivant → Détails de la référence', en: 'Next → Reference details', pt: 'Próximo → Detalhes da referência' },
+
+  // Étape 3 – Motif
+  referenceReasonTitle: { fr: 'Motif de la Référence', en: 'Reference Reason', pt: 'Motivo da Referência' },
+  changement_adresse: { fr: "Changement d'adresse", en: 'Change of address', pt: 'Mudança de endereço' },
+  temporaire: { fr: 'Temporaire', en: 'Temporary', pt: 'Temporário' },
+  permanent: { fr: 'Permanent', en: 'Permanent', pt: 'Permanente' },
+  motif_reference: { fr: 'Motif de référence', en: 'Reference reason', pt: 'Motivo de referência' },
+  rupture_arv: { fr: 'Rupture ARV', en: 'ARV shortage', pt: 'Falta de ARV' },
+  effet_indesirable: { fr: 'Effet indésirable', en: 'Adverse effect', pt: 'Efeito indesejável' },
+  echec_therapeutique: { fr: 'Échec thérapeutique', en: 'Therapeutic failure', pt: 'Falha terapêutica' },
+  toxicite_medicamenteuse: { fr: 'Toxicité médicamenteuse', en: 'Drug toxicity', pt: 'Toxicidade medicamentosa' },
+  autre_a_preciser: { fr: 'Autre à préciser', en: 'Other (specify)', pt: 'Outro (especificar)' },
+  services: { fr: 'Services', en: 'Services', pt: 'Serviços' },
+  nextClinicalInfo: { fr: 'Suivant → Informations cliniques', en: 'Next → Clinical information', pt: 'Próximo → Informações clínicas' },
+
+  // Étape 4 – Poids & Stades OMS
+  weightAndWhoStage: { fr: 'Poids et Stades OMS', en: 'Weight and WHO Stages', pt: 'Peso e Estágios OMS' },
+  weight: { fr: 'Poids (kg)', en: 'Weight (kg)', pt: 'Peso (kg)' },
+  whoStage: { fr: 'Stade OMS', en: 'WHO Stage', pt: 'Estágio OMS' },
+  hivProfile: { fr: 'Profil VIH', en: 'HIV Profile', pt: 'Perfil HIV' },
+  confirmationDate: { fr: 'Date de confirmation', en: 'Confirmation date', pt: 'Data de confirmação' },
+  nextArvTreatment: { fr: 'Suivant → Traitement ARV', en: 'Next → ARV Treatment', pt: 'Próximo → Tratamento ARV' },
+
+  // Étape 5 – Traitement ARV
+  arvTreatmentTitle: { fr: 'Traitement ARV', en: 'ARV Treatment', pt: 'Tratamento ARV' },
+  treatmentARV: { fr: 'Sous ARV', en: 'On ARV', pt: 'Sob ARV' },
+  firstLineProtocol: { fr: 'Protocole 1ère ligne', en: '1st line protocol', pt: 'Protocolo de 1ª linha' },
+  secondLineProtocol: { fr: 'Protocole 2ème ligne', en: '2nd line protocol', pt: 'Protocolo de 2ª linha' },
+  nextCd4: { fr: 'Suivant → CD4', en: 'Next → CD4', pt: 'Próximo → CD4' },
+
+  // Étape 6 – CD4
+  cd4Title: { fr: 'CD4', en: 'CD4', pt: 'CD4' },
+  cd4DebutTraitement: { fr: 'CD4 Début de traitement', en: 'CD4 at treatment start', pt: 'CD4 no início do tratamento' },
+  cd4Dernier: { fr: 'CD4 Dernier', en: 'Last CD4', pt: 'Último CD4' },
+  cd4Inclusion: { fr: 'CD4 Inclusion', en: 'CD4 at inclusion', pt: 'CD4 na inclusão' },
+  nextBioAnalysis: { fr: 'Suivant → Analyses biologiques', en: 'Next → Biological analyses', pt: 'Próximo → Análises biológicas' },
+
+  // Étape 7 – Analyses biologiques
+  bioAnalysisTitle: { fr: 'Analyses biologiques', en: 'Biological analyses', pt: 'Análises biológicas' },
+  viralLoad: { fr: 'Charge virale', en: 'Viral load', pt: 'Carga viral' },
+  lymphocytesTotaux: { fr: 'Lymphocytes totaux', en: 'Total lymphocytes', pt: 'Linfócitos totais' },
+  hbNiveau: { fr: 'Hémoglobine (Hb)', en: 'Haemoglobin (Hb)', pt: 'Hemoglobina (Hb)' },
+  nextMicroAnalysis: { fr: 'Suivant → Analyses microbiologiques', en: 'Next → Microbiological analyses', pt: 'Próximo → Análises microbiológicas' },
+
+  // Étape 8 – Analyses microbiologiques
+  microAnalysisTitle: { fr: 'Analyses microbiologiques', en: 'Microbiological analyses', pt: 'Análises microbiológicas' },
+  cracheBaar: { fr: 'Crachat BAAR', en: 'BAAR sputum', pt: 'Escarro BAAR' },
+  transaminase: { fr: 'Transaminases', en: 'Transaminases', pt: 'Transaminases' },
+  otherAnalysis: { fr: 'Autre analyse', en: 'Other analysis', pt: 'Outra análise' },
+  nextTbTreatment: { fr: 'Suivant → Traitement TB', en: 'Next → TB Treatment', pt: 'Próximo → Tratamento TB' },
+
+  // Étape 9 – Traitement TB
+  tbTreatmentTitle: { fr: 'Traitement TB', en: 'TB Treatment', pt: 'Tratamento TB' },
+  tbTreatment: { fr: 'Traitement TB', en: 'TB Treatment', pt: 'Tratamento TB' },
+  therapyProtocol: { fr: 'Protocole thérapeutique', en: 'Therapeutic protocol', pt: 'Protocolo terapêutico' },
+  nextOtherTreatment: { fr: 'Suivant → Autre traitement', en: 'Next → Other treatment', pt: 'Próximo → Outro tratamento' },
+
+  // Étape 10 – Autre traitement
+  otherTreatmentTitle: { fr: 'Autre traitement', en: 'Other treatment', pt: 'Outro tratamento' },
+  otherTreatment: { fr: 'Autre traitement', en: 'Other treatment', pt: 'Outro tratamento' },
+  describeOtherTreatment: { fr: "Précisez l'autre traitement...", en: 'Describe the other treatment...', pt: 'Descreva o outro tratamento...' },
+  nextSummary: { fr: 'Suivant → Résumé', en: 'Next → Summary', pt: 'Próximo → Resumo' },
+
+  // Étape 11 – Résumé
+  summaryTitle: { fr: 'Résumé des Informations', en: 'Information Summary', pt: 'Resumo das Informações' },
+  summaryPatient: { fr: 'Patient', en: 'Patient', pt: 'Paciente' },
+  summaryDoctor: { fr: 'Médecin', en: 'Doctor', pt: 'Médico' },
+  summaryReferenceReason: { fr: 'Motif de Référence', en: 'Reference Reason', pt: 'Motivo de Referência' },
+  summaryAddressChange: { fr: 'Changement adresse', en: 'Address change', pt: 'Mudança de endereço' },
+  summaryOther: { fr: 'Autres', en: 'Others', pt: 'Outros' },
+  summaryServices: { fr: 'Services', en: 'Services', pt: 'Serviços' },
+  summaryClinical: { fr: 'Renseignements Cliniques', en: 'Clinical Information', pt: 'Informações Clínicas' },
+  summaryWeight: { fr: 'Poids', en: 'Weight', pt: 'Peso' },
+  summaryArvTreatment: { fr: 'Traitement ARV', en: 'ARV Treatment', pt: 'Tratamento ARV' },
+  summaryCd4Start: { fr: 'CD4 Début', en: 'CD4 Start', pt: 'CD4 Início' },
+  summaryCd4Last: { fr: 'CD4 Dernier', en: 'Last CD4', pt: 'Último CD4' },
+  summaryViralLoad: { fr: 'Charge Virale', en: 'Viral Load', pt: 'Carga Viral' },
+  summaryHb: { fr: 'Hb', en: 'Hb', pt: 'Hb' },
+  summaryLymphocytes: { fr: 'Lymphocytes', en: 'Lymphocytes', pt: 'Linfócitos' },
+  summarySputum: { fr: 'Crache BAAR', en: 'BAAR Sputum', pt: 'Escarro BAAR' },
+  summaryAgHbs: { fr: 'Ag HBs', en: 'Ag HBs', pt: 'Ag HBs' },
+  summaryTransaminases: { fr: 'Transaminases', en: 'Transaminases', pt: 'Transaminases' },
+  summaryOtherAnalysis: { fr: 'Autre Analyse', en: 'Other Analysis', pt: 'Outra Análise' },
+  summaryOtherTreatment: { fr: 'Autre Traitement', en: 'Other Treatment', pt: 'Outro Tratamento' },
+  nextConfirmation: { fr: 'Suivant → Confirmation', en: 'Next → Confirmation', pt: 'Próximo → Confirmação' },
+
+  // Étape 12 – Confirmation
+  confirmationTitle: { fr: 'Confirmation de la référence', en: 'Reference confirmation', pt: 'Confirmação da referência' },
+  destinationHospital: { fr: 'Hôpital de destination', en: 'Destination hospital', pt: 'Hospital de destino' },
+  recipientDoctor: { fr: 'Médecin destinataire', en: 'Recipient doctor', pt: 'Médico destinatário' },
+  referenceDate: { fr: 'Date de la référence', en: 'Reference date', pt: 'Data da referência' },
+  referenceTypeLabel: { fr: 'Type de référence', en: 'Reference type', pt: 'Tipo de referência' },
+  selectType: { fr: 'Sélectionner un type', en: 'Select a type', pt: 'Selecionar um tipo' },
+  observationsLabel: { fr: 'Observations', en: 'Observations', pt: 'Observações' },
+  observationsPlaceholder: { fr: 'Ajoutez des observations supplémentaires...', en: 'Add additional observations...', pt: 'Adicione observações adicionais...' },
+  createReference: { fr: 'Créer la référence', en: 'Create reference', pt: 'Criar referência' },
+  referenceCreatedSuccess: { fr: 'Référence créée avec succès !', en: 'Reference created successfully!', pt: 'Referência criada com sucesso!' },
+
+  // Header & navigation
+  referencePatientFor: { fr: 'Référencer un patient pour', en: 'Refer a patient to', pt: 'Referenciar um paciente para' },
+  backButton: { fr: '← Retour', en: '← Back', pt: '← Voltar' },
+  previousButton: { fr: 'Précédent', en: 'Previous', pt: 'Anterior' },
+
+  // Validation messages
+  validationSelectPatient: { fr: 'Veuillez sélectionner un patient', en: 'Please select a patient', pt: 'Por favor, selecione um paciente' },
+  validationSelectDoctor: { fr: 'Veuillez sélectionner un médecin', en: 'Please select a doctor', pt: 'Por favor, selecione um médico' },
+  validationSelectReason: { fr: 'Veuillez renseigner le motif de la référence', en: 'Please fill in the reference reason', pt: 'Por favor, preencha o motivo da referência' },
+  validationSelectType: { fr: 'Veuillez sélectionner le type de référence', en: 'Please select the reference type', pt: 'Por favor, selecione o tipo de referência' },
+  errorCreatingReference: { fr: 'Erreur lors de la création de la référence', en: 'Error creating reference', pt: 'Erro ao criar referência' },
+  errorUnknown: { fr: 'Erreur inconnue', en: 'Unknown error', pt: 'Erro desconhecido' },
+  cannotLoadDoctors: { fr: 'Impossible de charger les médecins de cet hôpital', en: 'Unable to load doctors for this hospital', pt: 'Não foi possível carregar os médicos deste hospital' },
+
+  // ── ReferenceDossierView – clés manquantes ───────────────────────────────
+  referenceDetails: { fr: 'Détails de la Référence', en: 'Reference Details', pt: 'Detalhes da Referência' },
+  hopitalDestination: { fr: 'Hôpital de Destination', en: 'Destination Hospital', pt: 'Hospital de Destino' },
+  medecinDestinataire: { fr: 'Médecin Destinataire', en: 'Recipient Doctor', pt: 'Médico Destinatário' },
+  motifDetaille: { fr: 'Motif Détaillé', en: 'Detailed Reason', pt: 'Motivo Detalhado' },
+  motifsMedicaux: { fr: 'Motifs médicaux', en: 'Medical reasons', pt: 'Motivos médicos' },
+  servicesDemandes: { fr: 'Services Demandés', en: 'Requested Services', pt: 'Serviços Solicitados' },
+  laboratoire: { fr: 'Laboratoire', en: 'Laboratory', pt: 'Laboratório' },
+  clinicalInformation: { fr: 'Informations Cliniques', en: 'Clinical Information', pt: 'Informações Clínicas' },
+  poidsStadesOMS: { fr: 'Poids & Stades OMS', en: 'Weight & WHO Stages', pt: 'Peso & Estágios OMS' },
+  stadeOMS: { fr: 'Stade OMS', en: 'WHO Stage', pt: 'Estágio OMS' },
+  profilVIH: { fr: 'Profil VIH', en: 'HIV Profile', pt: 'Perfil HIV' },
+  dateConfirmation: { fr: 'Date de confirmation', en: 'Confirmation date', pt: 'Data de confirmação' },
+  traitementARVSection: { fr: 'Traitement ARV', en: 'ARV Treatment', pt: 'Tratamento ARV' },
+  sousARV: { fr: 'Sous ARV', en: 'On ARV', pt: 'Sob ARV' },
+  dateDebutARV: { fr: 'Date début ARV', en: 'ARV start date', pt: 'Data início ARV' },
+  protocole1ereLigne: { fr: 'Protocole 1ère ligne', en: '1st line protocol', pt: 'Protocolo 1ª linha' },
+  protocole2emeLigne: { fr: 'Protocole 2ème ligne', en: '2nd line protocol', pt: 'Protocolo 2ª linha' },
+  analysesBiologiques: { fr: 'Analyses biologiques', en: 'Biological analyses', pt: 'Análises biológicas' },
+  chargeVirale: { fr: 'Charge virale', en: 'Viral load', pt: 'Carga viral' },
+  allergie: { fr: 'Allergie', en: 'Allergy', pt: 'Alergia' },
+  creatinemie: { fr: 'Créatininémie', en: 'Creatinine', pt: 'Creatinina' },
+  analysesMicrobiologiques: { fr: 'Analyses microbiologiques', en: 'Microbiological analyses', pt: 'Análises microbiológicas' },
+  resultatTrans: { fr: 'Résultat transaminases', en: 'Transaminase result', pt: 'Resultado transaminases' },
+  autreAnalyse: { fr: 'Autre analyse', en: 'Other analysis', pt: 'Outra análise' },
+  traitementTBSection: { fr: 'Traitement TB', en: 'TB Treatment', pt: 'Tratamento TB' },
+  sousTraitementTB: { fr: 'Sous traitement TB', en: 'On TB treatment', pt: 'Sob tratamento TB' },
+  protocoleTherapeutique: { fr: 'Protocole thérapeutique', en: 'Therapeutic protocol', pt: 'Protocolo terapêutico' },
+  temporalInformation: { fr: 'Informations Temporelles', en: 'Temporal Information', pt: 'Informações Temporais' },
+  dateCreation: { fr: 'Date de Création', en: 'Creation Date', pt: 'Data de Criação' },
+  dateModification: { fr: 'Dernière Modification', en: 'Last Modification', pt: 'Última Modificação' },
+  fonctionReferenceur: { fr: 'Fonction Référenceur', en: 'Referrer Function', pt: 'Função do Referenciador' },
+  nationaliteReferenceur: { fr: 'Nationalité Référenceur', en: 'Referrer Nationality', pt: 'Nacionalidade do Referenciador' },
+  errorLoadingReference: { fr: 'Erreur lors du chargement de la référence', en: 'Error loading reference', pt: 'Erro ao carregar referência' },
+
+  // ── HopitalMap – clés manquantes ─────────────────────────────────────────
+  filterByService: { fr: 'Filtrer par service', en: 'Filter by service', pt: 'Filtrar por serviço' },
+  popupCity: { fr: 'Ville', en: 'City', pt: 'Cidade' },
+  popupPhone: { fr: 'Téléphone', en: 'Phone', pt: 'Telefone' },
+  popupServices: { fr: 'Services', en: 'Services', pt: 'Serviços' },
+  viewDetails: { fr: 'Voir détails', en: 'View details', pt: 'Ver detalhes' },
+
+  // ── CartographyMap – services & types prestataires ───────────────────────
+  serviceConsultationVIH: { fr: 'Consultation VIH', en: 'HIV Consultation', pt: 'Consulta VIH' },
+  serviceDepistageVIH: { fr: 'Dépistage VIH', en: 'HIV Testing', pt: 'Testagem VIH' },
+  serviceTraitementARV: { fr: 'Traitement ARV', en: 'ARV Treatment', pt: 'Tratamento ARV' },
+  servicePTME: { fr: 'PTME (Prévention Transmission Mère-Enfant)', en: 'PMTCT (Prevention of Mother-to-Child Transmission)', pt: 'PTME (Prevenção Transmissão Mãe-Filho)' },
+  serviceSuiviBiologique: { fr: 'Suivi biologique', en: 'Biological follow-up', pt: 'Acompanhamento biológico' },
+  serviceConseilPsychosocial: { fr: 'Conseil et soutien psychosocial', en: 'Counselling and psychosocial support', pt: 'Aconselhamento e apoio psicossocial' },
+  servicePreventionIST: { fr: 'Prévention IST', en: 'STI Prevention', pt: 'Prevenção IST' },
+  serviceDistributionPreservatifs: { fr: 'Distribution préservatifs', en: 'Condom distribution', pt: 'Distribuição de preservativos' },
+  serviceInfectionsOpportunistes: { fr: 'Prise en charge des infections opportunistes', en: 'Management of opportunistic infections', pt: 'Gestão de infecções oportunistas' },
+  providerMedecinPec: { fr: 'Médecin de PEC', en: 'Care Management Doctor', pt: 'Médico de Gestão de Cuidados' },
+  providerAssistantSocial: { fr: 'Assistant Social', en: 'Social Worker', pt: 'Assistente Social' },
+  providerPediatre: { fr: 'Pédiatre', en: 'Paediatrician', pt: 'Pediatra' },
+  specialiteSociologue: { fr: 'Sociologue', en: 'Sociologist', pt: 'Sociólogo' },
+  specialiteGeneraliste: { fr: 'Généraliste', en: 'General practitioner', pt: 'Clínico geral' },
+  confirmAddAtCurrentPosition: { fr: "Voulez-vous ajouter un établissement de santé à votre position actuelle ?\n\nCliquez sur OK pour ajouter, ou Annuler pour sortir.", en: "Do you want to add a health facility at your current position?\n\nClick OK to add, or Cancel to exit.", pt: "Deseja adicionar uma unidade de saúde na sua posição atual?\n\nClique em OK para adicionar ou Cancelar para sair." },
+  confirmAddAtLocation: { fr: "Voulez-vous ajouter un établissement à cet emplacement ?\n\nCliquez sur OK pour ajouter, ou Annuler pour sortir.", en: "Do you want to add a facility at this location?\n\nClick OK to add, or Cancel to exit.", pt: "Deseja adicionar uma unidade neste local?\n\nClique em OK para adicionar ou Cancelar para sair." },
+  defaultCity: { fr: 'Ville inconnue', en: 'Unknown city', pt: 'Cidade desconhecida' },
+  defaultCountry: { fr: 'Sénégal', en: 'Senegal', pt: 'Senegal' },
+  defaultFacilityName: { fr: 'Nouvelle Structure', en: 'New Facility', pt: 'Nova Unidade' },
+  defaultFacilityNameZiguinchor: { fr: 'Nouvelle Structure - Ziguinchor', en: 'New Facility - Ziguinchor', pt: 'Nova Unidade - Ziguinchor' },
+  defaultCityZiguinchor: { fr: 'Ziguinchor', en: 'Ziguinchor', pt: 'Ziguinchor' },
+  markerSelectedLocation: { fr: 'Emplacement sélectionné pour ajout', en: 'Selected location for addition', pt: 'Local selecionado para adição' },
+zoomIn: { fr: 'Zoomer', en: 'Zoom in', pt: 'Ampliar' },
+   zoomOut: { fr: 'Dézoomer', en: 'Zoom out', pt: 'Reduzir' },
+
+   // CartographyMap - messages de notification
+   hospitalAddedSuccess: { fr: 'Hôpital ajouté avec succès! En attente de validation.', en: 'Hospital added successfully! Pending validation.', pt: 'Hospital adicionado com sucesso! Aguardando validação.' },
+   errorSavingFacility: { fr: "Erreur lors de l'enregistrement de l'établissement", en: "Error saving the facility", pt: "Erro ao salvar o estabelecimento" },
+   currentPosition: { fr: 'Position actuelle:', en: 'Current position:', pt: 'Posição atual:' },
+   errorGeocoding: { fr: 'Erreur lors du géocodage:', en: 'Error during geocoding:', pt: 'Erro durante geocodificação:' },
+   stepInfoEtablissement: { fr: 'Informations Établissement', en: 'Facility Information', pt: 'Informações do Estabelecimento' },
+   stepServicesDisponibles: { fr: 'Services Disponibles', en: 'Available Services', pt: 'Serviços Disponíveis' },
+   stepPrestataires: { fr: 'Prestataires', en: 'Providers', pt: 'Prestadores' },
+   validationFacilityName: { fr: 'Veuillez entrer le nom de l\'établissement', en: 'Please enter the facility name', pt: 'Por favor, insira o nome do estabelecimento' },
+   validationSelectService: { fr: 'Veuillez sélectionner au moins un service', en: 'Please select at least one service', pt: 'Por favor, selecione pelo menos um serviço' },
+   validationAddProvider: { fr: 'Veuillez ajouter au moins un prestataire', en: 'Please add at least one provider', pt: 'Por favor, adicione pelo menos um prestador' },
+
+   // CartographyMap - géolocalisation
+   browserNoGeolocation: { fr: 'Votre navigateur ne supporte pas la géolocalisation', en: 'Your browser does not support geolocation', pt: 'Seu navegador não suporta geolocalização' },
+   positionDetected: { fr: 'Position détectée', en: 'Position detected', pt: 'Posição detectada' },
+   errorGeolocationPermission: { fr: 'Géolocalisation refusée', en: 'Geolocation denied', pt: 'Geolocalização negada' },
+   errorGeolocationUnavailable: { fr: 'Position indisponible', en: 'Position unavailable', pt: 'Posição indisponível' },
+   errorGeolocationTimeout: { fr: 'Délai de localisation dépassé', en: 'Geolocation timeout', pt: 'Tempo limite de localização excedido' },
+   mapCenteredOn: { fr: 'La carte est centrée sur', en: 'Map centered on', pt: 'Mapa centralizado em' },
+   searchingPosition: { fr: 'Recherche de votre position...', en: 'Searching for your position...', pt: 'Buscando sua posição...' },
+   useMyPosition: { fr: 'Me localiser sur ma position exacte', en: 'Locate me at my exact position', pt: 'Localize-me na minha posição exata' },
+   precision: { fr: 'Précision', en: 'Precision', pt: 'Precisão' },
+   positionImproved: { fr: 'Position améliorée', en: 'Position improved', pt: 'Posição melhorada' },
+   usingBestPosition: { fr: 'Utilisation de la meilleure position', en: 'Using best available position', pt: 'Usando melhor posição disponível' },
+   locationUnavailUseDefault: { fr: 'Université Assane Seck par défaut', en: 'University Assane Seck as default', pt: 'Universidade Assane Seck como padrão' },
+   locationTimeoutDefault: { fr: 'Délai dépassé. Position par défaut.', en: 'Timeout. Using default position.', pt: 'Tempo esgotado. Usando posição padrão.' },
+   locationInfoUnavailable: { fr: 'Informations de localisation indisponibles', en: 'Location information unavailable', pt: 'Informações de localização indisponíveis' },
+
+  // CartographyContainer - messages
+  loadingDoctorHospitals: { fr: 'Chargement des hôpitaux du docteur...', en: 'Loading doctor hospitals...', pt: 'Carregando hospitais do médico...' },
+  doctorHospitalsLoaded: { fr: 'de vos hôpitaux chargés', en: 'of your hospitals loaded', pt: 'de seus hospitais carregados' },
+  errorLoadingDoctorHospitals: { fr: 'Erreur lors du chargement de vos hôpitaux', en: 'Error loading your hospitals', pt: 'Erro ao carregar seus hospitais' },
+  errorLoadingHospitals: { fr: 'Erreur lors du chargement des hôpitaux', en: 'Error loading hospitals', pt: 'Erro ao carregar hospitais' },
+  hospitalCreatedSuccess: { fr: 'Hôpital ajouté avec succès! En attente de validation.', en: 'Hospital added successfully! Pending validation.', pt: 'Hospital adicionado com sucesso! Aguardando validação.' },
+  errorCreatingHospital: { fr: 'Erreur lors de la création de l\'hôpital', en: 'Error creating hospital', pt: 'Erro ao criar hospital' },
+  hospitalUpdatedSuccess: { fr: 'Hôpital mis à jour avec succès!', en: 'Hospital updated successfully!', pt: 'Hospital atualizado com sucesso!' },
+  hospitalDeletedSuccess: { fr: 'Hôpital supprimé avec succès!', en: 'Hospital deleted successfully!', pt: 'Hospital excluído com sucesso!' },
+  loadingYourHospitals: { fr: 'Chargement de vos hôpitaux...', en: 'Loading your hospitals...', pt: 'Carregando seus hospitais...' },
+  retry: { fr: 'Réessayer', en: 'Retry', pt: 'Tentar novamente' },
+  yourFacilities: { fr: 'Vos établissements', en: 'Your facilities', pt: 'Seus estabelecimentos' },
+  validated: { fr: 'validés', en: 'validated', pt: 'validados' },
+  pending: { fr: 'en attente', en: 'pending', pt: 'pendente' },
+  totalHospitals: { fr: 'hôpitaux', en: 'hospitals', pt: 'hospitais' },
+  hospitalValidated: { fr: 'Hôpital validé', en: 'Validated hospital', pt: 'Hospital validado' },
+  pendingValidation: { fr: 'En attente de validation', en: 'Pending validation', pt: 'Aguardando validação' },
+
+  // ReferenceDossierView - termes médicaux
+  aghbs: { fr: 'AgHBs', en: 'AgHBs', pt: 'AgHBs' },
+  asat: { fr: 'ASAT', en: 'ASAT', pt: 'ASAT' },
+  alat: { fr: 'ALAT', en: 'ALAT', pt: 'ALAT' },
+  cd4: { fr: 'CD4', en: 'CD4', pt: 'CD4' },
+  cd4Dernier: { fr: 'CD4 Dernier', en: 'Last CD4', pt: 'Último CD4' },
+  cd4DebutTraitement: { fr: 'CD4 Début Traitement', en: 'CD4 Treatment Start', pt: 'CD4 Início Tratamento' },
+  cd4Inclusion: { fr: 'CD4 Inclusion', en: 'CD4 Inclusion', pt: 'CD4 Inclusão' },
+  hbNiveau: { fr: 'Hb Niveau', en: 'Hb Level', pt: 'Nível Hb' },
+  lymphocytesTotaux: { fr: 'Lymphocytes Totaux', en: 'Total Lymphocytes', pt: 'Linfócitos Totais' },
+  cracheBaar: { fr: 'Crache BAAR', en: 'Sputum BAAR', pt: 'Escarro BAAR' },
+  transaminase: { fr: 'Transaminase', en: 'Transaminase', pt: 'Transaminase' },
+  retour: { fr: 'Retour', en: 'Back', pt: 'Voltar' },
+  confirmValidateReference: { fr: 'Êtes-vous sûr de vouloir valider cette référence ?', en: 'Are you sure you want to validate this reference?', pt: 'Tem certeza de que deseja validar esta referência?' },
+  errorValidateReference: { fr: 'Erreur lors de la validation de la référence', en: 'Error validating reference', pt: 'Erro ao validar referência' },
+  validerReference: { fr: 'Valider', en: 'Validate', pt: 'Validar' },
+  arv: { fr: 'ARV', en: 'ARV', pt: 'ARV' },
+  crc: { fr: 'CRC', en: 'CRC', pt: 'CRC' },
+  pvvih: { fr: 'PVVIH', en: 'PVVIH', pt: 'PVVIH' },
+  oui: { fr: 'Oui', en: 'Yes', pt: 'Sim' },
+  non: { fr: 'Non', en: 'No', pt: 'Não' },
+  permanent: { fr: 'Permanent', en: 'Permanent', pt: 'Permanente' },
+  temporaire: { fr: 'Temporaire', en: 'Temporary', pt: 'Temporário' },
+  hopitalOrigine: { fr: 'Hôpital Origine', en: 'Origin Hospital', pt: 'Hospital de Origem' },
 };
 
 
