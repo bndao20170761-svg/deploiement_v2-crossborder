@@ -687,7 +687,7 @@ const onMapLoad = useCallback((mapInstance) => {
         setLocationInfo({
           ville: getTranslation('defaultCityZiguinchor', language),
           pays: getTranslation('defaultCountry', language),
-          adresseComplete: `Position actuelle: ${userLocation.lat.toFixed(6)}, ${userLocation.lng.toFixed(6)}`,
+          adresseComplete: `${getTranslation('currentPosition', language)} ${userLocation.lat.toFixed(6)}, ${userLocation.lng.toFixed(6)}`,
           latitude: userLocation.lat,
           longitude: userLocation.lng
         });
@@ -705,7 +705,7 @@ const onMapLoad = useCallback((mapInstance) => {
       setShowAddDialog(true);
       setShowUserInfo(false);
     } catch (error) {
-      console.error('Erreur lors du géocodage:', error);
+      console.error(getTranslation('errorGeocoding', language), error);
     } finally {
       setLoadingLocation(false);
     }
@@ -880,11 +880,11 @@ const saveNewHospital = async () => {
     }
 
     cancelAdding();
-     showNotification(' Hôpital ajouté avec succès! En attente de validation.', 'success');
+     showNotification(getTranslation('hospitalAddedSuccess', language), 'success');
      console.log(" Hôpital enregistré:", savedHospital);
    } catch (error) {
      console.error(" Erreur lors de l'enregistrement:", error);
-     showNotification("Erreur lors de l'enregistrement de l'établissement", 'error');
+     showNotification(getTranslation('errorSavingFacility', language), 'error');
    }
 };
 

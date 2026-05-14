@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, Edit, Trash2, CheckCircle, Clock, AlertCircle, User, FileText, Hospital, Calendar, MessageSquare, Activity } from 'lucide-react';
 import referenceDossierService from '../services/referenceDossierService';
 import { getTranslation } from '../utils/translations';
@@ -11,11 +11,7 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
   const [canEdit, setCanEdit] = useState(false);
   const [canValidate, setCanValidate] = useState(false);
 
-  useEffect(() => {
-    if (codeReference) fetchReference();
-  }, [codeReference]);
-
-  const fetchReference = async () => {
+  const fetchReference = useCallback(async () => {
     try {
       setLoading(true);
       const data = await referenceDossierService.getReferenceByCode(codeReference);
@@ -35,7 +31,11 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
     } finally {
       setLoading(false);
     }
-  };
+  }, [codeReference, language]);
+
+  useEffect(() => {
+    if (codeReference) fetchReference();
+  }, [codeReference, fetchReference]);
 
   const handleDelete = async () => {
     if (window.confirm(getTranslation('confirmDeleteReference', language))) {
@@ -406,7 +406,7 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
 
         {/* CD4 */}
         <div className="mb-5">
-          <SubSection title="CD4" />
+          <SubSection title={getTranslation('cd4', language)} />
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <Field label={getTranslation('cd4Dernier', language)} value={withDate(reference.cd4Dernier, reference.dateCd4Dernier)} />
             <Field label={getTranslation('cd4DebutTraitement', language)} value={withDate(reference.cd4DebutTraitement, reference.dateCd4DebutTraitement)} />
@@ -431,10 +431,10 @@ const ReferenceDossierView = ({ codeReference, language = "fr", onBack, onEdit }
           <SubSection title={getTranslation('analysesMicrobiologiques', language)} />
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <Field label={getTranslation('cracheBaar', language)} value={withDate(reference.cracheBaar, reference.dateCracheBaar)} />
-            <Field label="AgHBs" value={withDate(reference.aghbs, reference.dateAghbs)} />
+            <Field label={getTranslation('aghbs', language)} value={withDate(reference.aghbs, reference.dateAghbs)} />
             <Field label={getTranslation('transaminase', language)} value={withDate(reference.transaminase, reference.dateTransaminase)} />
-            {reference.transaminaseAsat && <Field label="ASAT" value={reference.transaminaseAsat} />}
-            {reference.transaminaseAlat && <Field label="ALAT" value={reference.transaminaseAlat} />}
+            {reference.transaminaseAsat && <Field label={getTranslation('asat', language)} value={reference.transaminaseAsat} />}
+            {reference.transaminaseAlat && <Field label={getTranslation('alat', language)} value={reference.transaminaseAlat} />}
             {reference.resultatTrans && <Field label={getTranslation('resultatTrans', language)} value={reference.resultatTrans} />}
             {reference.autreAnalyse && (
               <Field label={getTranslation('autreAnalyse', language)} value={withDate(getTranslation('oui', language), reference.dateAutreAnalyse)} />

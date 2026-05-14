@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Box,Button, Alert, CircularProgress, Typography, Chip } from '@mui/material';
 import CartographyMap from './CartographyMap';
 import { getMyHospitals, createHopital } from '../services/hopitalService';
+import { getTranslation } from '../utils/translations';
 
 const STORAGE_KEY = "mapState";
 
@@ -32,11 +33,11 @@ const CartographyContainer = ({ language = 'fr' }) => {
         console.log('✅ Hôpitaux du docteur chargés:', myHospitals);
 
         setHospitals(myHospitals);
-        showNotification(`✅ ${myHospitals.length} de vos hôpitaux chargés`, 'success');
+        showNotification(`✅ ${myHospitals.length} ${getTranslation('doctorHospitalsLoaded', language)}`, 'success');
     } catch (error) {
         console.error('❌ Erreur chargement hôpitaux du docteur:', error);
-        setError('Erreur lors du chargement de vos hôpitaux');
-        showNotification('❌ Erreur lors du chargement des hôpitaux', 'error');
+        setError(getTranslation('errorLoadingDoctorHospitals', language));
+        showNotification(`❌ ${getTranslation('errorLoadingHospitals', language)}`, 'error');
       } finally {
         setLoading(false);
       }
@@ -65,12 +66,12 @@ useEffect(() => {
 
       // Ajouter le nouvel hôpital à la liste
       setHospitals(prev => [...prev, savedHospital]);
-      showNotification('🏥 Hôpital ajouté avec succès! En attente de validation.', 'success');
+      showNotification(`🏥 ${getTranslation('hospitalCreatedSuccess', language)}`, 'success');
 
       return savedHospital;
     } catch (error) {
       console.error('❌ Erreur création hôpital:', error);
-      showNotification('❌ Erreur lors de la création de l\'hôpital', 'error');
+      showNotification(`❌ ${getTranslation('errorCreatingHospital', language)}`, 'error');
       throw error;
     }
   };
@@ -81,12 +82,12 @@ useEffect(() => {
         hospital.id === id ? { ...hospital, ...updatedData } : hospital
       )
     );
-    showNotification('Hôpital mis à jour avec succès!', 'success');
+    showNotification(getTranslation('hospitalUpdatedSuccess', language), 'success');
   };
 
   const deleteHospital = (id) => {
     setHospitals((prev) => prev.filter((hospital) => hospital.id !== id));
-    showNotification('Hôpital supprimé avec succès!', 'success');
+    showNotification(getTranslation('hospitalDeletedSuccess', language), 'success');
   };
 
   // Statistiques
@@ -106,7 +107,7 @@ useEffect(() => {
       }}>
         <CircularProgress size={60} />
         <Typography variant="h6" color="text.secondary">
-          Chargement de vos hôpitaux...
+          {getTranslation('loadingYourHospitals', language)}
         </Typography>
       </Box>
     );
@@ -130,7 +131,7 @@ useEffect(() => {
           variant="contained"
           onClick={() => window.location.reload()}
         >
-          Réessayer
+          {getTranslation('retry', language)}
         </Button>
              </Box>
     );
@@ -160,29 +161,29 @@ useEffect(() => {
         maxWidth: 200
       }}>
                 <Typography variant="h6" gutterBottom>
-          🏥 Vos établissements
+          🏥 {getTranslation('yourFacilities', language)}
                 </Typography>
 
         <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
                   <Chip
-            label={`${activeHospitals} validés`}
+            label={`${activeHospitals} ${getTranslation('validated', language)}`}
             color="success"
                     size="small"
           />
           <Chip
-            label={`${pendingHospitals} en attente`}
+            label={`${pendingHospitals} ${getTranslation('pending', language)}`}
             color="warning"
                     size="small"
                 />
               </Box>
 
         <Typography variant="body2" color="text.secondary">
-          Total: {hospitals.length} hôpitaux
+          Total: {hospitals.length} {getTranslation('totalHospitals', language)}
         </Typography>
 
         <Typography variant="caption" display="block" sx={{ mt: 1 }}>
-          🔴 Hôpital validé<br/>
-          🟣 En attente de validation
+          🔴 {getTranslation('hospitalValidated', language)}<br/>
+          🟣 {getTranslation('pendingValidation', language)}
         </Typography>
       </Box>
 
