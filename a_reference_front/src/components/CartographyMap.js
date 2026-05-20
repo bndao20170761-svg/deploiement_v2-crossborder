@@ -246,152 +246,129 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
      }
    };
 
+    // Fallback géolocalisation par IP (fonctionne sur HTTP)
+    const locateByIP = useCallback(async (applyPosition) => {
+      try {
+        console.log('📡 Tentative géolocalisation par IP...');
+        const response = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(8000) });
+        if (!response.ok) throw new Error('ipapi.co failed');
+        const data = await response.json();
+        if (data.latitude && data.longitude) {
+          console.log(`📍 Position par IP: ${data.latitude}, ${data.longitude} (${data.city})`);
+          applyPosition(data.latitude, data.longitude, 5000); // précision ~5km pour IP
+          return true;
+        }
+      } catch (e) {
+        console.warn('ipapi.co échoué, essai ip-api.com...', e);
+      }
+      try {
+        const response = await fetch('http://ip-api.com/json/?fields=lat,lon,city,status', { signal: AbortSignal.timeout(8000) });
+        const data = await response.json();
+        if (data.status === 'success' && data.lat && data.lon) {
+          console.log(`📍 Position par IP (fallback): ${data.lat}, ${data.lon}`);
+          applyPosition(data.lat, data.lon, 5000);
+          return true;
+        }
+      } catch (e) {
+        console.error('Géolocalisation par IP échouée:', e);
+      }
+      return false;
+    }, []);
+
     const locateUser = useCallback(() => {
       if (!map) return;
 
-      // Sur HTTP (non-HTTPS), navigator.geolocation est bloqué par Chrome.
-      // On autorise localhost, 127.0.0.1, les IPs locales courantes, et file://
-      const hostname = window.location.hostname;
-      const protocol = window.location.protocol;
-      const isSecureOrigin = protocol === 'https:' ||
-        protocol === 'file:' ||
-        hostname === 'localhost' ||
-        hostname === '127.0.0.1' ||
-        hostname === '0.0.0.0' ||
-        /^192\.168\./.test(hostname) ||
-        /^10\./.test(hostname) ||
-        /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname) ||
-        hostname.endsWith('.local');
-
-      if (!isSecureOrigin) {
-        // En développement, essayer quand même — certains navigateurs le permettent
-        console.warn('Origine non sécurisée, tentative de géolocalisation quand même...');
-      }
-
-      // navigator.geolocation est undefined si pas de HTTPS sur la plupart des navigateurs
-      if (!navigator.geolocation || (protocol === 'http:' && hostname !== 'localhost')) {
-        showNotification(getTranslation('errorGeolocationUnavailable', language), 'error');
-        return;
-      }
-
       setLoadingLocation(true);
-      showNotification(getTranslation('searchingPosition', language), 'info');
 
-      const fallbackToUASZ = () => {
-        const uaszZiguinchor = { lat: 12.5833, lng: -16.2719 };
-        setUserLocation(uaszZiguinchor);
-        setShowUserInfo(true);
+      const applyPosition = (lat, lng, accuracy) => {
+        const userLoc = { lat, lng };
+        setUserLocation(userLoc);
+        setShowUserInfo(false);
         setLoadingLocation(false);
         if (map) {
-          map.panTo(uaszZiguinchor);
-          map.setZoom(12);
+          map.panTo(userLoc);
+          // Zoom adapté : précision GPS vs IP
+          const zoom = accuracy < 50 ? 17 : accuracy < 500 ? 15 : accuracy < 5000 ? 12 : 10;
+          map.setZoom(zoom);
         }
       };
 
+      const isHttpBlocked = window.location.protocol === 'http:' &&
+        window.location.hostname !== 'localhost' &&
+        window.location.hostname !== '127.0.0.1';
+
+      // Sur HTTP non-localhost, navigator.geolocation est bloqué par le navigateur
+      // On passe directement à la géolocalisation par IP
+      if (isHttpBlocked || !navigator.geolocation) {
+        console.warn('Géolocalisation GPS non disponible sur HTTP, utilisation de la géolocalisation par IP');
+        locateByIP(applyPosition).then(success => {
+          if (!success) {
+            setLoadingLocation(false);
+            showNotification('Position indisponible. Activez HTTPS pour une localisation précise.', 'error');
+          }
+        });
+        return;
+      }
+
+      // Sur HTTPS ou localhost : utiliser le GPS du navigateur
       let bestPosition = null;
       let bestAccuracy = Infinity;
       let watchId = null;
       let timeoutId = null;
 
-      // Utiliser watchPosition pour obtenir plusieurs mises à jour avec une durée plus longue
       watchId = navigator.geolocation.watchPosition(
         (position) => {
           const { latitude, longitude, accuracy } = position.coords;
-
           if (accuracy < bestAccuracy) {
             bestAccuracy = accuracy;
             bestPosition = { lat: latitude, lng: longitude, accuracy };
-            console.log(`📍 ${getTranslation('positionDetected', language)}: ${latitude}, ${longitude}, ${getTranslation('precision', language)}: ${accuracy}m`);
           }
-
-          // Si la précision est excellente (≤ 20m), utiliser immédiatement
-          if (accuracy <= 20) {
+          if (accuracy <= 50) {
             if (watchId !== null) navigator.geolocation.clearWatch(watchId);
             if (timeoutId !== null) clearTimeout(timeoutId);
-
-            const userLoc = { lat: latitude, lng: longitude };
-            setUserLocation(userLoc);
-            setShowUserInfo(false);
-
-            if (map) {
-              map.panTo(userLoc);
-              const zoom = accuracy < 10 ? 19 : accuracy < 20 ? 18 : 17;
-              map.setZoom(zoom);
-            }
-            setLoadingLocation(false);
+            applyPosition(latitude, longitude, accuracy);
           }
         },
         (error) => {
-          console.error('❌ Erreur watchPosition:', error);
+          console.error('❌ Erreur GPS:', error);
           if (watchId !== null) navigator.geolocation.clearWatch(watchId);
           if (timeoutId !== null) clearTimeout(timeoutId);
 
-          // Fallback vers getCurrentPosition
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const { latitude, longitude, accuracy } = position.coords;
-              const userLoc = { lat: latitude, lng: longitude };
-              setUserLocation(userLoc);
-              setShowUserInfo(false);
-              if (map) {
-                map.panTo(userLoc);
-                setTimeout(() => { map.setZoom(15); setLoadingLocation(false); }, 500);
-              }
-            },
-            (fallbackError) => {
-              console.error('❌ Erreur getCurrentPosition:', fallbackError);
-              setLoadingLocation(false);
-
-              if (bestPosition && bestPosition.accuracy <= 100) {
-                setUserLocation({ lat: bestPosition.lat, lng: bestPosition.lng });
-                setShowUserInfo(false);
-                if (map) {
-                  map.panTo({ lat: bestPosition.lat, lng: bestPosition.lng });
-                  const zoomLevel = bestPosition.accuracy < 20 ? 18 : bestPosition.accuracy < 50 ? 17 : 16;
-                  map.setZoom(zoomLevel);
-                }
-                alert(`${getTranslation('precision', language)}: ${Math.round(bestPosition.accuracy)}m`);
-              } else {
-                fallbackToUASZ();
-              }
-            },
-            { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
-          );
-        },
-        { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
-      );
-
-      // Timeout de sécurité après 45 secondes
-      timeoutId = setTimeout(() => {
-        if (watchId !== null) {
-          navigator.geolocation.clearWatch(watchId);
-          watchId = null;
-        }
-
-        if (bestPosition && bestPosition.accuracy <= 100) {
-          console.log(`✅ Timeout atteint, utilisation de la meilleure position: ${bestPosition.accuracy}m`);
-          setUserLocation({ lat: bestPosition.lat, lng: bestPosition.lng });
-          setShowUserInfo(false);
-
-          if (map) {
-            map.panTo({ lat: bestPosition.lat, lng: bestPosition.lng });
-            const zoomLevel = bestPosition.accuracy < 20 ? 18 : bestPosition.accuracy < 50 ? 17 : 16;
-            map.setZoom(zoomLevel);
+          if (bestPosition) {
+            applyPosition(bestPosition.lat, bestPosition.lng, bestPosition.accuracy);
+            return;
           }
 
-          setLoadingLocation(false);
-          alert(`${getTranslation('precision', language)}: ${Math.round(bestPosition.accuracy)}m.`);
-        } else {
-          setLoadingLocation(false);
-          alert(getTranslation('locationTimeoutDefault', language));
-        }
-}, 45000);
-    }, [map]);
+          // Fallback par IP si GPS échoue
+          locateByIP(applyPosition).then(success => {
+            if (!success) {
+              setLoadingLocation(false);
+              const msg = error.code === 1
+                ? 'Permission refusée. Autorisez la géolocalisation dans votre navigateur.'
+                : 'Position indisponible.';
+              showNotification(msg, 'error');
+            }
+          });
+        },
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+      );
 
-   // Appeler locateUser quand la carte est chargée
-   useEffect(() => {
-     if (map) locateUser();
-   }, [map, locateUser]);
+      timeoutId = setTimeout(() => {
+        if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
+        if (bestPosition) {
+          applyPosition(bestPosition.lat, bestPosition.lng, bestPosition.accuracy);
+        } else {
+          locateByIP(applyPosition).then(success => {
+            if (!success) {
+              setLoadingLocation(false);
+              showNotification('Délai dépassé. Réessayez.', 'error');
+            }
+          });
+        }
+      }, 25000);
+    }, [map, language, locateByIP]);
+
+   // Ne pas appeler locateUser automatiquement au chargement
 
     // Géocodage inverse pour obtenir l'adresse depuis les coordonnées
    const getAddressFromCoords = async (lat, lng) => {
@@ -801,18 +778,6 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
       });
     };
 
-  useEffect(() => {
-    if (!navigator.geolocation) {
-      console.warn('La géolocalisation n est pas supportée');
-    return;
-  }
-
-    navigator.permissions?.query({ name: 'geolocation' })
-      .then(permissionStatus => {
-        console.log('Permission géolocation:', permissionStatus.state);
-      })
-      .catch(console.error);
-  }, []);
 
 // Fonction utilitaire pour convertir les types vers l'enum
 const convertToEnumType = (type) => {

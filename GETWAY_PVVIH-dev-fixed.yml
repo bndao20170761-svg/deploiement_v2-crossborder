@@ -44,6 +44,7 @@ spring:
               - "http://16.171.10.0:3002"
               - "http://16.171.10.0:3003"
               - "http://16.171.10.0:8080"
+              - "https://16.171.10.0"
             allowedMethods:
               - GET
               - POST
@@ -57,7 +58,7 @@ spring:
       
       # Filtres par défaut appliqués à toutes les routes
       default-filters:
-        - AddRequestHeader=X-Forwarded-Proto, http
+        - AddRequestHeader=X-Forwarded-Proto, https
         - AddRequestHeader=X-Forwarded-Host, gateway-pvvih:8080
         - PreserveHostHeader
       
