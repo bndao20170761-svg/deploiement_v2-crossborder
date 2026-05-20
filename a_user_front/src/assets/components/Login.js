@@ -27,7 +27,7 @@ const Login = () => {
       return;
     }
     try {
-      const response = await axios.post(`${process.env.REACT_APP_GATEWAY_URL || 'http://34.28.161.231:8080'}/api/user-auth/login`, {
+      const response = await axios.post(`${process.env.REACT_APP_GATEWAY_URL || 'http://13.53.133.40:8080'}/api/user-auth/login`, {
         username: trimmedUsername,
         password: trimmedPassword,
       }, {
