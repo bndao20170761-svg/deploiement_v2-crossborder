@@ -61,6 +61,7 @@ MYSQL_USER_PASSWORD=user123
 MYSQL_REFERENCE_PASSWORD=reference123
 MYSQL_PATIENT_PASSWORD=patient123
 SPRING_PROFILES_ACTIVE=dev
+REACT_APP_GATEWAY_URL=http://localhost:8080
 "@
 
 Set-Content -Path ".env" -Value $envContent
