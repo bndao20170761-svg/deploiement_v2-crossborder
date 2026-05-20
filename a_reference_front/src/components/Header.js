@@ -19,7 +19,7 @@ import { navigateToMicroservice } from "../config/microservices";
 import SenegalFlag from "./im/sn.svg";
 import GwFlag from "./im/gw.svg";
 import GmFlag from "./im/gm.svg";
-import logo from "../im/feve_logo.jpg";
+import logo from "./im/feve_logo.png";
 
 const Header = ({
   onMenuSelect = () => {},
@@ -64,7 +64,7 @@ const Header = ({
           };
 
 
-  const { user, logout } = useContext(AuthContext);
+  const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -145,9 +145,7 @@ const Header = ({
     navigateToMicroservice('FORUM');
   };
 
-const [currentLang, setCurrentLang] = useState(language);
  const handleLanguageSelect = (lang) => {
-   setCurrentLang(lang); // ⚡ mettre à jour localement
    onLanguageChange(lang); // ⚡ prévenir le parent si nécessaire
    setIsLanguageOpen(false);
    setIsMobileMenuOpen(false);

@@ -2,6 +2,11 @@
   // Menu & titres
   autoReference: { fr: 'Auto Référence', en: 'Auto Reference', pt: 'Auto Referência' },
   patient: { fr: 'Patient', en: 'Patient', pt: 'Paciente' },
+  platformTitle: {
+  fr: 'Plateforme de Référence et de Contre Référence Transfrontalière',
+  en: 'Cross-Border Referral and Counter-Referral Platform',
+  pt: 'Plataforma de Referência e Contra Referência Transfronteiriça'
+},
 
                                                               addAutoReference: {
                                                                 fr: "Ajouter Auto Référence",

@@ -4,8 +4,8 @@ import { AuthContext } from "./AuthContext";
 import api from "../services/api";
 import { getTranslation } from "../utils/translations";
 import { useNavigate } from "react-router-dom";
-import LanguageSelector from "./LanguageSelector";
-import logo from "../im/feve_logo.jpg";
+import Header from "./Header";
+import logo from "./im/feve_logo.png";
 import { isJwtFormatValid, normalizeToken } from "../utils/tokenUtils";
 
 const Login = () => {
@@ -16,7 +16,6 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [selectedLang, setSelectedLang] = useState("fr");
-  const [menuOpen, setMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   // use api instance baseURL (configured in src/services/api.js)
@@ -93,138 +92,81 @@ const Login = () => {
     }
   };
 
-  const handleMenuSelect = (option) => {
-    setMenuOpen(false);
-    if (option === "register") navigate("/register");
-    else if (option === "logout") {
-      // use context logout if available and clear storage
-      try {
-        logout && logout();
-      } catch (err) {
-        console.warn("logout context error:", err);
-      }
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      navigate("/login");
-    }
-  };
-
   return (
-    <div
-      className="min-h-screen flex flex-col bg-gray-100"
-      style={{
-        backgroundImage: `url(${logo})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      {/* Barre de menu verte */}
-      <div className="flex justify-end items-center bg-gradient-to-r from-green-800 to-green-700 text-white p-4 shadow">
-
-        {/* Sélecteur de langue avec drapeaux */}
-        <span className="bg-white text-green-800 px-4 py-1 rounded hover:bg-green-100">
-          <LanguageSelector
-            selectedLang={selectedLang}
-            onChange={setSelectedLang}
-          />
-        </span>
-
-        {/* Menu compte */}
-        <div className="relative ml-4">
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="bg-white text-green-800 px-4 py-1 rounded hover:bg-green-100"
-          >
-            {getTranslation("account", selectedLang) || "Compte"}
-          </button>
-          {menuOpen && (
-            <div className="absolute right-0 mt-2 bg-white border rounded shadow-md z-10 text-gray-700">
-              <ul className="text-sm">
-                {!isAuthenticated && (
-                  <li>
-                    <button
-                      onClick={() => handleMenuSelect("register")}
-                      className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-                    >
-                      {getTranslation("register", selectedLang) || "Inscription"}
-                    </button>
-                  </li>
-                )}
-                {isAuthenticated && (
-                  <li>
-                    <button
-                      onClick={() => handleMenuSelect("logout")}
-                      className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-                    >
-                      {getTranslation("logout", selectedLang) || "Déconnexion"}
-                    </button>
-                  </li>
-                )}
-              </ul>
-            </div>
-          )}
-        </div>
-      </div>
+    <div className="login-page">
+      {/* Header component integration */}
+      <Header 
+        language={selectedLang} 
+        onLanguageChange={setSelectedLang} 
+        onMenuSelect={(menu) => menu === 'register' && navigate('/register')}
+      />
 
       {/* Formulaire de connexion */}
-      <div className="flex-grow flex items-center justify-center">
-        <div className="bg-white/95 p-8 rounded shadow-md w-full max-w-sm">
-          {/* Logo en haut du formulaire */}
-          <div className="flex justify-center mb-4">
+      <div className="login-content">
+        <div className="login-card">
+          {/* Section Gauche: Texte et Formulaire */}
+          <div className="login-left">
+            <h1 className="login-title">
+  {getTranslation("platformTitle", selectedLang) || "Plateforme de Référence et de Contre Référence Transfrontalière"}
+</h1>
+            <h2 className="login-subtitle">
+              {getTranslation("login", selectedLang) || "Connexion"}
+            </h2>
+            <form onSubmit={handleLogin} className="login-form">
+              <div className="form-group">
+                <label className="form-label">
+                  {getTranslation("email", selectedLang) || "Email"}
+                </label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="form-input"
+                  disabled={isLoading}
+                  placeholder="votre@email.com"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">
+                  {getTranslation("password", selectedLang) || "Mot de passe"}
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="form-input"
+                  disabled={isLoading}
+                  placeholder="••••••••"
+                />
+              </div>
+              <button
+                type="submit"
+                className="login-button"
+                disabled={isLoading}
+              >
+                {isLoading ? "Connexion..." : (getTranslation("login", selectedLang) || "Se Connecter")}
+              </button>
+              
+              <div className="form-footer">
+                <button
+                  type="button"
+                  onClick={() => { localStorage.clear(); alert("Cache nettoyé !"); }}
+                  className="cache-button"
+                >
+                  Nettoyer le cache
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Section Droite: Logo FEVE */}
+          <div className="login-right">
             <img
               src={logo}
-              alt="Logo"
-              className="h-20 w-20 object-contain rounded-full shadow-md bg-white"
+              alt="Logo FEVE"
+              className="login-logo"
             />
           </div>
-          <h2 className="text-2xl font-bold mb-6 text-center text-green-700">
-            {getTranslation("login", selectedLang) || "Connexion"}
-          </h2>
-          <form onSubmit={handleLogin}>
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2">
-                {getTranslation("email", selectedLang) || "Email"}
-              </label>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-green-500"
-                disabled={isLoading}
-              />
-            </div>
-            <div className="mb-6">
-              <label className="block text-gray-700 mb-2">
-                {getTranslation("password", selectedLang) || "Mot de passe"}
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-green-500"
-                disabled={isLoading}
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full bg-green-700 text-white py-2 rounded hover:bg-green-800 transition disabled:bg-gray-400"
-              disabled={isLoading}
-            >
-              {isLoading ? "Connexion..." : (getTranslation("login", selectedLang) || "Connexion")}
-            </button>
-            
-            {/* Bouton de nettoyage pour les tests */}
-            <button
-              type="button"
-              onClick={() => {
-                localStorage.clear();
-                alert("localStorage nettoyé !");
-              }}
-              className="w-full mt-2 bg-gray-500 text-white py-1 rounded hover:bg-gray-600 transition text-sm"
-            >
-              Nettoyer le cache
-            </button>
-          </form>
         </div>
       </div>
     </div>

@@ -20,7 +20,7 @@ import { AuthContext } from "./AuthContext";
 import SenegalFlag from "./im/sn.svg";
 import GwFlag from "./im/gw.svg";
 import GmFlag from "./im/gm.svg";
-import logo from "../../im/feve_logo.jpg";
+import logo from "../../im/feve_logo.png";
 
 const Header = ({
   onMenuSelect = () => {},

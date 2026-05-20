@@ -1,6 +1,11 @@
 export const translations = {
   // Menu & titres
   reference: { fr: 'Référence', en: 'Reference', pt: 'Referência' },
+  platformTitle: {
+  fr: 'Gestion des utilisateurs de la plateforme',
+  en: 'Platform User Management',
+  pt: 'Gestão dos utilizadores da plataforma'
+},
   autoReference: { fr: 'Auto Référence', en: 'Auto Reference', pt: 'Auto Referência' },
   patient: { fr: 'Patient', en: 'Patient', pt: 'Paciente' },
       dateNaissance: { fr: "Date de naissance", en: "Date of Birth", pt: "Data de nascimento" },
