@@ -79,7 +79,7 @@ public class SecurityConfig {
         List<String> patterns = new ArrayList<>(List.of(
                 "http://localhost:*",
                 "http://127.0.0.1:*",
-                "http://16.171.10.0:*"
+                "http://13.53.133.40:*"
         ));
         if (allowedOriginsEnv != null && !allowedOriginsEnv.trim().isEmpty()) {
             for (String part : allowedOriginsEnv.split(",")) {

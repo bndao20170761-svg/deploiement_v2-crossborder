@@ -99,12 +99,12 @@ public class SecurityConfig {
                     "http://127.0.0.1:4000",
                     "http://localhost:8080",
                     "http://localhost:8081",
-                    // Production GCP (IP: 16.171.10.0)
-                    "http://16.171.10.0:3000",
-                    "http://16.171.10.0:3001",
-                    "http://16.171.10.0:3002",
-                    "http://16.171.10.0:3003",
-                    "http://16.171.10.0:8080",
+                    // Production GCP (IP: 13.53.133.40)
+                    "http://13.53.133.40:3000",
+                    "http://13.53.133.40:3001",
+                    "http://13.53.133.40:3002",
+                    "http://13.53.133.40:3003",
+                    "http://13.53.133.40:8080",
                     // Communication interne Docker
                     "http://gateway-pvvih:8080",
                     "http://gestion-forum-front",
