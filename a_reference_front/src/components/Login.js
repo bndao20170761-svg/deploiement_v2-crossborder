@@ -1,4 +1,3 @@
-// ...existing code...
 import React, { useState, useContext } from "react";
 import { AuthContext } from "./AuthContext";
 import api from "../services/api";
@@ -7,15 +6,16 @@ import { useNavigate } from "react-router-dom";
 import Header from "./Header";
 import logo from "./im/feve_logo.png";
 import { isJwtFormatValid, normalizeToken } from "../utils/tokenUtils";
+import "./Login.css";
 
 const Login = () => {
-  // ...existing code...
-  const { login, logout, isAuthenticated } = useContext(AuthContext); // added logout
+  const { login, logout, isAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [selectedLang, setSelectedLang] = useState("fr");
+  const [menuOpen, setMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   // use api instance baseURL (configured in src/services/api.js)
@@ -92,23 +92,39 @@ const Login = () => {
     }
   };
 
+  const handleMenuSelect = (option) => {
+    setMenuOpen(false);
+    if (option === "register") navigate("/register");
+    else if (option === "logout") {
+      // use context logout if available and clear storage
+      try {
+        logout && logout();
+      } catch (err) {
+        console.warn("logout context error:", err);
+      }
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      navigate("/login");
+    }
+  };
+
   return (
     <div className="login-page">
-      {/* Header component integration */}
-      <Header 
-        language={selectedLang} 
-        onLanguageChange={setSelectedLang} 
-        onMenuSelect={(menu) => menu === 'register' && navigate('/register')}
+      {/* Intégration du Header pour la langue et le menu */}
+      <Header
+        language={selectedLang}
+        onLanguageChange={setSelectedLang}
+        onMenuSelect={(menu) => menu === "register" && navigate("/register")}
       />
 
-      {/* Formulaire de connexion */}
       <div className="login-content">
         <div className="login-card">
           {/* Section Gauche: Texte et Formulaire */}
           <div className="login-left">
             <h1 className="login-title">
-  {getTranslation("platformTitle", selectedLang) || "Plateforme de Référence et de Contre Référence Transfrontalière"}
-</h1>
+              {getTranslation("platformTitle", selectedLang) ||
+                "Plateforme de Référence et de Contre Référence Transfrontalière"}
+            </h1>
             <h2 className="login-subtitle">
               {getTranslation("login", selectedLang) || "Connexion"}
             </h2>
@@ -139,18 +155,19 @@ const Login = () => {
                   placeholder="••••••••"
                 />
               </div>
-              <button
-                type="submit"
-                className="login-button"
-                disabled={isLoading}
-              >
-                {isLoading ? "Connexion..." : (getTranslation("login", selectedLang) || "Se Connecter")}
+              <button type="submit" className="login-button" disabled={isLoading}>
+                {isLoading
+                  ? "Connexion..."
+                  : getTranslation("login", selectedLang) || "Se Connecter"}
               </button>
-              
+
               <div className="form-footer">
                 <button
                   type="button"
-                  onClick={() => { localStorage.clear(); alert("Cache nettoyé !"); }}
+                  onClick={() => {
+                    localStorage.clear();
+                    alert("Cache nettoyé !");
+                  }}
                   className="cache-button"
                 >
                   Nettoyer le cache
@@ -161,11 +178,7 @@ const Login = () => {
 
           {/* Section Droite: Logo FEVE */}
           <div className="login-right">
-            <img
-              src={logo}
-              alt="Logo FEVE"
-              className="login-logo"
-            />
+            <img src={logo} alt="Logo FEVE" className="login-logo" />
           </div>
         </div>
       </div>
@@ -174,4 +187,3 @@ const Login = () => {
 };
 
 export default Login;
-// ...existing code...
