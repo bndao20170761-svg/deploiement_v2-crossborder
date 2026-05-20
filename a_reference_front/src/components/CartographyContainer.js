@@ -21,26 +21,6 @@ const CartographyContainer = ({ language = 'fr' }) => {
       : { center: [14.6928, -17.4467], zoom: 6 };
   });
 
-  // 🔥 GÉOLOCALISATION DE L'UTILISATEUR AU DÉMARRAGE
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    // Si aucune position n'est sauvegardée, on tente de géolocaliser l'utilisateur
-    if (!saved && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          console.log("📍 Géolocalisation réussie :", latitude, longitude);
-          setMapState({ center: [latitude, longitude], zoom: 13 });
-          showNotification(getTranslation('locationDetected', language) || "📍 Position détectée", 'success');
-        },
-        (error) => {
-          console.warn("⚠️ Géolocalisation refusée ou impossible :", error.message);
-        },
-        { enableHighAccuracy: true }
-      );
-    }
-  }, [language]);
-
   // 🔥 CHARGER LES HÔPITAUX DU DOCTEUR
   useEffect(() => {
     const loadMyHospitals = async () => {
@@ -222,3 +202,4 @@ useEffect(() => {
 };
 
 export default CartographyContainer;
+
