@@ -84,6 +84,11 @@ const Header = ({
 
   useEffect(() => {
     const fetchDoctor = async () => {
+      const token = localStorage.getItem("token");
+      // Ne pas tenter de récupérer l'utilisateur si on n'est pas authentifié (ex: sur la page Login)
+      if (!token) {
+        return;
+      }
       try {
         const response = await axios.get(
           `${process.env.REACT_APP_GATEWAY_URL || 'http://34.28.161.231:8080'}/api/user/me`,

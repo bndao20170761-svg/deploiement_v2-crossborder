@@ -51,7 +51,11 @@ const Login = () => {
       navigate("/");
     } catch (error) {
       console.error("Erreur de connexion :", error.response?.data || error.message);
-      alert("Nom d'utilisateur ou mot de passe incorrect");
+      if (error.message === "Network Error") {
+        alert("Erreur réseau : Impossible de joindre le serveur. Vérifiez que l'URL du Gateway (REACT_APP_GATEWAY_URL) inclut bien le port :8080.");
+      } else {
+        alert("Nom d'utilisateur ou mot de passe incorrect");
+      }
     } finally {
       setIsLoading(false);
     }
