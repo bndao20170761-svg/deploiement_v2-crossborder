@@ -124,6 +124,7 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
     const [mapLoaded, setMapLoaded] = useState(false);
     const [loadingAction, setLoadingAction] = useState(false);
     const [showUserInfo, setShowUserInfo] = useState(false);
+   const [showHttpGeoDialog, setShowHttpGeoDialog] = useState(false);
 
    // Nouveaux états pour le système d'étapes
    const [activeStep, setActiveStep] = useState(0);
@@ -246,36 +247,21 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
      }
    };
 
-    // Géolocalisation via Google Maps Geolocation API (WiFi + cellulaire, fonctionne sur HTTP)
-    const locateByGoogleAPI = useCallback(async (applyPosition) => {
-      try {
-        console.log('📡 Tentative Google Maps Geolocation API...');
-        const response = await fetch(
-          `https://www.googleapis.com/geolocation/v1/geolocate?key=${GOOGLE_MAPS_API_KEY}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ considerIp: true }),
-            signal: AbortSignal.timeout(10000)
-          }
-        );
-        if (!response.ok) throw new Error(`Google Geolocation API error: ${response.status}`);
-        const data = await response.json();
-        if (data.location && data.location.lat && data.location.lng) {
-          const accuracy = data.accuracy || 1000;
-          console.log(`📍 Google Geolocation: ${data.location.lat}, ${data.location.lng}, précision: ${accuracy}m`);
-          applyPosition(data.location.lat, data.location.lng, accuracy);
-          return true;
-        }
-      } catch (e) {
-        console.error('Google Geolocation API échouée:', e);
-      }
-      return false;
-    }, []);
-
     const locateUser = useCallback(() => {
       if (!map) return;
 
+      const isHttpBlocked =
+        window.location.protocol === 'http:' &&
+        window.location.hostname !== 'localhost' &&
+        window.location.hostname !== '127.0.0.1';
+
+      // Sur HTTP non-localhost : GPS bloqué par le navigateur, on informe l'utilisateur
+      if (isHttpBlocked || !navigator.geolocation) {
+        setShowHttpGeoDialog(true);
+        return;
+      }
+
+      // Sur HTTPS ou localhost : GPS navigateur précis
       setLoadingLocation(true);
 
       const applyPosition = (lat, lng, accuracy) => {
@@ -285,30 +271,11 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
         setLoadingLocation(false);
         if (map) {
           map.panTo(userLoc);
-          // Zoom adapté à la précision obtenue
-          const zoom = accuracy < 100 ? 17 : accuracy < 500 ? 15 : accuracy < 2000 ? 13 : 11;
+          const zoom = accuracy < 50 ? 17 : accuracy < 200 ? 16 : 15;
           map.setZoom(zoom);
         }
       };
 
-      const isHttpBlocked = window.location.protocol === 'http:' &&
-        window.location.hostname !== 'localhost' &&
-        window.location.hostname !== '127.0.0.1';
-
-      // Sur HTTP non-localhost : navigator.geolocation est bloqué par le navigateur
-      // On utilise Google Maps Geolocation API (WiFi/cellulaire, bien plus précis que l'IP)
-      if (isHttpBlocked || !navigator.geolocation) {
-        console.warn('GPS navigateur non disponible sur HTTP, utilisation de Google Geolocation API');
-        locateByGoogleAPI(applyPosition).then(success => {
-          if (!success) {
-            setLoadingLocation(false);
-            showNotification('Position indisponible. Passez en HTTPS pour une localisation GPS précise.', 'error');
-          }
-        });
-        return;
-      }
-
-      // Sur HTTPS ou localhost : GPS navigateur (le plus précis)
       let bestPosition = null;
       let bestAccuracy = Infinity;
       let watchId = null;
@@ -331,22 +298,15 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
           console.error('❌ Erreur GPS:', error);
           if (watchId !== null) navigator.geolocation.clearWatch(watchId);
           if (timeoutId !== null) clearTimeout(timeoutId);
-
+          setLoadingLocation(false);
           if (bestPosition) {
             applyPosition(bestPosition.lat, bestPosition.lng, bestPosition.accuracy);
-            return;
+          } else {
+            const msg = error.code === 1
+              ? 'Permission refusée. Autorisez la géolocalisation dans votre navigateur.'
+              : 'Position GPS indisponible.';
+            alert(`❌ ${msg}`);
           }
-
-          // Fallback Google Geolocation API si GPS échoue
-          locateByGoogleAPI(applyPosition).then(success => {
-            if (!success) {
-              setLoadingLocation(false);
-              const msg = error.code === 1
-                ? 'Permission refusée. Autorisez la géolocalisation dans votre navigateur.'
-                : 'Position indisponible.';
-              showNotification(msg, 'error');
-            }
-          });
         },
         { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
       );
@@ -356,15 +316,11 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
         if (bestPosition) {
           applyPosition(bestPosition.lat, bestPosition.lng, bestPosition.accuracy);
         } else {
-          locateByGoogleAPI(applyPosition).then(success => {
-            if (!success) {
-              setLoadingLocation(false);
-              showNotification('Délai dépassé. Réessayez.', 'error');
-            }
-          });
+          setLoadingLocation(false);
+          alert('❌ Délai GPS dépassé. Réessayez.');
         }
       }, 25000);
-    }, [map, language, locateByGoogleAPI]);
+    }, [map]);
 
    // Ne pas appeler locateUser automatiquement au chargement
 
@@ -1896,6 +1852,40 @@ const saveNewHospital = async () => {
                   }}
                 />
               </DialogContent>
+            </Dialog>
+
+            {/* Dialog info géolocalisation HTTP */}
+            <Dialog open={showHttpGeoDialog} onClose={() => setShowHttpGeoDialog(false)} maxWidth="sm" fullWidth>
+              <DialogTitle>📍 Géolocalisation non disponible</DialogTitle>
+              <DialogContent>
+                <Alert severity="warning" sx={{ mb: 2 }}>
+                  Votre navigateur bloque le GPS sur les connexions HTTP non sécurisées.
+                </Alert>
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  Pour vous géolocaliser précisément, vous avez deux options :
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 0.5 }}>
+                  <strong>Option 1 (recommandée) :</strong> Accédez à l'application via <strong>HTTPS</strong> pour activer le GPS de votre appareil.
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 2 }}>
+                  <strong>Option 2 :</strong> Cliquez directement sur votre position sur la carte pour vous y placer manuellement.
+                </Typography>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setShowHttpGeoDialog(false)} variant="outlined">
+                  Fermer
+                </Button>
+                <Button
+                  onClick={() => {
+                    setShowHttpGeoDialog(false);
+                    // Centrer la carte sur le Sénégal pour que l'utilisateur puisse cliquer
+                    if (map) { map.panTo({ lat: 12.5833, lng: -16.2719 }); map.setZoom(13); }
+                  }}
+                  variant="contained"
+                >
+                  Aller à Ziguinchor
+                </Button>
+              </DialogActions>
             </Dialog>
           </Box>
         );
