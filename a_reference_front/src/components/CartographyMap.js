@@ -246,31 +246,29 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
      }
    };
 
-    // Fallback géolocalisation par IP (fonctionne sur HTTP)
-    const locateByIP = useCallback(async (applyPosition) => {
+    // Géolocalisation via Google Maps Geolocation API (WiFi + cellulaire, fonctionne sur HTTP)
+    const locateByGoogleAPI = useCallback(async (applyPosition) => {
       try {
-        console.log('📡 Tentative géolocalisation par IP...');
-        const response = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(8000) });
-        if (!response.ok) throw new Error('ipapi.co failed');
+        console.log('📡 Tentative Google Maps Geolocation API...');
+        const response = await fetch(
+          `https://www.googleapis.com/geolocation/v1/geolocate?key=${GOOGLE_MAPS_API_KEY}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ considerIp: true }),
+            signal: AbortSignal.timeout(10000)
+          }
+        );
+        if (!response.ok) throw new Error(`Google Geolocation API error: ${response.status}`);
         const data = await response.json();
-        if (data.latitude && data.longitude) {
-          console.log(`📍 Position par IP: ${data.latitude}, ${data.longitude} (${data.city})`);
-          applyPosition(data.latitude, data.longitude, 5000); // précision ~5km pour IP
+        if (data.location && data.location.lat && data.location.lng) {
+          const accuracy = data.accuracy || 1000;
+          console.log(`📍 Google Geolocation: ${data.location.lat}, ${data.location.lng}, précision: ${accuracy}m`);
+          applyPosition(data.location.lat, data.location.lng, accuracy);
           return true;
         }
       } catch (e) {
-        console.warn('ipapi.co échoué, essai ip-api.com...', e);
-      }
-      try {
-        const response = await fetch('http://ip-api.com/json/?fields=lat,lon,city,status', { signal: AbortSignal.timeout(8000) });
-        const data = await response.json();
-        if (data.status === 'success' && data.lat && data.lon) {
-          console.log(`📍 Position par IP (fallback): ${data.lat}, ${data.lon}`);
-          applyPosition(data.lat, data.lon, 5000);
-          return true;
-        }
-      } catch (e) {
-        console.error('Géolocalisation par IP échouée:', e);
+        console.error('Google Geolocation API échouée:', e);
       }
       return false;
     }, []);
@@ -287,8 +285,8 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
         setLoadingLocation(false);
         if (map) {
           map.panTo(userLoc);
-          // Zoom adapté : précision GPS vs IP
-          const zoom = accuracy < 50 ? 17 : accuracy < 500 ? 15 : accuracy < 5000 ? 12 : 10;
+          // Zoom adapté à la précision obtenue
+          const zoom = accuracy < 100 ? 17 : accuracy < 500 ? 15 : accuracy < 2000 ? 13 : 11;
           map.setZoom(zoom);
         }
       };
@@ -297,20 +295,20 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
         window.location.hostname !== 'localhost' &&
         window.location.hostname !== '127.0.0.1';
 
-      // Sur HTTP non-localhost, navigator.geolocation est bloqué par le navigateur
-      // On passe directement à la géolocalisation par IP
+      // Sur HTTP non-localhost : navigator.geolocation est bloqué par le navigateur
+      // On utilise Google Maps Geolocation API (WiFi/cellulaire, bien plus précis que l'IP)
       if (isHttpBlocked || !navigator.geolocation) {
-        console.warn('Géolocalisation GPS non disponible sur HTTP, utilisation de la géolocalisation par IP');
-        locateByIP(applyPosition).then(success => {
+        console.warn('GPS navigateur non disponible sur HTTP, utilisation de Google Geolocation API');
+        locateByGoogleAPI(applyPosition).then(success => {
           if (!success) {
             setLoadingLocation(false);
-            showNotification('Position indisponible. Activez HTTPS pour une localisation précise.', 'error');
+            showNotification('Position indisponible. Passez en HTTPS pour une localisation GPS précise.', 'error');
           }
         });
         return;
       }
 
-      // Sur HTTPS ou localhost : utiliser le GPS du navigateur
+      // Sur HTTPS ou localhost : GPS navigateur (le plus précis)
       let bestPosition = null;
       let bestAccuracy = Infinity;
       let watchId = null;
@@ -339,8 +337,8 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
             return;
           }
 
-          // Fallback par IP si GPS échoue
-          locateByIP(applyPosition).then(success => {
+          // Fallback Google Geolocation API si GPS échoue
+          locateByGoogleAPI(applyPosition).then(success => {
             if (!success) {
               setLoadingLocation(false);
               const msg = error.code === 1
@@ -358,7 +356,7 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
         if (bestPosition) {
           applyPosition(bestPosition.lat, bestPosition.lng, bestPosition.accuracy);
         } else {
-          locateByIP(applyPosition).then(success => {
+          locateByGoogleAPI(applyPosition).then(success => {
             if (!success) {
               setLoadingLocation(false);
               showNotification('Délai dépassé. Réessayez.', 'error');
@@ -366,7 +364,7 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
           });
         }
       }, 25000);
-    }, [map, language, locateByIP]);
+    }, [map, language, locateByGoogleAPI]);
 
    // Ne pas appeler locateUser automatiquement au chargement
 
