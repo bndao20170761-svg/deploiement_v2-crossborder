@@ -3,12 +3,14 @@ import { AuthContext } from "./AuthContext";
 import axios from "axios";
 import { getTranslation } from "../utils/translations";
 import { useNavigate } from "react-router-dom";
-import Header from "./Header";
 import logo from "../../im/feve_logo.png";
+import SenegalFlag from "./im/sn.svg";
+import GwFlag from "./im/gw.svg";
+import GmFlag from "./im/gm.svg";
 import "./Login.css";
 
 const Login = () => {
-  const { login, logout, isAuthenticated } = useContext(AuthContext);
+  const { login, isAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
@@ -63,12 +65,39 @@ const Login = () => {
 
   return (
     <div className="login-page">
-      {/* Header component integration */}
-      <Header 
-        language={selectedLang} 
-        onLanguageChange={setSelectedLang} 
-        onMenuSelect={(menu) => menu === 'register' && navigate('/register')}
-      />
+      {/* Mini header pour la page de login : logo + sélecteur de langue uniquement */}
+      <div className="bg-gradient-to-r from-green-800 to-green-700 text-white shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14">
+            <img
+              src={logo}
+              alt="Logo"
+              className="h-10 w-10 rounded-full object-cover border-2 border-white shadow-md"
+            />
+            <div className="flex items-center gap-2">
+              {[
+                { code: 'fr', icon: <img src={SenegalFlag} alt="FR" className="w-5 h-5" />, label: 'FR' },
+                { code: 'en', icon: <img src={GmFlag} alt="EN" className="w-5 h-5" />, label: 'EN' },
+                { code: 'pt', icon: <img src={GwFlag} alt="PT" className="w-5 h-5" />, label: 'PT' },
+              ].map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => setSelectedLang(lang.code)}
+                  className={`flex items-center gap-1 px-2 py-1 rounded text-sm transition-colors ${
+                    selectedLang === lang.code
+                      ? 'bg-white text-green-800 font-semibold'
+                      : 'hover:bg-green-600'
+                  }`}
+                  type="button"
+                >
+                  {lang.icon}
+                  <span>{lang.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Formulaire de connexion */}
       <div className="login-content">
