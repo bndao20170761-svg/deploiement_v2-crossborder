@@ -368,12 +368,25 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
     return { ville, pays };
   };
 
-   // Gestion du clic sur la carte
+   // Gestion du clic sur la carte - PLACEMENT MANUEL DE POSITION
    const onMapClick = useCallback(async (event) => {
      const lat = event.latLng.lat();
      const lng = event.latLng.lng();
 
-    // Vérifier si le clic est à la position utilisateur
+    // Définir cette position comme position utilisateur (placement manuel)
+    const newPosition = { lat, lng };
+    setUserLocation(newPosition);
+
+    // Animation de centrage sur la nouvelle position
+    if (map) {
+      map.panTo(newPosition);
+      setTimeout(() => map.setZoom(16), 300);
+    }
+
+    // Message de confirmation
+    console.log('✅ Position placée manuellement:', newPosition);
+
+    // Vérifier si le clic est à la position utilisateur existante
     if (userLocation &&
         Math.abs(lat - userLocation.lat) < 0.0001 &&
         Math.abs(lng - userLocation.lng) < 0.0001) {
@@ -399,7 +412,7 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
         }
       }
     } else {
-      // Clic ailleurs sur la carte
+      // Clic ailleurs sur la carte - demander confirmation
      const confirmAdd = window.confirm(getTranslation('confirmAddAtLocation', language));
 
      if (!confirmAdd) {
@@ -1452,13 +1465,13 @@ const saveNewHospital = async () => {
           {/* Cercle de précision autour de la position */}
           <Circle
             center={userLocation}
-            radius={100}
+            radius={150}
             options={{
               strokeColor: '#4285F4',
-              strokeOpacity: 0.4,
-              strokeWeight: 2,
+              strokeOpacity: 0.6,
+              strokeWeight: 3,
               fillColor: '#4285F4',
-              fillOpacity: 0.1,
+              fillOpacity: 0.15,
             }}
           />
           
@@ -1482,8 +1495,8 @@ const saveNewHospital = async () => {
                        return 'http://maps.google.com/mapfiles/ms/icons/red-dot.png';
                      }
                    })(),
-                   scaledSize: { width: 48, height: 48 },
-                   anchor: { x: 24, y: 48 }
+                   scaledSize: window.google?.maps?.Size ? new window.google.maps.Size(52, 52) : { width: 52, height: 52 },
+                   anchor: window.google?.maps?.Point ? new window.google.maps.Point(26, 52) : { x: 26, y: 52 }
                  }}
                  title={(() => {
                    const hospitalAtPosition = hospitals.find(h =>
@@ -1497,11 +1510,10 @@ const saveNewHospital = async () => {
                        ? "Structure validée - Cliquez pour voir les détails" 
                        : "Structure en attente de validation - Cliquez pour voir les détails";
                    } else {
-                     return "Ma position - Cliquez pour enregistrer une structure ici";
+                     return "📍 MA POSITION - Cliquez pour enregistrer une structure ici";
                    }
                  })()}
-                 zIndex={25}
-                 animation={window.google?.maps?.Animation?.DROP}
+                 zIndex={30}
             onClick={() => {
                    // Vérifier s'il y a déjà un hôpital à cette position
                    const existingHospital = hospitals.find(h =>
@@ -1900,9 +1912,12 @@ const saveNewHospital = async () => {
                 <Typography variant="body2" sx={{ mb: 0.5 }}>
                   <strong>Option 1 (recommandée) :</strong> Accédez à l'application via <strong>HTTPS</strong> pour activer le GPS de votre appareil.
                 </Typography>
-                <Typography variant="body2" sx={{ mb: 2 }}>
-                  <strong>Option 2 :</strong> Cliquez directement sur votre position sur la carte pour vous y placer manuellement.
+                <Typography variant="body2" sx={{ mb: 2, color: 'primary.main', fontWeight: 'bold' }}>
+                  <strong>Option 2 :</strong> Cliquez directement sur votre position sur la carte. Un marqueur rouge apparaîtra à l'endroit cliqué.
                 </Typography>
+                <Alert severity="info" sx={{ mt: 2 }}>
+                  💡 <strong>Astuce :</strong> Après avoir cliqué sur la carte, un marqueur rouge s'affichera à votre position. Cliquez dessus pour enregistrer une structure.
+                </Alert>
               </DialogContent>
               <DialogActions>
                 <Button onClick={() => setShowHttpGeoDialog(false)} variant="outlined">
@@ -1915,6 +1930,7 @@ const saveNewHospital = async () => {
                     if (map) { map.panTo({ lat: 12.5833, lng: -16.2719 }); map.setZoom(13); }
                   }}
                   variant="contained"
+                  color="primary"
                 >
                   Aller à Ziguinchor
                 </Button>
