@@ -1,6 +1,6 @@
 // src/components/CartographyMap.jsx
 import React, { useState, useCallback, useEffect } from 'react';
-import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, Marker, InfoWindow, Circle } from '@react-google-maps/api';
 import { toggleHospitalStatus } from '../services/hospitalService';
 import { createHopital, updateHopital, getHopitalAvecPrestataires, getPrestatairesByHopitalId } from '../services/hopitalService';
 import CreateReferenceSurCarte from './CreateReferenceSurCarte';
@@ -269,10 +269,22 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
         setUserLocation(userLoc);
         setShowUserInfo(false);
         setLoadingLocation(false);
+        
+        // Centrer et zoomer avec animation fluide
         if (map) {
+          // Animation de centrage progressive
           map.panTo(userLoc);
+          
+          // Déterminer le zoom selon la précision
           const zoom = accuracy < 50 ? 17 : accuracy < 200 ? 16 : 15;
-          map.setZoom(zoom);
+          
+          // Appliquer le zoom avec un petit délai pour l'animation
+          setTimeout(() => {
+            map.setZoom(zoom);
+          }, 300);
+          
+          // Notification visuelle
+          console.log('✅ Position utilisateur localisée:', userLoc, 'Précision:', accuracy, 'm');
         }
       };
 
@@ -1433,13 +1445,47 @@ const saveNewHospital = async () => {
              />
            )}
 
-           {/* Marqueur de position utilisateur - UN SEUL qui change de couleur */}
+           {/* Marqueur de position utilisateur - CODE COULEUR SELON ÉTAT */}
+           {/* ROUGE = Position libre pour ajout | VIOLET = Structure en attente | ROUGE = Structure validée */}
     {userLocation && (
-        <Marker
-          position={userLocation}
-          icon={{
-                 url: (() => {
-                   // Vérifier s'il y a un hôpital à cette position
+        <>
+          {/* Cercle de précision autour de la position */}
+          <Circle
+            center={userLocation}
+            radius={100}
+            options={{
+              strokeColor: '#4285F4',
+              strokeOpacity: 0.4,
+              strokeWeight: 2,
+              fillColor: '#4285F4',
+              fillOpacity: 0.1,
+            }}
+          />
+          
+          {/* Marqueur principal */}
+          <Marker
+            position={userLocation}
+            icon={{
+                   url: (() => {
+                     // Vérifier s'il y a un hôpital à cette position
+                     const hospitalAtPosition = hospitals.find(h =>
+                       h.latitude && h.longitude &&
+                       Math.abs(h.latitude - userLocation.lat) < 0.0001 &&
+                       Math.abs(h.longitude - userLocation.lng) < 0.0001
+                     );
+
+                     if (hospitalAtPosition) {
+                       // Si hôpital actif → Rouge (validé), sinon → Violet (en attente)
+                       return hospitalAtPosition.active ? ICONS.active : ICONS.inactive;
+                     } else {
+                       // Pas d'hôpital → Rouge (position libre pour ajout)
+                       return 'http://maps.google.com/mapfiles/ms/icons/red-dot.png';
+                     }
+                   })(),
+                   scaledSize: { width: 48, height: 48 },
+                   anchor: { x: 24, y: 48 }
+                 }}
+                 title={(() => {
                    const hospitalAtPosition = hospitals.find(h =>
                      h.latitude && h.longitude &&
                      Math.abs(h.latitude - userLocation.lat) < 0.0001 &&
@@ -1447,99 +1493,86 @@ const saveNewHospital = async () => {
                    );
 
                    if (hospitalAtPosition) {
-                     // Si hôpital actif → Rouge, sinon → Violet
-                     return hospitalAtPosition.active ? ICONS.active : ICONS.inactive;
+                     return hospitalAtPosition.active 
+                       ? "Structure validée - Cliquez pour voir les détails" 
+                       : "Structure en attente de validation - Cliquez pour voir les détails";
                    } else {
-                     // Pas d'hôpital → Rouge (position libre)
-                     return 'http://maps.google.com/mapfiles/ms/icons/red-dot.png';
+                     return "Ma position - Cliquez pour enregistrer une structure ici";
                    }
-                 })(),
-            scaledSize: { width: 40, height: 40 }
-          }}
-               title={(() => {
-                 const hospitalAtPosition = hospitals.find(h =>
-                   h.latitude && h.longitude &&
-                   Math.abs(h.latitude - userLocation.lat) < 0.0001 &&
-                   Math.abs(h.longitude - userLocation.lng) < 0.0001
-                 );
+                 })()}
+                 zIndex={25}
+                 animation={window.google?.maps?.Animation?.DROP}
+            onClick={() => {
+                   // Vérifier s'il y a déjà un hôpital à cette position
+                   const existingHospital = hospitals.find(h =>
+                     h.latitude && h.longitude &&
+                     Math.abs(h.latitude - userLocation.lat) < 0.0001 &&
+                     Math.abs(h.longitude - userLocation.lng) < 0.0001
+                   );
 
-                 if (hospitalAtPosition) {
-                   return hospitalAtPosition.active ? "Hôpital actif - Cliquez pour voir les détails" : "Hôpital en attente de validation - Cliquez pour voir les détails";
-                 } else {
-                   return "Votre position actuelle - Cliquez pour ajouter un établissement";
-                 }
-               })()}
-               zIndex={20}
-          onClick={() => {
-                 // Vérifier s'il y a déjà un hôpital à cette position
-                 const existingHospital = hospitals.find(h =>
-                   h.latitude && h.longitude &&
-                   Math.abs(h.latitude - userLocation.lat) < 0.0001 &&
-                   Math.abs(h.longitude - userLocation.lng) < 0.0001
-                 );
-
-                 if (existingHospital) {
-                   // Afficher les détails de l'hôpital existant
-                   setSelectedHospital(existingHospital);
+                   if (existingHospital) {
+                     // Afficher les détails de l'hôpital existant
+                     setSelectedHospital(existingHospital);
             } else {
-                   // Demander confirmation pour ajouter un établissement à cette position
-                   const confirmAdd = window.confirm(getTranslation('confirmAddAtCurrentPosition', language));
+                     // Demander confirmation pour ajouter un établissement à cette position
+                     const confirmAdd = window.confirm(getTranslation('confirmAddAtCurrentPosition', language));
 
-                   if (confirmAdd) {
-                     setClickedPosition(userLocation);
-                     setLoadingLocation(true);
+                     if (confirmAdd) {
+                       setClickedPosition(userLocation);
+                       setLoadingLocation(true);
 
-                     // Réinitialisation du formulaire et des étapes
-                     setActiveStep(0);
-                     setSelectedServices([]);
-                     setProviders([]);
-                     setCurrentProvider({ type: '', nom: '', nom_prestataire: '', prenom: '', specialite: '', telephone: '', email: '' });
+                       // Réinitialisation du formulaire et des étapes
+                       setActiveStep(0);
+                       setSelectedServices([]);
+                       setProviders([]);
+                       setCurrentProvider({ type: '', nom: '', nom_prestataire: '', prenom: '', specialite: '', telephone: '', email: '' });
 
-                     // Géocodage pour obtenir l'adresse
-                     getAddressFromCoords(userLocation.lat, userLocation.lng).then(addressResult => {
-                       if (addressResult) {
-                         const locationInfo = extractLocationInfo(addressResult.address_components);
-                         setLocationInfo({
-                           ...locationInfo,
-                           adresseComplete: addressResult.formatted_address,
-                           latitude: userLocation.lat,
-                           longitude: userLocation.lng
-                         });
+                       // Géocodage pour obtenir l'adresse
+                       getAddressFromCoords(userLocation.lat, userLocation.lng).then(addressResult => {
+                         if (addressResult) {
+                           const locationInfo = extractLocationInfo(addressResult.address_components);
+                           setLocationInfo({
+                             ...locationInfo,
+                             adresseComplete: addressResult.formatted_address,
+                             latitude: userLocation.lat,
+                             longitude: userLocation.lng
+                           });
 
-                         setHospitalForm(prev => ({
-                           ...prev,
-                           ville: locationInfo.ville || '',
-                           pays: locationInfo.pays || getTranslation('defaultCountry', language),
-                           latitude: userLocation.lat,
-                           longitude: userLocation.lng,
-                           nom: locationInfo.ville
-                             ? `${getTranslation('defaultFacilityName', language)} - ${locationInfo.ville}`
-                             : getTranslation('defaultFacilityName', language)
-                         }));
-                       } else {
-                         setLocationInfo({
-                           ville: getTranslation('defaultCity', language),
-                           pays: getTranslation('defaultCountry', language),
-                           adresseComplete: `Position: ${userLocation.lat.toFixed(6)}, ${userLocation.lng.toFixed(6)}`,
-                           latitude: userLocation.lat,
-                           longitude: userLocation.lng
-                         });
+                           setHospitalForm(prev => ({
+                             ...prev,
+                             ville: locationInfo.ville || '',
+                             pays: locationInfo.pays || getTranslation('defaultCountry', language),
+                             latitude: userLocation.lat,
+                             longitude: userLocation.lng,
+                             nom: locationInfo.ville
+                               ? `${getTranslation('defaultFacilityName', language)} - ${locationInfo.ville}`
+                               : getTranslation('defaultFacilityName', language)
+                           }));
+                         } else {
+                           setLocationInfo({
+                             ville: getTranslation('defaultCity', language),
+                             pays: getTranslation('defaultCountry', language),
+                             adresseComplete: `Position: ${userLocation.lat.toFixed(6)}, ${userLocation.lng.toFixed(6)}`,
+                             latitude: userLocation.lat,
+                             longitude: userLocation.lng
+                           });
 
-                         setHospitalForm(prev => ({
-                           ...prev,
-                           latitude: userLocation.lat,
-                           longitude: userLocation.lng,
-                           nom: getTranslation('defaultFacilityName', language)
-                         }));
-                       }
+                           setHospitalForm(prev => ({
+                             ...prev,
+                             latitude: userLocation.lat,
+                             longitude: userLocation.lng,
+                             nom: getTranslation('defaultFacilityName', language)
+                           }));
+                         }
 
-                       setShowAddDialog(true);
-                       setLoadingLocation(false);
-                     });
-                   }
+                         setShowAddDialog(true);
+                         setLoadingLocation(false);
+                       });
+                     }
             }
           }}
         />
+        </>
            )}
 
            {/* ✅ INFO WINDOW CORRIGÉE POUR AFFICHER LES PRESTATAIRES DEPUIS LES SERVICES */}
