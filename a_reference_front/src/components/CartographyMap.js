@@ -114,7 +114,8 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
    const PROVIDER_TYPES = getProviderTypes(language);
     const [selectedHospital, setSelectedHospital] = useState(null);
     const [clickedPosition, setClickedPosition] = useState(null);
-    const [userLocation, setUserLocation] = useState(null);
+    // Position par défaut sur Ziguinchor (pour contourner le blocage HTTP du GPS)
+    const [userLocation, setUserLocation] = useState({ lat: 12.5833, lng: -16.2719 });
     const [mapType, setMapType] = useState('roadmap');
    const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM);
     const [geocoding, setGeocoding] = useState(null);
@@ -255,9 +256,13 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
         window.location.hostname !== 'localhost' &&
         window.location.hostname !== '127.0.0.1';
 
-      // Sur HTTP non-localhost : GPS bloqué par le navigateur, on informe l'utilisateur
+      // Sur HTTP non-localhost : Placer automatiquement sur Ziguinchor
       if (isHttpBlocked || !navigator.geolocation) {
-        setShowHttpGeoDialog(true);
+        const ziguinchorPosition = { lat: 12.5833, lng: -16.2719 };
+        setUserLocation(ziguinchorPosition);
+        map.panTo(ziguinchorPosition);
+        setTimeout(() => map.setZoom(16), 300);
+        console.log('📍 Position définie sur Ziguinchor (mode HTTP)');
         return;
       }
 
@@ -314,10 +319,12 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
           if (bestPosition) {
             applyPosition(bestPosition.lat, bestPosition.lng, bestPosition.accuracy);
           } else {
-            const msg = error.code === 1
-              ? 'Permission refusée. Autorisez la géolocalisation dans votre navigateur.'
-              : 'Position GPS indisponible.';
-            alert(`❌ ${msg}`);
+            // En cas d'erreur GPS, placer sur Ziguinchor
+            const ziguinchorPosition = { lat: 12.5833, lng: -16.2719 };
+            setUserLocation(ziguinchorPosition);
+            map.panTo(ziguinchorPosition);
+            setTimeout(() => map.setZoom(16), 300);
+            console.log('📍 Position définie sur Ziguinchor (fallback GPS)');
           }
         },
         { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
@@ -329,7 +336,12 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
           applyPosition(bestPosition.lat, bestPosition.lng, bestPosition.accuracy);
         } else {
           setLoadingLocation(false);
-          alert('❌ Délai GPS dépassé. Réessayez.');
+          // En cas de timeout, placer sur Ziguinchor
+          const ziguinchorPosition = { lat: 12.5833, lng: -16.2719 };
+          setUserLocation(ziguinchorPosition);
+          map.panTo(ziguinchorPosition);
+          setTimeout(() => map.setZoom(16), 300);
+          console.log('📍 Position définie sur Ziguinchor (timeout GPS)');
         }
       }, 25000);
     }, [map]);
