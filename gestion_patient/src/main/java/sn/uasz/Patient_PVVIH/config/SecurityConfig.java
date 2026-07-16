@@ -77,9 +77,9 @@ public class SecurityConfig {
 
         String allowedOriginsEnv = System.getenv("CORS_ALLOWED_ORIGINS");
         List<String> patterns = new ArrayList<>(List.of(
-                "http://localhost:*",
-                "http://127.0.0.1:*",
-                "http://13.53.133.40:*"
+                "https://localhost:*",
+                "https://127.0.0.1:*",
+                "https://13.53.134.15:*"
         ));
         if (allowedOriginsEnv != null && !allowedOriginsEnv.trim().isEmpty()) {
             for (String part : allowedOriginsEnv.split(",")) {

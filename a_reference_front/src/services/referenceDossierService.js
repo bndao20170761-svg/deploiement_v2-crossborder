@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { normalizeToken, isJwtFormatValid } from '../utils/tokenUtils';
 
-const API_BASE_URL = process.env.REACT_APP_GATEWAY_URL || 'http://13.53.133.40:8080';
+const API_BASE_URL = process.env.REACT_APP_GATEWAY_URL || 'https://13.53.134.15:8080';
 
 const getToken = () => normalizeToken(localStorage.getItem('token'));
 

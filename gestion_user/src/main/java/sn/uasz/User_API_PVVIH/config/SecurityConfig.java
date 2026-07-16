@@ -87,29 +87,29 @@ public class SecurityConfig {
             // Origines par défaut pour le développement local
             allowedOrigins = Arrays.asList(
                     // Accès depuis le navigateur (externe à Docker)
-                    "http://localhost:3000",
-                    "http://127.0.0.1:3000",
-                    "http://localhost:3001",
-                    "http://127.0.0.1:3001",
-                    "http://localhost:3002",
-                    "http://127.0.0.1:3002",
-                    "http://localhost:3003",
-                    "http://localhost:3004",
-                    "http://localhost:4000",
-                    "http://127.0.0.1:4000",
-                    "http://localhost:8080",
-                    "http://localhost:8081",
-                    // Production GCP (IP: 13.53.133.40)
-                    "http://13.53.133.40:3000",
-                    "http://13.53.133.40:3001",
-                    "http://13.53.133.40:3002",
-                    "http://13.53.133.40:3003",
-                    "http://13.53.133.40:8080",
+                    "https://localhost:3000",
+                    "https://127.0.0.1:3000",
+                    "https://localhost:3001",
+                    "https://127.0.0.1:3001",
+                    "https://localhost:3002",
+                    "https://127.0.0.1:3002",
+                    "https://localhost:3003",
+                    "https://localhost:3004",
+                    "https://localhost:4000",
+                    "https://127.0.0.1:4000",
+                    "https://localhost:8080",
+                    "https://localhost:8081",
+                    // Production GCP (IP: 13.53.134.15)
+                    "https://13.53.134.15:3000",
+                    "https://13.53.134.15:3001",
+                    "https://13.53.134.15:3002",
+                    "https://13.53.134.15:3003",
+                    "https://13.53.134.15:8080",
                     // Communication interne Docker
-                    "http://gateway-pvvih:8080",
-                    "http://gestion-forum-front",
-                    "http://a-reference-front",
-                    "http://a-user-front"
+                    "https://gateway-pvvih:8080",
+                    "https://gestion-forum-front",
+                    "https://a-reference-front",
+                    "https://a-user-front"
             );
         }
 
