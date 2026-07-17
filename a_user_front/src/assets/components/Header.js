@@ -90,7 +90,7 @@ const Header = ({
     const fetchDoctor = async () => {
       try {
         const response = await axios.get(
-          `${process.env.REACT_APP_GATEWAY_URL || 'https://13.53.134.15:8080'}/api/user/me`,
+          `${process.env.REACT_APP_GATEWAY_URL || 'http://13.53.134.15:8080'}/api/user/me`,
           getAuthHeader()
         );
         console.log("✅ Données utilisateur récupérées:", response.data);

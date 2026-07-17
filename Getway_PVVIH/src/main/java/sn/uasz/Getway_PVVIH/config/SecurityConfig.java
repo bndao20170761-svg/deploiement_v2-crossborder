@@ -37,27 +37,27 @@ public class SecurityConfig {
         // Autoriser tous les fronts pour le développement
         List<String> allowedOrigins = Arrays.asList(
             // Développement local
-            "https://localhost:3000",
-            "https://localhost:3001", 
-            "https://localhost:3002",
-            "https://localhost:3003",
-            "https://localhost:3004",
-            "https://localhost:4000",
-            "https://localhost:8080",
-            "https://127.0.0.1:3000",
-            "https://127.0.0.1:3001",
-            "https://127.0.0.1:3002",
-            "https://127.0.0.1:3003",
-            "https://127.0.0.1:3004",
-            "https://127.0.0.1:4000",
-            "https://127.0.0.1:8080",
+            "http://localhost:3000",
+            "http://localhost:3001", 
+            "http://localhost:3002",
+            "http://localhost:3003",
+            "http://localhost:3004",
+            "http://localhost:4000",
+            "http://localhost:8080",
+            "http://127.0.0.1:3000",
+            "http://127.0.0.1:3001",
+            "http://127.0.0.1:3002",
+            "http://127.0.0.1:3003",
+            "http://127.0.0.1:3004",
+            "http://127.0.0.1:4000",
+            "http://127.0.0.1:8080",
             // Production GCP
-            "https://13.53.134.15:3000",
-            "https://13.53.134.15:3001",
-            "https://13.53.134.15:3002",
-            "https://13.53.134.15:3003",
-            "https://13.53.134.15:4000",
-            "https://13.53.134.15:8080"
+            "http://13.53.134.15:3000",
+            "http://13.53.134.15:3001",
+            "http://13.53.134.15:3002",
+            "http://13.53.134.15:3003",
+            "http://13.53.134.15:4000",
+            "http://13.53.134.15:8080"
         );
         
         configuration.setAllowedOrigins(allowedOrigins);

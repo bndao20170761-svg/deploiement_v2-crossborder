@@ -1,4 +1,4 @@
-const BASE_URL = process.env.REACT_APP_GATEWAY_URL || 'https://13.53.134.15:8080';
+const BASE_URL = process.env.REACT_APP_GATEWAY_URL || 'http://13.53.134.15:8080';
 
 export async function apiGet(path) {
   const token = localStorage.getItem('token');
