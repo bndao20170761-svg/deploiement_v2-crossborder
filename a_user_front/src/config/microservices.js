@@ -1,30 +1,30 @@
 const MICROSERVICES_CONFIG = {
   GATEWAY: {
-    url: process.env.REACT_APP_GATEWAY_URL || 'http://13.53.134.15:8080',
+    url: process.env.REACT_APP_GATEWAY_URL || 'http://13.60.231.157:8080',
     name: 'API Gateway',
     port: 8080,
     description: 'Gateway principal pour tous les services'
   },
   USER_API: {
-    url: process.env.REACT_APP_USER_API_URL || 'http://13.53.134.15:8080/api',
+    url: process.env.REACT_APP_USER_API_URL || 'http://13.60.231.157:8080/api',
     name: 'User API',
     port: 8080,
     description: 'API utilisateur via Gateway'
   },
   FORUM: {
-    url: process.env.REACT_APP_FORUM_URL || 'http://13.53.134.15:3001',
+    url: process.env.REACT_APP_FORUM_URL || 'http://13.60.231.157:3001',
     name: 'Forum PVVIH',
     port: 3000,
     description: 'Plateforme de discussion et de gestion des sujets'
   },
   FRONTEND_1: {
-    url: process.env.REACT_APP_FRONTEND1_URL || 'http://13.53.134.15:3002',
+    url: process.env.REACT_APP_FRONTEND1_URL || 'http://13.60.231.157:3002',
     name: 'Frontend 1',
     port: 3001,
     description: 'Premier microservice frontend'
   },
   BACKEND: {
-    url: process.env.REACT_APP_API_URL || 'http://13.53.134.15:8080',
+    url: process.env.REACT_APP_API_URL || 'http://13.60.231.157:8080',
     name: 'API Backend',
     port: 8080,
     description: 'API backend pour les données (deprecated - use Gateway)'
