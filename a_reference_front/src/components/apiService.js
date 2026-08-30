@@ -1,4 +1,4 @@
-let BASE_URL = process.env.REACT_APP_GATEWAY_URL || 'http://16.171.10.0:8080';
+let BASE_URL = process.env.REACT_APP_GATEWAY_URL || 'http://100.48.20.109:8080';
 
 // Normaliser: s'assurer que le préfixe /api est présent
 if (!BASE_URL.endsWith('/api')) {

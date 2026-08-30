@@ -1,18 +1,18 @@
 const MICROSERVICES_CONFIG = {
   FORUM: {
-    url: process.env.REACT_APP_FORUM_URL || 'http://13.60.231.157:3001',
+    url: process.env.REACT_APP_FORUM_URL || 'http://100.48.20.109:3001',
     name: 'Forum PVVIH',
     port: 3000,
     description: 'Plateforme de discussion et de gestion des sujets'
   },
   FRONTEND_2: {
-    url: process.env.REACT_APP_FRONTEND2_URL || 'http://13.60.231.157:3003',
+    url: process.env.REACT_APP_FRONTEND2_URL || 'http://100.48.20.109:3003',
     name: 'Frontend 2',
     port: 3002,
     description: 'Deuxième microservice frontend'
   },
   BACKEND: {
-    url: process.env.REACT_APP_API_URL || 'http://13.60.231.157:8080',
+    url: process.env.REACT_APP_API_URL || 'http://100.48.20.109:8080',
     name: 'API Backend',
     port: 8080,
     description: 'API backend pour les données'
