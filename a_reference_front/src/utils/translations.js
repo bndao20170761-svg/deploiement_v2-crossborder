@@ -686,9 +686,9 @@
   // Géolocalisation CartographyMap
   mapNotLoaded: { fr: "La carte n'est pas encore chargée", en: "Map is not loaded yet", pt: "O mapa ainda não está carregado" },
   httpGeolocationBlocked: { 
-    fr: "🔒 Géolocalisation bloquée en HTTP\n\nVotre navigateur bloque le GPS sur les connexions HTTP non sécurisées.\n\nPour vous géolocaliser précisément, vous avez deux options :\n\n✅ Option 1 (recommandée) : Accédez à l'application via HTTPS pour activer le GPS de votre appareil.\n\n✅ Option 2 : Cliquez directement sur votre position sur la carte. Un marqueur bleu apparaîtra à l'endroit cliqué.\n\n💡 Astuce : Après avoir cliqué sur la carte, un marqueur bleu s'affichera à votre position. Cliquez dessus pour enregistrer une structure.", 
-    en: "🔒 Geolocation blocked on HTTP\n\nYour browser blocks GPS on unsecured HTTP connections.\n\nTo geolocate precisely, you have two options:\n\n✅ Option 1 (recommended): Access the application via HTTPS to enable your device's GPS.\n\n✅ Option 2: Click directly on your position on the map. A blue marker will appear where you clicked.\n\n💡 Tip: After clicking on the map, a blue marker will display at your position. Click on it to register a facility.", 
-    pt: "🔒 Geolocalização bloqueada em HTTP\n\nSeu navegador bloqueia o GPS em conexões HTTP não seguras.\n\nPara geolocalizar com precisão, você tem duas opções:\n\n✅ Opção 1 (recomendada): Acesse a aplicação via HTTPS para ativar o GPS do seu dispositivo.\n\n✅ Opção 2: Clique diretamente na sua posição no mapa. Um marcador azul aparecerá onde você clicou.\n\n💡 Dica: Após clicar no mapa, um marcador azul será exibido na sua posição. Clique nele para registrar uma estrutura." 
+    fr: "GPS automatique indisponible en HTTP.\n\nPour définir votre position :\n👉 Cliquez directement sur la carte à votre emplacement.\n\nUn marqueur bleu apparaîtra là où vous cliquez.", 
+    en: "Automatic GPS unavailable on HTTP.\n\nTo set your position:\n👉 Click directly on the map at your location.\n\nA blue marker will appear where you click.", 
+    pt: "GPS automático indisponível em HTTP.\n\nPara definir sua posição:\n👉 Clique diretamente no mapa em sua localização.\n\nUm marcador azul aparecerá onde você clicar." 
   },
   geolocationNotSupported: { fr: "La géolocalisation n'est pas supportée par votre navigateur", en: "Geolocation is not supported by your browser", pt: "A geolocalização não é compatível com seu navegador" },
   geolocationError: { fr: "Erreur lors de la géolocalisation", en: "Geolocation error", pt: "Erro de geolocalização" },
