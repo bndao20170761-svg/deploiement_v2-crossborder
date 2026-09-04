@@ -685,13 +685,18 @@
 
   // Géolocalisation CartographyMap
   mapNotLoaded: { fr: "La carte n'est pas encore chargée", en: "Map is not loaded yet", pt: "O mapa ainda não está carregado" },
-  httpGeolocationBlocked: { fr: "La géolocalisation est bloquée en HTTP. Utilisez HTTPS ou activez la position manuellement sur la carte.", en: "Geolocation is blocked on HTTP. Use HTTPS or manually set position on map.", pt: "A geolocalização está bloqueada em HTTP. Use HTTPS ou defina a posição manualmente no mapa." },
+  httpGeolocationBlocked: { 
+    fr: "🔒 Géolocalisation bloquée en HTTP\n\nVotre navigateur bloque le GPS sur les connexions HTTP non sécurisées.\n\nPour vous géolocaliser précisément, vous avez deux options :\n\n✅ Option 1 (recommandée) : Accédez à l'application via HTTPS pour activer le GPS de votre appareil.\n\n✅ Option 2 : Cliquez directement sur votre position sur la carte. Un marqueur bleu apparaîtra à l'endroit cliqué.\n\n💡 Astuce : Après avoir cliqué sur la carte, un marqueur bleu s'affichera à votre position. Cliquez dessus pour enregistrer une structure.", 
+    en: "🔒 Geolocation blocked on HTTP\n\nYour browser blocks GPS on unsecured HTTP connections.\n\nTo geolocate precisely, you have two options:\n\n✅ Option 1 (recommended): Access the application via HTTPS to enable your device's GPS.\n\n✅ Option 2: Click directly on your position on the map. A blue marker will appear where you clicked.\n\n💡 Tip: After clicking on the map, a blue marker will display at your position. Click on it to register a facility.", 
+    pt: "🔒 Geolocalização bloqueada em HTTP\n\nSeu navegador bloqueia o GPS em conexões HTTP não seguras.\n\nPara geolocalizar com precisão, você tem duas opções:\n\n✅ Opção 1 (recomendada): Acesse a aplicação via HTTPS para ativar o GPS do seu dispositivo.\n\n✅ Opção 2: Clique diretamente na sua posição no mapa. Um marcador azul aparecerá onde você clicou.\n\n💡 Dica: Após clicar no mapa, um marcador azul será exibido na sua posição. Clique nele para registrar uma estrutura." 
+  },
   geolocationNotSupported: { fr: "La géolocalisation n'est pas supportée par votre navigateur", en: "Geolocation is not supported by your browser", pt: "A geolocalização não é compatível com seu navegador" },
   geolocationError: { fr: "Erreur lors de la géolocalisation", en: "Geolocation error", pt: "Erro de geolocalização" },
   geolocationPermissionDenied: { fr: "Permission de géolocalisation refusée. Veuillez autoriser l'accès à votre position dans les paramètres du navigateur.", en: "Geolocation permission denied. Please allow location access in browser settings.", pt: "Permissão de geolocalização negada. Por favor, permita o acesso à localização nas configurações do navegador." },
   geolocationUnavailable: { fr: "Position indisponible. Vérifiez que le GPS est activé sur votre appareil.", en: "Position unavailable. Check that GPS is enabled on your device.", pt: "Posição indisponível. Verifique se o GPS está ativado em seu dispositivo." },
   geolocationTimeout: { fr: "Délai d'attente de géolocalisation dépassé.", en: "Geolocation timeout exceeded.", pt: "Tempo limite de geolocalização excedido." },
   geolocationFailed: { fr: "Impossible d'obtenir votre position. Cliquez sur la carte pour placer votre position manuellement.", en: "Unable to get your position. Click on the map to manually set your position.", pt: "Não foi possível obter sua posição. Clique no mapa para definir sua posição manualmente." },
+  manualPositionSet: { fr: "✅ Position placée manuellement à cet endroit. Cliquez sur le marqueur bleu pour enregistrer une structure de santé.", en: "✅ Position manually set at this location. Click on the blue marker to register a health facility.", pt: "✅ Posição definida manualmente neste local. Clique no marcador azul para registrar uma unidade de saúde." },
                       rota1: {
                         fr: "ROTA1",
                         en: "ROTA1",
