@@ -125,7 +125,6 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
     const [mapLoaded, setMapLoaded] = useState(false);
     const [loadingAction, setLoadingAction] = useState(false);
     const [showUserInfo, setShowUserInfo] = useState(false);
-   const [showHttpGeoDialog, setShowHttpGeoDialog] = useState(false);
 
    // Nouveaux états pour le système d'étapes
    const [activeStep, setActiveStep] = useState(0);
@@ -262,7 +261,6 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
       // Sur HTTP non-localhost : Afficher un message d'avertissement
       if (isHttpBlocked) {
         alert(getTranslation('httpGeolocationBlocked', language));
-        setShowHttpGeoDialog(true);
         return;
       }
 
@@ -1960,44 +1958,6 @@ const saveNewHospital = async () => {
                   }}
                 />
               </DialogContent>
-            </Dialog>
-
-            {/* Dialog info géolocalisation HTTP */}
-            <Dialog open={showHttpGeoDialog} onClose={() => setShowHttpGeoDialog(false)} maxWidth="sm" fullWidth>
-              <DialogTitle>📍 Géolocalisation non disponible</DialogTitle>
-              <DialogContent>
-                <Alert severity="warning" sx={{ mb: 2 }}>
-                  Votre navigateur bloque le GPS sur les connexions HTTP non sécurisées.
-                </Alert>
-                <Typography variant="body2" sx={{ mb: 1 }}>
-                  Pour vous géolocaliser précisément, vous avez deux options :
-                </Typography>
-                <Typography variant="body2" sx={{ mb: 0.5 }}>
-                  <strong>Option 1 (recommandée) :</strong> Accédez à l'application via <strong>HTTPS</strong> pour activer le GPS de votre appareil.
-                </Typography>
-                <Typography variant="body2" sx={{ mb: 2, color: 'primary.main', fontWeight: 'bold' }}>
-                  <strong>Option 2 :</strong> Cliquez directement sur votre position sur la carte. Un marqueur rouge apparaîtra à l'endroit cliqué.
-                </Typography>
-                <Alert severity="info" sx={{ mt: 2 }}>
-                  💡 <strong>Astuce :</strong> Après avoir cliqué sur la carte, un marqueur rouge s'affichera à votre position. Cliquez dessus pour enregistrer une structure.
-                </Alert>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={() => setShowHttpGeoDialog(false)} variant="outlined">
-                  Fermer
-                </Button>
-                <Button
-                  onClick={() => {
-                    setShowHttpGeoDialog(false);
-                    // Centrer la carte sur le Sénégal pour que l'utilisateur puisse cliquer
-                    if (map) { map.panTo({ lat: 12.5833, lng: -16.2719 }); map.setZoom(13); }
-                  }}
-                  variant="contained"
-                  color="primary"
-                >
-                  Aller à Ziguinchor
-                </Button>
-              </DialogActions>
             </Dialog>
           </Box>
         );
