@@ -249,66 +249,104 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
    };
 
     const locateUser = useCallback(() => {
-      if (!map) return;
+      if (!map) {
+        alert(getTranslation('mapNotLoaded', language));
+        return;
+      }
 
       const isHttpBlocked =
         window.location.protocol === 'http:' &&
         window.location.hostname !== 'localhost' &&
         window.location.hostname !== '127.0.0.1';
 
-      // Sur HTTP non-localhost : Placer automatiquement sur Ziguinchor
-      if (isHttpBlocked || !navigator.geolocation) {
-        const ziguinchorPosition = { lat: 12.5833, lng: -16.2719 };
-        setUserLocation(ziguinchorPosition);
-        map.panTo(ziguinchorPosition);
-        setTimeout(() => map.setZoom(16), 300);
-        console.log('📍 Position définie sur Ziguinchor (mode HTTP)');
+      // Sur HTTP non-localhost : Afficher un message d'avertissement
+      if (isHttpBlocked) {
+        alert(getTranslation('httpGeolocationBlocked', language));
+        setShowHttpGeoDialog(true);
+        return;
+      }
+
+      // Vérifier si la géolocalisation est disponible
+      if (!navigator.geolocation) {
+        alert(getTranslation('geolocationNotSupported', language));
         return;
       }
 
       // Sur HTTPS ou localhost : GPS navigateur précis
       setLoadingLocation(true);
+      console.log('🌍 Démarrage de la géolocalisation haute précision...');
 
       const applyPosition = (lat, lng, accuracy) => {
         const userLoc = { lat, lng };
         setUserLocation(userLoc);
-        setShowUserInfo(false);
+        setShowUserInfo(true);
         setLoadingLocation(false);
         
-        // Centrer et zoomer avec animation fluide
+        // Centrer et zoomer avec animation fluide pour une position nette
         if (map) {
           // Animation de centrage progressive
           map.panTo(userLoc);
           
-          // Déterminer le zoom selon la précision
-          const zoom = accuracy < 50 ? 17 : accuracy < 200 ? 16 : 15;
+          // Zoom élevé pour une position très précise
+          const zoom = accuracy < 20 ? 19 : accuracy < 50 ? 18 : accuracy < 100 ? 17 : 16;
           
           // Appliquer le zoom avec un petit délai pour l'animation
           setTimeout(() => {
             map.setZoom(zoom);
-          }, 300);
+          }, 400);
           
-          // Notification visuelle
-          console.log('✅ Position utilisateur localisée:', userLoc, 'Précision:', accuracy, 'm');
+          // Notification visuelle avec détails
+          console.log('✅ Position utilisateur localisée avec précision:');
+          console.log('   Latitude:', lat);
+          console.log('   Longitude:', lng);
+          console.log('   Précision:', accuracy, 'm');
+          
+          // Afficher une notification à l'utilisateur
+          const precisionMsg = accuracy < 20 ? 'excellente' : 
+                               accuracy < 50 ? 'très bonne' : 
+                               accuracy < 100 ? 'bonne' : 'moyenne';
+          alert(`✅ Position détectée avec précision ${precisionMsg} (±${Math.round(accuracy)}m)`);
         }
       };
 
       let bestPosition = null;
       let bestAccuracy = Infinity;
+      let positionCount = 0;
       let watchId = null;
       let timeoutId = null;
 
+      // Utiliser watchPosition pour obtenir les meilleures coordonnées possibles
       watchId = navigator.geolocation.watchPosition(
         (position) => {
+          positionCount++;
           const { latitude, longitude, accuracy } = position.coords;
+          
+          console.log(`📍 Position reçue #${positionCount}:`, {
+            lat: latitude,
+            lng: longitude,
+            accuracy: accuracy
+          });
+          
+          // Garder la meilleure position (plus précise)
           if (accuracy < bestAccuracy) {
             bestAccuracy = accuracy;
             bestPosition = { lat: latitude, lng: longitude, accuracy };
+            console.log(`🎯 Nouvelle meilleure précision: ±${Math.round(accuracy)}m`);
           }
-          if (accuracy <= 50) {
+          
+          // Si on obtient une très bonne précision (<20m), l'utiliser immédiatement
+          if (accuracy <= 20) {
+            console.log('🎯 Excellente précision atteinte!');
             if (watchId !== null) navigator.geolocation.clearWatch(watchId);
             if (timeoutId !== null) clearTimeout(timeoutId);
             applyPosition(latitude, longitude, accuracy);
+          }
+          // Sinon, si on a une bonne précision (<50m) et plusieurs lectures, utiliser la meilleure
+          else if (accuracy <= 50 && positionCount >= 2) {
+            console.log('✅ Bonne précision atteinte après plusieurs lectures');
+            if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+            if (timeoutId !== null) clearTimeout(timeoutId);
+            applyPosition(bestPosition.lat, bestPosition.lng, bestPosition.accuracy);
           }
         },
         (error) => {
@@ -316,35 +354,52 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
           if (watchId !== null) navigator.geolocation.clearWatch(watchId);
           if (timeoutId !== null) clearTimeout(timeoutId);
           setLoadingLocation(false);
+          
+          // Messages d'erreur détaillés
+          let errorMsg = getTranslation('geolocationError', language);
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMsg = getTranslation('geolocationPermissionDenied', language);
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMsg = getTranslation('geolocationUnavailable', language);
+              break;
+            case error.TIMEOUT:
+              errorMsg = getTranslation('geolocationTimeout', language);
+              break;
+          }
+          
+          alert(errorMsg);
+          
+          // Utiliser la meilleure position obtenue avant l'erreur
           if (bestPosition) {
+            console.log('📍 Utilisation de la meilleure position obtenue avant l\'erreur');
             applyPosition(bestPosition.lat, bestPosition.lng, bestPosition.accuracy);
-          } else {
-            // En cas d'erreur GPS, placer sur Ziguinchor
-            const ziguinchorPosition = { lat: 12.5833, lng: -16.2719 };
-            setUserLocation(ziguinchorPosition);
-            map.panTo(ziguinchorPosition);
-            setTimeout(() => map.setZoom(16), 300);
-            console.log('📍 Position définie sur Ziguinchor (fallback GPS)');
           }
         },
-        { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+        { 
+          enableHighAccuracy: true,  // Activer le GPS haute précision
+          timeout: 15000,            // Timeout réduit à 15 secondes
+          maximumAge: 0              // Ne pas utiliser de cache
+        }
       );
 
+      // Timeout global : utiliser la meilleure position obtenue après 10 secondes
       timeoutId = setTimeout(() => {
-        if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
+        console.log('⏱️ Timeout atteint - utilisation de la meilleure position');
+        if (watchId !== null) { 
+          navigator.geolocation.clearWatch(watchId); 
+          watchId = null; 
+        }
         if (bestPosition) {
+          console.log(`📍 Meilleure position: ±${Math.round(bestPosition.accuracy)}m`);
           applyPosition(bestPosition.lat, bestPosition.lng, bestPosition.accuracy);
         } else {
           setLoadingLocation(false);
-          // En cas de timeout, placer sur Ziguinchor
-          const ziguinchorPosition = { lat: 12.5833, lng: -16.2719 };
-          setUserLocation(ziguinchorPosition);
-          map.panTo(ziguinchorPosition);
-          setTimeout(() => map.setZoom(16), 300);
-          console.log('📍 Position définie sur Ziguinchor (timeout GPS)');
+          alert(getTranslation('geolocationFailed', language));
         }
-      }, 25000);
-    }, [map]);
+      }, 10000);  // Timeout réduit à 10 secondes
+    }, [map, language]);
 
    // Ne pas appeler locateUser automatiquement au chargement
 

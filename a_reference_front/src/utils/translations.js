@@ -682,6 +682,16 @@
                         en: "HPV2",
                         pt: "HPV2",
                       },
+
+  // Géolocalisation CartographyMap
+  mapNotLoaded: { fr: "La carte n'est pas encore chargée", en: "Map is not loaded yet", pt: "O mapa ainda não está carregado" },
+  httpGeolocationBlocked: { fr: "La géolocalisation est bloquée en HTTP. Utilisez HTTPS ou activez la position manuellement sur la carte.", en: "Geolocation is blocked on HTTP. Use HTTPS or manually set position on map.", pt: "A geolocalização está bloqueada em HTTP. Use HTTPS ou defina a posição manualmente no mapa." },
+  geolocationNotSupported: { fr: "La géolocalisation n'est pas supportée par votre navigateur", en: "Geolocation is not supported by your browser", pt: "A geolocalização não é compatível com seu navegador" },
+  geolocationError: { fr: "Erreur lors de la géolocalisation", en: "Geolocation error", pt: "Erro de geolocalização" },
+  geolocationPermissionDenied: { fr: "Permission de géolocalisation refusée. Veuillez autoriser l'accès à votre position dans les paramètres du navigateur.", en: "Geolocation permission denied. Please allow location access in browser settings.", pt: "Permissão de geolocalização negada. Por favor, permita o acesso à localização nas configurações do navegador." },
+  geolocationUnavailable: { fr: "Position indisponible. Vérifiez que le GPS est activé sur votre appareil.", en: "Position unavailable. Check that GPS is enabled on your device.", pt: "Posição indisponível. Verifique se o GPS está ativado em seu dispositivo." },
+  geolocationTimeout: { fr: "Délai d'attente de géolocalisation dépassé.", en: "Geolocation timeout exceeded.", pt: "Tempo limite de geolocalização excedido." },
+  geolocationFailed: { fr: "Impossible d'obtenir votre position. Cliquez sur la carte pour placer votre position manuellement.", en: "Unable to get your position. Click on the map to manually set your position.", pt: "Não foi possível obter sua posição. Clique no mapa para definir sua posição manualmente." },
                       rota1: {
                         fr: "ROTA1",
                         en: "ROTA1",
