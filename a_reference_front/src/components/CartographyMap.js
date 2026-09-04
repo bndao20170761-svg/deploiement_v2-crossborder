@@ -114,8 +114,8 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
    const PROVIDER_TYPES = getProviderTypes(language);
     const [selectedHospital, setSelectedHospital] = useState(null);
     const [clickedPosition, setClickedPosition] = useState(null);
-    // Position par défaut sur Ziguinchor (pour contourner le blocage HTTP du GPS)
-    const [userLocation, setUserLocation] = useState({ lat: 12.5833, lng: -16.2719 });
+    // Pas de position par défaut - l'utilisateur doit se géolocaliser ou cliquer sur la carte
+    const [userLocation, setUserLocation] = useState(null);
     const [mapType, setMapType] = useState('roadmap');
    const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM);
     const [geocoding, setGeocoding] = useState(null);
@@ -443,53 +443,48 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
     // Définir cette position comme position utilisateur (placement manuel)
     const newPosition = { lat, lng };
     setUserLocation(newPosition);
+    setShowUserInfo(true); // Afficher l'info de la position utilisateur
 
-    // Animation de centrage sur la nouvelle position
+    // Animation de centrage sur la nouvelle position avec zoom rapproché
     if (map) {
       map.panTo(newPosition);
-      setTimeout(() => map.setZoom(16), 300);
+      setTimeout(() => map.setZoom(17), 300); // Zoom plus proche pour voir clairement
     }
 
-    // Message de confirmation
+    // Message de confirmation avec instruction claire
     console.log('✅ Position placée manuellement:', newPosition);
+    
+    // Afficher une notification visible
+    const notification = getTranslation('manualPositionSet', language);
+    alert(notification);
 
-    // Vérifier si le clic est à la position utilisateur existante
-    if (userLocation &&
-        Math.abs(lat - userLocation.lat) < 0.0001 &&
-        Math.abs(lng - userLocation.lng) < 0.0001) {
+    // Vérifier si un hôpital existe déjà à cette position
+    const existingHospital = hospitals.find(h =>
+      h.latitude && h.longitude &&
+      Math.abs(h.latitude - lat) < 0.0001 &&
+      Math.abs(h.longitude - lng) < 0.0001
+    );
 
-      // Clic à la position utilisateur - vérifier s'il y a un hôpital
-      const existingHospital = hospitals.find(h =>
-        h.latitude && h.longitude &&
-        Math.abs(h.latitude - userLocation.lat) < 0.0001 &&
-        Math.abs(h.longitude - userLocation.lng) < 0.0001
-      );
+    if (existingHospital) {
+      // Afficher les détails de l'hôpital existant
+      setSelectedHospital(existingHospital);
+      return;
+    }
 
-      if (existingHospital) {
-        // Afficher les détails de l'hôpital existant
-        setSelectedHospital(existingHospital);
-        return;
-      } else {
-        // Demander confirmation pour ajouter un établissement
-        const confirmAdd = window.confirm(getTranslation('confirmAddAtCurrentPosition', language));
+    // Pas d'hôpital existant - demander si l'utilisateur veut en ajouter un
+    const confirmAdd = window.confirm(
+      getTranslation('confirmAddAtLocation', language) || 
+      "Voulez-vous ajouter une structure de santé à cet emplacement ?"
+    );
 
-        if (!confirmAdd) {
-          console.log("Ajout annulé par l'utilisateur");
-          return;
-        }
-      }
-    } else {
-      // Clic ailleurs sur la carte - demander confirmation
-     const confirmAdd = window.confirm(getTranslation('confirmAddAtLocation', language));
+    if (!confirmAdd) {
+      console.log("Ajout annulé par l'utilisateur");
+      return;
+    }
 
-     if (!confirmAdd) {
-       console.log("Ajout annulé par l'utilisateur");
-        return;
-      }
-     }
-
-     setClickedPosition({ lat, lng });
-     setLoadingLocation(true);
+    // L'utilisateur veut ajouter une structure
+    setClickedPosition({ lat, lng });
+    setLoadingLocation(true);
 
     // Réinitialisation du formulaire et des étapes
     setActiveStep(0);
@@ -497,47 +492,48 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
     setProviders([]);
     setCurrentProvider({ type: '', nom: '', nom_prestataire: '', prenom: '', specialite: '', telephone: '', email: '' });
 
-     const addressResult = await getAddressFromCoords(lat, lng);
+    // Géocodage inverse pour obtenir l'adresse
+    const addressResult = await getAddressFromCoords(lat, lng);
 
-     if (addressResult) {
-       const locationInfo = extractLocationInfo(addressResult.address_components);
-       setLocationInfo({
-         ...locationInfo,
-         adresseComplete: addressResult.formatted_address,
-         latitude: lat,
-         longitude: lng
-       });
+    if (addressResult) {
+      const locationInfo = extractLocationInfo(addressResult.address_components);
+      setLocationInfo({
+        ...locationInfo,
+        adresseComplete: addressResult.formatted_address,
+        latitude: lat,
+        longitude: lng
+      });
 
-       setHospitalForm(prev => ({
-         ...prev,
-         ville: locationInfo.ville || '',
-         pays: locationInfo.pays || getTranslation('defaultCountry', language),
-         latitude: lat,
-         longitude: lng,
-         nom: locationInfo.ville
-           ? `${getTranslation('defaultFacilityName', language)} - ${locationInfo.ville}`
-           : getTranslation('defaultFacilityName', language)
-       }));
-     } else {
-       setLocationInfo({
-         ville: getTranslation('defaultCity', language),
-         pays: getTranslation('defaultCountry', language),
-         adresseComplete: `Position: ${lat.toFixed(6)}, ${lng.toFixed(6)}`,
-         latitude: lat,
-         longitude: lng
-       });
+      setHospitalForm(prev => ({
+        ...prev,
+        ville: locationInfo.ville || '',
+        pays: locationInfo.pays || getTranslation('defaultCountry', language),
+        latitude: lat,
+        longitude: lng,
+        nom: locationInfo.ville
+          ? `${getTranslation('defaultFacilityName', language)} - ${locationInfo.ville}`
+          : getTranslation('defaultFacilityName', language)
+      }));
+    } else {
+      setLocationInfo({
+        ville: getTranslation('defaultCity', language),
+        pays: getTranslation('defaultCountry', language),
+        adresseComplete: `Position: ${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+        latitude: lat,
+        longitude: lng
+      });
 
-       setHospitalForm(prev => ({
-         ...prev,
-         latitude: lat,
-         longitude: lng,
-         nom: getTranslation('defaultFacilityName', language)
-       }));
+      setHospitalForm(prev => ({
+        ...prev,
+        latitude: lat,
+        longitude: lng,
+        nom: getTranslation('defaultFacilityName', language)
+      }));
     }
 
-       setShowAddDialog(true);
+    setShowAddDialog(true);
     setLoadingLocation(false);
-  }, [geocoding, userLocation, hospitals]);
+  }, [geocoding, hospitals, map, language]);
 
   // Fonctions pour la gestion des services
   const handleServiceToggle = (service) => {
