@@ -354,6 +354,33 @@ services:
           cpus: '1.0'
           memory: 512M
 
+  # ==================== Nginx Reverse Proxy avec HTTPS ====================
+  
+  nginx-https:
+    image: nginx:alpine
+    container_name: nginx-https
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx-https.conf:/etc/nginx/conf.d/default.conf:ro
+      - /etc/ssl/certs/nginx-selfsigned.crt:/etc/nginx/ssl/nginx-selfsigned.crt:ro
+      - /etc/ssl/private/nginx-selfsigned.key:/etc/nginx/ssl/nginx-selfsigned.key:ro
+    networks:
+      - pvvih-network
+    depends_on:
+      - gateway-pvvih
+      - a-reference-front
+      - a-user-front
+      - gestion-forum-front
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
   # ==================== Frontend Services ====================
   
   gestion-forum-front:
@@ -369,8 +396,8 @@ services:
         REACT_APP_FRONTEND1_URL: ${REACT_APP_FRONTEND1_URL}
         REACT_APP_FRONTEND2_URL: ${REACT_APP_FRONTEND2_URL}
     container_name: gestion-forum-front
-    ports:
-      - "3001:80"
+    # ports: # Désactivé - accès via Nginx HTTPS
+    #   - "3001:80"
     environment:
       - REACT_APP_FORUM_API_URL=${REACT_APP_FORUM_API_URL}
       - REACT_APP_AUTH_API_URL=${REACT_APP_AUTH_API_URL}
@@ -403,8 +430,8 @@ services:
         REACT_APP_FORUM_URL: ${REACT_APP_FORUM_URL}
         REACT_APP_FRONTEND2_URL: ${REACT_APP_FRONTEND2_URL}
     container_name: a-reference-front
-    ports:
-      - "3002:80"
+    # ports: # Désactivé - accès via Nginx HTTPS
+    #   - "3002:80"
     environment:
       - REACT_APP_API_URL=${REACT_APP_API_URL}
       - REACT_APP_GATEWAY_URL=${REACT_APP_GATEWAY_URL}
@@ -434,8 +461,8 @@ services:
         REACT_APP_FRONTEND1_URL: ${REACT_APP_FRONTEND1_URL}
         REACT_APP_FRONTEND2_URL: ${REACT_APP_FRONTEND2_URL}
     container_name: a-user-front
-    ports:
-      - "3003:80"
+    # ports: # Désactivé - accès via Nginx HTTPS
+    #   - "3003:80"
     environment:
       - REACT_APP_API_URL=${REACT_APP_API_URL}
       - REACT_APP_GATEWAY_URL=${REACT_APP_GATEWAY_URL}
