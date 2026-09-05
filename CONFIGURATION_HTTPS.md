@@ -1,155 +1,171 @@
-# Configuration HTTPS pour PVVIH
+# Configuration HTTPS - Résumé des changements
 
-## 📋 Résumé
+## ✅ Fichiers modifiés localement
 
-Cette configuration ajoute HTTPS à votre application PVVIH en utilisant un certificat SSL auto-signé et un proxy inverse Nginx.
+### 1. `nginx-https.conf`
+Configuration nginx corrigée pour éviter les conflits de routes :
+- **Ordre important** : `/api/` → `/user/` → `/forum/` → `/` (racine en dernier)
+- Supprimé les `rewrite` qui causaient les 404
+- Tous les frontends utilisent `proxy_pass` sans modification de chemin
+- Supprimé la route conflictuelle `/static/`
 
-## 🎯 Objectif
+### 2. `docker-compose.yml`
+- Service `nginx-https` actif avec ports 80 et 443
+- Frontends **sans ports exposés** (3001, 3002, 3003 commentés)
+- Volumes SSL montés : `/etc/ssl/certs/` et `/etc/ssl/private/`
 
-**Activer le GPS dans les navigateurs** qui bloquent la géolocalisation en HTTP.
+## 📋 Changements à faire sur le serveur AWS
 
-## 🏗️ Architecture
-
+### Étape 1 : Pousser les fichiers sur GitHub
+```powershell
+git add nginx-https.conf
+git commit -m "fix: correction configuration nginx-https routes"
+git push origin main
 ```
-Internet (HTTPS:443) → Nginx (SSL) → Frontends (HTTP interne)
-                           ↓
-                       Gateway (HTTP interne) → Microservices
-```
 
-### Flux de connexion :
-
-1. **Utilisateur** → `https://100.48.20.109` (HTTPS, port 443)
-2. **Nginx** déchiffre SSL → Redirige vers `a_reference_front:80` (HTTP interne)
-3. **Frontend** communique avec Gateway via `/api` → Nginx redirige vers `gateway:8080`
-
-## 📁 Fichiers créés
-
-1. **nginx-https.conf** - Configuration Nginx avec SSL
-2. **docker-compose.yml** - Modifié pour inclure service Nginx
-3. **deploy-https.sh** - Script de déploiement automatisé
-
-## 🔐 Certificats SSL
-
-Les certificats sont montés depuis le serveur :
-- `/etc/ssl/certs/nginx-selfsigned.crt` → Certificat public
-- `/etc/ssl/private/nginx-selfsigned.key` → Clé privée
-
-Ces certificats ont été créés avec :
+### Étape 2 : Sur le serveur AWS (IP: 100.48.20.109)
 ```bash
-sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-  -keyout /etc/ssl/private/nginx-selfsigned.key \
-  -out /etc/ssl/certs/nginx-selfsigned.crt \
-  -subj "/C=SN/ST=Ziguinchor/L=Ziguinchor/O=PVVIH/CN=100.48.20.109"
+cd ~/deploiement_v2-crossborder
+
+# Pull les derniers changements
+git pull
+
+# Redémarrer nginx-https pour appliquer la nouvelle config
+docker compose restart nginx-https
+
+# Vérifier les logs
+docker logs nginx-https --tail 50
 ```
 
-## 🌐 URLs après déploiement
+### Étape 3 : Mettre à jour la configuration Gateway sur GitHub
+**Fichier à modifier** : `https://github.com/BabacarNdaoKgl/cloud-config-repo-enda.git`
+**Nom du fichier** : `GETWAY_PVVIH-dev.yml`
 
-| Service | URL HTTPS |
-|---------|-----------|
-| A Reference Front | `https://100.48.20.109/` |
-| A User Front | `https://100.48.20.109/user` |
-| Forum Front | `https://100.48.20.109/forum` |
-| API Gateway | `https://100.48.20.109/api` |
+**Section CORS à modifier** :
+```yaml
+spring:
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              # Développement local
+              - "http://localhost:3000"
+              - "http://localhost:3001"
+              - "http://localhost:3002"
+              - "http://localhost:3003"
+              - "http://127.0.0.1:3000"
+              - "http://127.0.0.1:3001"
+              - "http://127.0.0.1:3002"
+              - "http://127.0.0.1:3003"
+              # Production HTTPS AWS (IP: 100.48.20.109)
+              # Note: Avec nginx-https, tous les frontends passent par le port 443
+              - "https://100.48.20.109"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+              - PATCH
+            allowedHeaders: "*"
+            allowCredentials: true
+            maxAge: 3600
+```
 
-**Note** : HTTP est automatiquement redirigé vers HTTPS
-
-## 🚀 Déploiement
-
-### Sur le serveur (100.48.20.109) :
-
+### Étape 4 : Recharger la configuration Gateway
 ```bash
-# 1. Rendre le script exécutable
-chmod +x deploy-https.sh
+# Sur le serveur AWS, redémarrer le gateway pour recharger la config
+docker compose restart gateway-pvvih
 
-# 2. Lancer le déploiement
-./deploy-https.sh
+# Attendre 30 secondes que le gateway se reconnecte à Eureka
+sleep 30
+
+# Vérifier que le gateway est en bonne santé
+docker ps | grep gateway-pvvih
+docker logs gateway-pvvih --tail 50
 ```
 
-## ✅ Vérification
+## 🧪 Tests à effectuer
 
-1. Ouvrir `https://100.48.20.109`
-2. Accepter l'avertissement de sécurité (certificat auto-signé)
-3. Tester la géolocalisation : cliquer sur "Géolocaliser"
-4. **Le GPS doit fonctionner !** ✅
-
-## ⚠️ Avertissement de sécurité
-
-Le navigateur affichera :
+### Test 1 : Page principale (a_reference_front)
 ```
-⚠️ Votre connexion n'est pas privée
+https://100.48.20.109/
 ```
+- ✅ La page doit s'afficher complètement
+- ✅ Les fichiers CSS et JS doivent se charger (pas de 404)
+- ✅ Après connexion, tester la géolocalisation GPS
 
-**C'est normal !** Le certificat est auto-signé.
+### Test 2 : Page utilisateur (a_user_front)  
+```
+https://100.48.20.109/user/
+```
+- ✅ La page doit s'afficher complètement
+- ✅ Les fichiers CSS et JS doivent se charger
 
-Pour éviter cet avertissement :
-- Option 1 : Obtenir un domaine gratuit + certificat Let's Encrypt
-- Option 2 : Accepter le risque (OK pour test/démo)
+### Test 3 : Page forum (gestion_forum_front)
+```
+https://100.48.20.109/forum/
+```
+- ✅ La page doit s'afficher complètement
+- ✅ Les fichiers CSS et JS doivent se charger
 
-## 🔄 Rollback (retour à HTTP)
-
-Pour revenir à HTTP si nécessaire :
-
+### Test 4 : API Gateway
 ```bash
-# 1. Restaurer docker-compose.yml
-git checkout docker-compose.yml
-
-# 2. Redémarrer
-docker-compose down
-docker-compose up -d
+# Test depuis le navigateur ou curl
+curl -k https://100.48.20.109/api/auth/test
 ```
 
-## 🔧 Ports utilisés
+## 📊 Architecture HTTPS finale
 
-| Port | Service | Accès |
-|------|---------|-------|
-| 80 | Nginx HTTP | Redirige vers 443 |
-| 443 | Nginx HTTPS | Accès public |
-| 8080 | Gateway | Interne seulement |
-| 3001-3003 | Frontends | Interne seulement |
+```
+Utilisateur (navigateur)
+    ↓ HTTPS (443)
+nginx-https
+    ├─→ / → a-reference-front:80 (HTTP interne)
+    ├─→ /user/ → a-user-front:80 (HTTP interne)
+    ├─→ /forum/ → gestion-forum-front:80 (HTTP interne)
+    └─→ /api/ → gateway-pvvih:8080 (HTTP interne)
+```
 
-## 📊 Avantages de cette configuration
+**Important** : 
+- Communication **externe** (navigateur → nginx) : **HTTPS** sur port 443
+- Communication **interne** (nginx → conteneurs) : **HTTP** (plus simple, sécurisé par le réseau Docker)
+- Les ports 3001, 3002, 3003 **ne sont plus utilisés** (commentés dans docker-compose.yml)
 
-✅ GPS fonctionne (HTTPS requis)
-✅ Pas de changement dans les microservices
-✅ Communication interne reste en HTTP (plus rapide)
-✅ Un seul point d'entrée (Nginx)
-✅ Redirection HTTP → HTTPS automatique
-✅ Headers de sécurité ajoutés
+## ⚠️ Problèmes résolus
 
-## 🐛 Dépannage
+1. **404 sur fichiers statiques** : Suppression du conflit entre `location /static/` et `location /`
+2. **Ordre des routes** : Les routes spécifiques (`/api/`, `/user/`, `/forum/`) sont maintenant **avant** la route générique `/`
+3. **CORS** : Ajout de `https://100.48.20.109` dans allowedOrigins
+4. **Rewrite conflicts** : Suppression des `rewrite` qui causaient des chemins incorrects
 
-### Nginx ne démarre pas
+## 🎯 Prochaine étape
+
+Une fois les changements appliqués :
+
+1. **Testez le GPS** sur `https://100.48.20.109/` (page principale)
+   - Acceptez le certificat auto-signé
+   - Connectez-vous
+   - Allez sur Cartographie
+   - Cliquez "Géolocaliser"
+   - Le navigateur devrait demander la permission GPS ✅
+
+2. **Vérifiez `/user/` et `/forum/`** : les pages doivent maintenant se charger complètement
+
+## 📞 En cas de problème
+
+Si après ces changements il y a encore des 404 :
 ```bash
-docker logs nginx-https
+# Vérifier la configuration nginx
+docker exec nginx-https cat /etc/nginx/conf.d/default.conf
+
+# Vérifier les logs nginx en temps réel
+docker logs -f nginx-https
+
+# Vérifier que les conteneurs frontends répondent
+docker exec nginx-https wget -O- http://a-reference-front:80
+docker exec nginx-https wget -O- http://a-user-front:80
+docker exec nginx-https wget -O- http://gestion-forum-front:80
 ```
-
-### Certificat introuvable
-```bash
-ls -la /etc/ssl/certs/nginx-selfsigned.crt
-ls -la /etc/ssl/private/nginx-selfsigned.key
-```
-
-### GPS ne fonctionne toujours pas
-- Vérifier que vous accédez via `https://` (pas `http://`)
-- Vérifier dans la console du navigateur (F12)
-- Confirmer que le certificat est accepté
-
-## 📝 Notes importantes
-
-1. **Communication interne** : Les conteneurs communiquent en HTTP (c'est normal et sécurisé dans Docker)
-2. **Endpoints API** : `http://100.48.20.109:8080/api/*` continue de fonctionner
-3. **Accès HTTPS** : `https://100.48.20.109/api/*` est maintenant disponible
-4. **Pas de changement** dans le code des microservices ou frontends
-
-## 🎉 Résultat
-
-GPS fonctionne maintenant en HTTPS ! L'utilisateur peut :
-1. Cliquer sur "Géolocaliser"
-2. Autoriser l'accès à la position
-3. Voir le marqueur bleu à sa position exacte
-4. Enregistrer une structure de santé
-
----
-
-**Date de création** : 2026-09-04  
-**Certificat valide jusqu'au** : 2027-09-04 (365 jours)
