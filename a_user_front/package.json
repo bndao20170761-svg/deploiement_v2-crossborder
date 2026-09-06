@@ -2,7 +2,6 @@
   "name": "front_user_lastapp",
   "version": "0.1.0",
   "private": true,
-  "homepage": "/user",
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
