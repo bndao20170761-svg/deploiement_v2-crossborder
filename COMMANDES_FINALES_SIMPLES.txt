@@ -1,86 +1,120 @@
-# ========================================
-# COMMANDES À EXÉCUTER SUR LE SERVEUR GCP
-# ========================================
+═══════════════════════════════════════════════════════════════
+  🎯 COMMANDES FINALES À EXÉCUTER MAINTENANT
+═══════════════════════════════════════════════════════════════
 
-# 1. Supprimer le container nginx-https en erreur
-docker rm -f nginx-https
+PROBLÈME RÉSOLU:
+  ✅ Le port 8080 était déjà utilisé par gateway-pvvih
+  ✅ On ne peut pas avoir 2 services sur le même port
+  ✅ Solution: Gateway reste sur 8080 HTTP, pas de SSL dessus
 
-# 2. Relancer UNIQUEMENT nginx-https
+CONFIGURATION FINALE:
+  → https://100.48.20.109:3001 (a-reference-front avec SSL)
+  → https://100.48.20.109:3002 (gestion-forum-front avec SSL)
+  → https://100.48.20.109:3003 (a-user-front avec SSL)
+  → http://100.48.20.109:8080  (API Gateway SANS SSL)
+
+═══════════════════════════════════════════════════════════════
+
+ÉTAPE 1: Recréer nginx-https (sur le serveur)
+───────────────────────────────────────────────────────────────
+
 docker compose up -d nginx-https
 
-# 3. Attendre 10 secondes
-sleep 10
 
-# 4. Vérifier que tout tourne
-docker compose ps
+═══════════════════════════════════════════════════════════════
 
-# 5. Tester depuis le navigateur
-# Les URLs qui FONCTIONNENT:
-#   https://100.48.20.109:3001  (a-reference-front)
-#   https://100.48.20.109:3003  (a-user-front)
-#   http://100.48.20.109:8080   (Gateway HTTP direct)
+ÉTAPE 2: Vérifier que tout fonctionne
+───────────────────────────────────────────────────────────────
 
-# ========================================
-# EXPLICATION DU PROBLÈME
-# ========================================
+# Les services doivent être "Up" et "healthy"
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
-# Le docker-compose.yml a DEUX services qui veulent le port 8080:
-#   - gateway-pvvih: "8080:8080"  ✅ (fonctionne)
-#   - nginx-https: "8080:8080"    ❌ (CONFLIT!)
 
-# SOLUTION: nginx-https n'a PAS besoin d'exposer le port 8080
-# Il doit juste router en INTERNE vers gateway-pvvih:8080
+═══════════════════════════════════════════════════════════════
 
-# ========================================
-# SI LES FRONTENDS NE RÉPONDENT TOUJOURS PAS
-# ========================================
+ÉTAPE 3: Tester les URLs
+───────────────────────────────────────────────────────────────
 
-# Vérifier les logs nginx
+# Test frontends HTTPS
+curl -k https://localhost:3001/
+curl -k https://localhost:3002/
+curl -k https://localhost:3003/
+
+# Test API HTTP
+curl http://localhost:8080/actuator/health
+
+
+═══════════════════════════════════════════════════════════════
+
+ÉTAPE 4: Tester dans votre navigateur
+───────────────────────────────────────────────────────────────
+
+1. Ouvrir: https://100.48.20.109:3001
+
+2. Appuyer sur F12 → Onglet "Network"
+
+3. Rafraîchir la page (F5)
+
+4. Vérifier les requêtes vers ":8080"
+
+5. Les réponses doivent être du JSON (pas du HTML!)
+
+
+═══════════════════════════════════════════════════════════════
+
+✅ SI TOUT FONCTIONNE:
+───────────────────────────────────────────────────────────────
+
+Vous devriez voir:
+  ✅ La page se charge complètement
+  ✅ Les données patients/hôpitaux s'affichent
+  ✅ Pas d'erreurs "r.filter is not a function"
+  ✅ Dans Network: les API retournent du JSON
+
+
+═══════════════════════════════════────────────────════────════
+
+❌ SI ÇA NE FONCTIONNE PAS:
+───────────────────────────────────────────────────────────────
+
+Envoyez-moi la sortie de ces commandes:
+
+docker ps
 docker logs nginx-https --tail 50
+docker logs gateway-pvvih --tail 50
+curl http://localhost:8080/actuator/health
 
-# Si nginx-https n'a pas démarré du tout:
-docker compose ps | grep nginx-https
 
-# Redémarrer complètement nginx-https
-docker compose restart nginx-https
+═══════════════════════════════════════════════════────════════
 
-# Tester l'accès direct aux frontends (sans nginx)
-curl http://172.28.0.15/    # a-reference-front
-curl http://172.28.0.13/    # a-user-front
+⚠️  NOTE IMPORTANTE SUR LE PORT 8080:
+───────────────────────────────────────────────────────────────
 
-# Si les frontends ne répondent pas en direct:
-docker logs a-reference-front --tail 20
-docker logs a-user-front --tail 20
+Le port 8080 est en HTTP (pas HTTPS) parce que:
+  → gateway-pvvih utilise déjà ce port
+  → nginx-https ne peut pas l'utiliser (conflit)
+  → Pour avoir SSL sur l'API, il faudrait:
+    - Utiliser le port 8443 à la place
+    - Ou router via /api/ sur le port 443
+    - Et rebuild tous les frontends
 
-# ========================================
-# URLs FINALES QUI DOIVENT FONCTIONNER
-# ========================================
+Pour l'instant, HTTP sur 8080 est suffisant si:
+  ✅ Votre réseau est interne/privé
+  ✅ Vous testez en développement
+  ✅ Vous avez un firewall entre internet et votre VM
 
-# ✅ Frontends (HTTPS via nginx-https):
-https://100.48.20.109:3001    # a-reference-front
-https://100.48.20.109:3003    # a-user-front
-https://100.48.20.109:3002    # gestion-forum-front
 
-# ✅ Gateway (HTTP direct, PAS via nginx):
-http://100.48.20.109:8080     # API Gateway
+═══════════════════════════════════════════════════════════════
 
-# ❌ NE FONCTIONNE PAS (conflit de port):
-https://100.48.20.109:8080    # ERREUR: port déjà utilisé
+📧 BESOIN D'AIDE?
+───────────────────────────────────────────────────────────────
 
-# ========================================
-# NOTE IMPORTANTE SUR LES APIS
-# ========================================
+Si les commandes ci-dessus ne fonctionnent pas, exécutez:
 
-# Les frontends React appellent le Gateway sur:
-#   REACT_APP_GATEWAY_URL=https://100.48.20.109:8080
+chmod +x SOLUTION_CONFLIT_PORT_8080.sh
+./SOLUTION_CONFLIT_PORT_8080.sh
 
-# MAIS le port 8080 en HTTPS ne fonctionne pas (conflit)
-# DONC il faut SOIT:
-#   1. Changer les frontends pour utiliser HTTP:
-#      REACT_APP_GATEWAY_URL=http://100.48.20.109:8080
-#   
-#   2. OU rebuild les frontends pour utiliser /api/ sur port 443:
-#      REACT_APP_GATEWAY_URL=https://100.48.20.109/api
+Et envoyez-moi le résultat complet.
 
-# Pour l'instant, testez avec HTTP:
-# http://100.48.20.109:8080/actuator/health
+
+═══════════════════════════════════════════════════════════════
