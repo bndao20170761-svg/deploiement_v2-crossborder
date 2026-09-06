@@ -421,11 +421,9 @@ const Header = ({
               >
                 <User className="h-4 w-4 mr-1" />
                 <span className="hidden md:inline">
-                  {(doctor && doctor.prenom && doctor.nom) 
-                    ? `${doctor.prenom} ${doctor.nom}` 
-                    : (doctor && doctor.username) 
-                      ? doctor.username 
-                      : 'Médecin'}
+                  {doctor?.nom || doctor?.prenom 
+                    ? `${doctor.prenom || ''} ${doctor.nom || ''}`.trim()
+                    : doctor?.username || 'Utilisateur'}
                 </span>
                 <ChevronDown className={`ml-1 h-4 w-4 transition-transform duration-200 ${isDoctorMenuOpen ? 'rotate-180' : ''}`} />
               </button>
@@ -433,11 +431,9 @@ const Header = ({
                 <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg z-50 border border-gray-200">
                   <div className="py-1">
                     <div className="px-4 py-2 text-sm text-gray-500 border-b md:hidden">
-                      {(doctor && doctor.prenom && doctor.nom)
-                        ? `${doctor.prenom} ${doctor.nom}`
-                        : (doctor && doctor.username)
-                          ? doctor.username
-                          : 'Médecin'}
+                      {doctor?.nom || doctor?.prenom
+                        ? `${doctor.prenom || ''} ${doctor.nom || ''}`.trim()
+                        : doctor?.username || 'Utilisateur'}
                     </div>
                     <button
                       onClick={handleLogout}
