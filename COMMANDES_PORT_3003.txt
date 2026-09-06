@@ -1,0 +1,40 @@
+# ========================================
+# COMMANDES POUR ACTIVER LE PORT 3003
+# ========================================
+
+# 1. SUR VOTRE PC - Pousser les changements
+# ==========================================
+git add docker-compose.yml
+git commit -m "feat: expose a-user-front sur le port 3003"
+git push origin main
+
+
+# 2. SUR AWS - Ouvrir le port 3003 dans le pare-feu
+# ==================================================
+# Aller dans la console AWS:
+# EC2 → Security Groups → Sélectionner votre groupe → Edit inbound rules
+# Add rule: Type=Custom TCP, Port=3003, Source=0.0.0.0/0
+# Save rules
+
+
+# 3. SUR LE SERVEUR AWS - Appliquer les changements
+# ==================================================
+ssh ec2-user@100.48.20.109
+
+cd ~/deploiement_v2-crossborder
+
+git pull
+
+docker compose stop a-user-front
+
+docker compose up -d a-user-front
+
+docker ps | grep a-user-front
+
+
+# 4. TESTER
+# ==========
+curl -I http://100.48.20.109:3003
+
+# Ou dans le navigateur:
+# http://100.48.20.109:3003
