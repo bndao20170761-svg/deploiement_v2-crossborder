@@ -1,0 +1,137 @@
+# ==========================================
+# COMMANDES À EXÉCUTER SUR LE SERVEUR GCP
+# ==========================================
+
+# 1. Résoudre le conflit git et mettre à jour
+# ============================================
+cd ~/deploiement_v2-crossborder
+git stash
+git pull origin main
+chmod +x RESOUDRE_CONFLIT_GIT_SERVEUR.sh
+./RESOUDRE_CONFLIT_GIT_SERVEUR.sh
+
+
+# 2. OU manuellement si le script ne marche pas:
+# ============================================
+cd ~/deploiement_v2-crossborder
+
+# Sauvegarder les modifications locales
+git stash
+
+# Récupérer les mises à jour
+git pull origin main
+
+# Copier nginx-https.conf corrigé
+docker cp nginx-https.conf nginx-https:/etc/nginx/conf.d/default.conf
+
+# Vérifier la configuration
+docker exec nginx-https nginx -t
+
+# Redémarrer nginx
+docker compose restart nginx-https
+
+# Attendre 3 secondes
+sleep 3
+
+
+# 3. DIAGNOSTIC: Pourquoi l'API retourne du HTML
+# ============================================
+
+# Test A: Gateway direct (doit retourner JSON)
+docker exec gateway-pvvih curl -s http://localhost:8080/actuator/health
+
+# Test B: Gateway via nginx port 8080 (doit retourner JSON, pas HTML!)
+curl -k -s https://localhost:8080/actuator/health
+
+# Test C: API Users via Gateway direct
+docker exec gateway-pvvih curl -s http://localhost:8080/api/users/actuator/health
+
+# Test D: API Users via nginx (CE QUE FAIT LE FRONTEND)
+curl -k -s https://localhost:8080/api/users/actuator/health
+
+
+# 4. Si les tests retournent du HTML au lieu de JSON:
+# ============================================
+
+# Vérifier la configuration nginx pour port 8080
+docker exec nginx-https cat /etc/nginx/conf.d/default.conf | grep -A 30 "listen 8080"
+
+# Vérifier les logs nginx
+docker logs nginx-https --tail 50
+
+# Vérifier les logs Gateway
+docker logs gateway-pvvih --tail 50
+
+
+# 5. SOLUTION SI LE PORT 8080 RETOURNE DU HTML:
+# ============================================
+
+# Le problème vient probablement du fait que nginx-https n'est pas configuré correctement
+# Le nginx-https.conf doit avoir un bloc:
+#
+# server {
+#     listen 8080 ssl;
+#     location / {
+#         proxy_pass http://gateway-pvvih:8080;
+#     }
+# }
+
+# Vérifier si ce bloc existe:
+docker exec nginx-https grep -c "listen 8080 ssl" /etc/nginx/conf.d/default.conf
+
+# Si retourne 0, le bloc n'existe pas!
+# Si retourne 1 ou plus, le bloc existe
+
+
+# 6. FORCER LA MISE À JOUR DU NGINX-HTTPS.CONF
+# ============================================
+
+# Sur votre PC Windows (PowerShell):
+# scp nginx-https.conf ec2-user@100.48.20.109:~/deploiement_v2-crossborder/
+
+# Puis sur le serveur:
+cd ~/deploiement_v2-crossborder
+docker cp nginx-https.conf nginx-https:/etc/nginx/conf.d/default.conf
+docker exec nginx-https nginx -t
+docker compose restart nginx-https
+sleep 3
+docker logs nginx-https --tail 20
+
+
+# 7. TEST FINAL
+# ============================================
+
+# Depuis le serveur:
+curl -k -s https://localhost:8080/actuator/health
+
+# Si retourne JSON {"status":"UP"} → ✅ CORRIGÉ!
+# Si retourne HTML <!doctype html> → ❌ ENCORE CASSÉ
+
+
+# 8. SI TOUJOURS CASSÉ: Vérifier le pare-feu GCP
+# ============================================
+
+# Le port 8080 doit être ouvert dans GCP Firewall
+# Console GCP > VPC network > Firewall rules
+# Ou via commande:
+gcloud compute firewall-rules list --filter="targetTags:pvvih-server"
+
+
+# 9. DEBUG AVANCÉ: Logs en temps réel
+# ============================================
+
+# Terminal 1: Suivre les logs nginx
+docker logs -f nginx-https
+
+# Terminal 2: Suivre les logs Gateway
+docker logs -f gateway-pvvih
+
+# Terminal 3: Faire un appel API
+curl -k -v https://localhost:8080/actuator/health
+
+
+# 10. ALTERNATIVE: Utiliser le script de diagnostic
+# ============================================
+cd ~/deploiement_v2-crossborder
+chmod +x DEBUG_API_HTML_RESPONSE.sh
+./DEBUG_API_HTML_RESPONSE.sh

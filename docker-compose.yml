@@ -362,8 +362,10 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "3001:3001"   # Port HTTPS pour a_user_front
-      - "3002:3002"   # Port HTTPS pour gestion_forum_front
+      - "3001:3001"   # Port HTTPS pour a-reference-front
+      - "3002:3002"   # Port HTTPS pour gestion-forum-front
+      - "3003:3003"   # Port HTTPS pour a-user-front
+      - "8080:8080"   # Port HTTPS pour API Gateway (CRITIQUE!)
     volumes:
       - ./nginx-https.conf:/etc/nginx/conf.d/default.conf:ro
       - /etc/ssl/certs/nginx-selfsigned.crt:/etc/nginx/ssl/nginx-selfsigned.crt:ro

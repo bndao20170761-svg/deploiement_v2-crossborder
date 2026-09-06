@@ -1,0 +1,130 @@
+╔══════════════════════════════════════════════════════════════╗
+║                                                              ║
+║  🔥 COMMANDES À EXÉCUTER SUR LE SERVEUR 100.48.20.109      ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
+
+PROBLÈME TROUVÉ:
+  ❌ Le port 8080 n'était pas mappé dans docker-compose.yml
+  ❌ C'est pour ça que l'API ne fonctionnait pas!
+
+SOLUTION:
+  ✅ J'ai corrigé docker-compose.yml (port 8080 et 3003 ajoutés)
+  ✅ Il faut maintenant recréer le conteneur nginx-https
+
+
+═══════════════════════════════════════════════════════════════
+
+ÉTAPE 1: Se connecter au serveur
+─────────────────────────────────────────────────────────────
+
+Sur votre machine LOCAL (celui où vous êtes actuellement):
+
+cd ~/deploiement_v2-crossborder
+
+
+═══════════════════════════════════════════════════════════════
+
+ÉTAPE 2: Récupérer les corrections depuis GitHub
+─────────────────────────────────────────────────────────────
+
+git stash
+git pull origin main
+
+
+═══════════════════════════════════════════════════════════════
+
+ÉTAPE 3: Exécuter le script de correction automatique
+─────────────────────────────────────────────────────────────
+
+chmod +x CORRIGER_PORT_8080_FINAL.sh
+./CORRIGER_PORT_8080_FINAL.sh
+
+
+═══════════════════════════════════════════════════════════════
+
+RÉSULTAT ATTENDU:
+─────────────────────────────────────────────────────────────
+
+Le script va:
+  1. ✅ Vérifier que docker-compose.yml a le port 8080
+  2. ✅ Recréer nginx-https avec les bons ports
+  3. ✅ Tester les ports 443, 3001, 3003, 8080
+  4. ✅ Vous dire si tout fonctionne!
+
+
+═══════════════════════════════════════════════════════════════
+
+APRÈS LE SCRIPT: Testez dans votre navigateur
+─────────────────────────────────────────────────────────────
+
+1. Ouvrir: https://100.48.20.109:3001
+
+2. Appuyer sur F12 → Onglet "Network"
+
+3. Rafraîchir la page (F5)
+
+4. Regarder les requêtes vers "8080"
+
+5. Vérifier que les réponses sont du JSON (pas du HTML!)
+
+
+═══════════════════════════════════════════════════════════════
+
+SI LE SCRIPT ÉCHOUE: Méthode manuelle
+─────────────────────────────────────────────────────────────
+
+# 1. Éditer docker-compose.yml
+nano docker-compose.yml
+
+# 2. Chercher la section nginx-https et vérifier qu'il y a:
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#      - "3001:3001"
+#      - "3002:3002"
+#      - "3003:3003"   ← DOIT ÊTRE LÀ
+#      - "8080:8080"   ← DOIT ÊTRE LÀ
+
+# 3. Si les ports manquent, les ajouter et sauvegarder (Ctrl+O, Ctrl+X)
+
+# 4. Recréer le conteneur
+docker compose stop nginx-https
+docker compose rm -f nginx-https
+docker compose up -d nginx-https
+
+# 5. Attendre 15 secondes
+sleep 15
+
+# 6. Tester
+curl -k https://localhost:8080/actuator/health
+
+
+═══════════════════════════════════════════════════════════════
+
+URLS FINALES QUI DOIVENT FONCTIONNER:
+─────────────────────────────────────────────────────────────
+
+✅ https://100.48.20.109:3001  (a-reference-front)
+✅ https://100.48.20.109:3002  (gestion-forum-front)
+✅ https://100.48.20.109:3003  (a-user-front)
+✅ https://100.48.20.109:8080/actuator/health  (API Gateway)
+
+
+═══════════════════════════════════════════════════════════════
+
+BESOIN D'AIDE?
+─────────────────────────────────────────────────────────────
+
+Si ça ne fonctionne toujours pas après le script:
+
+1. Envoyez-moi la sortie complète du script
+
+2. Ou exécutez ce diagnostic:
+   chmod +x DEBUG_API_HTML_RESPONSE.sh
+   ./DEBUG_API_HTML_RESPONSE.sh
+
+3. Envoyez-moi le résultat
+
+
+═══════════════════════════════════════════════════════════════
