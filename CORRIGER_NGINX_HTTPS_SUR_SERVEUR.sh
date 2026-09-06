@@ -1,23 +1,34 @@
 #!/bin/bash
-# Script pour corriger nginx-https.conf sur le serveur GCP
-# À exécuter SUR LE SERVEUR GCP
+# Script de correction COMPLÈTE pour nginx-https sur le serveur GCP
+# À exécuter directement sur le serveur : bash CORRIGER_NGINX_HTTPS_SUR_SERVEUR.sh
+
+set -e
 
 echo "=========================================="
-echo "🔧 CORRECTION nginx-https.conf"
+echo "🔧 CORRECTION NGINX-HTTPS"
 echo "=========================================="
 echo ""
 
-cd ~/deploiement_v2-crossborder || exit 1
+# Vérifier qu'on est sur le serveur
+if [ ! -f "docker-compose.yml" ]; then
+    echo "❌ ERREUR: docker-compose.yml introuvable"
+    echo "   Exécutez ce script depuis ~/deploiement_v2-crossborder/"
+    exit 1
+fi
 
-echo "1. Sauvegarde de l'ancienne configuration"
+echo "1. Backup de la configuration actuelle"
 echo "----------------------------------------"
-cp nginx-https.conf nginx-https.conf.backup.$(date +%Y%m%d_%H%M%S)
-echo "✅ Sauvegarde créée"
+if [ -f "nginx-https.conf" ]; then
+    cp nginx-https.conf nginx-https.conf.backup.$(date +%Y%m%d_%H%M%S)
+    echo "✅ Backup créé"
+else
+    echo "⚠️  Pas de nginx-https.conf trouvé"
+fi
 echo ""
 
-echo "2. Création de la nouvelle configuration"
+echo "2. Création de la nouvelle configuration nginx-https.conf"
 echo "----------------------------------------"
-cat > nginx-https.conf << 'EOFNGINX'
+cat > nginx-https.conf << 'NGINX_EOF'
 # Configuration Nginx avec HTTPS pour PVVIH
 # Ce fichier configure un proxy inverse avec SSL
 
@@ -28,7 +39,7 @@ server {
     return 301 https://$host$request_uri;
 }
 
-# Configuration HTTPS principale (port 443)
+# Configuration HTTPS PRINCIPALE (port 443)
 server {
     listen 443 ssl;
     server_name _;
@@ -49,7 +60,7 @@ server {
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header X-Content-Type-Options "nosniff" always;
 
-    # Configuration pour fichiers statiques volumineux
+    # Configuration pour fichiers volumineux
     client_max_body_size 100M;
     proxy_connect_timeout 600;
     proxy_send_timeout 600;
@@ -66,7 +77,7 @@ server {
     }
 }
 
-# Serveur pour a-reference-front sur port 3001
+# Port 3001 - a-reference-front
 server {
     listen 3001 ssl;
     server_name _;
@@ -86,7 +97,7 @@ server {
     }
 }
 
-# Serveur pour gestion-forum-front sur port 3002
+# Port 3002 - gestion-forum-front
 server {
     listen 3002 ssl;
     server_name _;
@@ -106,7 +117,7 @@ server {
     }
 }
 
-# Serveur pour a-user-front sur port 3003
+# Port 3003 - a-user-front
 server {
     listen 3003 ssl;
     server_name _;
@@ -126,7 +137,7 @@ server {
     }
 }
 
-# Serveur pour API Gateway sur port 8080 (CRITIQUE)
+# Port 8080 - API Gateway (CRITIQUE POUR LES APPELS API!)
 server {
     listen 8080 ssl;
     server_name _;
@@ -144,7 +155,7 @@ server {
     proxy_read_timeout 600;
     send_timeout 600;
 
-    # Router vers le Gateway Spring Cloud
+    # Router TOUT vers le Gateway
     location / {
         proxy_pass http://gateway-pvvih:8080;
         proxy_set_header Host $host;
@@ -158,32 +169,22 @@ server {
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
-        
-        # Headers CORS
-        add_header 'Access-Control-Allow-Origin' '*' always;
-        add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS, PATCH' always;
-        add_header 'Access-Control-Allow-Headers' 'Authorization, Content-Type, Accept, Origin' always;
-        add_header 'Access-Control-Max-Age' 3600 always;
-        
-        # Preflight requests
-        if ($request_method = 'OPTIONS') {
-            add_header 'Access-Control-Allow-Origin' '*' always;
-            add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS, PATCH' always;
-            add_header 'Access-Control-Allow-Headers' 'Authorization, Content-Type, Accept, Origin' always;
-            add_header 'Content-Length' 0;
-            add_header 'Content-Type' 'text/plain; charset=utf-8';
-            return 204;
-        }
     }
 }
-EOFNGINX
+NGINX_EOF
 
 echo "✅ Nouvelle configuration créée"
 echo ""
 
-echo "3. Vérification de la syntaxe"
+echo "3. Validation de la syntaxe nginx"
 echo "----------------------------------------"
-docker exec nginx-https nginx -t 2>&1 || echo "⚠️ Le conteneur n'a pas encore rechargé"
+if docker run --rm -v $(pwd)/nginx-https.conf:/etc/nginx/conf.d/default.conf:ro nginx:alpine nginx -t 2>&1 | grep -q "successful"; then
+    echo "✅ Syntaxe nginx valide"
+else
+    echo "❌ ERREUR: Syntaxe nginx invalide"
+    docker run --rm -v $(pwd)/nginx-https.conf:/etc/nginx/conf.d/default.conf:ro nginx:alpine nginx -t
+    exit 1
+fi
 echo ""
 
 echo "4. Redémarrage de nginx-https"
@@ -192,36 +193,54 @@ docker compose restart nginx-https
 echo "✅ nginx-https redémarré"
 echo ""
 
-echo "5. Attente du démarrage (10 secondes)..."
-sleep 10
-echo ""
-
-echo "6. Vérification de la configuration chargée"
+echo "5. Attendre que nginx-https soit healthy"
 echo "----------------------------------------"
-docker exec nginx-https nginx -t
+sleep 5
+for i in {1..30}; do
+    if docker ps | grep nginx-https | grep -q "healthy"; then
+        echo "✅ nginx-https est healthy"
+        break
+    fi
+    echo "   Attente... ($i/30)"
+    sleep 2
+done
 echo ""
 
-echo "7. Test des ports"
+echo "6. Tests de connectivité"
 echo "----------------------------------------"
-echo "Port 8080 (Gateway API):"
-curl -k -s -o /dev/null -w "%{http_code}" https://localhost:8080/actuator/health
-echo ""
+echo "Test port 443:"
+timeout 3 curl -k -I https://localhost:443/ 2>&1 | head -2
 
-echo "Port 3001 (a-reference-front):"
-curl -k -s -o /dev/null -w "%{http_code}" https://localhost:3001/
 echo ""
+echo "Test port 3001 (a-reference-front):"
+timeout 3 curl -k -I https://localhost:3001/ 2>&1 | head -2
 
-echo "Port 3003 (a-user-front):"
-curl -k -s -o /dev/null -w "%{http_code}" https://localhost:3003/
 echo ""
+echo "Test port 3003 (a-user-front):"
+timeout 3 curl -k -I https://localhost:3003/ 2>&1 | head -2
 
+echo ""
+echo "Test port 8080 (Gateway - CRITIQUE):"
+timeout 3 curl -k -I https://localhost:8080/actuator/health 2>&1 | head -5
+
+echo ""
 echo "=========================================="
-echo "✅ CORRECTION TERMINÉE"
+echo "📋 RÉSUMÉ"
 echo "=========================================="
 echo ""
-echo "URLs à tester depuis votre navigateur :"
-echo "  - https://100.48.20.109:3001  (a-reference-front)"
-echo "  - https://100.48.20.109:3002  (gestion-forum-front)"
-echo "  - https://100.48.20.109:3003  (a-user-front)"
-echo "  - https://100.48.20.109:8080/actuator/health  (Gateway)"
+echo "✅ Configuration nginx-https corrigée"
+echo "✅ Tous les ports SSL configurés:"
+echo "   - 443  : HTTPS principal (a-reference-front par défaut)"
+echo "   - 3001 : a-reference-front"
+echo "   - 3002 : gestion-forum-front"
+echo "   - 3003 : a-user-front"
+echo "   - 8080 : API Gateway (pour les appels API)"
+echo ""
+echo "📍 URLs à tester depuis votre navigateur:"
+echo "   https://100.48.20.109:3001"
+echo "   https://100.48.20.109:3003"
+echo "   https://100.48.20.109:8080/actuator/health"
+echo ""
+echo "🔍 Vérifier les logs en cas de problème:"
+echo "   docker logs nginx-https --tail 50"
 echo ""
