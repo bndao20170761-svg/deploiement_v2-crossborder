@@ -1,0 +1,83 @@
+===========================================
+ACTION IMMÉDIATE - Erreur CORS détectée !
+===========================================
+
+PROBLÈME DANS LES LOGS :
+"Reject: 'https://100.48.20.109' origin is not allowed"
+
+Le Gateway bloque les requêtes HTTPS !
+
+===========================================
+SOLUTION EN 3 ÉTAPES
+===========================================
+
+ÉTAPE 1 : Sur GitHub
+--------------------
+Allez sur : https://github.com/BabacarNdaoKgl/cloud-config-repo-enda.git
+Fichier : GETWAY_PVVIH-dev.yml
+
+Trouvez la section allowedOrigins et AJOUTEZ cette ligne :
+
+allowedOrigins:
+  - "http://localhost:3000"
+  - "http://localhost:3001"
+  - "http://localhost:3002"
+  - "http://localhost:3003"
+  - "https://100.48.20.109"    ⬅️ AJOUTER CETTE LIGNE
+
+Sauvegardez avec commit : "fix: ajout HTTPS CORS"
+
+
+ÉTAPE 2 : Sur le serveur AWS (SSH)
+-----------------------------------
+docker compose restart gateway-pvvih
+sleep 30
+docker logs gateway-pvvih --tail 50
+
+
+ÉTAPE 3 : Testez
+----------------
+https://100.48.20.109/login
+Essayez de vous connecter
+→ Ça devrait fonctionner !
+
+===========================================
+VÉRIFICATION
+===========================================
+
+AVANT (erreur) :
+✗ Logs : "Reject: 'https://100.48.20.109' origin is not allowed"
+✗ Navigateur : 403 Forbidden
+✗ Console : Erreur CORS
+
+APRÈS (succès) :
+✓ Logs : Pas d'erreur "Reject"
+✓ Navigateur : 200 OK
+✓ Console : Pas d'erreur CORS
+✓ Connexion réussie !
+
+===========================================
+POURQUOI ÇA NE MARCHAIT PAS ?
+===========================================
+
+Le Gateway avait dans sa config CORS :
+✓ http://localhost:3000 ← OK
+✓ http://localhost:3001 ← OK
+✗ https://100.48.20.109 ← MANQUANT !
+
+Donc quand le navigateur faisait une requête depuis
+https://100.48.20.109 vers le Gateway, celui-ci
+la rejetait avec "origin is not allowed"
+
+===========================================
+FICHIER COMPLET PRÊT À UTILISER
+===========================================
+
+Si vous voulez remplacer TOUT le fichier sur GitHub,
+utilisez le contenu de :
+GETWAY_PVVIH-dev-FINAL-HTTPS.yml
+
+(dans votre projet local)
+
+Il contient TOUTE la config avec https://100.48.20.109
+déjà ajouté dans allowedOrigins.

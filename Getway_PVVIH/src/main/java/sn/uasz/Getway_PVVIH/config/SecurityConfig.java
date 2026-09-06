@@ -51,13 +51,15 @@ public class SecurityConfig {
             "http://127.0.0.1:3004",
             "http://127.0.0.1:4000",
             "http://127.0.0.1:8080",
-            // Production GCP
+            // Production HTTP AWS (IP: 100.48.20.109)
             "http://100.48.20.109:3000",
             "http://100.48.20.109:3001",
             "http://100.48.20.109:3002",
             "http://100.48.20.109:3003",
             "http://100.48.20.109:4000",
-            "http://100.48.20.109:8080"
+            "http://100.48.20.109:8080",
+            // Production HTTPS AWS (IP: 100.48.20.109) - via nginx-https
+            "https://100.48.20.109"
         );
         
         configuration.setAllowedOrigins(allowedOrigins);
