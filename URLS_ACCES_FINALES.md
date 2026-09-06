@@ -38,13 +38,21 @@ https://100.48.20.109:8080/patients/...
 https://100.48.20.109:8080/forum/...
 ```
 
-## ❌ URLs Non Fonctionnelles (NE PAS UTILISER)
+## ❌ URLs Non Fonctionnelles (EN COURS DE CORRECTION)
 
-Ces URLs ne fonctionnent pas actuellement (problème de routing nginx) :
+Ces URLs ne fonctionnent pas actuellement :
 
-- ❌ `https://100.48.20.109/user/` → Erreur 404
+- ❌ `https://100.48.20.109:3003/` → **ERR_SSL_PROTOCOL_ERROR** (port 3003 SSL manquant dans nginx-https.conf)
+- ❌ `https://100.48.20.109/user/` → **Erreur 404 fichiers statiques** (React build sans PUBLIC_URL=/user)
 - ❌ `https://100.48.20.109/forum/` → Erreur 404
 - ❌ `https://100.48.20.109/reference/` → Redirige vers port 3001
+
+### 🔧 Pour corriger ces problèmes
+
+Consultez les fichiers de correction :
+- **`README_PROBLEME_ET_SOLUTION.md`** → Explication complète du problème et solution
+- **`CORRECTION_FINALE_USER_PATH.sh`** → Script automatique à exécuter sur le serveur
+- **`COMMANDES_SERVEUR_A_EXECUTER.txt`** → Commandes manuelles alternatives
 
 ## 🔧 Configuration Actuelle
 
