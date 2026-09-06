@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_GATEWAY_URL || 'http://100.48.20.109:8080',
+  baseURL: process.env.REACT_APP_GATEWAY_URL || 'https://100.48.20.109',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',

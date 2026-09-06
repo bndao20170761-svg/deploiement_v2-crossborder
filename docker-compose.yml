@@ -463,8 +463,8 @@ services:
         REACT_APP_FRONTEND1_URL: ${REACT_APP_FRONTEND1_URL}
         REACT_APP_FRONTEND2_URL: ${REACT_APP_FRONTEND2_URL}
     container_name: a-user-front
-    # ports: # Désactivé - accès via Nginx HTTPS
-    #   - "3003:80"
+    ports: # Exposé pour accès direct HTTP
+      - "3003:80"
     environment:
       - REACT_APP_API_URL=${REACT_APP_API_URL}
       - REACT_APP_GATEWAY_URL=${REACT_APP_GATEWAY_URL}
