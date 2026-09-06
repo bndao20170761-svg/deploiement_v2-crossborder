@@ -68,25 +68,36 @@ const handleResponse = async (response) => {
 export const authService = {
   login: async (username, password) => {
     try {
+      console.log('📡 API: Envoi requête de connexion pour', username);
+      
       const response = await fetch(`${AUTH_API_URL}/auth/login`, {
         method: "POST",
         headers: getHeaders(),
         body: JSON.stringify({ username, password }),
       });
 
+      console.log('📡 API: Réponse reçue, status:', response.status);
       const data = await handleResponse(response);
+      console.log('📡 API: Données après handleResponse:', data);
 
       const token = data.token || data.accessToken || data.jwt;
       const user = data.user || data.utilisateur;
+
+      console.log('📡 API: Token extrait:', token ? `${token.substring(0, 20)}...` : 'MANQUANT');
+      console.log('📡 API: User extrait:', user ? user.username : 'MANQUANT');
 
       if (!token) {
         throw new Error("Token manquant dans la réponse du serveur");
       }
 
       localStorage.setItem("auth-token", token);
+      console.log('💾 Token stocké dans localStorage');
 
       if (user) {
         localStorage.setItem("user-data", JSON.stringify(user));
+        console.log('💾 Données utilisateur stockées dans localStorage');
+      } else {
+        console.warn('⚠️ Pas de données utilisateur dans la réponse, il faudra les récupérer');
       }
 
       return {
@@ -96,7 +107,7 @@ export const authService = {
         needsUserFetch: !user
       };
     } catch (error) {
-      console.error("Erreur de connexion:", error.message);
+      console.error("❌ Erreur de connexion:", error.message);
       throw error;
     }
   },
@@ -138,14 +149,20 @@ export const authService = {
 
   getCurrentUser: async () => {
     try {
+      console.log('📡 API: Récupération utilisateur courant depuis /auth/me');
+      
       const response = await fetch(`${AUTH_API_URL}/auth/me`, {
         method: "GET",
         headers: getHeaders(),
       });
 
-      return await handleResponse(response);
+      console.log('📡 API: Réponse /auth/me, status:', response.status);
+      const data = await handleResponse(response);
+      console.log('📡 API: Utilisateur récupéré:', data);
+      
+      return data;
     } catch (error) {
-      console.error("Erreur récupération utilisateur:", error);
+      console.error("❌ Erreur récupération utilisateur:", error.message);
       throw error;
     }
   },

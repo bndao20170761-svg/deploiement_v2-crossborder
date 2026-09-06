@@ -15,33 +15,61 @@ export const AuthProvider = ({ children }) => {
       try {
         setIsLoading(true);
         
-        if (authService.isAuthenticated()) {
-          const userData = authService.getUserData();
+        const token = localStorage.getItem('auth-token');
+        const storedUser = localStorage.getItem('user-data');
+        
+        console.log('🔍 AuthContext init:', {
+          hasToken: !!token,
+          hasStoredUser: !!storedUser,
+          tokenLength: token ? token.length : 0
+        });
+
+        if (token) {
+          // Nous avons un token, vérifier les données utilisateur
+          let userData = null;
+          
+          if (storedUser) {
+            try {
+              userData = JSON.parse(storedUser);
+              console.log('✅ Données utilisateur trouvées dans localStorage:', userData);
+            } catch (e) {
+              console.error('❌ Erreur parsing user-data:', e);
+            }
+          }
+
           if (userData) {
             // Gérer la structure imbriquée {user: {...}} ou directe
             const actualUser = userData.user || userData;
             setUser(actualUser);
-            console.log('Utilisateur authentifié trouvé dans localStorage:', actualUser);
+            console.log('✅ Session restaurée:', {
+              username: actualUser.username,
+              profil: actualUser.profil
+            });
           } else {
-            // Essayer de récupérer les données utilisateur du serveur
+            // Pas de données utilisateur en cache, essayer de les récupérer du serveur
+            console.log('⚠️ Token présent mais pas de données utilisateur, récupération du serveur...');
             try {
               const currentUser = await authService.getCurrentUser();
-              setUser(currentUser);
-              localStorage.setItem('user-data', JSON.stringify(currentUser));
-              console.log('Utilisateur authentifié récupéré du serveur:', currentUser);
+              const actualUser = currentUser.user || currentUser;
+              setUser(actualUser);
+              localStorage.setItem('user-data', JSON.stringify(actualUser));
+              console.log('✅ Données utilisateur récupérées du serveur:', {
+                username: actualUser.username,
+                profil: actualUser.profil
+              });
             } catch (userError) {
-              console.warn('Impossible de récupérer les données utilisateur:', userError);
-              // Si on ne peut pas récupérer les données utilisateur, on considère comme non authentifié
+              console.error('❌ Impossible de récupérer les données utilisateur:', userError.message);
+              // Token invalide ou expiré, nettoyer
               authService.logout();
               setUser(null);
             }
           }
         } else {
           setUser(null);
-          console.log('Aucun token d\'authentification trouvé');
+          console.log('ℹ️ Aucune session active');
         }
       } catch (error) {
-        console.error('Erreur vérification auth:', error);
+        console.error('❌ Erreur vérification auth:', error);
         // Si erreur, nettoyer le localStorage
         authService.logout();
         setUser(null);
@@ -58,17 +86,26 @@ export const AuthProvider = ({ children }) => {
     try {
       setIsLoading(true);
 
+      console.log('🔐 Tentative de connexion pour:', email);
       const result = await authService.login(email, password);
 
       if (result.success) {
+        console.log('✅ Connexion réussie, token reçu');
+        
         // Si l'utilisateur n'est pas inclus dans la réponse, le récupérer
         if (result.needsUserFetch && result.token) {
+          console.log('⚠️ Utilisateur non inclus, récupération du serveur...');
           try {
             const currentUser = await authService.getCurrentUser();
-            result.user = currentUser;
-            localStorage.setItem('user-data', JSON.stringify(currentUser));
+            const actualUser = currentUser.user || currentUser;
+            result.user = actualUser;
+            localStorage.setItem('user-data', JSON.stringify(actualUser));
+            console.log('✅ Données utilisateur récupérées:', {
+              username: actualUser.username,
+              profil: actualUser.profil
+            });
           } catch (userError) {
-            console.warn('Impossible de récupérer les données utilisateur:', userError);
+            console.error('❌ Impossible de récupérer les données utilisateur:', userError);
             // Continuer sans les données utilisateur pour l'instant
           }
         }
@@ -77,13 +114,19 @@ export const AuthProvider = ({ children }) => {
           // Gérer la structure imbriquée {user: {...}} ou directe
           const actualUser = result.user.user || result.user;
           setUser(actualUser);
+          console.log('✅ Utilisateur connecté:', {
+            username: actualUser.username,
+            profil: actualUser.profil
+          });
         }
 
         return { success: true };
       } else {
+        console.error('❌ Connexion échouée:', result.message);
         return { success: false, error: result.message };
       }
     } catch (error) {
+      console.error('❌ Erreur lors de la connexion:', error.message);
       return { success: false, error: error.message };
     } finally {
       setIsLoading(false);
