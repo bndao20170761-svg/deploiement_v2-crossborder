@@ -1,0 +1,180 @@
+# ============================================================================
+# COMMANDES FINALES - Correction erreur 404 sur /user/ et /forum/
+# ============================================================================
+
+# ====================
+# SUR VOTRE PC (Windows PowerShell)
+# ====================
+
+# 1. Aller dans le dossier du projet
+cd "C:\Users\babac\Desktop\Babacar Ndao\Master2 GL\deploiement\vesion_2_enda_crossborder"
+
+# 2. Vérifier les changements
+git status
+
+# 3. Ajouter les fichiers modifiés
+git add nginx-https.conf
+git add a_user_front/package.json
+git add gestion_forum_front/package.json
+git add fix-404-deploy.sh
+git add CORRECTION_ERREUR_404_USER_FORUM.md
+git add COMMANDES_FINALES_CORRECTION.txt
+
+# 4. Commit
+git commit -m "fix: correction erreur 404 sur /user/ et /forum/ - ajout homepage dans package.json et simplification nginx"
+
+# 5. Push vers GitHub
+git push origin main
+
+# ====================
+# SUR LE SERVEUR AWS (via SSH)
+# ====================
+
+# 1. Connexion SSH
+ssh ec2-user@100.48.20.109
+
+# 2. Aller dans le dossier
+cd ~/deploiement_v2-crossborder
+
+# 3. Copier le script de déploiement et le rendre exécutable
+chmod +x fix-404-deploy.sh
+
+# 4. Exécuter le script de correction
+./fix-404-deploy.sh
+
+# Ou manuellement si vous préférez :
+
+# 4a. Pull des changements
+git pull
+
+# 4b. Arrêter les services
+docker compose stop nginx-https a-user-front gestion-forum-front
+
+# 4c. Rebuild sans cache
+docker compose build --no-cache a-user-front gestion-forum-front
+
+# 4d. Redémarrer tous les services
+docker compose up -d
+
+# 4e. Attendre 20 secondes
+sleep 20
+
+# 4f. Vérifier l'état
+docker ps | grep -E "nginx|user|forum"
+
+# 4g. Vérifier les logs
+docker logs nginx-https --tail 20
+docker logs a-user-front --tail 20
+docker logs gestion-forum-front --tail 20
+
+# ====================
+# TESTS DEPUIS LE SERVEUR
+# ====================
+
+# Test 1 : Page d'accueil
+curl -I https://localhost/
+
+# Test 2 : User front
+curl -I https://localhost/user/
+
+# Test 3 : Forum front
+curl -I https://localhost/forum/
+
+# Test 4 : Fichiers statiques user
+curl -I https://localhost/user/static/css/main.ee6e3d7a.css
+
+# Test 5 : API
+curl -I https://localhost/api/auth/health
+
+# ====================
+# TESTS DEPUIS VOTRE PC
+# ====================
+
+# PowerShell
+Invoke-WebRequest -Uri "https://100.48.20.109/" -UseBasicParsing
+Invoke-WebRequest -Uri "https://100.48.20.109/user/" -UseBasicParsing
+Invoke-WebRequest -Uri "https://100.48.20.109/forum/" -UseBasicParsing
+Invoke-WebRequest -Uri "https://100.48.20.109/api/auth/health" -UseBasicParsing
+
+# ====================
+# TESTS DANS LE NAVIGATEUR
+# ====================
+
+# 1. Ouvrir en navigation privée (pour éviter le cache)
+# 2. Aller sur :
+#    - https://100.48.20.109/
+#    - https://100.48.20.109/user/
+#    - https://100.48.20.109/forum/
+
+# 3. Ouvrir la console (F12) et vérifier :
+#    - Onglet "Network" : tous les fichiers doivent être 200 OK
+#    - Onglet "Console" : pas d'erreur 404 ou MIME type
+
+# ====================
+# DÉPANNAGE
+# ====================
+
+# Si l'erreur persiste :
+
+# 1. Vider complètement le cache du navigateur
+Ctrl + Shift + Delete (Windows)
+Cmd + Shift + Delete (Mac)
+
+# 2. Vérifier que le build a bien pris en compte homepage
+docker exec a-user-front cat /usr/share/nginx/html/index.html | grep "user"
+docker exec gestion-forum-front cat /usr/share/nginx/html/index.html | grep "forum"
+
+# 3. Vérifier la config nginx
+docker exec nginx-https nginx -t
+
+# 4. Voir les logs en temps réel
+docker logs -f nginx-https
+
+# 5. Redémarrer nginx seulement
+docker compose restart nginx-https
+
+# 6. Rebuild complet si nécessaire
+docker compose down
+docker compose build --no-cache
+docker compose up -d
+
+# ====================
+# VÉRIFICATION FINALE
+# ====================
+
+# Tout doit être OK si :
+echo "✅ https://100.48.20.109/ charge correctement"
+echo "✅ https://100.48.20.109/user/ charge correctement"
+echo "✅ https://100.48.20.109/forum/ charge correctement"
+echo "✅ Pas d'erreur 404 dans la console (F12)"
+echo "✅ Tous les fichiers static/js/*.js chargent en 200 OK"
+echo "✅ Pas d'erreur MIME type"
+
+# ====================
+# RÉSUMÉ DES CHANGEMENTS
+# ====================
+
+# 1. nginx-https.conf
+#    - Suppression des rewrites complexes
+#    - Utilisation de proxy_pass simple : /user/ -> http://a-user-front:80/
+#    - Ajout de redirections propres : /user -> /user/
+
+# 2. a_user_front/package.json
+#    - Ajout de "homepage": "/user"
+#    - Permet à React de générer les bons chemins
+
+# 3. gestion_forum_front/package.json
+#    - Ajout de "homepage": "/forum"
+#    - Permet à React de générer les bons chemins
+
+# ====================
+# PORT 3003 (Bonus)
+# ====================
+
+# Si vous voulez aussi accéder en direct sur le port 3003 :
+
+# 1. Le port est déjà exposé dans docker-compose.yml
+# 2. Il faut juste ouvrir le port 3003 dans AWS Security Groups
+# 3. Puis tester : http://100.48.20.109:3003
+
+# MAIS : Utilisez https://100.48.20.109/user/ en production (plus sécurisé)
