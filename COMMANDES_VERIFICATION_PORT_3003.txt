@@ -1,0 +1,107 @@
+# ========================================
+# Commandes à exécuter sur le serveur AWS
+# ========================================
+
+# 1. Vérifier que a-user-front tourne avec le port 3003 exposé
+docker ps | grep a-user-front
+
+# Vous devriez voir: 0.0.0.0:3003->80/tcp
+
+
+# 2. Tester en local (HTTP sans SSL)
+curl -I http://localhost:3003
+
+# Résultat attendu: HTTP/1.1 200 OK ou HTTP/1.1 301
+
+
+# 3. Tester l'accès via nginx-https
+curl -k -I https://localhost/user/
+
+# Résultat attendu: HTTP/2 200 ou HTTP/2 301
+
+
+# 4. Vérifier que le port 3003 écoute
+ss -tlnp | grep 3003
+
+# Résultat attendu: LISTEN 0 4096 0.0.0.0:3003
+
+
+# 5. Tester depuis l'IP publique (HTTP)
+curl -I http://100.48.20.109:3003
+
+# Si ça ne marche pas, ouvrir le port 3003 dans AWS Security Groups
+
+
+# ========================================
+# Ouvrir le port 3003 dans AWS (si nécessaire)
+# ========================================
+
+# Option 1: Via AWS CLI
+aws ec2 describe-instances --filters "Name=ip-address,Values=100.48.20.109" --query 'Reservations[0].Instances[0].SecurityGroups[0].GroupId' --output text
+
+# Remplacez sg-XXXXX par le résultat ci-dessus
+aws ec2 authorize-security-group-ingress --group-id sg-XXXXX --protocol tcp --port 3003 --cidr 0.0.0.0/0
+
+
+# Option 2: Via la console AWS
+# 1. Allez sur https://console.aws.amazon.com
+# 2. EC2 → Security Groups
+# 3. Trouvez le Security Group de votre instance
+# 4. Edit inbound rules → Add rule
+# 5. Type: Custom TCP, Port: 3003, Source: 0.0.0.0/0
+# 6. Save rules
+
+
+# ========================================
+# Test final depuis votre PC
+# ========================================
+
+# PowerShell (sur votre PC Windows)
+curl.exe -I http://100.48.20.109:3003
+
+# Navigateur (sur votre PC)
+# Ouvrez: http://100.48.20.109:3003
+
+
+# ========================================
+# Résumé des URLs d'accès
+# ========================================
+
+# Via nginx-https (HTTPS - Recommandé):
+https://100.48.20.109/user/
+
+# Accès direct (HTTP - Port 3003):
+http://100.48.20.109:3003
+
+# ========================================
+# Architecture actuelle
+# ========================================
+
+Navigateur
+    ↓
+    ├─→ https://100.48.20.109 (port 443)
+    │       ↓
+    │   nginx-https
+    │       ↓
+    │   a-user-front:80 (interne Docker)
+    │
+    └─→ http://100.48.20.109:3003
+            ↓
+        a-user-front:80 (direct)
+
+# ========================================
+# Ports exposés actuellement
+# ========================================
+
+# Frontends:
+- a-reference-front:   ❌ Pas de port exposé (uniquement via nginx)
+- a-user-front:        ✅ Port 3003 exposé
+- gestion-forum-front: ❌ Pas de port exposé (uniquement via nginx)
+
+# Nginx:
+- nginx-https:         ✅ Ports 80 et 443 exposés
+
+# Backend:
+- gateway-pvvih:       ❌ Port 8080 (interne uniquement)
+- api-register:        ✅ Port 8761 exposé
+- api-configuration:   ✅ Port 8888 exposé
