@@ -2,7 +2,7 @@
 import axios from "axios";
 import { isJwtFormatValid, normalizeToken } from "../utils/tokenUtils";
 
-let API_BASE_URL = process.env.REACT_APP_GATEWAY_URL || "http://13.60.231.157:8080";
+let API_BASE_URL = process.env.REACT_APP_GATEWAY_URL || "http://100.48.20.109:8080";
 
 // Normaliser: s'assurer que le préfixe /api est présent
 if (!API_BASE_URL.endsWith("/api")) {

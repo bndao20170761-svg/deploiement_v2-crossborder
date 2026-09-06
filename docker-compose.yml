@@ -1,5 +1,3 @@
-version: '3.8'
-
 networks:
   pvvih-network:
     driver: bridge
@@ -465,8 +463,7 @@ services:
         REACT_APP_FRONTEND1_URL: ${REACT_APP_FRONTEND1_URL}
         REACT_APP_FRONTEND2_URL: ${REACT_APP_FRONTEND2_URL}
     container_name: a-user-front
-    ports: # Exposé pour accès direct HTTP (changé de 3003 à 3013 car 3003 est utilisé par nginx-https)
-      - "3013:80"
+    # Accès public via nginx-https:3003, sans exposition HTTP directe.
     environment:
       - REACT_APP_API_URL=${REACT_APP_API_URL}
       - REACT_APP_GATEWAY_URL=${REACT_APP_GATEWAY_URL}
