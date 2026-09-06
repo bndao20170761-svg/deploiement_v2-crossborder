@@ -1,0 +1,47 @@
+# ========================================
+# COMMANDES À COPIER-COLLER SUR LE SERVEUR
+# ========================================
+
+# Se connecter au serveur (si pas déjà connecté):
+# ssh ec2-user@100.48.20.109
+
+# Aller dans le répertoire:
+cd ~/deploiement_v2-crossborder
+
+# Arrêter les services:
+docker compose stop a-user-front nginx-https
+
+# Supprimer les conteneurs:
+docker compose rm -f a-user-front nginx-https
+
+# Redémarrer:
+docker compose up -d a-user-front nginx-https
+
+# Attendre 10 secondes:
+sleep 10
+
+# Vérifier:
+docker ps | grep -E "(nginx-https|a-user-front)"
+
+# Tester HTTPS:
+curl -k -I https://localhost:3003/
+
+# ========================================
+# RÉSULTAT ATTENDU
+# ========================================
+
+# Vous devriez voir:
+# HTTP/2 200
+# server: nginx/1.31.5
+# content-type: text/html
+
+# ========================================
+# TEST DEPUIS VOTRE PC
+# ========================================
+
+# Ouvrir dans Chrome/Edge/Firefox:
+# https://100.48.20.109:3003
+
+# ✅ L'application doit se charger correctement
+# ✅ Plus d'erreur ERR_SSL_PROTOCOL_ERROR
+# ✅ Plus d'erreur 404 sur les fichiers static/js/*.js

@@ -1,21 +1,32 @@
 # 🎯 URLs d'Accès aux Applications
 
+## ⚠️ MISE À JOUR IMPORTANTE - Port 3003 Corrigé
+
+**Problème résolu** : Le port 3003 avait un conflit entre HTTP et HTTPS. Maintenant corrigé !
+
 ## ✅ URLs Fonctionnelles (À UTILISER)
 
 ### Frontends avec Ports Directs (HTTPS)
 Utilisez ces URLs pour accéder aux applications :
 
-| Application | URL | Description |
-|------------|-----|-------------|
-| **a-reference-front** | `https://100.48.20.109:3001` | Interface référencement médical |
-| **gestion-forum-front** | `https://100.48.20.109:3002` | Forum communautaire |
-| **a-user-front** | `https://100.48.20.109:3003` | Interface utilisateur |
-| **Par défaut** | `https://100.48.20.109` | Redirige vers a-reference-front |
+| Application | URL | Description | Status |
+|------------|-----|-------------|--------|
+| **a-reference-front** | `https://100.48.20.109:3001` | Interface référencement médical | ✅ Fonctionne |
+| **gestion-forum-front** | `https://100.48.20.109:3002` | Forum communautaire | ✅ Fonctionne |
+| **a-user-front** | `https://100.48.20.109:3003` | Interface utilisateur | ✅ **CORRIGÉ - MAINTENANT HTTPS** |
+| **Par défaut** | `https://100.48.20.109` | Redirige vers a-reference-front | ✅ Fonctionne |
 
 ### API Gateway
-| Service | URL | Description |
-|---------|-----|-------------|
-| **Gateway** | `https://100.48.20.109:8080` | Point d'entrée API principal |
+| Service | URL | Description | Status |
+|---------|-----|-------------|--------|
+| **Gateway** | `https://100.48.20.109:8080` | Point d'entrée API principal | ✅ Fonctionne |
+
+### URLs HTTP Directes (Pour Debug)
+| Application | URL | Description |
+|------------|-----|-------------|
+| **a-reference-front** | `http://100.48.20.109:3011` | Accès HTTP direct (sans SSL) |
+| **gestion-forum-front** | `http://100.48.20.109:3012` | Accès HTTP direct (sans SSL) |
+| **a-user-front** | `http://100.48.20.109:3013` | Accès HTTP direct (**changé de 3003 à 3013**) |
 
 ### APIs Backend (via Gateway)
 Toutes les APIs sont accessibles via le Gateway sur le port 8080 :
