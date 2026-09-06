@@ -1,0 +1,124 @@
+# ========================================
+# COMMANDES À EXÉCUTER SUR LE SERVEUR GCP
+# ========================================
+
+# PROBLÈME ACTUEL :
+# L'API retourne du HTML au lieu de JSON → erreur "r.filter is not a function"
+# Cause : Les frontends appellent de mauvaises URLs
+
+# ========================================
+# ÉTAPE 1 : Diagnostic (optionnel)
+# ========================================
+
+cd ~/deploiement_v2-crossborder
+bash DIAGNOSTIC_API_HTML.sh
+
+# ========================================
+# ÉTAPE 2 : Correction Automatique
+# ========================================
+
+bash CORRIGER_API_HTML.sh
+
+# Cette commande va :
+# 1. Corriger les variables dans .env
+# 2. Rebuilder les frontends avec les bonnes URLs
+# 3. Redémarrer les services
+# 4. Vérifier que tout fonctionne
+
+# ⏱️ Durée estimée : 5-10 minutes
+
+# ========================================
+# ÉTAPE 3 : Vérification Manuelle
+# ========================================
+
+# 3.1 Vérifier que les services tournent
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+# 3.2 Tester l'API Gateway directement
+curl -k https://localhost:8080/actuator/health
+curl -k https://localhost:8080/api/patients/all
+
+# Devrait retourner du JSON, PAS du HTML
+
+# 3.3 Vérifier les logs
+docker logs a-reference-front --tail 50
+docker logs nginx-https --tail 50
+
+# ========================================
+# ÉTAPE 4 : Test depuis le Navigateur
+# ========================================
+
+# 1. Ouvrir : https://100.48.20.109:3001
+# 2. Ouvrir DevTools (F12) → Network
+# 3. Recharger la page
+# 4. Vérifier les requêtes vers /api/* :
+#    ✅ Doivent pointer vers https://100.48.20.109:8080/api/...
+#    ✅ Doivent retourner du JSON
+#    ❌ NE DOIVENT PAS pointer vers https://100.48.20.109/api/...
+#    ❌ NE DOIVENT PAS retourner <!doctype html>
+
+# ========================================
+# SI LE PROBLÈME PERSISTE
+# ========================================
+
+# Option A : Vérifier les Dockerfiles
+cat a_reference_front/Dockerfile | grep REACT_APP
+cat a_user_front/Dockerfile | grep REACT_APP
+
+# Option B : Rebuild manuel avec variables explicites
+docker compose build --no-cache \
+  --build-arg REACT_APP_GATEWAY_URL=https://100.48.20.109:8080 \
+  a-reference-front
+
+docker compose up -d a-reference-front
+
+# Option C : Vérifier les sources JS
+cat a_reference_front/src/services/api.js | grep -i "base"
+cat a_reference_front/src/services/patientService.js | grep -i "url"
+
+# ========================================
+# COMMANDES DE DÉPANNAGE
+# ========================================
+
+# Voir tous les logs
+docker compose logs -f
+
+# Redémarrer un service spécifique
+docker compose restart a-reference-front
+
+# Voir la configuration nginx
+docker exec nginx-https cat /etc/nginx/conf.d/default.conf
+
+# Tester la connectivité interne
+docker exec a-reference-front wget -O- http://gateway-pvvih:8080/actuator/health
+
+# ========================================
+# URLS FINALES ATTENDUES
+# ========================================
+
+# Frontends (HTTPS):
+#   https://100.48.20.109:3001  → a-reference-front
+#   https://100.48.20.109:3002  → gestion-forum-front
+#   https://100.48.20.109:3003  → a-user-front
+
+# API Gateway (HTTPS):
+#   https://100.48.20.109:8080  → gateway-pvvih
+
+# Par défaut:
+#   https://100.48.20.109       → a-reference-front
+
+# ========================================
+# FICHIERS DE RÉFÉRENCE
+# ========================================
+
+# Documentation complète :
+#   PROBLEME_API_RETOURNE_HTML.md
+#   URLS_ACCES_FINALES.md
+
+# Scripts utiles :
+#   DIAGNOSTIC_API_HTML.sh        → Identifier le problème
+#   CORRIGER_API_HTML.sh          → Corriger automatiquement
+#   DIAGNOSTIC_SSL_COMPLET.sh     → Vérifier les certificats SSL
+#   RESOUDRE_CONFLIT_NGINX.sh     → Résoudre conflits Git
+
+# ========================================
