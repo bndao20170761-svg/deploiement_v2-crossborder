@@ -1,0 +1,97 @@
+# ============================================================
+# COMMANDES POUR CORRIGER LE PORT 3003 SSL
+# ============================================================
+
+# PROBLÈME ACTUEL:
+# - https://100.48.20.109:3003 → ERR_SSL_PROTOCOL_ERROR
+# - Le port 3003 n'a PAS de configuration SSL dans nginx-https.conf
+
+# SOLUTION:
+# Recréer le conteneur nginx-https avec la configuration corrigée
+
+
+# ============================================================
+# ÉTAPE 1: Transférer le nouveau nginx-https.conf
+# ============================================================
+
+# Sur votre PC Windows (PowerShell):
+scp nginx-https.conf ec2-user@100.48.20.109:~/deploiement_v2-crossborder/
+
+
+# ============================================================
+# ÉTAPE 2: Sur le serveur GCP, appliquer la correction
+# ============================================================
+
+# Connexion SSH au serveur
+ssh ec2-user@100.48.20.109
+
+# Aller dans le répertoire
+cd ~/deploiement_v2-crossborder
+
+# Arrêter nginx-https
+docker compose stop nginx-https
+
+# Supprimer le conteneur
+docker compose rm -f nginx-https
+
+# Recréer avec la nouvelle configuration
+docker compose up -d nginx-https
+
+# Attendre 5 secondes
+sleep 5
+
+# Vérifier la configuration
+docker exec nginx-https nginx -t
+
+# Vérifier les ports SSL configurés
+docker exec nginx-https cat /etc/nginx/conf.d/default.conf | grep "listen.*ssl"
+
+
+# ============================================================
+# ÉTAPE 3: Tests de vérification
+# ============================================================
+
+# Test port 3003 SSL depuis le serveur
+openssl s_client -connect localhost:3003 -servername 100.48.20.109 </dev/null
+
+# Vérifier les logs
+docker logs nginx-https --tail 30
+
+# État des conteneurs
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+
+# ============================================================
+# ÉTAPE 4: Test depuis votre navigateur
+# ============================================================
+
+# Ces URLs doivent TOUTES fonctionner maintenant:
+# https://100.48.20.109:3001  (a-reference-front)
+# https://100.48.20.109:3002  (gestion-forum-front)
+# https://100.48.20.109:3003  (a-user-front) ✨ CORRIGÉ
+
+
+# ============================================================
+# VÉRIFICATION RAPIDE
+# ============================================================
+
+# Une seule commande pour tout vérifier:
+docker exec nginx-https cat /etc/nginx/conf.d/default.conf | grep -c "listen.*ssl"
+
+# Doit afficher: 4
+# (443, 3001, 3002, 3003)
+
+
+# ============================================================
+# EN CAS DE PROBLÈME
+# ============================================================
+
+# Voir les logs complets
+docker logs nginx-https
+
+# Redémarrer tous les services
+docker compose restart
+
+# Vérifier que les certificats existent
+docker exec nginx-https ls -la /etc/nginx/ssl/
+
