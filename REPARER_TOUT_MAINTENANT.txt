@@ -1,0 +1,48 @@
+=========================================
+COMMANDES À EXÉCUTER SUR LE SERVEUR GCP
+=========================================
+
+Copiez-collez ces commandes UNE PAR UNE sur le serveur :
+
+# 1. Aller dans le dossier du projet
+cd ~/deploiement_v2-crossborder
+
+# 2. Arrêter nginx-https
+docker compose stop nginx-https
+
+# 3. Supprimer le conteneur nginx-https
+docker compose rm -f nginx-https
+
+# 4. Redémarrer nginx-https avec la nouvelle config
+docker compose up -d nginx-https
+
+# 5. Attendre 5 secondes
+sleep 5
+
+# 6. Vérifier l'état
+docker ps | grep nginx-https
+
+# 7. Vérifier les logs
+docker logs nginx-https --tail 30
+
+# 8. Test rapide depuis le serveur
+curl -k -I https://localhost:3001 | head -5
+curl -k -I https://localhost:3002 | head -5
+curl -k -I https://localhost:3003 | head -5
+
+=========================================
+APRÈS CES COMMANDES
+=========================================
+
+Testez depuis votre navigateur :
+
+✅ https://100.48.20.109:3001  (a-reference-front)
+✅ https://100.48.20.109:3002  (gestion-forum-front)
+✅ https://100.48.20.109:3003  (a-user-front)
+✅ https://100.48.20.109:8080  (API Gateway)
+✅ https://100.48.20.109       (a-reference-front par défaut)
+
+❌ https://100.48.20.109/user/  (NE FONCTIONNERA PAS - nécessite rebuild)
+❌ https://100.48.20.109/forum/ (NE FONCTIONNERA PAS - nécessite rebuild)
+
+=========================================
