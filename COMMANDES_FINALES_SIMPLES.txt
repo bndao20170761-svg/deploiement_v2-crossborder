@@ -1,0 +1,86 @@
+# ========================================
+# COMMANDES À EXÉCUTER SUR LE SERVEUR GCP
+# ========================================
+
+# 1. Supprimer le container nginx-https en erreur
+docker rm -f nginx-https
+
+# 2. Relancer UNIQUEMENT nginx-https
+docker compose up -d nginx-https
+
+# 3. Attendre 10 secondes
+sleep 10
+
+# 4. Vérifier que tout tourne
+docker compose ps
+
+# 5. Tester depuis le navigateur
+# Les URLs qui FONCTIONNENT:
+#   https://100.48.20.109:3001  (a-reference-front)
+#   https://100.48.20.109:3003  (a-user-front)
+#   http://100.48.20.109:8080   (Gateway HTTP direct)
+
+# ========================================
+# EXPLICATION DU PROBLÈME
+# ========================================
+
+# Le docker-compose.yml a DEUX services qui veulent le port 8080:
+#   - gateway-pvvih: "8080:8080"  ✅ (fonctionne)
+#   - nginx-https: "8080:8080"    ❌ (CONFLIT!)
+
+# SOLUTION: nginx-https n'a PAS besoin d'exposer le port 8080
+# Il doit juste router en INTERNE vers gateway-pvvih:8080
+
+# ========================================
+# SI LES FRONTENDS NE RÉPONDENT TOUJOURS PAS
+# ========================================
+
+# Vérifier les logs nginx
+docker logs nginx-https --tail 50
+
+# Si nginx-https n'a pas démarré du tout:
+docker compose ps | grep nginx-https
+
+# Redémarrer complètement nginx-https
+docker compose restart nginx-https
+
+# Tester l'accès direct aux frontends (sans nginx)
+curl http://172.28.0.15/    # a-reference-front
+curl http://172.28.0.13/    # a-user-front
+
+# Si les frontends ne répondent pas en direct:
+docker logs a-reference-front --tail 20
+docker logs a-user-front --tail 20
+
+# ========================================
+# URLs FINALES QUI DOIVENT FONCTIONNER
+# ========================================
+
+# ✅ Frontends (HTTPS via nginx-https):
+https://100.48.20.109:3001    # a-reference-front
+https://100.48.20.109:3003    # a-user-front
+https://100.48.20.109:3002    # gestion-forum-front
+
+# ✅ Gateway (HTTP direct, PAS via nginx):
+http://100.48.20.109:8080     # API Gateway
+
+# ❌ NE FONCTIONNE PAS (conflit de port):
+https://100.48.20.109:8080    # ERREUR: port déjà utilisé
+
+# ========================================
+# NOTE IMPORTANTE SUR LES APIS
+# ========================================
+
+# Les frontends React appellent le Gateway sur:
+#   REACT_APP_GATEWAY_URL=https://100.48.20.109:8080
+
+# MAIS le port 8080 en HTTPS ne fonctionne pas (conflit)
+# DONC il faut SOIT:
+#   1. Changer les frontends pour utiliser HTTP:
+#      REACT_APP_GATEWAY_URL=http://100.48.20.109:8080
+#   
+#   2. OU rebuild les frontends pour utiliser /api/ sur port 443:
+#      REACT_APP_GATEWAY_URL=https://100.48.20.109/api
+
+# Pour l'instant, testez avec HTTP:
+# http://100.48.20.109:8080/actuator/health
