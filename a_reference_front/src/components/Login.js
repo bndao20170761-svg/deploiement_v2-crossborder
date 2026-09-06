@@ -55,16 +55,50 @@ const Login = () => {
         return;
       }
 
-      const userData = { username };
-      // persist token and user
+      // Sauvegarder le token temporairement pour faire l'appel API
       localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(userData));
       console.log("💾 Token sauvegardé dans localStorage");
       console.log("📌 Token value:", token);
 
-      login(userData, token);
-      console.log("✅ Context login appelé avec userData et token");
-      navigate("/");
+      // Récupérer les informations complètes de l'utilisateur
+      try {
+        console.log("📡 Récupération des infos utilisateur...");
+        const userInfoResponse = await api.get("/user/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        console.log("✅ Informations utilisateur récupérées:", userInfoResponse.data);
+
+        // Normaliser les données pour supporter plusieurs formats d'API
+        const apiUserData = userInfoResponse.data;
+        const userData = {
+          username: apiUserData.username || apiUserData.email || username,
+          prenom: apiUserData.prenom || apiUserData.firstName || "",
+          nom: apiUserData.nom || apiUserData.lastName || "",
+          profil: apiUserData.profil || apiUserData.role || "",
+          id: apiUserData.id || null,
+        };
+
+        console.log("🔄 Données utilisateur normalisées:", userData);
+
+        // Persister les données complètes
+        localStorage.setItem("user", JSON.stringify(userData));
+        console.log("💾 Données utilisateur sauvegardées dans localStorage");
+
+        login(userData, token);
+        console.log("✅ Context login appelé avec userData complet et token");
+        navigate("/");
+      } catch (userInfoError) {
+        console.error("⚠️ Erreur lors de la récupération des infos utilisateur:", userInfoError);
+        // En cas d'erreur, on continue avec les infos minimales
+        const userData = { username };
+        localStorage.setItem("user", JSON.stringify(userData));
+        login(userData, token);
+        navigate("/");
+      }
     } catch (error) {
       console.error("Erreur de connexion complète :", error);
       console.error("Erreur response :", error.response);

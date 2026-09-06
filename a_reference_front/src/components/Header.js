@@ -12,7 +12,6 @@ import {
   X,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { getTranslation } from "../utils/translations";
 import { AuthContext } from "./AuthContext";
 import { navigateToMicroservice } from "../config/microservices";
@@ -72,48 +71,32 @@ const Header = ({
     navigate("/login"); // redirection après logout
   };
 
-  const getAuthHeader = () => {
-    const token = localStorage.getItem("token");
-    return {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    };
-  };
-
   useEffect(() => {
-    const fetchDoctor = async () => {
-      const token = localStorage.getItem("token");
-      // Ne pas tenter de récupérer l'utilisateur si on n'est pas authentifié (ex: sur la page Login)
-      if (!token) {
-        return;
-      }
+    // Récupérer les données utilisateur depuis localStorage (stockées lors du login)
+    const storedUser = localStorage.getItem("user");
+    
+    if (storedUser) {
       try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_GATEWAY_URL || 'http://100.48.20.109:8080'}/api/user/me`,
-          getAuthHeader()
-        );
-        console.log("✅ Données utilisateur récupérées:", response.data);
+        const userData = JSON.parse(storedUser);
+        console.log("✅ Données utilisateur récupérées depuis localStorage:", userData);
         
-        // Normaliser les données pour supporter plusieurs formats d'API
-        const userData = response.data;
-        const normalizedUser = {
-          prenom: userData.prenom || userData.firstName || "",
-          nom: userData.nom || userData.lastName || "",
-          username: userData.username || userData.email || "",
-          profil: userData.profil || userData.role || ""
-        };
+        // Les données sont déjà normalisées lors du login
+        setDoctor({
+          prenom: userData.prenom || "",
+          nom: userData.nom || "",
+          username: userData.username || "",
+          profil: userData.profil || ""
+        });
         
-        console.log("🔄 Données normalisées:", normalizedUser);
-        console.log("📋 Affichage:", `${normalizedUser.prenom} ${normalizedUser.nom}`);
-        
-        setDoctor(normalizedUser);
+        console.log("📋 Affichage profil:", `${userData.prenom || ''} ${userData.nom || ''}`.trim() || userData.username || 'Utilisateur');
       } catch (error) {
-        console.error("❌ Erreur lors de la récupération du médecin :", error);
+        console.error("❌ Erreur lors du parsing des données utilisateur:", error);
+        setDoctor({});
       }
-    };
-    fetchDoctor();
+    } else {
+      console.warn("⚠️ Aucune donnée utilisateur dans localStorage");
+      setDoctor({});
+    }
   }, []);
 
   useEffect(() => {
