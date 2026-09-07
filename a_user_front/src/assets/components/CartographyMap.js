@@ -70,16 +70,16 @@ const defaultCenter = {
 const DEFAULT_ZOOM = 7; // Zoom pour voir tout le Sénégal
 
 const ICONS = {
-  confirmed: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
-  pending: 'http://maps.google.com/mapfiles/ms/icons/purple-dot.png',
+  confirmed: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+  pending: 'https://maps.google.com/mapfiles/ms/icons/purple-dot.png',
 
-    inactive: "http://maps.google.com/mapfiles/ms/icons/purple-dot.png",
-    active: "http://maps.google.com/mapfiles/ms/icons/red-dot.png", // ✅ violet pour actifs
-    user: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+    inactive: "https://maps.google.com/mapfiles/ms/icons/purple-dot.png",
+    active: "https://maps.google.com/mapfiles/ms/icons/red-dot.png", // ✅ violet pour actifs
+    user: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
 
 
-  user: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
-  current: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png'
+  user: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+  current: 'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png'
 };
 
 // Services disponibles
@@ -1636,6 +1636,15 @@ const saveNewHospital = async () => {
                    bestAccuracy = accuracy;
                    bestPosition = { lat: latitude, lng: longitude, accuracy };
                    console.log(`📍 Position améliorée: ${latitude}, ${longitude}, Précision: ${accuracy}m`);
+
+                   // Afficher et centrer la meilleure position dès sa réception.
+                   const userLoc = { lat: latitude, lng: longitude };
+                   setUserLocation(userLoc);
+                   setShowUserInfo(true);
+                   if (map) {
+                     map.panTo(userLoc);
+                     map.setZoom(accuracy < 20 ? 18 : accuracy < 50 ? 17 : 16);
+                   }
                  }
 
                  // Si la précision est excellente (≤ 20m), utiliser immédiatement
@@ -1924,7 +1933,7 @@ const saveNewHospital = async () => {
                      return hospitalAtPosition.active ? ICONS.active : ICONS.inactive;
                    } else {
                      // Pas d'hôpital → Rouge (position libre)
-                     return 'http://maps.google.com/mapfiles/ms/icons/red-dot.png';
+                     return 'https://maps.google.com/mapfiles/ms/icons/red-dot.png';
                    }
                  })(),
             scaledSize: { width: 40, height: 40 }
