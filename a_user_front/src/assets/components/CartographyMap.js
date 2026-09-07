@@ -264,17 +264,25 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
 
     setLoadingLocation(true);
 
+    // Options pour une géolocalisation précise avec timeout approprié
+    const geoOptions = {
+      enableHighAccuracy: true,    // Demander la meilleure précision possible
+      timeout: 15000,               // Timeout de 15 secondes (au lieu du défaut souvent < 5s)
+      maximumAge: 0                 // Ne pas utiliser de position en cache
+    };
+
     // Utiliser watchPosition pour une géolocalisation continue et précise
     const watchId = navigator.geolocation.watchPosition(
       (position) => {
         const { latitude, longitude, accuracy } = position.coords;
         const userLoc = { lat: latitude, lng: longitude };
 
-        console.log('📍 Position détectée:', latitude, longitude, `Précision: ${accuracy}m`);
+        console.log('📍 Position détectée:', latitude, longitude, `Précision: ${Math.round(accuracy)}m`);
 
         // Arrêter le watch après avoir obtenu une position précise
-        if (accuracy <= 20) {
+        if (accuracy <= 50) {  // Changé de 20 à 50m pour être plus permissif
           navigator.geolocation.clearWatch(watchId);
+          console.log('✅ Position assez précise, arrêt du suivi');
         }
 
         setUserLocation(userLoc);
@@ -294,54 +302,50 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
         }
       },
       (error) => {
-        console.error('Erreur géolocalisation:', error);
+        console.error('❌ Erreur watchPosition:', error);
         navigator.geolocation.clearWatch(watchId);
         setLoadingLocation(false);
 
         // Fallback vers getCurrentPosition si watchPosition échoue
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          const userLoc = { lat: latitude, lng: longitude };
+        console.log('⚠️ Fallback: Utilisation de getCurrentPosition...');
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude, accuracy } = position.coords;
+            const userLoc = { lat: latitude, lng: longitude };
 
-          setUserLocation(userLoc);
-          setShowUserInfo(false);
+            console.log('📍 Position fallback obtenue:', latitude, longitude, `Précision: ${Math.round(accuracy)}m`);
+            setUserLocation(userLoc);
+            setShowUserInfo(false);
 
             if (map) {
               map.panTo(userLoc);
               setTimeout(() => {
-              map.setZoom(15);
-          setLoadingLocation(false);
+                map.setZoom(15);
+                setLoadingLocation(false);
               }, 1000);
             }
-        },
+          },
           (fallbackError) => {
-            console.error('Erreur fallback géolocalisation:', fallbackError);
-          setLoadingLocation(false);
+            console.error('❌ Erreur fallback géolocalisation:', fallbackError);
+            setLoadingLocation(false);
 
+            // Position par défaut au Sénégal
             const senegalCenter = { lat: 14.4974, lng: -14.4524 };
+            console.log('ℹ️ Utilisation position par défaut (Sénégal)');
             setUserLocation(senegalCenter);
-          setShowUserInfo(true);
+            setShowUserInfo(true);
 
           if (map) {
               map.panTo(senegalCenter);
               map.setZoom(DEFAULT_ZOOM);
           }
         },
-        {
-          enableHighAccuracy: true,
-            timeout: 15000, // Réduire de 30s à 15s
-            maximumAge: 0
-          }
+        geoOptions  // Utiliser les options définies
         );
       },
-      {
-        enableHighAccuracy: true,
-        timeout: 15000, // Réduire de 30s à 15s
-          maximumAge: 0
-        }
-      );
-    }, [map]);
+      geoOptions  // Utiliser les mêmes options pour watchPosition
+    );
+  }, [map]);
 
   useEffect(() => {
     if (map) locateUser();

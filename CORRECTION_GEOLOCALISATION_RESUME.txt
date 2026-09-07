@@ -1,0 +1,74 @@
+╔══════════════════════════════════════════════════════════════╗
+║                                                              ║
+║  ✅ CORRECTION : Timeout Géolocalisation                    ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
+
+PROBLÈME:
+  ❌ GeolocationPositionError {code: 3, message: 'Timeout expired'}
+  
+  La géolocalisation détecte la position initiale mais timeout
+  en attendant une précision < 20m.
+
+
+CAUSE:
+  1. Timeout par défaut trop court (~5 secondes)
+  2. Critère de précision trop strict (20m)
+  3. Pas d'options sur watchPosition
+
+
+SOLUTION APPLIQUÉE:
+  ✅ Timeout augmenté à 15 secondes
+  ✅ Critère de précision assoupli à 50m
+  ✅ Options enableHighAccuracy ajoutées
+  ✅ Meilleurs logs de débogage
+
+
+FICHIER MODIFIÉ:
+  📝 a_user_front/src/assets/components/CartographyMap.js
+
+
+POUR TESTER:
+  1. Rebuild le frontend:
+     cd a_user_front
+     docker build --no-cache -t a-user-front:latest .
+  
+  2. Redéployer:
+     docker compose stop a-user-front
+     docker compose up -d a-user-front
+  
+  3. Tester dans le navigateur:
+     https://100.48.20.109:3003
+     F12 → Console → Cliquez sur géolocalisation
+
+
+RÉSULTAT ATTENDU:
+  📍 Position détectée: 12.56... -16.26... Précision: 141m
+  📍 Position détectée: 12.56... -16.26... Précision: 87m
+  📍 Position détectée: 12.56... -16.26... Précision: 43m
+  ✅ Position assez précise, arrêt du suivi
+
+
+SI ÇA NE FONCTIONNE TOUJOURS PAS:
+  - Vérifiez les permissions géolocalisation du navigateur
+  - Testez depuis un appareil mobile (meilleur GPS)
+  - Consultez FIX_GEOLOCALISATION_TIMEOUT.md pour détails
+
+
+═══════════════════════════════════════════════════════════════
+
+CHANGEMENTS TECHNIQUES:
+
+AVANT:
+  - Pas d'options de timeout
+  - Critère: accuracy <= 20m
+  - Pas de logs détaillés
+
+APRÈS:
+  - Timeout: 15000ms
+  - enableHighAccuracy: true
+  - Critère: accuracy <= 50m
+  - Logs complets avec émojis
+
+
+═══════════════════════════════════════════════════════════════
