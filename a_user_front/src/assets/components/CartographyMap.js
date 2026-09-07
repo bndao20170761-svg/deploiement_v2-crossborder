@@ -251,105 +251,160 @@ const CartographyMap = ({ hospitals, onHospitalUpdate, onHospitalAdd, language =
     }
   }, [hospitals]);
 
-  useEffect(() => {
-    // Si la carte est déjà prête, localiser immédiatement
-    if (map) {
-      locateUser();
-    }
-  }, [map]);
- // <-- dépend de map pour s'assurer que la carte est chargée
+  // Ne pas appeler locateUser automatiquement au chargement
+  // L'utilisateur doit cliquer sur le bouton de géolocalisation
 
   const locateUser = useCallback(() => {
-    if (!map || !navigator.geolocation) return;
+      if (!map) {
+        alert("La carte n'est pas encore chargée");
+        return;
+      }
 
-    setLoadingLocation(true);
+      const isHttpBlocked =
+        window.location.protocol === 'http:' &&
+        window.location.hostname !== 'localhost' &&
+        window.location.hostname !== '127.0.0.1';
 
-    // Options pour une géolocalisation précise avec timeout approprié
-    const geoOptions = {
-      enableHighAccuracy: true,    // Demander la meilleure précision possible
-      timeout: 15000,               // Timeout de 15 secondes (au lieu du défaut souvent < 5s)
-      maximumAge: 0                 // Ne pas utiliser de position en cache
-    };
+      // Sur HTTP non-localhost : Afficher un message d'avertissement
+      if (isHttpBlocked) {
+        alert("La géolocalisation est bloquée sur HTTP. Veuillez utiliser HTTPS.");
+        return;
+      }
 
-    // Utiliser watchPosition pour une géolocalisation continue et précise
-    const watchId = navigator.geolocation.watchPosition(
-      (position) => {
-        const { latitude, longitude, accuracy } = position.coords;
-        const userLoc = { lat: latitude, lng: longitude };
+      // Vérifier si la géolocalisation est disponible
+      if (!navigator.geolocation) {
+        alert("La géolocalisation n'est pas supportée par votre navigateur");
+        return;
+      }
 
-        console.log('📍 Position détectée:', latitude, longitude, `Précision: ${Math.round(accuracy)}m`);
+      // Sur HTTPS ou localhost : GPS navigateur précis
+      setLoadingLocation(true);
+      console.log('🌍 Démarrage de la géolocalisation haute précision...');
 
-        // Arrêter le watch après avoir obtenu une position précise
-        if (accuracy <= 50) {  // Changé de 20 à 50m pour être plus permissif
-          navigator.geolocation.clearWatch(watchId);
-          console.log('✅ Position assez précise, arrêt du suivi');
-        }
-
+      const applyPosition = (lat, lng, accuracy) => {
+        const userLoc = { lat, lng };
         setUserLocation(userLoc);
-        setShowUserInfo(false);
-
-        if (map) {
-          // Centrer d'abord sur la position
-          map.panTo(userLoc);
-
-          // Zoom progressif après un court délai
-          setTimeout(() => {
-            // Zoom adaptatif selon la précision
-            const zoomLevel = accuracy < 10 ? 19 : accuracy < 20 ? 18 : accuracy < 50 ? 17 : accuracy < 100 ? 16 : 15;
-            map.setZoom(zoomLevel);
-            setLoadingLocation(false);
-          }, 1000);
-        }
-      },
-      (error) => {
-        console.error('❌ Erreur watchPosition:', error);
-        navigator.geolocation.clearWatch(watchId);
+        setShowUserInfo(true);
         setLoadingLocation(false);
+        
+        // Centrer et zoomer avec animation fluide pour une position nette
+        if (map) {
+          // Animation de centrage progressive
+          map.panTo(userLoc);
+          
+          // Zoom élevé pour une position très précise
+          const zoom = accuracy < 20 ? 19 : accuracy < 50 ? 18 : accuracy < 100 ? 17 : 16;
+          
+          // Appliquer le zoom avec un petit délai pour l'animation
+          setTimeout(() => {
+            map.setZoom(zoom);
+          }, 400);
+          
+          // Notification visuelle avec détails
+          console.log('✅ Position utilisateur localisée avec précision:');
+          console.log('   Latitude:', lat);
+          console.log('   Longitude:', lng);
+          console.log('   Précision:', accuracy, 'm');
+          
+          // Afficher une notification à l'utilisateur
+          const precisionMsg = accuracy < 20 ? 'excellente' : 
+                               accuracy < 50 ? 'très bonne' : 
+                               accuracy < 100 ? 'bonne' : 'moyenne';
+          alert(`✅ Position détectée avec précision ${precisionMsg} (±${Math.round(accuracy)}m)`);
+        }
+      };
 
-        // Fallback vers getCurrentPosition si watchPosition échoue
-        console.log('⚠️ Fallback: Utilisation de getCurrentPosition...');
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const { latitude, longitude, accuracy } = position.coords;
-            const userLoc = { lat: latitude, lng: longitude };
+      let bestPosition = null;
+      let bestAccuracy = Infinity;
+      let positionCount = 0;
+      let watchId = null;
+      let timeoutId = null;
 
-            console.log('📍 Position fallback obtenue:', latitude, longitude, `Précision: ${Math.round(accuracy)}m`);
-            setUserLocation(userLoc);
-            setShowUserInfo(false);
-
-            if (map) {
-              map.panTo(userLoc);
-              setTimeout(() => {
-                map.setZoom(15);
-                setLoadingLocation(false);
-              }, 1000);
-            }
-          },
-          (fallbackError) => {
-            console.error('❌ Erreur fallback géolocalisation:', fallbackError);
-            setLoadingLocation(false);
-
-            // Position par défaut au Sénégal
-            const senegalCenter = { lat: 14.4974, lng: -14.4524 };
-            console.log('ℹ️ Utilisation position par défaut (Sénégal)');
-            setUserLocation(senegalCenter);
-            setShowUserInfo(true);
-
-          if (map) {
-              map.panTo(senegalCenter);
-              map.setZoom(DEFAULT_ZOOM);
+      // Utiliser watchPosition pour obtenir les meilleures coordonnées possibles
+      watchId = navigator.geolocation.watchPosition(
+        (position) => {
+          positionCount++;
+          const { latitude, longitude, accuracy } = position.coords;
+          
+          console.log(`📍 Position reçue #${positionCount}:`, {
+            lat: latitude,
+            lng: longitude,
+            accuracy: accuracy
+          });
+          
+          // Garder la meilleure position (plus précise)
+          if (accuracy < bestAccuracy) {
+            bestAccuracy = accuracy;
+            bestPosition = { lat: latitude, lng: longitude, accuracy };
+            console.log(`🎯 Nouvelle meilleure précision: ±${Math.round(accuracy)}m`);
+          }
+          
+          // Si on obtient une très bonne précision (<20m), l'utiliser immédiatement
+          if (accuracy <= 20) {
+            console.log('🎯 Excellente précision atteinte!');
+            if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+            if (timeoutId !== null) clearTimeout(timeoutId);
+            applyPosition(latitude, longitude, accuracy);
+          }
+          // Sinon, si on a une bonne précision (<50m) et plusieurs lectures, utiliser la meilleure
+          else if (accuracy <= 50 && positionCount >= 2) {
+            console.log('✅ Bonne précision atteinte après plusieurs lectures');
+            if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+            if (timeoutId !== null) clearTimeout(timeoutId);
+            applyPosition(bestPosition.lat, bestPosition.lng, bestPosition.accuracy);
           }
         },
-        geoOptions  // Utiliser les options définies
-        );
-      },
-      geoOptions  // Utiliser les mêmes options pour watchPosition
-    );
-  }, [map]);
+        (error) => {
+          console.error('❌ Erreur GPS:', error);
+          if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+          if (timeoutId !== null) clearTimeout(timeoutId);
+          setLoadingLocation(false);
+          
+          // Messages d'erreur détaillés
+          let errorMsg = "Erreur de géolocalisation";
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMsg = "Permission de géolocalisation refusée. Veuillez autoriser l'accès à votre position.";
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMsg = "Position indisponible. Assurez-vous que le GPS est activé.";
+              break;
+            case error.TIMEOUT:
+              errorMsg = "Délai de localisation dépassé. Réessayez.";
+              break;
+          }
+          
+          alert(errorMsg);
+          
+          // Utiliser la meilleure position obtenue avant l'erreur
+          if (bestPosition) {
+            console.log('📍 Utilisation de la meilleure position obtenue avant l\'erreur');
+            applyPosition(bestPosition.lat, bestPosition.lng, bestPosition.accuracy);
+          }
+        },
+        { 
+          enableHighAccuracy: true,  // Activer le GPS haute précision
+          timeout: 15000,            // Timeout réduit à 15 secondes
+          maximumAge: 0              // Ne pas utiliser de cache
+        }
+      );
 
-  useEffect(() => {
-    if (map) locateUser();
-  }, [map, locateUser]);
+      // Timeout global : utiliser la meilleure position obtenue après 10 secondes
+      timeoutId = setTimeout(() => {
+        console.log('⏱️ Timeout atteint - utilisation de la meilleure position');
+        if (watchId !== null) { 
+          navigator.geolocation.clearWatch(watchId); 
+          watchId = null; 
+        }
+        if (bestPosition) {
+          console.log(`📍 Meilleure position: ±${Math.round(bestPosition.accuracy)}m`);
+          applyPosition(bestPosition.lat, bestPosition.lng, bestPosition.accuracy);
+        } else {
+          setLoadingLocation(false);
+          alert("Impossible de localiser votre position. Veuillez réessayer.");
+        }
+      }, 10000);  // Timeout réduit à 10 secondes
+    }, [map]);
 
 
 
